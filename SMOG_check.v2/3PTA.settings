@@ -1,0 +1,20 @@
+3PTA.pdb
+3PTA.top
+3PTA.gro
+3PTA.ndx
+All-Atom
+CUTOFF
+PP_cutoff 4.0
+NN_cutoff 4.0
+PN_cutoff 4.0
+PN_L_cutoff 3.0
+PP_seq 4
+NN_seq 1
+R_CD 2.0
+R_P_BB_SC 4.0
+R_N_SC_BB 1.0
+PRO_DIH 1.0
+NA_DIH 1.0
+LIGAND_DIH 1.0
+sigma 2.5
+epsilon 1.0

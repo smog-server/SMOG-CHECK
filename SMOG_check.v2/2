@@ -1,0 +1,6 @@
+echo STARTING the cutoff analysis
+echo STARTING the shadow analysis
+echo STARTING the cutoff analysis with gaussians
+echo STARTING the shadow analysis with gaussians
+echo STARTING the shadow analysis with CA
+echo STARTING the shadow analysis with CA and gaussians

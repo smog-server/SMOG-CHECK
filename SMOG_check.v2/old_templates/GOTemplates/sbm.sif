@@ -1,0 +1,41 @@
+<?xml version='1.0'?>
+<sif>
+<!-- FUNCTION DEFINITIONS -->
+<functions>
+	<function name="test_dihedrals" directive="dihedrals" fType="1">
+	</function>
+	<function name="test_improper" directive="dihedrals" fType="2">
+	</function>
+	<function name="test_rigid" directive="dihedrals" fType="2">
+	</function>
+	<function name="test_planarRigid" directive="dihedrals" fType="2">
+	</function>
+	<function name="test_angles" directive="angles" fType="1">
+	</function>
+	<function name="test_bonds" directive="bonds" fType="1">
+	</function>
+	<function name="test_contacts" directive="pairs" fType="1">
+	</function>
+	<function name="test_pairs" directive="pairs" fType="1">
+	</function>
+</functions>
+<!-- HAMILTONIAN SETTINGS -->
+<settings>
+	<!-- ENERGY/CONTACT GROUPS -->
+<Groups>
+	<!-- Normalized -->
+	<energyGroup residueType="amino" name="bb" interRelativeStrength="1" intraRelativeStrength="PARM_P_BB" normalize="1"/>
+	<energyGroup residueType="amino" name="sc" interRelativeStrength="1" intraRelativeStrength="PARM_P_SC" normalize="1"/>
+	<!-- Not-Normalized -->
+	<energyGroup residueType="amino" name="pr" interRelativeStrength="1" normalize="0"/>
+	<energyGroup residueType="amino" name="ip" interRelativeStrength="1" normalize="0"/>
+	<energyGroup residueType="amino" name="r" interRelativeStrength="1" normalize="0"/>
+ <!-- Global Contacts Settings -->
+	<contactGroup residueType="mixed" name="c" interRelativeStrength="PARM_C_D" intraRelativeStrength="1" normalize="1"/>
+</Groups>
+<!-- CONTACT MAP SETTINGS -->
+<Contacts method="shadow" contactDistance="6" shadowRadius="1"/>
+
+
+</settings>
+</sif>

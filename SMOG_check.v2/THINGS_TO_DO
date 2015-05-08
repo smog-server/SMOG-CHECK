@@ -1,0 +1,17 @@
+
+echo STARTING the shadow analysis	for i in  DBZ B12 SAM 1AKE 1AKE_ATP 1AKE_ADP 1AKE_AMP GNP EFG_FUA_GDP AAPP 3F1FE
+echo STARTING the shadow analysis with CA	for i in  DBZ.CA 
+
+
+
+
+
+echo STARTING the cutoff analysis	for i in DBZ B12 tRNA.gly ci2 SAM DNA  1AKE 1AKE_ATP 1AKE_ADP 1AKE_AMP GNP EFG_FUA_GDP rib AAPP 3F1FE 3IZH 
+
+
+echo STARTING the shadow analysis	for i in  DBZ B12 SAM DNA 1AKE 1AKE_ATP 1AKE_ADP 1AKE_AMP GNP EFG_FUA_GDP AAPP 3F1FE
+
+echo STARTING the cutoff analysis with gaussians	for i in DBZ B12 tRNA.gly ci2 SAM DNA  1AKE 1AKE_ATP 1AKE_ADP 1AKE_AMP GNP EFG_FUA_GDP rib AAPP 3F1FE  3IZH
+echo STARTING the shadow analysis with gaussians	for i in  DBZ B12 ci2 SAM DNA  1AKE 1AKE_ATP 1AKE_ADP 1AKE_AMP GNP EFG_FUA_GDP rib AAPP 3F1FE 3IZH
+echo STARTING the shadow analysis with CA	for i in  DBZ.CA ci2.CA 1AKEapo.CA rop.CA 3IZH
+echo STARTING the shadow analysis with CA and gaussians	for i in  DBA.CA ci2.CA 1AKEapo.CA rop.CA 3IZH

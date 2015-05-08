@@ -1,0 +1,183 @@
+
+**********************************
+********* COARSE GRAINED *********
+**********************************
+Parsing All-Atom Templates.....Done
+Parsing .pdb.....Done
+Finding coarse grain contacts.....Done
+Parsing Coarse Grained Templates.....Done
+Coarse Graining system.....Done
+Creating .gro.....Done
+Creating Topology.....Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 588.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 589.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 590.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 591.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 592.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 593.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 594.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 595.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 596.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 597.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 598.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 599.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 600.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 601.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 602.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 603.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 604.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 605.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 606.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 607.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 608.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 609.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 610.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 611.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 612.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 613.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 614.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 615.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 616.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 617.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 618.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 619.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 620.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 621.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 622.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 623.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 624.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 625.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 626.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 627.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 628.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 629.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 630.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 631.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 632.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 633.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 634.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 635.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 636.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 637.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 638.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 639.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 640.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 641.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 642.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 643.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 644.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 645.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 646.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 647.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 648.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 649.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 650.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 651.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 652.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 653.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 654.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 655.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 656.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 657.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 658.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 659.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 660.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 661.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 662.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 663.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 664.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 665.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 666.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 667.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 668.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 669.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 670.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 671.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 672.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 673.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 674.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 675.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 676.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 677.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 678.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 679.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 680.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 681.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 682.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 683.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 684.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 685.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 686.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 687.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 688.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 689.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 690.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 691.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 692.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 693.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 694.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 695.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 696.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 697.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 698.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 699.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 700.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 701.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 702.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 703.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 704.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 705.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 706.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 707.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 708.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 709.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 710.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 711.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 712.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 713.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 714.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 715.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 716.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 717.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 718.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 719.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 720.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 721.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 722.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 723.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 724.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 725.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 726.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 727.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 728.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 729.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 730.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 731.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 732.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 733.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 734.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 735.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 736.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 737.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 738.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 739.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 740.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 741.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 742.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 743.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 744.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 745.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 746.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 747.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 748.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 749.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 750.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 751.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 752.
+Use of uninitialized value in numeric lt (<) at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1285, <MYFILE> line 753.
+Adding additional contacts from 0
+Adding additional contacts from 0
+CONTACT FILE READ ERROR:Cannot read additional contact file '0'.
+Program closing.
+ at /home/pcw2/SMOG_check.v2_default/mohit_rice-smog2-b09b3038cd8a/pdbParser.pm line 1302, <MYFILE> line 753.
+	pdbParser::parseCONTACT('2ci2_v2.contacts', 0, 1) called at /home/pcw2/SMOG2/smog2 line 1374
+	main::coarseGrain('/home/pcw2/SMOG2/SBM_AA', 'temp.bifsif/', '2ci2_v2.pdb', '2ci2_v2.gro', '2ci2_v2.ndx', '2ci2_v2.contacts', '2ci2_v2.top') called at /home/pcw2/SMOG2/smog2 line 1424
