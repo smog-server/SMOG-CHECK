@@ -202,12 +202,10 @@ while(<PARMS>){
 	$PARM_P_SC=$PRO_DIH/$R_P_BB_SC;
 	$PARM_N_BB=$NA_DIH;
 	$PARM_N_SC=$NA_DIH*$R_N_SC_BB;
-	`sed "s/PARM_C_D/$R_CD/g;s/PARM_P_BB/$PARM_P_BB/g;s/PARM_P_SC/$PARM_P_SC/g;s/PARM_N_BB/$PARM_N_BB/g;s/PARM_N_SC/$PARM_N_SC/g;" $TEMPLATE_DIR/sbm.sif > temp.bifsif/tmp.sif`;
-	`sed "s/PARM_C12/$rep_s12/g" $TEMPLATE_DIR/sbm.nb > temp.bifsif/tmp.nb`;
-	`cp $TEMPLATE_DIR/sbm.bif temp.bifsif/tmp.bif`;
-	`cp $TEMPLATE_DIR/sbm.b temp.bifsif/tmp.b`;
-
-
+	`sed "s/PARM_C_D/$R_CD/g;s/PARM_P_BB/$PARM_P_BB/g;s/PARM_P_SC/$PARM_P_SC/g;s/PARM_N_BB/$PARM_N_BB/g;s/PARM_N_SC/$PARM_N_SC/g;" $TEMPLATE_DIR/*.sif > temp.bifsif/tmp.sif`;
+	`sed "s/PARM_C12/$rep_s12/g" $TEMPLATE_DIR/*.nb > temp.bifsif/tmp.nb`;
+	`cp $TEMPLATE_DIR/*.bif temp.bifsif/tmp.bif`;
+	`cp $TEMPLATE_DIR/*.b temp.bifsif/tmp.b`;
 
 	## run smog
 	

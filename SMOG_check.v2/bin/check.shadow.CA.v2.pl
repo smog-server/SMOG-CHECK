@@ -1,16 +1,10 @@
 #!/usr/bin/perl 
 
-
-
 $EXEC_NAME=$ENV{'EXEC_SMOG'};
 $TOLERANCE=$ENV{'TOLERANCE'};
 $MAXTHR=1.0+$TOLERANCE;
 $MINTHR=1.0-$TOLERANCE;
 $PRECISION=$ENV{'PRECISION'};
-
-##$TEMPLATE_DIR="/home/pcw2/SMOG2/SBM_AA";
-##$TEMPLATE_DIR_CA="/home/pcw2/SMOG2/SBM_calpha";
-
 $TEMPLATE_DIR=$ENV{'BIFSIF_AA_STATIC'};
 $TEMPLATE_DIR_CA=$ENV{'BIFSIF_CA'};
 
@@ -24,10 +18,6 @@ $FAILDIR="FAILED.shadow.CA";
 ##  check all rigid dihedrals and make sure they are assigned with the right total energy
 ##  impropers...
 
-##$EXEC_NAME="/usr/local/apache/cgi-bin/Read_paul.exe";
-#$EXEC_NAME="/usr/local/apache/cgi-bin/SMOG.beta.exe";
-#$EXEC_SHADOW="/usr/local/apache/SCM/SCM.v1.24.jar";
-##$EXEC_NAME="/home/pwhitfor/Read.exe";
 $NFAIL=0;
 unless( -e $EXEC_NAME){
 print "Cant find the SMOG executable\n";
@@ -58,11 +48,9 @@ while(<amino>){
         $LINE=$_;
         chomp($LINE);
         $TYPE{$LINE}= "AMINO";
-
         $AA[$AAn]=$LINE;
         $AAn++;
 }
-
 
 #nucleic acids
 open(nucleic,"residues/nucleicacids") or die "no nucleic acid file\n";
@@ -70,13 +58,9 @@ $NUCLEICn=0;
 while(<nucleic>){
         $LINE=$_;
         chomp($LINE);
-
         $NUCLEIC[$NUCLEICn]=$LINE;
         $NUCLEICn++;
-
         $TYPE{$LINE}= "NUCLEIC";
-
-
 }
 
 #ligands
@@ -101,11 +85,6 @@ while(<ion>){
         $IONn++;
 }
 
-
-
-## read a file that gives the settings we are going to try.  This will also give the file names.  There will only be 1 pdb that we are going to check. The first line will be the pdb file.
-
-
 $SETTINGS_FILE=<STDIN>;
 chomp($SETTINGS_FILE);
 open(PARMS,"$SETTINGS_FILE") or die "The settings file is missing...\n";
@@ -113,12 +92,8 @@ $LINE=<PARMS>;
 chomp($LINE);
 @NAMES=split(/ /,$LINE);
 $PDB=$NAMES[0];
-##$TOPTEST=$NAMES[1];
-##print "$PDB\n $TOPTEST\n";
-###make loops that check over the combinations.
 
                        print "\n*******************************\nSTARTING TESTS for $PDB.pdb\n*******************************\n\n\n";
-
 
 while(<PARMS>){
 
@@ -126,7 +101,6 @@ while(<PARMS>){
 	$LINE=$_;
 	chomp($LINE);
 	@A=split(/ /,$LINE);
-##	$TOPTEST=$A[11];
 	# cutoff distances for protein-protein, protein-nucleic, nucleic-nucleic, molecule-ligand
 	$PP_cutoff=$A[0];
 	$PN_cutoff=$A[1];
@@ -147,27 +121,20 @@ while(<PARMS>){
         $NA_DIH=$A[10];
         $LIGAND_DIH=$A[11];
 
-
 	# excluded volumes
 
         $sigma=$A[12];
         $epsilon=$A[13];
 
-
 	$epsilonCAC=$A[14];
 	$epsilonCAD=$A[15];
 	$sigmaCA=$A[16];
-
 
 		$sigmaCA=$sigmaCA/10.0;
 		$rep_s12=$sigmaCA**12;
 		$sigmaCA=$sigmaCA*10.0;
 
-
-	###....
-
 	## make a settings file...
-
 
         open(READSET,">$PDB.settings") or die  "can not open settings file\n";
         printf READSET ("%s.pdb\n", $PDB);
@@ -181,7 +148,6 @@ while(<PARMS>){
 	if(-e $PDB.ndx){
 		`rm $PDB.ndx`;
 	}
-##	`rm $PDB.top $PDB.gro $PDB.ndx`;
         printf READSET ("%s.gro\n", $PDB);
         printf READSET ("%s.ndx\n", $PDB);
         printf READSET ("%s\n", "All-Atom");
@@ -203,11 +169,6 @@ while(<PARMS>){
         printf READSET ("%s\n", $epsilon);
         close(READSET);
 
-
-
-
-
-
 	## substitute the appropriate values in the bif and sif.
 	`rm -r temp.bifsif`;
 	`mkdir temp.bifsif`;
@@ -215,16 +176,14 @@ while(<PARMS>){
 	$PARM_P_SC=$PRO_DIH/$R_P_BB_SC;
 	$PARM_N_BB=$NA_DIH;
 	$PARM_N_SC=$NA_DIH*$R_N_SC_BB;
-	`sed "s/EPS_CONT/$epsilonCAC/g;s/EPS_DIH/$epsilonCAD/g" $TEMPLATE_DIR_CA/sbm.sif > temp.bifsif/tmp.sif`;
-	`sed "s/PARM_C12/$rep_s12/g;s/EPS_CONT/$epsilonCAC/g" $TEMPLATE_DIR_CA/sbm.nb > temp.bifsif/tmp.nb`;
-	`cp $TEMPLATE_DIR_CA/sbm.bif temp.bifsif/tmp.bif`;
-	`cp $TEMPLATE_DIR_CA/sbm.b temp.bifsif/tmp.b`;
+	`sed "s/EPS_CONT/$epsilonCAC/g;s/EPS_DIH/$epsilonCAD/g" $TEMPLATE_DIR_CA/*.sif > temp.bifsif/tmp.sif`;
+	`sed "s/PARM_C12/$rep_s12/g;s/EPS_CONT/$epsilonCAC/g" $TEMPLATE_DIR_CA/*.nb > temp.bifsif/tmp.nb`;
+	`sed "s/EPS_CONT/$epsilonCAC/g;s/EPS_DIH/$epsilonCAD/g" $TEMPLATE_DIR_CA/*.b > temp.bifsif/tmp.b`;
+	`cp $TEMPLATE_DIR_CA/*.bif temp.bifsif/tmp.bif`;
 
 	## run smog
 	
 	`$EXEC_NAME -i PDB.files/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -tCG temp.bifsif/ -contactRes $TEMPLATE_DIR &> $PDB.output `;
-
-
 
 ##
 ##run the check script
@@ -250,33 +209,21 @@ while(<PARMS>){
 	`mv $PDB.top2 $PDB.top`;
 
 	open(TOP,"$PDB.top") or die " $PDB.top can not be opened...";
-##	open(TOPTEST,"$TOPTEST") or die " $TOPTEST can not be opened...";
-
-##	$FLAG=0;
 
 	$DIH_MIN=100000000;
 	$DIH_MAX=-100000000;
 
 	close(TOP);
 
-
-
 ##check the values
 
 	$NCONTACTS=0;
 
 	open(TOP,"$PDB.top") or die " $PDB.top can not be opened...\n";
-
-
 		while(<TOP>){
-
 			$LINE=$_;
 			chomp($LINE);
-
-
 			@A=split(/ /,$LINE);
-
-
 
 ## check the excluded volume is consistent with the settings.
                         if($A[1] eq "atomtypes"){
@@ -284,9 +231,8 @@ while(<PARMS>){
                                 $#A = -1;
                                 $LINE=<TOP>;
                                 @A=split(/ /,$LINE);
-
                                 until($A[0] eq "["){
-					# make sure the ex vol is within 1% of the desired.
+					# make sure the ex vol is within n% of the desired.
                                         if($A[5] < $MINTHR*$rep_s12 || $A[5] > $MAXTHR*$rep_s12){
 						$EXCL++;
                                         }
@@ -294,10 +240,7 @@ while(<PARMS>){
                                         $LINE=<TOP>;
                                         @A=split(/ /,$LINE);
                                 }
-
                         }
-
-
 
                         if($A[1] eq "atoms"){
 				$NUMATOMS=0;
@@ -337,15 +280,12 @@ while(<PARMS>){
                                                 print "$A[0] $A[3]\n";
                                                 die;
                                         }
-
 					$NUMATOMS++;
                                         $#A = -1;
                                         $LINE=<TOP>;
                                         @A=split(/ /,$LINE);
 				}
-
                         }
-
 
 			# read the bonds.  Make sure they are not assigned twice.  Also, save the bonds, so we can generate all possible bond angles later.
                         if($A[1] eq "bonds"){
@@ -368,14 +308,12 @@ while(<PARMS>){
 							$string=sprintf("%i-%i", $A[1], $A[0]);
 						}
 
-
 					##check if bond has been seen already...
 						if($bond_array{$string} != 1){
 							## bond was not assigned.
 							$bond_array{$string}=1;
 							$bonds[$Nbonds][0]=$A[0];
 							$bonds[$Nbonds][1]=$A[1];
-						##print "$bonds[$Nbonds][0] $bonds[$Nbonds][1]\n";
 						# this organization is strange, but it will make sense later...
 							$bondWatom[$A[0]][$NbondWatom[$A[0]]]= $Nbonds;
 							$bondWatom[$A[1]][$NbondWatom[$A[1]]]= $Nbonds;
@@ -402,43 +340,31 @@ while(<PARMS>){
 
 				for($i=1;$i<=$NUMATOMS;$i++){
 				# go through the atoms.  For each atom, check all of the bonds it is involved in, and see if we can make a bond angle out of it.
-				##	print "$NbondWatom[$i]\n";
 				        for($j=0;$j<$NbondWatom[$i];$j++){
 				                for($k=$j+1;$k<$NbondWatom[$i];$k++){
 				                        if($j!=$k){
-
 				                                $A1=$bonds[$bondWatom[$i][$j]][0];
 				                                $A2=$bonds[$bondWatom[$i][$j]][1];
 				                                $B1=$bonds[$bondWatom[$i][$k]][0];
 				                                $B2=$bonds[$bondWatom[$i][$k]][1];
-						##		print "$i $j $k $bondWatom[$i][$j] $bondWatom[$i][$k]  $A1 $A2 $B1 $B2\n";
 				                                # check the bond angles that can be made
 				                                if($A1 == $B1){
-
 				                                        $theta1=$A2;
 				                                        $theta2=$A1;
 				                                        $theta3=$B2;
-
 				                                }elsif($A1 == $B2){
-
 				                                        $theta1=$A2;
 				                                        $theta2=$A1;
 				                                        $theta3=$B1;
-
 				                                }elsif($A2 == $B1){
-
 				                                        $theta1=$A1;
 				                                        $theta2=$A2;
 				                                        $theta3=$B2;
-
 				                                }elsif($A2 == $B2){
-
 				                                        $theta1=$A1;
 				                                        $theta2=$A2;
 				                                        $theta3=$B1;
-	
 				                                }
-
 
                                 				if($theta1 < $theta3){
                                         				$string=sprintf("%i-%i-%i", $theta1, $theta2, $theta3);
@@ -446,19 +372,14 @@ while(<PARMS>){
                                 				}else{
                                         				$string=sprintf("%i-%i-%i", $theta3, $theta2, $theta1);
                                 				}
-
 								$theta_gen_as{$string} = 1;
 								$theta_gen[$theta_gen_N]="$string";
-								##print "$theta_gen[$theta_gen_N]\n";
 								$theta_gen_N++;
-
-
 				                        }
 				                }
 				        }
 				}
 			}
-
 
                         if($A[1] eq "angles"){
                                 $#A = -1;
@@ -470,7 +391,6 @@ while(<PARMS>){
                                 $#NangleWatom = -1;
                                 $Nangles=0;
 
-
                                 undef %angle_array;
                                 $LINE=<TOP>;
                                 @A=split(/ /,$LINE);
@@ -481,22 +401,17 @@ while(<PARMS>){
                                         }else{
                                                 $string=sprintf("%i-%i-%i", $A[2], $A[1], $A[0]);
                                         }
-						##print "ok $string $A[0] $A[1] $A[2]\n";
 
 					# save the angles
 					$angles[$Nangles]="$string";
-					##$Nangles++;
-
 
                                         ##check if bond has been seen already...
                                         if($angle_array{$string} != 1){
                                                 ## bond was not assigned.
                                                 $angle_array{$string}=1;
-
                                                 $angles[$Nangles][0]=$A[0];
                                                 $angles[$Nangles][1]=$A[1];
                                                 $angles[$Nangles][2]=$A[2];
-                                                ##print "$angles[$Nangles][0] $angles[$Nangles][1]\n";
                                                 # this organization is strange, but it will make sense later...
                                                 $angleWatom[$A[0]][$NangleWatom[$A[0]]]= $Nangles;
                                                 $angleWatom[$A[1]][$NangleWatom[$A[1]]]= $Nangles;
@@ -505,19 +420,13 @@ while(<PARMS>){
                                                 $NangleWatom[$A[1]]++;
                                                 $NangleWatom[$A[2]]++;
 					$Nangles++;
-
-
-
                                         }else{
                                                 ## bond has already been assigned.
                                                 $double_angle++;
                                         }
-
                                         $LINE=<TOP>;
                                         @A=split(/ /,$LINE);
-
                                 }
-
 
 			## cross-check the angles
 				if($theta_gen_N != $Nangles){
@@ -528,9 +437,7 @@ while(<PARMS>){
 				$FAIL_angles=0;
 				# check to see if all the generated angles (from this script) are present in the top file
 				for($i=0;$i<$theta_gen_N;$i++){
-						##print "$theta_gen[$i]\n";
 					if($angle_array{$theta_gen[$i]} != 1){
-						##print "$theta_gen[$i]\n";
 						$FAIL_angles++;
 						print "$FAIL_angles\n";
 					}
@@ -538,14 +445,10 @@ while(<PARMS>){
 
 				# check to see if all top angles are present in the generate list.
                                 for($i=0;$i<$Nangles;$i++){
-                                                ##print "$theta_gen[$i]\n";
                                         if($theta_gen_as{$angles[$i]} != 1){
-                                                ##print "$angles[$i]\n";
 						$FAIL_angles++;
                                         }
                                 }
-
-
 
                                 # generate all possible dihedral angles based on bond angles
                                 undef %phi_gen_as;
@@ -557,7 +460,6 @@ while(<PARMS>){
 
                                 for($i=1;$i<=$NUMATOMS;$i++){
                                 # go through the atoms.  For each atom, check all of the angles it is involved in, and see if we can make a angle angle out of it.
-                                ##      print "$NangleWatom[$i]\n";
                                         for($j=0;$j<$NangleWatom[$i];$j++){
                                                 for($k=$j+1;$k<$NangleWatom[$i];$k++){
                                                         if($j!=$k){
@@ -568,9 +470,6 @@ while(<PARMS>){
                                                                 $B1=$angles[$angleWatom[$i][$k]][0];
                                                                 $B2=$angles[$angleWatom[$i][$k]][1];
                                                                 $B3=$angles[$angleWatom[$i][$k]][2];
-								##print "\n";
-								##print "$A1 $A2 $A3 $B1 $B2 $B3\n";
-                                                ##              print "$i $j $k $angleWatom[$i][$j] $angleWatom[$i][$k]  $A1 $A2 $B1 $B2\n";
                                                                 # check the angle angles that can be made
 								$formed='not';
                                                                 if($A2 == $B1 && $A3 == $B2){
@@ -651,7 +550,6 @@ while(<PARMS>){
                                 	                                }
                                         	                        $phi_gen_as{$string} = 1;
                                                 	                $phi_gen[$phi_gen_N]="$string";
-								##	print "$string\n";
                                                         	        $phi_gen_N++;
 								}elsif($formed eq "improper"){
 
@@ -682,7 +580,6 @@ while(<PARMS>){
                                                                         							$improper_gen_as{$string} = 1;
                                                                         							$improper_gen[$phi_gen_N]="$string";
                                                                         							$improper_gen_N++;
-																##print " $i $j $k $l $improper_gen_N\n";
                                                                                                         		}
 	                                                                                               		}
                                                                                         		}
@@ -719,13 +616,9 @@ while(<PARMS>){
                                                 $string=sprintf("%i-%i-%i-%i", $A[3], $A[2], $A[1], $A[0]);
                                         }
 
-
-
                                         # save the angles
                                         $phi[$Nphi]="$string";
                                         $Nphi++;
-
-
 
                                         ##check if dihedral has been seen already...
 					if($A[7] != 3){
@@ -749,8 +642,6 @@ while(<PARMS>){
 
 					}
 
-
-					##print "$B[4], $B[7]\n";
 					if($A[4] == 1 && $A[7] == 1 ){
 							if($A[6] < $MINTHR*$epsilonCAD || $A[6] > $MAXTHR*$epsilonCAD){
 							print "dihedral has a problem! $LINE"; 
@@ -781,10 +672,6 @@ while(<PARMS>){
 						}
 					}
 
-##                                        if($A[4] == 2 && $improper_gen_as{$string} == 1){
-##						print "$string\n";
-
-##					}
                                         if($A[4] == 2 && $improper_gen_as{$string} != 1){
 
                                                 if($A[1] > $A[2]){
@@ -801,25 +688,15 @@ while(<PARMS>){
 						}
 
 					}
-
-
-
-
 					$#A = -1;
 	                                $LINE=<TOP>;
         	                        @A=split(/ /,$LINE);
-
-
 				}
-
 
                                 $FAIL_phi=0;
                                 # check to see if all the generated dihedrals (from this script) are present in the top file
                                 for($i=0;$i<$phi_gen_N;$i++){
-                                                ##print " $i $phi_gen[$i]\n";
-                                                ##print "$theta_gen[$i]\n";
                                         if($dihedral_array{$phi_gen[$i]} != 1){
-                                                ##print "$theta_gen[$i]\n";
                                                 $FAIL_phi++;
 						print "Generated dihedral is not in the list of included dihedrals...\n";
                                                 print "$FAIL_phi $i $phi_gen[$i] $dihedral_array{$phi_gen[$i]}\n";
@@ -828,18 +705,11 @@ while(<PARMS>){
 
                                 # check to see if all top dihedrals are present in the generate list.
                                 for($i=0;$i<$Nphi;$i++){
-                                                ##print "$theta_gen[$i]\n";
-                                                ##print " $i $phi[$i]\n";
-#                                        if( $improper_gen_as{$phi[$i]} == 1 ){
-#						print "improper detected\n";
-#					}
 					
                                         if($phi_gen_as{$phi[$i]} != 1 && $improper_gen_as{$phi[$i]} != 1 ){
-                                                ##print "$angles[$i]\n";
                                                 $FAIL_phi++;
 						print "An included dihedral can not be found in the list of generated ones...";
 						print "$FAIL_phi, $i, $phi[$i], $phi_gen_as{$phi[$i]}\n"
-					##	print "ok\n";
                                       }
                                }
 			}
@@ -923,9 +793,6 @@ while(<PARMS>){
 
 		}
 
-
-
-
 		## check stuff
 			print "number of atoms = $NUMATOMS\n";
 			print "number of atoms(excluding ligands) = $NUMATOMS_LIGAND\n";
@@ -951,7 +818,6 @@ while(<PARMS>){
 
 			$D_R=$DIH_MAX/ $DIH_MIN;
 
-        ##printf READSET ("%s\n", $R_N_SC_DD);
 			## check the energy per dihedral and where the dihedral is SC/BB NA/AMINO
 			$PBBfail=0;
 			$PSCfail=0;
@@ -968,14 +834,8 @@ while(<PARMS>){
 	
 			for($i=0;$i<$NUMATOMS+1;$i++){
 				for($j=0;$j<=$DISP_MAX;$j++){
-##					print "$i $j $ED_T[$i][$j]\n";
-
 					if($EDrig_T[$i][$j] > 0){
 						$NUM_NONZERO++;	
-
-
-						##print "$i $j $EDrig_T[$i][$j]\n";
-
 						if( ($ATOMNAME[$i] eq "C"  && $ATOMNAME[$i+$j] eq "N") || (  $ATOMNAME[$i] eq "N"  && $ATOMNAME[$i+$j] eq "C"   )){
 							if( abs($EDrig_T[$i][$j]-10.0) > 0.1 ){
 								print "weird omega rigid...\n";
@@ -984,9 +844,6 @@ while(<PARMS>){
                                         			print "$RESNUM[$i] $RESNUM[$i+j]\n\n";
 								$rigid_fail++;	
 							}
-#else{
-#								print "backbone passed\n"; 
-#							}
 						}else{
 
                                                         if(abs($EDrig_T[$i][$j]-40.0) > 0.1 ){
@@ -996,9 +853,6 @@ while(<PARMS>){
                                                                 print "$RESNUM[$i] $RESNUM[$i+j]\n\n";
                                                                 $rigid_fail++;
                                                         }
-#else{
- #                                                               print "ring passed\n";
-  #                                                      }
 
 						}
 					}
@@ -1054,18 +908,9 @@ while(<PARMS>){
                                                                 }
                                                                 $LIGdvalue=$ED_T[$i][$j];
                                                 }
-
-
-
-					##	$V= int(($ED_T[$i][$j] * 1000))/1000.0 ;
-				##		print "$i $j $ED_T[$i][$j] $DIH_TYPE[$i][$j]\n";
 					}
 				}
-
 			}
-
-
-
 
 			if($ContactFAIL>0){
                                 print "FAIL: some contacts were not the proper strength\n";
@@ -1208,42 +1053,26 @@ while(<PARMS>){
                                         print "Target ratio: $RR_TARGET\n";
                                         print "Actual ratio: $RR\n";
                                 if($RR > $MAXTHR*$RR_TARGET || $RR < $MINTHR*$RR_TARGET){
-                                #if($PBBvalue/$NABBvalue > $MAXTHR*$PRO_DIH/$NA_DIH || $PBBvalue/$NABBvalue < $MINTHR*$PRO_DIH/$NA_DIH){
                                         print "backbone dihedrals are not consistent between nucleic acids and protein: FAILED\n";
                                         $FAILED++;
-
                                 }else{
-
                                         print "consistency between NA-protein backbone dihedrals: PASSED\n";
-
                                 }
-
-
                         }
-
 
                         if($AMINO_PRESENT && $LIGAND_PRESENT){
                                         print "protein: $PBBvalue Ligand: $LIGdvalue\n";
-
                                         $RR=$PBBvalue/$LIGdvalue;
                                         $RR_TARGET=$PRO_DIH/$LIGAND_DIH;
                                         print "Target ratio: $RR_TARGET\n";
                                         print "Actual ratio: $RR\n";
                                 if($RR > $MAXTHR*$RR_TARGET || $RR < $MINTHR*$RR_TARGET){
-
-#                                if($PBBvalue/$LIGdvalue > $MAXTHR*$PRO_DIH/$LIGAND_DIH || $PBBvalue/$LIGdvalue < $MINTHR*$PRO_DIH/$LIGAND_DIH){
                                         print "backbone dihedrals are not consistent between ligands and protein: FAILED\n";
                                         $FAILED++;
-
                                 }else{
-
                                         print "consistency between ligand-protein backbone dihedrals: PASSED\n";
-
                                 }
-
-
                         }
-
 
                         if($LIGAND_PRESENT && $NUCLEIC_PRESENT){
                                         print "ligand: $LIGdvalue nucleic acid: $NABBvalue\n";
@@ -1254,35 +1083,23 @@ while(<PARMS>){
                                 if($RR > $MAXTHR*$RR_TARGET || $RR < $MINTHR*$RR_TARGET){
                                         print "backbone dihedrals are not consistent between nucleic acids and ligand: FAILED\n";
                                         $FAILED++;
-
                                 }else{
-
                                         print "consistency between NA-ligand backbone dihedrals: PASSED\n";
-
                                 }
-
-
                         }
 
-
-			## check if the range of dihedrals is reasonable  NEED TO UPDATE TO HANDLE RNA ratio and protein ratio...
 			if($D_R > $MAXTHR*4*$R_P_BB_SC  ){
 				print "WARNING!!!: range of dihedrals is large\n";
-				##$FAILED++;
 			}else{
 				print "PASSED: range of dihedrals ok\n";
 
 			}
-			##	print "ratio $D_R\n";
-
-
 
 	        open(CFILE,"$PDB.contacts") or die "can\'t open $PDB.contacts\n";
 	        $NUMBER_OF_CONTACTS_SHADOW=0;
 	        while(<CFILE>){
 	        $NUMBER_OF_CONTACTS_SHADOW++;
 	        }
-
 
 		if($FAILEXCLUSIONS > 0){
 			print "exclusion-pair matching: FAILED\n";
@@ -1299,15 +1116,11 @@ while(<PARMS>){
                        printf ("%i contacts were found in the top file.\n", $NRDFFF);
                }
 
-
-
 		$E_TOTAL=$DENERGY+$CONTENERGY;
 
 		$CTHRESH=$NUMATOMS*10.0/$PRECISION;
-		##print "$CTHRESH\n";
 
 		print "number of non-ligand atoms $NUMATOMS_LIGAND total E $E_TOTAL\n";
-
 
                 if($FAILED > 0){
                         print "\n*********************************\n $FAILED TESTS FAILED!!!\n*********************************\n\n";
@@ -1327,21 +1140,11 @@ while(<PARMS>){
 
                         `rm $PDB.top $PDB.gro $PDB.ndx $PDB.settings $PDB.output`;
 
-##                      `rm $PDB.top $PDB.gro $PDB.ndx $PDB.settings`;
                 }
-#
-
-
 }
-
-
                 if($FAIL_SYSTEM > 0){
                         print "\n*********************************\n TESTS FAILED FOR $PDB.pdb !!!\n*********************************\n\n";
 
                 }else{
                         print "\n*******************************\nPASSED ALL BASIC TESTS for $PDB.pdb\n*******************************\n\n\n";
-
-
-##                      `rm $PDB.top $PDB.gro $PDB.ndx $PDB.settings`;
                 }
-

@@ -1,18 +1,18 @@
 #!/bin/bash
 
-SMOG_ROOT=/home/whitford/git.repos/smog2-pcw/
+SMOG_ROOT=$1
 source $SMOG_ROOT/config.bash $SMOG_ROOT
-export EXEC_SMOG=$SMOG_ROOT/smog2
-export BIFSIF=$SMOG_ROOT/SBM
-export BIFSIF_AA_STATIC=$SMOG_ROOT/SBM_AA
-export BIFSIF_CA=$SMOG_ROOT/SBM_calpha
+export EXEC_SMOG=$SMOG_ROOT/smogv2
 
-checkCA=1
-checkAA=1
+export BIFSIF=templates/SBM_AA
+export BIFSIF_AA_STATIC=templates/SBM_AA_STATIC
+export BIFSIF_CA=templates/SBM_calpha
 
 export TOLERANCE=0.001
 export PRECISION=10000
 
+checkCA=1
+checkAA=1
 
 
 if [ $checkCA == 1 ]
