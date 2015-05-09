@@ -419,7 +419,6 @@ while(<PARMS>){
        $B1=$angles[$angleWatom[$i][$k]][0];
        $B2=$angles[$angleWatom[$i][$k]][1];
        $B3=$angles[$angleWatom[$i][$k]][2];
-       print "$i $j $k $angleWatom[$i][$j] $angleWatom[$i][$k]  $A1 $A2 $B1 $B2\n";
        # find all the dihedral angles that can be made with these angles
        $formed='not';
        if($A2 == $B1 && $A3 == $B2){
