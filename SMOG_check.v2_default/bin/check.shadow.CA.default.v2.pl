@@ -19,7 +19,7 @@ print "EXEC_NAME $EXEC_NAME\n";
 $FAILDIR="FAILED.shadow.CA";
 
 unless( -e $EXEC_NAME){
- print "Cant find the SMOG executable\n";
+ print "Can\'t find the SMOG executable\n";
  die;
 }
 
@@ -150,20 +150,23 @@ while(<PARMS>){
  printf READSET ("%s.ndx\n", $PDB);
  printf READSET ("%s\n", "All-Atom");
 # do not upload a contact file.
- printf READSET ("%s\n", $PP_cutoff);
- printf READSET ("%s\n", $NN_cutoff);
- printf READSET ("%s\n", $PN_cutoff);
- printf READSET ("%s\n", $PN_L_cutoff);
- printf READSET ("%s\n", $PP_seq);
- printf READSET ("%s\n", $NN_seq);
- printf READSET ("%s\n", $R_CD);
- printf READSET ("%s\n", $R_P_BB_SC);
- printf READSET ("%s\n", $R_N_SC_BB);
- printf READSET ("%s\n", $PRO_DIH);
- printf READSET ("%s\n", $NA_DIH);
- printf READSET ("%s\n", $LIGAND_DIH);
- printf READSET ("%s\n", $sigma);
- printf READSET ("%s\n", $epsilon);
+ printf READSET ("PP_cutoff %s\n", $PP_cutoff);
+ printf READSET ("NN_cutoff %s\n", $NN_cutoff);
+ printf READSET ("PN_cutoff %s\n", $PN_cutoff);
+ printf READSET ("PN_L_cutoff %s\n", $PN_L_cutoff);
+ printf READSET ("PP_seq %s\n", $PP_seq);
+ printf READSET ("NN_seq %s\n", $NN_seq);
+ printf READSET ("R_CD %s\n", $R_CD);
+ printf READSET ("R_P_BB_SC %s\n", $R_P_BB_SC);
+ printf READSET ("R_N_SC_BB %s\n", $R_N_SC_BB);
+ printf READSET ("PRO_DIH %s\n", $PRO_DIH);
+ printf READSET ("NA_DIH %s\n", $NA_DIH);
+ printf READSET ("LIGAND_DIH %s\n", $LIGAND_DIH);
+ printf READSET ("sigma %s\n", $sigma); 
+ printf READSET ("epsilon %s\n", $epsilon);
+ printf READSET ("epsilonCAC %s\n", $epsilonCAC);
+ printf READSET ("epsilonCAD %s\n", $epsilonCAD);
+ printf READSET ("sigmaCA %s\n", $sigmaCA);
  close(READSET);
 
 ## RUN SMOG2
@@ -222,9 +225,9 @@ while(<PARMS>){
    until($A[0] eq "["){
 # store information about each atom
 # atom name
-    $ATOMNAME[$A[0]]=$A[1];
+    $ATOMNAME[$A[0]]=$A[4];
 # check if it is a backbone atom. This list does not include CA and C1* because this classification is only used for determining which bonds are backbone and which are sidechain
-    $ATOMTYPE[$A[0]]=$BBTYPE{$A[1]};
+    $ATOMTYPE[$A[0]]=$BBTYPE{$A[4]};
 # residue number
     $RESNUM[$A[0]]=$A[2];
 # residue name
@@ -391,12 +394,13 @@ while(<PARMS>){
    for($i=0;$i<$theta_gen_N;$i++){
     if($angle_array{$theta_gen[$i]} != 1){
      $FAIL_angles++;
-     print "$FAIL_angles\n";
+     print "angle generated, but not in top: $theta_gen[$i]\n";
     }
    }
    # check to see if all top angles are present in the generate list.
    for($i=0;$i<$Nangles;$i++){
     if($theta_gen_as{$angles[$i]} != 1){
+     print "angle in top, but not generated: $angles[$i]\n";
      $FAIL_angles++;
     }
    }
@@ -749,7 +753,7 @@ while(<PARMS>){
      if($ATOMTYPE[$i] eq "BACKBONE" or  $ATOMTYPE[$i+$j] eq "BACKBONE"){
       $DIH_TYPE[$i][$j]="AMINOBB";
       if($PBBvalue !=$ED_T[$i][$j] && $PBBvalue !=0){
-       print "backbone atom $i $j failed\n";
+       print "FAILED: protein backbone dihedral $i $j failed\n";
        print "$PBBvalue is before\n";
        print "$ED_T[$i][$j] is the bad one...\n";
        $PBBfail++;

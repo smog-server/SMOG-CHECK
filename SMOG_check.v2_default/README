@@ -20,7 +20,7 @@ the command
 SMOG_BIN is the directory in which your installation 
 of SMOG2 is located.
 
-This script has been tested on Linux platforms.
+This script has been tested on Linux and OSX platforms.
 If you are using altnerate platforms, the most common
 issue is that perl is located in a different directory
 than expected.  If that is the case, you will want to
