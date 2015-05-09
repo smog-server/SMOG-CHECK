@@ -1,6 +1,5 @@
 #!/usr/bin/perl 
 
-
 $EXEC_NAME=$ENV{'EXEC_SMOG'};
 $TOLERANCE=$ENV{'TOLERANCE'};
 $PRECISION=$ENV{'PRECISION'};
@@ -132,8 +131,7 @@ while(<PARMS>){
 	$PP_seq=$A[4];
 	$NN_seq=$A[5];
 
-
-	# ENd of unused stuff
+	# End of unused stuff
 
 	# energy distributions
 
@@ -693,6 +691,7 @@ while(<PARMS>){
 
 			if($A[1] eq "dihedrals"){
 				$DENERGY=0;
+				$Nphi=0;
 				$double_dihedral=0;
 				$missing_dihedral_3=0;
                                 undef %dihedral_array;

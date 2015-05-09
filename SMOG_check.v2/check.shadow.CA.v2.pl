@@ -703,6 +703,7 @@ while(<PARMS>){
 			if($A[1] eq "dihedrals"){
 				$DIHSFAIL=0;
 				$DENERGY=0;
+				$Nphi=0;
 				$double_dihedral=0;
 				$missing_dihedral_3=0;
                                 undef %dihedral_array;

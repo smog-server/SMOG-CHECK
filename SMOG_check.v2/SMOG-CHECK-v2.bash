@@ -1,7 +1,7 @@
 #!/bin/bash
 
-SMOG_ROOT=/home/pcw2/SMOG2
-source $SMOG_ROOT/install.bash $SMOG_ROOT
+SMOG_ROOT=/home/whitford/git.repos/smog2-pcw/
+source $SMOG_ROOT/config.bash $SMOG_ROOT
 export EXEC_SMOG=$SMOG_ROOT/smog2
 export BIFSIF=$SMOG_ROOT/SBM
 export BIFSIF_AA_STATIC=$SMOG_ROOT/SBM_AA
