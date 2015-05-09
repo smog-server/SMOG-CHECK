@@ -3,7 +3,7 @@
 SMOG_ROOT=$1
 source $SMOG_ROOT/config.bash $SMOG_ROOT
 export EXEC_SMOG=$SMOG_ROOT/smogv2
-export BIFSIF=$SMOG_ROOT/SBM
+export BIFSIF=$SMOG_ROOT/SBM_AA
 export BIFSIF_CA=$SMOG_ROOT/SBM_calpha
 export TOLERANCE=0.001
 export PRECISION=10000
