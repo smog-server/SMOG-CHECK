@@ -1,19 +1,15 @@
 #!/bin/bash
 
-# When everything works well, all you need to do is define SMOG_ROOT (the location of the smog executable)
-SMOG_ROOT=/home/whitford/git.repos/smog2-pcw/
+SMOG_ROOT=$1
 source $SMOG_ROOT/config.bash $SMOG_ROOT
 export EXEC_SMOG=$SMOG_ROOT/smogv2
 export BIFSIF=$SMOG_ROOT/SBM
 export BIFSIF_CA=$SMOG_ROOT/SBM_calpha
-
-checkCA=1
-checkAA=1
-
-
 export TOLERANCE=0.001
 export PRECISION=10000
 
+checkCA=1
+checkAA=1
 
 if [ $checkCA == 1 ]
 then
