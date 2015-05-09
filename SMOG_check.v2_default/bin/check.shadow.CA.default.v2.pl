@@ -1,5 +1,9 @@
 #!/usr/bin/perl 
 
+# This is the main script that runs SMOG2 and then checks to see if the generated files are correct.
+# This is intended to be a brute-force evaluation of everything that should appear. Since this is
+# a testing script, it is not designed to be efficient, but to be thorough, and foolproof...
+ 
 $EXEC_NAME=$ENV{'EXEC_SMOG'};
 $TOLERANCE=$ENV{'TOLERANCE'};
 $MAXTHR=1.0+$TOLERANCE;
@@ -8,49 +12,42 @@ $PRECISION=$ENV{'PRECISION'};
 $BIFSIF=$ENV{'BIFSIF'};
 $BIFSIF_CA=$ENV{'BIFSIF_CA'};
 
-
 print "environment variables read\n";
 print "EXEC_NAME $EXEC_NAME\n";
 
-## this is the all-atom smog check w/o shadow.
+## this is the all-atom smog check with shadow.
 $FAILDIR="FAILED.shadow.CA";
-##things to do
-##  generate all dihedrals based on bonds/angles and make sure they are present
-##  check all rigid dihedrals and make sure they are assigned with the right total energy
-##  impropers...
 
 unless( -e $EXEC_NAME){
-	print "Cant find the SMOG executable\n";
-	die;
+ print "Cant find the SMOG executable\n";
+ die;
 }
 
 ## read in the backbone atom types.  Remember, CA and C1* can be involved in sidechain dihedrals
-
 open(bbamino,"backboneatoms/aminoacids") or die "no amino acid file\n";
 while(<bbamino>){
-        $LINE=$_;
-        chomp($LINE);
-        $BBTYPE{$LINE}= "BACKBONE";
+ $LINE=$_;
+ chomp($LINE);
+ $BBTYPE{$LINE}= "BACKBONE";
 }
 
 open(bbnucleic,"backboneatoms/nucleicacids") or die "no amino acid file\n";
 while(<bbnucleic>){
-        $LINE=$_;
-        chomp($LINE);
-        $BBTYPE{$LINE}= "BACKBONE";
+ $LINE=$_;
+ chomp($LINE);
+ $BBTYPE{$LINE}= "BACKBONE";
 }
 
-## load information about amino acids, nucleic acids, etc.
+## LOAD INFORMATION ABOUT WHAT TYPES OF RESIDUES ARE RECOGNIZED BY SMOG2
 #amino acids
 open(amino,"residues/aminoacids") or die "no amino acid file\n";
 $AAn=0;
 while(<amino>){
-        $LINE=$_;
-        chomp($LINE);
-        $TYPE{$LINE}= "AMINO";
-
-        $AA[$AAn]=$LINE;
-        $AAn++;
+ $LINE=$_;
+ chomp($LINE);
+ $TYPE{$LINE}= "AMINO";
+ $AA[$AAn]=$LINE;
+ $AAn++;
 }
 
 
@@ -58,605 +55,471 @@ while(<amino>){
 open(nucleic,"residues/nucleicacids") or die "no nucleic acid file\n";
 $NUCLEICn=0;
 while(<nucleic>){
-        $LINE=$_;
-        chomp($LINE);
-
-        $NUCLEIC[$NUCLEICn]=$LINE;
-        $NUCLEICn++;
-
-        $TYPE{$LINE}= "NUCLEIC";
-
-
+ $LINE=$_;
+ chomp($LINE);
+ $NUCLEIC[$NUCLEICn]=$LINE;
+ $NUCLEICn++;
+ $TYPE{$LINE}= "NUCLEIC";
 }
 
 #ligands
 open(ligand,"residues/ligands") or die "no nucleic acid file\n";
 $LIGANDn=0;
 while(<ligand>){
-        $LINE=$_;
-        chomp($LINE);
-        $TYPE{$LINE}= "LIGAND";
-        $LIGANDS[$LIGANDn]=$LINE;
-        $LIGANDn++;
+ $LINE=$_;
+ chomp($LINE);
+ $TYPE{$LINE}= "LIGAND";
+ $LIGANDS[$LIGANDn]=$LINE;
+ $LIGANDn++;
 }
 
 #ions
 open(ion,"residues/ions") or die "no ion file\n";
 $IONn=0;
 while(<ion>){
-        $LINE=$_;
-        chomp($LINE);
-        $TYPE{$LINE}= "ION";
-        $IONS[$IONn]=$LINE;
-        $IONn++;
+ $LINE=$_;
+ chomp($LINE);
+ $TYPE{$LINE}= "ION";
+ $IONS[$IONn]=$LINE;
+ $IONn++;
 }
 
+## READ IN THE LIST OF TEST PDBs.
+## We will generate SMOG2 models and then check to see if the top files are correct for the default model
 
 $SETTINGS_FILE=<STDIN>;
 chomp($SETTINGS_FILE);
 open(PARMS,"$SETTINGS_FILE") or die "The settings file is missing...\n";
 
+## Run tests for each pdb
 while(<PARMS>){
-$LINE=$_;
-chomp($LINE);
-$PDB=$LINE;
-$NFAIL=0;
-###check for each pdb
-                       print "\n*******************************\nSTARTING TESTS for $PDB.pdb\n*******************************\n\n\n";
+ $LINE=$_;
+ chomp($LINE);
+ $PDB=$LINE;
+ $NFAIL=0;
+ print "\n*******************************\nSTARTING TESTS for $PDB.pdb\n*******************************\n\n\n";
+ $FAILED=0;
+ $LINE=$_;
+ chomp($LINE);
+ @A=split(/ /,$LINE);
 
+## These next few lines are currently obsolete, since we are only testing the SHADOW map
+## they are left in for future extentions to cut-off maps
 
-	$FAILED=0;
-	$LINE=$_;
-	chomp($LINE);
-	@A=split(/ /,$LINE);
-## obsolete, since we are only resting defaults
-#
+## CUT-OFF settings (not used)
+ $PP_cutoff=4.0;
+ $PN_cutoff=4.0;
+ $NN_cutoff=4.0;
+ $PN_L_cutoff=4.0;
+# minimum sequence distance
+ $PP_seq=4;
+ $NN_seq=1;
+# End of unused stuff
+# energy distributions
 
-	$PP_cutoff=4.0;
-	$PN_cutoff=4.0;
-	$NN_cutoff=4.0;
-	$PN_L_cutoff=4.0;
+## Settings relevant for the default model
+ $R_CD=2.0;
+ $R_P_BB_SC=2.0;
+ $R_N_SC_BB=1.0;
+ $PRO_DIH=1.0;
+ $NA_DIH=1.0;
+ $LIGAND_DIH=1.0;
+ $sigma=2.5;
+ $epsilon=0.01;
+ $epsilonCAC=1.0;
+ $epsilonCAD=1.0;
+ $sigmaCA=4.0;
+ $sigmaCA=$sigmaCA/10.0;
+ $rep_s12=$sigmaCA**12;
+ $sigmaCA=$sigmaCA*10.0;
 
-	# minimum sequence distance
-	$PP_seq=4;
-	$NN_seq=1;
+## make a settings file...
+ open(READSET,">$PDB.settings") or die  "can not open settings file\n";
+ printf READSET ("%s.pdb\n", $PDB);
+ printf READSET ("%s.top\n", $PDB);
+ if(-e $PDB.top){
+  `rm $PDB.top`;
+ }
+ if(-e $PDB.gro){
+  `rm $PDB.gro`;
+ }
+ if(-e $PDB.ndx){
+  `rm $PDB.ndx`;
+ }
+ printf READSET ("%s.gro\n", $PDB);
+ printf READSET ("%s.ndx\n", $PDB);
+ printf READSET ("%s\n", "All-Atom");
+# do not upload a contact file.
+ printf READSET ("%s\n", $PP_cutoff);
+ printf READSET ("%s\n", $NN_cutoff);
+ printf READSET ("%s\n", $PN_cutoff);
+ printf READSET ("%s\n", $PN_L_cutoff);
+ printf READSET ("%s\n", $PP_seq);
+ printf READSET ("%s\n", $NN_seq);
+ printf READSET ("%s\n", $R_CD);
+ printf READSET ("%s\n", $R_P_BB_SC);
+ printf READSET ("%s\n", $R_N_SC_BB);
+ printf READSET ("%s\n", $PRO_DIH);
+ printf READSET ("%s\n", $NA_DIH);
+ printf READSET ("%s\n", $LIGAND_DIH);
+ printf READSET ("%s\n", $sigma);
+ printf READSET ("%s\n", $epsilon);
+ close(READSET);
 
+## RUN SMOG2
+ `$EXEC_NAME -i PDB.files/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -tCG $BIFSIF_CA/ -contactRes $BIFSIF &> $PDB.output `;
 
-	# ENd of unused stuff
-
-	# energy distributions
-
-	$R_CD=2.0;
-	$R_P_BB_SC=2.0;
-	$R_N_SC_BB=1.0;
-
-        $PRO_DIH=1.0;
-        $NA_DIH=1.0;
-        $LIGAND_DIH=1.0;
-
-	$sigma=2.5;
-        $epsilon=0.01;
-
-	$epsilonCAC=1.0;
-	$epsilonCAD=1.0;
-	$sigmaCA=4.0;
-
-	$sigmaCA=$sigmaCA/10.0;
-	$rep_s12=$sigmaCA**12;
-	$sigmaCA=$sigmaCA*10.0;
-
-
-	## make a settings file...
-
-
-        open(READSET,">$PDB.settings") or die  "can not open settings file\n";
-        printf READSET ("%s.pdb\n", $PDB);
-        printf READSET ("%s.top\n", $PDB);
-	if(-e $PDB.top){
-		`rm $PDB.top`;
-	}
-	if(-e $PDB.gro){
-		`rm $PDB.gro`;
-	}
-	if(-e $PDB.ndx){
-		`rm $PDB.ndx`;
-	}
-##	`rm $PDB.top $PDB.gro $PDB.ndx`;
-        printf READSET ("%s.gro\n", $PDB);
-        printf READSET ("%s.ndx\n", $PDB);
-        printf READSET ("%s\n", "All-Atom");
-	# do not upload a contact file.
-        printf READSET ("%s\n", "CUTOFF");
-        printf READSET ("%s\n", $PP_cutoff);
-        printf READSET ("%s\n", $NN_cutoff);
-        printf READSET ("%s\n", $PN_cutoff);
-        printf READSET ("%s\n", $PN_L_cutoff);
-        printf READSET ("%s\n", $PP_seq);
-        printf READSET ("%s\n", $NN_seq);
-        printf READSET ("%s\n", $R_CD);
-        printf READSET ("%s\n", $R_P_BB_SC);
-        printf READSET ("%s\n", $R_N_SC_BB);
-        printf READSET ("%s\n", $PRO_DIH);
-        printf READSET ("%s\n", $NA_DIH);
-        printf READSET ("%s\n", $LIGAND_DIH);
-        printf READSET ("%s\n", $sigma);
-        printf READSET ("%s\n", $epsilon);
-        close(READSET);
-
-
-	## run smog
-	
-	`$EXEC_NAME -i PDB.files/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -tCG $BIFSIF_CA/ -contactRes $BIFSIF &> $PDB.output `;
-
-
-
-##
-##run the check script
-##
-	`bin/top.clean.bash $PDB.ndx $PDB.ndx2`;
-	`mv $PDB.ndx2 $PDB.ndx`;
-
-	open(NDX,"$PDB.ndx") or die "no ndx file\n"; 
-
-	while(<NDX>){
-		$LINE=$_;        
-		chomp($LINE);
-		@A=split(/ /,$LINE);
-			if($A[0] eq "["){
-				$CHAIN=$A[1];
-			}else{
-				$CID[$LINE]=$CHAIN;
-			}
-	}
-
-	`bin/top.clean.bash $PDB.top $PDB.top2`;
-	`mv $PDB.top2 $PDB.top`;
-
-	open(TOP,"$PDB.top") or die " $PDB.top can not be opened...";
-
-
-	$DIH_MIN=100000000;
-	$DIH_MAX=-100000000;
-
-	close(TOP);
-
-
-
-##check the values
-
-	$NCONTACTS=0;
-
-	open(TOP,"$PDB.top") or die " $PDB.top can not be opened...\n";
-
-
-		while(<TOP>){
-
-			$LINE=$_;
-			chomp($LINE);
-
-
-			@A=split(/ /,$LINE);
-
-
+## CHECK THE OUTPUT
+ `bin/top.clean.bash $PDB.ndx $PDB.ndx2`;
+ `mv $PDB.ndx2 $PDB.ndx`;
+ open(NDX,"$PDB.ndx") or die "no ndx file\n"; 
+ while(<NDX>){
+  $LINE=$_;        
+  chomp($LINE);
+  @A=split(/ /,$LINE);
+  if($A[0] eq "["){
+   $CHAIN=$A[1];
+  }else{
+   $CID[$LINE]=$CHAIN;
+  }
+ }
+ `bin/top.clean.bash $PDB.top $PDB.top2`;
+ `mv $PDB.top2 $PDB.top`;
+ open(TOP,"$PDB.top") or die " $PDB.top can not be opened...";
+ $DIH_MIN=100000000;
+ $DIH_MAX=-100000000;
+ close(TOP);
+ $NCONTACTS=0;
+ open(TOP,"$PDB.top") or die " $PDB.top can not be opened...\n";
+ while(<TOP>){
+  $LINE=$_;
+  chomp($LINE);
+  @A=split(/ /,$LINE);
 
 ## check the excluded volume is consistent with the settings.
-                        if($A[1] eq "atomtypes"){
-				$EXCL=0;
-                                $#A = -1;
-                                $LINE=<TOP>;
-                                @A=split(/ /,$LINE);
-
-                                until($A[0] eq "["){
-					# make sure the ex vol is within 1% of the desired.
-                                        if($A[5] < $MINTHR*$rep_s12 || $A[5] > $MAXTHR*$rep_s12){
-						$EXCL++;
-                                        }
-                                        $#A = -1;
-                                        $LINE=<TOP>;
-                                        @A=split(/ /,$LINE);
-                                }
-
-                        }
-
-
-
-                        if($A[1] eq "atoms"){
-				$NUMATOMS=0;
-				$NUMATOMS_LIGAND=0;
-                                $#A = -1;
-                                $LINE=<TOP>;
-                                @A=split(/ /,$LINE);
-
-                                until($A[0] eq "["){
-					# store information about each atom
-
-					# atom name
-                                        $ATOMNAME[$A[0]]=$A[1];
-					# is it a backbone atom?  This list does not include CA and C1* because this classification is only used for determining which bonds are backbone and which are sidechain
-					$ATOMTYPE[$A[0]]=$BBTYPE{$A[1]};
-					# residue number
-                                        $RESNUM[$A[0]]=$A[2];
-					# residue name
-                                        $RESNAME[$A[0]]=$A[3];
-					# nucleic acid, protein, ligand
-                                        $MOLTYPE[$A[0]]=$TYPE{$A[3]};
-
-					# see if there are any amino acids, na, or ligands in the system.
-					if($MOLTYPE[$A[0]] eq "AMINO"){
-						$AMINO_PRESENT=1;
-                                                 $NUMATOMS_LIGAND++;
-					}elsif($MOLTYPE[$A[0]] eq "NUCLEIC"){
-						$NUCLEIC_PRESENT=1;
-                                                 $NUMATOMS_LIGAND++;
-					}elsif($MOLTYPE[$A[0]] eq "LIGAND"){
-                                                $LIGAND_PRESENT=1;
-					}elsif($MOLTYPE[$A[0]] eq "ION"){
-						$ION_PRESENT=1;
-
-					}else{
-                                                print "there is an unrecognized residue name\n";
-                                                print "$A[0] $A[3]\n";
-                                                die;
-                                        }
-
-					$NUMATOMS++;
-                                        $#A = -1;
-                                        $LINE=<TOP>;
-                                        @A=split(/ /,$LINE);
-				}
-
-                        }
-
-
-			# read the bonds.  Make sure they are not assigned twice.  Also, save the bonds, so we can generate all possible bond angles later.
-                        if($A[1] eq "bonds"){
-                                $#A = -1;
-				$#bonds = -1;
-				$#bondWatom = -1;
-				$#NbondWatom = -1;
-				$double_bond=0;
-				$bondtype6=0;
-				$Nbonds=0;
-                                undef %bond_array;
-                                $LINE=<TOP>;
-                                @A=split(/ /,$LINE);
-                                until($A[0] eq "["){
-					if($A[2] ==1){				
-				
-						if($A[0] < $A[1]){
-							$string=sprintf("%i-%i", $A[0], $A[1]);
-						}else{
-							$string=sprintf("%i-%i", $A[1], $A[0]);
-						}
-
-
-					##check if bond has been seen already...
-						if($bond_array{$string} != 1){
-							## bond was not assigned.
-							$bond_array{$string}=1;
-							$bonds[$Nbonds][0]=$A[0];
-							$bonds[$Nbonds][1]=$A[1];
-						##print "$bonds[$Nbonds][0] $bonds[$Nbonds][1]\n";
-						# this organization is strange, but it will make sense later...
-							$bondWatom[$A[0]][$NbondWatom[$A[0]]]= $Nbonds;
-							$bondWatom[$A[1]][$NbondWatom[$A[1]]]= $Nbonds;
-							$NbondWatom[$A[0]]++;
-							$NbondWatom[$A[1]]++;
-							$Nbonds++;
-						}else{
-						## bond has already been assigned.
-							$double_bond++;
-						}
-					}elsif($A[2] ==6){
-						$bondtype6++;
-					}
-                                	$LINE=<TOP>;
-                                	@A=split(/ /,$LINE);
-
-				}
-		# generate the angles
-
-				# generate all possible bond angles based on bonds
-				undef %theta_gen_as;
-				$theta_gen_N=0;
-                                $#theta_gen=-1;
-
-				for($i=1;$i<=$NUMATOMS;$i++){
-				# go through the atoms.  For each atom, check all of the bonds it is involved in, and see if we can make a bond angle out of it.
-				##	print "$NbondWatom[$i]\n";
-				        for($j=0;$j<$NbondWatom[$i];$j++){
-				                for($k=$j+1;$k<$NbondWatom[$i];$k++){
-				                        if($j!=$k){
-
-				                                $A1=$bonds[$bondWatom[$i][$j]][0];
-				                                $A2=$bonds[$bondWatom[$i][$j]][1];
-				                                $B1=$bonds[$bondWatom[$i][$k]][0];
-				                                $B2=$bonds[$bondWatom[$i][$k]][1];
-						##		print "$i $j $k $bondWatom[$i][$j] $bondWatom[$i][$k]  $A1 $A2 $B1 $B2\n";
-				                                # check the bond angles that can be made
-				                                if($A1 == $B1){
-
-				                                        $theta1=$A2;
-				                                        $theta2=$A1;
-				                                        $theta3=$B2;
-
-				                                }elsif($A1 == $B2){
-
-				                                        $theta1=$A2;
-				                                        $theta2=$A1;
-				                                        $theta3=$B1;
-
-				                                }elsif($A2 == $B1){
-
-				                                        $theta1=$A1;
-				                                        $theta2=$A2;
-				                                        $theta3=$B2;
-
-				                                }elsif($A2 == $B2){
-
-				                                        $theta1=$A1;
-				                                        $theta2=$A2;
-				                                        $theta3=$B1;
-	
-				                                }
-
-
-                                				if($theta1 < $theta3){
-                                        				$string=sprintf("%i-%i-%i", $theta1, $theta2, $theta3);
-
-                                				}else{
-                                        				$string=sprintf("%i-%i-%i", $theta3, $theta2, $theta1);
-                                				}
-
-								$theta_gen_as{$string} = 1;
-								$theta_gen[$theta_gen_N]="$string";
-								##print "$theta_gen[$theta_gen_N]\n";
-								$theta_gen_N++;
-
-
-				                        }
-				                }
-				        }
-				}
-			}
-
-
-                        if($A[1] eq "angles"){
-                                $#A = -1;
-                                $double_angle=0;
-				$Nangles=0;
-				$#angles =1;
-
-                                $#angleWatom = -1;
-                                $#NangleWatom = -1;
-                                $Nangles=0;
-
-
-                                undef %angle_array;
-                                $LINE=<TOP>;
-                                @A=split(/ /,$LINE);
-                                until($A[0] eq "["){
-
-                                        if($A[0] < $A[2]){
-                                                $string=sprintf("%i-%i-%i", $A[0], $A[1], $A[2]);
-                                        }else{
-                                                $string=sprintf("%i-%i-%i", $A[2], $A[1], $A[0]);
-                                        }
-						##print "ok $string $A[0] $A[1] $A[2]\n";
-
-					# save the angles
-					$angles[$Nangles]="$string";
-					##$Nangles++;
-
-
-                                        ##check if bond has been seen already...
-                                        if($angle_array{$string} != 1){
-                                                ## bond was not assigned.
-                                                $angle_array{$string}=1;
-
-                                                $angles[$Nangles][0]=$A[0];
-                                                $angles[$Nangles][1]=$A[1];
-                                                $angles[$Nangles][2]=$A[2];
-                                                ##print "$angles[$Nangles][0] $angles[$Nangles][1]\n";
-                                                # this organization is strange, but it will make sense later...
-                                                $angleWatom[$A[0]][$NangleWatom[$A[0]]]= $Nangles;
-                                                $angleWatom[$A[1]][$NangleWatom[$A[1]]]= $Nangles;
-                                                $angleWatom[$A[2]][$NangleWatom[$A[2]]]= $Nangles;
-                                                $NangleWatom[$A[0]]++;
-                                                $NangleWatom[$A[1]]++;
-                                                $NangleWatom[$A[2]]++;
-					$Nangles++;
-
-
-
-                                        }else{
-                                                ## bond has already been assigned.
-                                                $double_angle++;
-                                        }
-
-                                        $LINE=<TOP>;
-                                        @A=split(/ /,$LINE);
-
-                                }
-
-
-			## cross-check the angles
-				if($theta_gen_N != $Nangles){
-				print "the number of generated angles is inconsistent with the number of angles in the top file\n";
-				print "$theta_gen_N $Nangles\n";
-				}
-
-				$FAIL_angles=0;
-				# check to see if all the generated angles (from this script) are present in the top file
-				for($i=0;$i<$theta_gen_N;$i++){
-						##print "$theta_gen[$i]\n";
-					if($angle_array{$theta_gen[$i]} != 1){
-						##print "$theta_gen[$i]\n";
-						$FAIL_angles++;
-						print "$FAIL_angles\n";
-					}
-				}
-
-				# check to see if all top angles are present in the generate list.
-                                for($i=0;$i<$Nangles;$i++){
-                                                ##print "$theta_gen[$i]\n";
-                                        if($theta_gen_as{$angles[$i]} != 1){
-                                                ##print "$angles[$i]\n";
-						$FAIL_angles++;
-                                        }
-                                }
-
-
-
-                                # generate all possible dihedral angles based on bond angles
-                                undef %phi_gen_as;
-                                $phi_gen_N=0;
-                                $#phi_gen=-1;
-                                undef %improper_gen_as;
-                                $improper_gen_N=0;
-                                $#improper_gen=-1;
-
-                                for($i=1;$i<=$NUMATOMS;$i++){
-                                # go through the atoms.  For each atom, check all of the angles it is involved in, and see if we can make a angle angle out of it.
-                                ##      print "$NangleWatom[$i]\n";
-                                        for($j=0;$j<$NangleWatom[$i];$j++){
-                                                for($k=$j+1;$k<$NangleWatom[$i];$k++){
-                                                        if($j!=$k){
-
-                                                                $A1=$angles[$angleWatom[$i][$j]][0];
-                                                                $A2=$angles[$angleWatom[$i][$j]][1];
-                                                                $A3=$angles[$angleWatom[$i][$j]][2];
-                                                                $B1=$angles[$angleWatom[$i][$k]][0];
-                                                                $B2=$angles[$angleWatom[$i][$k]][1];
-                                                                $B3=$angles[$angleWatom[$i][$k]][2];
-								##print "\n";
-								##print "$A1 $A2 $A3 $B1 $B2 $B3\n";
-                                                ##              print "$i $j $k $angleWatom[$i][$j] $angleWatom[$i][$k]  $A1 $A2 $B1 $B2\n";
-                                                                # check the angle angles that can be made
-								$formed='not';
-                                                                if($A2 == $B1 && $A3 == $B2){
-
-                                                                        $phi1=$A1;
-                                                                        $phi2=$A2;
-                                                                        $phi3=$A3;
-                                                                        $phi4=$B3;
-									$formed='proper';
-
-                                                                }elsif($A2 == $B3 && $A3 == $B2){
-
-                                                                        $phi1=$A1;
-                                                                        $phi2=$A2;
-                                                                        $phi3=$A3;
-                                                                        $phi4=$B1;
-									$formed='proper';
-
-                                                                }elsif($A2 == $B1  && $A1 == $B2){
-
-                                                                        $phi1=$A3;
-                                                                        $phi2=$A2;
-                                                                        $phi3=$A1;
-                                                                        $phi4=$B3;
-									$formed='proper';
-
-                                                                }elsif($A2 == $B3 && $A1 == $B2){
-
-                                                                        $phi1=$A3;
-                                                                        $phi2=$A2;
-                                                                        $phi3=$A1;
-                                                                        $phi4=$B1;
-									$formed='proper';
-
-                                                                }elsif($A2 == $B2 && $A1 == $B3){
-
-                                                                        $phi1=$A1;
-                                                                        $phi2=$A2;
-                                                                        $phi3=$A3;
-                                                                        $phi4=$B1;
-                                                                        $formed='improper';
-
-                                                                }elsif($A2 == $B2 && $A3 == $B1){
-
-                                                                        $phi1=$B1;
-                                                                        $phi2=$B2;
-                                                                        $phi3=$B3;
-                                                                        $phi4=$A1;
-                                                                        $formed='improper';
-
-                                                                }elsif($A2 == $B2 && $A1 == $B1){
-
-                                                                        $phi1=$A1;
-                                                                        $phi2=$A2;
-                                                                        $phi3=$A3;
-                                                                        $phi4=$B3;
-                                                                        $formed='improper';
-
-                                                                }elsif($A2 == $B2 && $A3 == $B3){
-
-                                                                        $phi1=$A3;
-                                                                        $phi2=$A2;
-                                                                        $phi3=$A1;
-                                                                        $phi4=$B1;
-                                                                        $formed='improper';
-
-                                                                }else{
-									$formed="not";
-								}
-
-
-								if($formed eq "proper" ){
-	                                                                if($phi1 < $phi4){
-        	                                                                $string=sprintf("%i-%i-%i-%i", $phi1, $phi2, $phi3, $phi4);
-
-                	                                                }else{
-                        	                                                $string=sprintf("%i-%i-%i-%i", $phi4, $phi3, $phi2, $phi1);
-                                	                                }
-                                        	                        $phi_gen_as{$string} = 1;
-                                                	                $phi_gen[$phi_gen_N]="$string";
-								##	print "$string\n";
-                                                        	        $phi_gen_N++;
-								}elsif($formed eq "improper"){
-
-									$phit[0]=$phi1;
-									$phit[1]=$phi2;
-									$phit[2]=$phi3;
-									$phit[3]=$phi4;
-
-
-									for($ii=0;$ii<4;$ii++){
-										$phi1=$phit[$ii];
-										for($jj=0;$jj<4;$jj++){
-											if($ii != $jj){
-											$phi2=$phit[$jj];
-                                                                                		for($kk=0;$kk<4;$kk++){
-                                                                                        		if($kk != $jj && $kk != $ii){
-	                                                                                       		$phi3=$phit[$kk];
-                                                                                                		for($ll=0;$ll<4;$ll++){
-                                                                                                        		if($ll != $kk && $ll != $jj && $ll != $ii){
-                                                                                                        		$phi4=$phit[$ll];
-
-                                                                        							if($phi1 < $phi4){
-                                                                                							$string=sprintf("%i-%i-%i-%i", $phi1, $phi2, $phi3, $phi4);
-
-                                                                        							}else{
-                                                                                							$string=sprintf("%i-%i-%i-%i", $phi4, $phi3, $phi2, $phi1);
-                                                                        							}
-                                                                        							$improper_gen_as{$string} = 1;
-                                                                        							$improper_gen[$phi_gen_N]="$string";
-                                                                        							$improper_gen_N++;
-																##print " $i $j $k $l $improper_gen_N\n";
-                                                                                                        		}
-	                                                                                               		}
-                                                                                        		}
-                                                                                		}
-											}
-										}
-									}
-								}
-                                                        }
-                                                }
-                                        }
-                                }
-                        }
+  if($A[1] eq "atomtypes"){
+   $EXCL=0;
+   $#A = -1;
+   $LINE=<TOP>;
+   @A=split(/ /,$LINE);
+   until($A[0] eq "["){
+## make sure the ex vol is within n% of the desired.
+    if($A[5] < $MINTHR*$rep_s12 || $A[5] > $MAXTHR*$rep_s12){
+     $EXCL++;
+    }
+    $#A = -1;
+    $LINE=<TOP>;
+    @A=split(/ /,$LINE);
+   }
+  }
+## read the atoms, and store information about them
+  if($A[1] eq "atoms"){
+   $NUMATOMS=0;
+   $NUMATOMS_LIGAND=0;
+   $#A = -1;
+   $LINE=<TOP>;
+   @A=split(/ /,$LINE);
+   until($A[0] eq "["){
+# store information about each atom
+# atom name
+    $ATOMNAME[$A[0]]=$A[1];
+# check if it is a backbone atom. This list does not include CA and C1* because this classification is only used for determining which bonds are backbone and which are sidechain
+    $ATOMTYPE[$A[0]]=$BBTYPE{$A[1]};
+# residue number
+    $RESNUM[$A[0]]=$A[2];
+# residue name
+    $RESNAME[$A[0]]=$A[3];
+# nucleic acid, protein, ligand
+    $MOLTYPE[$A[0]]=$TYPE{$A[3]};
+# see if there are any amino acids, na, or ligands in the system.
+    if($MOLTYPE[$A[0]] eq "AMINO"){
+     $AMINO_PRESENT=1;
+     $NUMATOMS_LIGAND++;
+    }elsif($MOLTYPE[$A[0]] eq "NUCLEIC"){
+     $NUCLEIC_PRESENT=1;
+     $NUMATOMS_LIGAND++;
+    }elsif($MOLTYPE[$A[0]] eq "LIGAND"){
+     $LIGAND_PRESENT=1;
+    }elsif($MOLTYPE[$A[0]] eq "ION"){
+     $ION_PRESENT=1;
+    }else{
+     print "there is an unrecognized residue name\n";
+     print "$A[0] $A[3]\n";
+     die;
+    }
+    $NUMATOMS++;
+    $#A = -1;
+    $LINE=<TOP>;
+    @A=split(/ /,$LINE);
+   }
+  }
+# read the bonds.  Make sure they are not assigned twice.  Also, save the bonds, so we can generate all possible bond angles later.
+  if($A[1] eq "bonds"){
+   $#A = -1;
+   $#bonds = -1;
+   $#bondWatom = -1;
+   $#NbondWatom = -1;
+   $double_bond=0;
+   $bondtype6=0;
+   $Nbonds=0;
+   undef %bond_array;
+   $LINE=<TOP>;
+   @A=split(/ /,$LINE);
+   until($A[0] eq "["){
+    if($A[2] ==1){				
+     if($A[0] < $A[1]){
+      $string=sprintf("%i-%i", $A[0], $A[1]);
+     }else{
+      $string=sprintf("%i-%i", $A[1], $A[0]);
+     }
+##check if bond has already appeared in the .top file
+     if($bond_array{$string} != 1){
+## bond was not assigned.
+      $bond_array{$string}=1;
+      $bonds[$Nbonds][0]=$A[0];
+      $bonds[$Nbonds][1]=$A[1];
+##print "$bonds[$Nbonds][0] $bonds[$Nbonds][1]\n";
+# this organization is strange, but it will make sense later...
+      $bondWatom[$A[0]][$NbondWatom[$A[0]]]= $Nbonds;
+      $bondWatom[$A[1]][$NbondWatom[$A[1]]]= $Nbonds;
+      $NbondWatom[$A[0]]++;
+      $NbondWatom[$A[1]]++;
+      $Nbonds++;
+     }else{
+## bond has already been assigned.
+      $double_bond++;
+     }
+    }elsif($A[2] ==6){
+     $bondtype6++;
+    }
+    $LINE=<TOP>;
+    @A=split(/ /,$LINE);
+   }
+# generate the angles
+# generate all possible bond angles based on bonds
+   undef %theta_gen_as;
+   $theta_gen_N=0;
+   $#theta_gen=-1;
+   for($i=1;$i<=$NUMATOMS;$i++){
+# go through the atoms.  For each atom, check all of the bonds it is involved in, and see if we can make a bond angle out of it.
+    for($j=0;$j<$NbondWatom[$i];$j++){
+     for($k=$j+1;$k<$NbondWatom[$i];$k++){
+      if($j!=$k){
+       $A1=$bonds[$bondWatom[$i][$j]][0];
+       $A2=$bonds[$bondWatom[$i][$j]][1];
+       $B1=$bonds[$bondWatom[$i][$k]][0];
+       $B2=$bonds[$bondWatom[$i][$k]][1];
+# check the bond angles that can be made
+       if($A1 == $B1){
+        $theta1=$A2;
+        $theta2=$A1;
+        $theta3=$B2;
+       }elsif($A1 == $B2){
+        $theta1=$A2;
+        $theta2=$A1;
+        $theta3=$B1;
+       }elsif($A2 == $B1){
+        $theta1=$A1;
+        $theta2=$A2;
+        $theta3=$B2;
+       }elsif($A2 == $B2){
+        $theta1=$A1;
+        $theta2=$A2;
+        $theta3=$B1;
+       }
+       if($theta1 < $theta3){
+        $string=sprintf("%i-%i-%i", $theta1, $theta2, $theta3);
+       }else{
+        $string=sprintf("%i-%i-%i", $theta3, $theta2, $theta1);
+       }
+       $theta_gen_as{$string} = 1;
+       $theta_gen[$theta_gen_N]="$string";
+       $theta_gen_N++;
+      }
+     }
+    }
+   }
+  }
+  if($A[1] eq "angles"){
+   $#A = -1;
+   $double_angle=0;
+   $Nangles=0;
+   $#angles =1;
+   $#angleWatom = -1;
+   $#NangleWatom = -1;
+   $Nangles=0;
+   undef %angle_array;
+   $LINE=<TOP>;
+   @A=split(/ /,$LINE);
+   until($A[0] eq "["){
+    if($A[0] < $A[2]){
+     $string=sprintf("%i-%i-%i", $A[0], $A[1], $A[2]);
+    }else{
+     $string=sprintf("%i-%i-%i", $A[2], $A[1], $A[0]);
+    }
+    # save the angles
+    $angles[$Nangles]="$string";
+    #check if bond has been seen already...
+    if($angle_array{$string} != 1){
+     ## bond was not assigned.
+     $angle_array{$string}=1;
+     $angles[$Nangles][0]=$A[0];
+     $angles[$Nangles][1]=$A[1];
+     $angles[$Nangles][2]=$A[2];
+     # this organization is also strange, but it will make sense later...
+     $angleWatom[$A[0]][$NangleWatom[$A[0]]]= $Nangles;
+     $angleWatom[$A[1]][$NangleWatom[$A[1]]]= $Nangles;
+     $angleWatom[$A[2]][$NangleWatom[$A[2]]]= $Nangles;
+     $NangleWatom[$A[0]]++;
+     $NangleWatom[$A[1]]++;
+     $NangleWatom[$A[2]]++;
+     $Nangles++;
+    }else{
+     ## bond has already been assigned.
+     $double_angle++;
+    }
+    $LINE=<TOP>;
+    @A=split(/ /,$LINE);
+   }
+   ## cross-check the angles
+   if($theta_gen_N != $Nangles){
+    print "the number of generated angles is inconsistent with the number of angles in the top file\n";
+    print "$theta_gen_N $Nangles\n";
+   }
+   $FAIL_angles=0;
+   # check to see if all the generated angles (from this script) are present in the top file
+   for($i=0;$i<$theta_gen_N;$i++){
+    if($angle_array{$theta_gen[$i]} != 1){
+     $FAIL_angles++;
+     print "$FAIL_angles\n";
+    }
+   }
+   # check to see if all top angles are present in the generate list.
+   for($i=0;$i<$Nangles;$i++){
+    if($theta_gen_as{$angles[$i]} != 1){
+     $FAIL_angles++;
+    }
+   }
+
+   # generate all possible dihedral angles based on bond angles
+   undef %phi_gen_as;
+   $phi_gen_N=0;
+   $#phi_gen=-1;
+   undef %improper_gen_as;
+   $improper_gen_N=0;
+   $#improper_gen=-1;
+   for($i=1;$i<=$NUMATOMS;$i++){
+   # go through the atoms.  For each atom, check all of the angles it is involved in, and see if we can make a angle angle out of it.
+    for($j=0;$j<$NangleWatom[$i];$j++){
+     for($k=$j+1;$k<$NangleWatom[$i];$k++){
+      if($j!=$k){
+       $A1=$angles[$angleWatom[$i][$j]][0];
+       $A2=$angles[$angleWatom[$i][$j]][1];
+       $A3=$angles[$angleWatom[$i][$j]][2];
+       $B1=$angles[$angleWatom[$i][$k]][0];
+       $B2=$angles[$angleWatom[$i][$k]][1];
+       $B3=$angles[$angleWatom[$i][$k]][2];
+       print "$i $j $k $angleWatom[$i][$j] $angleWatom[$i][$k]  $A1 $A2 $B1 $B2\n";
+       # find all the dihedral angles that can be made with these angles
+       $formed='not';
+       if($A2 == $B1 && $A3 == $B2){
+        $phi1=$A1;
+        $phi2=$A2;
+        $phi3=$A3;
+        $phi4=$B3;
+       	$formed='proper';
+       }elsif($A2 == $B3 && $A3 == $B2){
+        $phi1=$A1;
+        $phi2=$A2;
+        $phi3=$A3;
+        $phi4=$B1;
+       	$formed='proper';
+       }elsif($A2 == $B1  && $A1 == $B2){
+        $phi1=$A3;
+        $phi2=$A2;
+        $phi3=$A1;
+        $phi4=$B3;
+       	$formed='proper';
+       }elsif($A2 == $B3 && $A1 == $B2){
+        $phi1=$A3;
+        $phi2=$A2;
+        $phi3=$A1;
+        $phi4=$B1;
+       	$formed='proper';
+       }elsif($A2 == $B2 && $A1 == $B3){
+        $phi1=$A1;
+        $phi2=$A2;
+        $phi3=$A3;
+        $phi4=$B1;
+        $formed='improper';
+       }elsif($A2 == $B2 && $A3 == $B1){
+        $phi1=$B1;
+        $phi2=$B2;
+        $phi3=$B3;
+        $phi4=$A1;
+        $formed='improper';
+       }elsif($A2 == $B2 && $A1 == $B1){
+        $phi1=$A1;
+        $phi2=$A2;
+        $phi3=$A3;
+        $phi4=$B3;
+        $formed='improper';
+       }elsif($A2 == $B2 && $A3 == $B3){
+        $phi1=$A3;
+        $phi2=$A2;
+        $phi3=$A1;
+        $phi4=$B1;
+        $formed='improper';
+       }else{
+       	$formed="not";
+       }
+
+       if($formed eq "proper" ){
+        if($phi1 < $phi4){
+         $string=sprintf("%i-%i-%i-%i", $phi1, $phi2, $phi3, $phi4);
+        }else{
+         $string=sprintf("%i-%i-%i-%i", $phi4, $phi3, $phi2, $phi1);
+        }
+        $phi_gen_as{$string} = 1;
+        $phi_gen[$phi_gen_N]="$string";
+        $phi_gen_N++;
+       }elsif($formed eq "improper"){
+       	$phit[0]=$phi1;
+       	$phit[1]=$phi2;
+       	$phit[2]=$phi3;
+       	$phit[3]=$phi4;
+       	for($ii=0;$ii<4;$ii++){
+         $phi1=$phit[$ii];
+       	 for($jj=0;$jj<4;$jj++){
+       	  if($ii != $jj){
+       	   $phi2=$phit[$jj];
+           for($kk=0;$kk<4;$kk++){
+            if($kk != $jj && $kk != $ii){
+             $phi3=$phit[$kk];
+             for($ll=0;$ll<4;$ll++){
+              if($ll != $kk && $ll != $jj && $ll != $ii){
+               $phi4=$phit[$ll];
+               if($phi1 < $phi4){
+                $string=sprintf("%i-%i-%i-%i", $phi1, $phi2, $phi3, $phi4);
+               }else{
+                $string=sprintf("%i-%i-%i-%i", $phi4, $phi3, $phi2, $phi1);
+               }
+               $improper_gen_as{$string} = 1;
+               $improper_gen[$phi_gen_N]="$string";
+               $improper_gen_N++;
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
 
 
 			if($A[1] eq "dihedrals"){
