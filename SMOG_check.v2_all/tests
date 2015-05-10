@@ -3,12 +3,15 @@
 SMOG_ROOT=$1
 source $SMOG_ROOT/config.bash $SMOG_ROOT
 export EXEC_SMOG=$SMOG_ROOT/smogv2
-export BIFSIF=$SMOG_ROOT/SBM_AA
-export BIFSIF_CA=$SMOG_ROOT/SBM_calpha
+export BIFSIF_AA_DEFAULT=$SMOG_ROOT/SBM_AA
+export BIFSIF_CA_DEFAULT=$SMOG_ROOT/SBM_calpha
+export BIFSIF_AA_TESTING=`pwd`/templates/SBM_AA
+export BIFSIF_CA_TESTING=`pwd`/templates/SBM_calpha
+export BIFSIF_STATIC_TESTING=`pwd`/templates/SBM_AA_STATIC
 export TOLERANCE=0.001
 export PRECISION=10000
 
-rm -r FAILED
+bin/cleanup.bash
 mkdir FAILED
 echo PDB.files/all.pdbs | bin/check.shadow.all.v2.pl
 

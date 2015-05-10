@@ -9,8 +9,13 @@ $TOLERANCE=$ENV{'TOLERANCE'};
 $MAXTHR=1.0+$TOLERANCE;
 $MINTHR=1.0-$TOLERANCE;
 $PRECISION=$ENV{'PRECISION'};
-$BIFSIF=$ENV{'BIFSIF'};
-$BIFSIF_CA=$ENV{'BIFSIF_CA'};
+# these are variables used for default testing
+$BIFSIF_AA=$ENV{'BIFSIF_AA_DEFAULT'};
+$BIFSIF_CA=$ENV{'BIFSIF_CA_DEFAULT'};
+# these are variables used for non-default testing
+$TEMPLATE_DIR_AA=$ENV{'BIFSIF_AA_TESTING'};
+$TEMPLATE_DIR_AA_STATIC=$ENV{'BIFSIF_STATIC_TESTING'};
+$TEMPLATE_DIR_CA=$ENV{'BIFSIF_CA_TESTING'};
 
 print "environment variables read\n";
 print "EXEC_NAME $EXEC_NAME\n";
@@ -107,6 +112,11 @@ while(<PARMS>){
 ## they are left in for future extentions to cut-off maps
 
  $model=$A[1];
+ if($A[2] eq "default"){
+  $default="yes";
+ }else{
+  $default="no";
+ }
  if($model eq "CA"){
   print "Testing CA model\n";
  }elsif($model eq "AA"){
@@ -116,8 +126,8 @@ while(<PARMS>){
   die;
  }
 
- if($A[2] eq "default"){
-  print "checking default parameters for SMOG models\n";
+ if($default eq "yes"){
+  print "checking default parameters\n";
   ## CUT-OFF settings (not used)
   $PP_cutoff=4.0;
   $PN_cutoff=4.0;
@@ -143,9 +153,26 @@ while(<PARMS>){
   $sigmaCA=4.0;
  }else{
   print "checking non-default parameters for SMOG models\n";
-  print "not yet supported. Quitting...\n";
-  die;
- # assign values based on choices
+  $PP_cutoff=$A[2];
+  $PN_cutoff=$A[3];
+  $NN_cutoff=$A[4];
+  $PN_L_cutoff=$A[5];
+  # minimum sequence distance
+  $PP_seq=$A[6];
+  $NN_seq=$A[7];
+  # energy distributions
+  $R_CD=$A[8];
+  $R_P_BB_SC=$A[9];
+  $R_N_SC_BB=$A[10];
+  $PRO_DIH=$A[11];
+  $NA_DIH=$A[12];
+  $LIGAND_DIH=$A[13];
+  # excluded volumes
+  $sigma=$A[14];
+  $epsilon=$A[15];
+  $epsilonCAC=$A[16];
+  $epsilonCAD=$A[17];
+  $sigmaCA=$A[18];
  }
 
  $contacts="shadow";
@@ -159,7 +186,7 @@ while(<PARMS>){
 if($FAIL_SYSTEM > 0){
  print "\n*********************************\n TESTS FAILED  !!!\n*********************************\n\n";
 }else{
- print "\n*******************************\nPASSED ALL BASIC TESTS FOR CA MODEL\n*******************************\n\n\n";
+ print "\n*******************************\nPASSED ALL BASIC TESTSL\n*******************************\n\n\n";
 }
 
 
@@ -172,39 +199,34 @@ sub smogchecker
  &preparesettings;
  
  # RUN SMOG2
- if($model eq "CA"){
-  `$EXEC_NAME -i PDB.files/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -tCG $BIFSIF_CA/ -contactRes $BIFSIF &> $PDB.output `;
- }elsif($model eq "AA"){
-  `$EXEC_NAME -i PDB.files/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -tAA $BIFSIF/  &> $PDB.output `;
+ if($default eq "yes"){
+  if($model eq "CA"){
+   `$EXEC_NAME -i PDB.files/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -tCG $BIFSIF_CA -contactRes $BIFSIF_AA &> $PDB.output`;
+  }elsif($model eq "AA"){
+   `$EXEC_NAME -i PDB.files/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -tAA $BIFSIF_AA  &> $PDB.output`;
+  }else{
+   print "unrecognized model.  Quitting..\n";
+   die;
+  }
  }else{
-  print "unrecognized model.  Quitting..\n";
-  die;
+  if($model eq "CA"){
+   `$EXEC_NAME -i PDB.files/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -tCG temp.bifsif/ -contactRes $TEMPLATE_DIR_AA_STATIC &> $PDB.output`;
+  }elsif($model eq "AA"){
+   `$EXEC_NAME -i PDB.files/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -tAA temp.bifsif/  &> $PDB.output`;
+  }else{
+   print "unrecognized model.  Quitting..\n";
+   die;
+  }
+
+
  }
  # CHECK THE OUTPUT
  
  &checkndx;
  &readtop;
  &checkvalues;
- 
- 
- if($FAILED > 0){
-  print "\n*********************************\n $FAILED TESTS FAILED!!!\n*********************************\n\n";
-  print "saving files with names $PDB.fail$NFAIL.X\n";
-  `mv $PDB.top $FAILDIR/$PDB.fail$NFAIL.top`;
-  `cp $PDB.pdb $FAILDIR/$PDB.fail$NFAIL.pdb`;
-  `mv $PDB.gro  $FAILDIR/$PDB.fail$NFAIL.gro`;
-  `mv $PDB.ndx  $FAILDIR/$PDB.fail$NFAIL.ndx`;
-  `mv $PDB.settings  $FAILDIR/$PDB.fail$NFAIL.settings`;
-  `mv $PDB.contacts  $FAILDIR/$PDB.fail$NFAIL.contacts`;
-  `mv $PDB.output  $FAILDIR/$PDB.fail$NFAIL.output`;
-  #`mv temp.bifsif $FAILDIR/$PDB.fail$NFAIL.bifsif`;
-  $NFAIL++;
-  $FAIL_SYSTEM++;
- }else{
-  print "\n*******************************\nPASSED\n*******************************\n\n\n";
-  `rm $PDB.top $PDB.gro $PDB.ndx $PDB.settings $PDB.output`;
- }
- 
+ &summary; 
+
 }
 
 
@@ -245,6 +267,45 @@ sub preparesettings
  printf READSET ("epsilonCAD %s\n", $epsilonCAD);
  printf READSET ("sigmaCA %s\n", $sigmaCA);
  close(READSET);
+
+ if($model eq "CA"){
+  $sigmaCA=$sigmaCA/10.0;
+  $rep_s12=$sigmaCA**12;
+  $sigmaCA=$sigmaCA*10.0;
+ }elsif($model eq "AA"){
+  $sigma=$sigma/10;
+  $rep_s12=$sigma**12*$epsilon;
+  $sigma=$sigma*10;
+ }else{
+  print "unknown model type.  Quitting...\n";
+ }
+
+ if(-d "temp.bifsif"){
+  `rm -r temp.bifsif`;
+ }
+ if($model eq "CA" && $default ne "yes"){
+  `mkdir temp.bifsif`;
+  $PARM_P_BB=$PRO_DIH;
+  $PARM_P_SC=$PRO_DIH/$R_P_BB_SC;
+  $PARM_N_BB=$NA_DIH;
+  $PARM_N_SC=$NA_DIH*$R_N_SC_BB;
+  `sed "s/EPS_CONT/$epsilonCAC/g;s/EPS_DIH/$epsilonCAD/g" $TEMPLATE_DIR_CA/*.sif > temp.bifsif/tmp.sif`;
+  `sed "s/PARM_C12/$rep_s12/g;s/EPS_CONT/$epsilonCAC/g" $TEMPLATE_DIR_CA/*.nb > temp.bifsif/tmp.nb`;
+  `sed "s/EPS_CONT/$epsilonCAC/g;s/EPS_DIH/$epsilonCAD/g" $TEMPLATE_DIR_CA/*.b > temp.bifsif/tmp.b`;
+  `cp $TEMPLATE_DIR_CA/*.bif temp.bifsif/tmp.bif`;
+ } 
+
+ if($model eq "AA" && $default ne "yes"){
+  `mkdir temp.bifsif`;
+  $PARM_P_BB=$PRO_DIH;
+  $PARM_P_SC=$PRO_DIH/$R_P_BB_SC;
+  $PARM_N_BB=$NA_DIH;
+  $PARM_N_SC=$NA_DIH*$R_N_SC_BB;
+  `sed "s/PARM_C_D/$R_CD/g;s/PARM_P_BB/$PARM_P_BB/g;s/PARM_P_SC/$PARM_P_SC/g;s/PARM_N_BB/$PARM_N_BB/g;s/PARM_N_SC/$PARM_N_SC/g;" $TEMPLATE_DIR_AA/*.sif > temp.bifsif/tmp.sif`;
+  `sed "s/PARM_C12/$rep_s12/g" $TEMPLATE_DIR_AA/*.nb > temp.bifsif/tmp.nb`;
+  `cp $TEMPLATE_DIR_AA/*.bif temp.bifsif/tmp.bif`;
+  `cp $TEMPLATE_DIR_AA/*.b temp.bifsif/tmp.b`;
+ }
 }
 
 
@@ -273,17 +334,6 @@ sub checkndx
 sub readtop
 {
 
- if($model eq "CA"){
-  $sigmaCA=$sigmaCA/10.0;
-  $rep_s12=$sigmaCA**12;
-  $sigmaCA=$sigmaCA*10.0;
- }elsif($model eq "AA"){
-  $sigma=$sigma/10;
-  $rep_s12=$sigma**12*$epsilon;
-  $sigma=$sigma*10;
- }else{
-  print "unknown model type.  Quitting...\n";
- }
  `bin/top.clean.bash $PDB.top $PDB.top2`;
  `mv $PDB.top2 $PDB.top`;
  open(TOP,"$PDB.top") or die " $PDB.top can not be opened...";
@@ -1165,3 +1215,25 @@ sub checkvalues
  }
 }
 
+sub summary
+{
+ if($FAILED > 0){
+  print "\n*********************************\n $FAILED TESTS FAILED!!!\n*********************************\n\n";
+  print "saving files with names $PDB.fail$NFAIL.X\n";
+  `mv $PDB.top $FAILDIR/$PDB.fail$NFAIL.top`;
+  `cp $PDB.pdb $FAILDIR/$PDB.fail$NFAIL.pdb`;
+  `mv $PDB.gro  $FAILDIR/$PDB.fail$NFAIL.gro`;
+  `mv $PDB.ndx  $FAILDIR/$PDB.fail$NFAIL.ndx`;
+  `mv $PDB.settings  $FAILDIR/$PDB.fail$NFAIL.settings`;
+  `mv $PDB.contacts  $FAILDIR/$PDB.fail$NFAIL.contacts`;
+  `mv $PDB.output  $FAILDIR/$PDB.fail$NFAIL.output`;
+  if($default ne "yes"){
+   `mv temp.bifsif $FAILDIR/$PDB.fail$NFAIL.bifsif`;
+  } 
+  $NFAIL++;
+  $FAIL_SYSTEM++;
+ }else{
+  print "\n*******************************\nPASSED\n*******************************\n\n\n";
+  `rm $PDB.top $PDB.gro $PDB.ndx $PDB.settings $PDB.output`;
+ }
+}
