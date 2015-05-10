@@ -1,0 +1,32 @@
+########################################################
+README for SMOG2 tests.  This is a very simple script
+that will test to see if your installation of SMOG2
+is generating CA and AA .top files that are consistent
+with the default settings.
+
+Paul Whitford
+########################################################
+
+
+########################################################
+
+			USAGE
+
+When everything work well, all you need to do is issue 
+the command
+
+./tests <SMOG_BIN>
+
+SMOG_BIN is the directory in which your installation 
+of SMOG2 is located.
+
+This script has been tested on Linux and OSX platforms.
+If you are using altnerate platforms, the most common
+issue is that perl is located in a different directory
+than expected.  If that is the case, you will want to
+update the .pl files, such that the proper interpreter
+is used.
+
+Direct all questions to info@smog-server.org.
+
+########################################################
