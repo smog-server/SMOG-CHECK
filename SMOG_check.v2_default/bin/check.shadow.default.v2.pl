@@ -125,6 +125,9 @@ while(<PARMS>){
  $LIGAND_DIH=1.0;
  $sigma=2.5;
  $epsilon=0.01;
+ $sigma=$sigma/10;
+ $rep_s12=$sigma**12*$epsilon;
+ $sigma=$sigma*10;
 
 ## make a settings file...
  open(READSET,">$PDB.settings") or die  "can not open settings file\n";
@@ -630,7 +633,6 @@ while(<PARMS>){
     $NCONTACTS++;
     # determine the epsilon of the contact
     $W=($A[3]*$A[3])/(4*$A[4]);
-    $CONTENERGY+=$W;
     $sigma=($A[4]/(2*$A[3]))**(1.0/6.0);
     if($sigma > 0.6){
      print "long contacts! distance $sigma nm.\n";
@@ -716,7 +718,7 @@ while(<PARMS>){
   $FAILED++;
  }
  if($EXCL > 0){
-  print "FAILED: excluded volume\n";
+  print "excluded volume: FAILED\n";
   $FAILED++;
  }else{
   print "excluded volume: PASSED\n";
@@ -764,7 +766,7 @@ while(<PARMS>){
      if($ATOMTYPE[$i] eq "BACKBONE" or  $ATOMTYPE[$i+$j] eq "BACKBONE"){
       $DIH_TYPE[$i][$j]="AMINOBB";
       if($PBBvalue !=$ED_T[$i][$j] && $PBBvalue !=0){
-       print "FAILED: protein backbone dihedral $i $j failed\n";
+       print "protein backbone dihedral $i $j failed: FAILED\n";
        print "$PBBvalue is before\n";
        print "$ED_T[$i][$j] is the bad one...\n";
        $PBBfail++;
@@ -774,7 +776,7 @@ while(<PARMS>){
       $DIH_TYPE[$i][$j]="AMINOSC";
       if($PSCvalue !=$ED_T[$i][$j] && $PSCvalue !=0){
        $PSCfail++;
-       print "FAILED: protein sidechain dihedral $i $j\n";
+       print "protein sidechain dihedral $i $j: FAILED\n";
        print "$PSCvalue is before\n";
        print "$ED_T[$i][$j] is the bad one...\n";
       }
@@ -785,7 +787,7 @@ while(<PARMS>){
       $DIH_TYPE[$i][$j]="NUCLEICBB";
       if($NABBvalue !=$ED_T[$i][$j] && $NABBvalue != 0 ){
        $NABBfail++;
-       print "FAILED: nucleic backbone dihedral $i $j\n";
+       print "nucleic backbone dihedral $i $j: FAILED\n";
        print "$NABBvalue is before\n";
        print "$ED_T[$i][$j] is the bad one...\n";
       }
@@ -794,7 +796,7 @@ while(<PARMS>){
       $DIH_TYPE[$i][$j]="NUCLEICSC";
       if($NASCvalue !=$ED_T[$i][$j] && $NASCvalue !=0){
        $NASCfail++;
-       print "FAILED: nucleic sidechain dihedral $i $j\n";
+       print "nucleic sidechain dihedral $i $j: FAILED\n";
        print "$NASCvalue is before\n";
        print "$ED_T[$i][$j] is the bad one...\n";
       }
@@ -814,7 +816,7 @@ while(<PARMS>){
   }
  }
  if($ContactFAIL>0){
-  print "FAIL: some contacts were not the proper strength\n";
+  print "some contacts were not the proper strength: FAILED\n";
   $FAILED++;
  }else{
   print "contact strength: PASSED\n";

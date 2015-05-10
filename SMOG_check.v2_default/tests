@@ -25,5 +25,5 @@ then
 	echo STARTING analysis of the all-atom model with a shadow map
 	rm -r FAILED.shadow
 	mkdir FAILED.shadow
-	echo PDB.files/allatom.pdb | bin/check.shadow.default.v2.pl
+	echo PDB.files/allatom.pdbs | bin/check.shadow.default.v2.pl
 fi
