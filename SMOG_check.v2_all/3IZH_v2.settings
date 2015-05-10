@@ -1,0 +1,22 @@
+3IZH_v2.pdb
+3IZH_v2.top
+3IZH_v2.gro
+3IZH_v2.ndx
+All-Atom
+PP_cutoff 4
+NN_cutoff 4
+PN_cutoff 4
+PN_L_cutoff 4
+PP_seq 4
+NN_seq 1
+R_CD 2
+R_P_BB_SC 2
+R_N_SC_BB 1
+PRO_DIH 1
+NA_DIH 1
+LIGAND_DIH 1
+sigma 2.5
+epsilon 0.01
+epsilonCAC 1
+epsilonCAD 1
+sigmaCA 4
