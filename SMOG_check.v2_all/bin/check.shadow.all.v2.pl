@@ -182,14 +182,12 @@ while(<PARMS>){
 
 }
 
-# If any systems failed, output message
-if($FAIL_SYSTEM > 0){
- print "\n*********************************\n TESTS FAILED  !!!\n*********************************\n\n";
-}else{
- print "\n*******************************\nPASSED ALL BASIC TESTSL\n*******************************\n\n\n";
-}
-
-
+ # If any systems failed, output message
+ if($FAIL_SYSTEM > 0){
+  print "\n*********************************\n TESTS FAILED  !!!\n*********************************\n\n";
+ }else{
+  print "\n*******************************\nPASSED ALL BASIC TESTS\n*******************************\n\n\n";
+ }
 
 sub smogchecker
 {
@@ -309,9 +307,6 @@ sub preparesettings
 }
 
 
-
-
-
 sub checkndx
 {
 
@@ -363,8 +358,6 @@ sub readtop
     @A=split(/ /,$LINE);
    }
   }
- 
- 
  
   # read the atoms, and store information about them
   if($A[1] eq "atoms"){
