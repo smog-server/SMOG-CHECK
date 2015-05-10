@@ -16,7 +16,7 @@ print "environment variables read\n";
 print "EXEC_NAME $EXEC_NAME\n";
 
 ## this is the all-atom smog check with shadow.
-$FAILDIR="FAILED.shadow.CA";
+$FAILDIR="FAILED";
 
 unless( -e $EXEC_NAME){
  print "Can\'t find the SMOG executable\n";
@@ -95,46 +95,60 @@ open(PARMS,"$SETTINGS_FILE") or die "The settings file is missing...\n";
 while(<PARMS>){
  $LINE=$_;
  chomp($LINE);
- $PDB=$LINE;
  $NFAIL=0;
- print "\n*******************************\nSTARTING TESTS for $PDB.pdb\n*******************************\n\n\n";
  $FAILED=0;
  $LINE=$_;
  chomp($LINE);
  @A=split(/ /,$LINE);
+ $PDB=$A[0];
+ print "\n*******************************\nSTARTING TESTS for $PDB.pdb\n*******************************\n\n\n";
 
 ## These next few lines are currently obsolete, since we are only testing the SHADOW map
 ## they are left in for future extentions to cut-off maps
 
+ $model=$A[1];
+ if($model eq "CA"){
+  print "Testing CA model\n";
+ }elsif($model eq "AA"){
+  print "Testing AA model\n";
+ }else{
+  print "Model name $model, not understood. Only CA and AA models are supported by the test script.  Quitting...\n";
+  die;
+ }
 
-## put in something here if defaults are being checked.  
+ if($A[2] eq "default"){
+  print "checking default parameters for SMOG models\n";
+  ## CUT-OFF settings (not used)
+  $PP_cutoff=4.0;
+  $PN_cutoff=4.0;
+  $NN_cutoff=4.0;
+  $PN_L_cutoff=4.0;
+  # minimum sequence distance
+  $PP_seq=4;
+  $NN_seq=1;
+  # End of unused stuff
+  # energy distributions
 
-## CUT-OFF settings (not used)
- $PP_cutoff=4.0;
- $PN_cutoff=4.0;
- $NN_cutoff=4.0;
- $PN_L_cutoff=4.0;
-# minimum sequence distance
- $PP_seq=4;
- $NN_seq=1;
-# End of unused stuff
-# energy distributions
+  ## Settings relevant for the default model
+  $R_CD=2.0;
+  $R_P_BB_SC=2.0;
+  $R_N_SC_BB=1.0;
+  $PRO_DIH=1.0;
+  $NA_DIH=1.0;
+  $LIGAND_DIH=1.0;
+  $sigma=2.5;
+  $epsilon=0.01;
+  $epsilonCAC=1.0;
+  $epsilonCAD=1.0;
+  $sigmaCA=4.0;
+ }else{
+  print "checking non-default parameters for SMOG models\n";
+  print "not yet supported. Quitting...\n";
+  die;
+ # assign values based on choices
+ }
 
-## Settings relevant for the default model
- $R_CD=2.0;
- $R_P_BB_SC=2.0;
- $R_N_SC_BB=1.0;
- $PRO_DIH=1.0;
- $NA_DIH=1.0;
- $LIGAND_DIH=1.0;
- $sigma=2.5;
- $epsilon=0.01;
- $epsilonCAC=1.0;
- $epsilonCAD=1.0;
- $sigmaCA=4.0;
- $model="CA";
  $contacts="shadow";
-## if defaults are not being checked, then add values here.
 
  &smogchecker;
 
@@ -158,8 +172,14 @@ sub smogchecker
  &preparesettings;
  
  # RUN SMOG2
- `$EXEC_NAME -i PDB.files/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -tCG $BIFSIF_CA/ -contactRes $BIFSIF &> $PDB.output `;
- 
+ if($model eq "CA"){
+  `$EXEC_NAME -i PDB.files/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -tCG $BIFSIF_CA/ -contactRes $BIFSIF &> $PDB.output `;
+ }elsif($model eq "AA"){
+  `$EXEC_NAME -i PDB.files/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -tAA $BIFSIF/  &> $PDB.output `;
+ }else{
+  print "unrecognized model.  Quitting..\n";
+  die;
+ }
  # CHECK THE OUTPUT
  
  &checkndx;
@@ -253,10 +273,17 @@ sub checkndx
 sub readtop
 {
 
- $sigmaCA=$sigmaCA/10.0;
- $rep_s12=$sigmaCA**12;
- $sigmaCA=$sigmaCA*10.0;
- 
+ if($model eq "CA"){
+  $sigmaCA=$sigmaCA/10.0;
+  $rep_s12=$sigmaCA**12;
+  $sigmaCA=$sigmaCA*10.0;
+ }elsif($model eq "AA"){
+  $sigma=$sigma/10;
+  $rep_s12=$sigma**12*$epsilon;
+  $sigma=$sigma*10;
+ }else{
+  print "unknown model type.  Quitting...\n";
+ }
  `bin/top.clean.bash $PDB.top $PDB.top2`;
  `mv $PDB.top2 $PDB.top`;
  open(TOP,"$PDB.top") or die " $PDB.top can not be opened...";
@@ -645,7 +672,7 @@ sub readtop
      }
     }
     if($A[4] == 1 && $A[7] == 1 ){
-     if($A[6] < $MINTHR*$epsilonCAD || $A[6] > $MAXTHR*$epsilonCAD){
+     if(($A[6] < $MINTHR*$epsilonCAD || $A[6] > $MAXTHR*$epsilonCAD) && $model eq "CA"){
       $DIHSFAIL++;	
      }
      if($MOLTYPE[$A[0]] ne "LIGAND" ){
@@ -727,15 +754,57 @@ sub readtop
     $PAIRS[$NCONTACTS][1]=$A[1];
     $NCONTACTS++;
     # determine the epsilon of the contact
-    $W=5.0**5.0/6.0**6.0*($A[3]**6.0)/($A[4]**5.0);
-    $CONTENERGY+=$W;
-    $sigma=($A[4]/(2*$A[3]))**(1.0/6.0);
+    if($model eq "CA"){
+     $W=5.0**5.0/6.0**6.0*($A[3]**6.0)/($A[4]**5.0);
+    }elsif($model eq "AA"){
+     $W=($A[3]*$A[3])/(4*$A[4]);
+    }else{
+     print "unrecognized model.  Quitting...\n";
+     die;
+    }
+    if($model eq "AA"){
+     $Cdist=($A[4]/(2*$A[3]))**(1.0/6.0);
+    }
     # so long as the contacts are not with ligands, then we add the sum
-    if($W < $MINTHR*$epsilonCAC || $W > $MAXTHR*$epsilonCAC){
-     $ContactFAIL++;
-     print "Error in EpsilonC values\n";
-     print "Value: Target\n";
-     print "$W $epsilonCAC\n";
+    if($model eq "CA"){
+     $CONTENERGY+=$W;
+     if($W < $MINTHR*$epsilonCAC || $W > $MAXTHR*$epsilonCAC){
+      $ContactFAIL++;
+      print "Error in EpsilonC values\n";
+      print "Value: Target\n";
+      print "$W $epsilonCAC\n";
+     }
+    }elsif($model eq "AA"){
+     if($Cdist > 0.6){
+      print "long contacts! distance $sigma nm.\n";
+      print "$LINE";
+      $longcontact++;
+     }
+     ## so long as the contacts are not with ligands, then we add the sum
+     if($MOLTYPE[$A[0]] ne "LIGAND" and $MOLTYPE[$A[1]] ne "LIGAND"){
+      $CONTENERGY+=($A[3]*$A[3])/(4*$A[4]);
+     }
+     if($MOLTYPE[$A[0]] eq "NUCLEIC" and $MOLTYPE[$A[1]] eq "NUCLEIC" and $ATOMTYPE[$A[0]] ne "BACKBONE" and  $ATOMTYPE[$A[1]] ne "BACKBONE" and $ATOMNAME[$A[0]] ne "C1\*" and $ATOMNAME[$A[1]] ne "C1\*" and abs($RESNUM[$A[0]]-$RESNUM[$A[1]]) == 1 and $CID[$A[0]] == $CID[$A[1]]){
+      # if we haven't assigned a value to stacking interactions, then let's save it
+      # if we have saved it, check to see that this value is the same as the previous ones.
+      if($stackingE == 0 ){
+       $stackingE=$W;
+      }elsif(abs($stackingE - $W) > 10.0/($PRECISION*1.0) ){
+       $FAILSTACK++;
+       print "$stackingE  $W $A[0] $A[1] \n";
+       }
+     }else{
+     # it is not a stacking contact.  Do the same checks for non-stacking interactions
+      if($NonstackingE == 0 ){
+       $NonstackingE=$W;
+      }elsif(abs($NonstackingE - $W) > 10.0/($PRECISION*1.0) ){
+       $FAILNONSTACK++;
+       print "$NonstackingE $W\n";
+      }
+     }
+    }else{
+     print "unrecognized model.  Quitting...\n";
+     die;
     }
     # truncate the epsilon, for comparison purpsoses later.
     $W=int(($W * $PRECISION))/($PRECISION*1.0);
@@ -792,12 +861,22 @@ sub checkvalues
  print "min dihedral = $DIH_MIN\n";
  print "generated angles, dihedrals, impropers\n";
  print "$theta_gen_N $phi_gen_N $improper_gen_N\n";
- if($theta_gen_N == 0 || $phi_gen_N == 0 ){
-  print "couldnt generate something....\n";
-  $FAILED++;
+ if($model eq "CA"){
+  if($theta_gen_N == 0 || $phi_gen_N == 0 ){
+   print "couldnt generate something....\n";
+   $FAILED++;
+  }
+ }elsif($model eq "AA"){
+  if($theta_gen_N == 0 || $phi_gen_N == 0 ||  $improper_gen_N == 0){
+   print "couldnt generate something....\n";
+   $FAILED++;
+  }
+ }else{
+  print "unrecognized model. Quitting...\n";
+  die;
  }
  if($EXCL > 0){
-  print "FAILED: excluded volume\n";
+  print "excluded volume: FAILED\n";
   $FAILED++;
  }else{
   print "excluded volume: PASSED\n";
@@ -940,7 +1019,7 @@ sub checkvalues
   print "Type-3 dihedrals...: PASSED\n";
  }
  if($DIHSFAIL > 0){
-  print "FAILED: $DIHSFAIL dihedrals weights are wrong...\n";
+  print "FAILED: $DIHSFAIL dihedral weights are wrong...\n";
   $FAILED++;
  }else{
   print "Dihedral weights: PASSED\n";
@@ -976,70 +1055,83 @@ sub checkvalues
  }else{
   print "contact distances: PASSED\n";
  }
- if($NonstackingE !=0 && $stackingE !=0){
-  $CR=$NonstackingE/$stackingE;
-  if($CR > 1.02 || $CR < 0.98){
-   print "ratio between stacking and non stacking is not 1\n";
-   print "ratio is $CR\n";
+
+
+ if($model eq "AA"){
+  if($NonstackingE !=0 && $stackingE !=0){
+   $CR=$NonstackingE/$stackingE;
+   if($CR > 1.02 || $CR < 0.98){
+    print "ratio between stacking and non stacking is not 1\n";
+    print "ratio is $CR\n";
+    $FAILED++;
+   }else{
+    print "ratio between stacking and non-stacking: PASSED\n";
+   }
+  }
+  if($LIGAND_PRESENT){
+   if($LIGdfail > 0){
+    print "ligand dihedrals, contant value: FAILED\n";
+    $FAILED++;
+   }else{
+    print "ligand dihedrals, contant value: PASSED\n";
+   }
+  }
+  if($AMINO_PRESENT && $NUCLEIC_PRESENT){
+   print "protein: $PBBvalue nucleic acid: $NABBvalue\n";
+   $RR=$PBBvalue/$NABBvalue;
+   $RR_TARGET=$PRO_DIH/$NA_DIH;
+   print "Target ratio: $RR_TARGET\n";
+   print "Actual ratio: $RR\n";
+   if($RR > $MAXTHR*$RR_TARGET || $RR < $MINTHR*$RR_TARGET){
+    print "backbone dihedrals are not consistent between nucleic acids and protein: FAILED\n";
+    $FAILED++;
+   }else{
+    print "consistency between NA-protein backbone dihedrals: PASSED\n";
+   }
+  }
+  if($AMINO_PRESENT && $LIGAND_PRESENT){
+   print "protein: $PBBvalue Ligand: $LIGdvalue\n";
+   $RR=$PBBvalue/$LIGdvalue;
+   $RR_TARGET=$PRO_DIH/$LIGAND_DIH;
+   print "Target ratio: $RR_TARGET\n";
+   print "Actual ratio: $RR\n";
+   if($RR > $MAXTHR*$RR_TARGET || $RR < $MINTHR*$RR_TARGET){
+    print "backbone dihedrals are not consistent between ligands and protein: FAILED\n";
+    $FAILED++;
+   }else{
+    print "consistency between ligand-protein backbone dihedrals: PASSED\n";
+   }
+  }
+  if($LIGAND_PRESENT && $NUCLEIC_PRESENT){
+   print "ligand: $LIGdvalue nucleic acid: $NABBvalue\n";
+   $RR=$LIGdvalue/$NABBvalue;
+   $RR_TARGET=$LIGAND_DIH/$NA_DIH;
+   print "Target ratio: $RR_TARGET\n";
+   print "Actual ratio: $RR\n";
+   if($RR > $MAXTHR*$RR_TARGET || $RR < $MINTHR*$RR_TARGET){
+    print "backbone dihedrals are not consistent between nucleic acids and ligand: FAILED\n";
+    $FAILED++;
+   }else{
+    print "consistency between NA-ligand backbone dihedrals: PASSED\n";
+   }
+  }
+  ## check if the range of dihedrals is reasonable  
+  if($D_R > $MAXTHR*4*$R_P_BB_SC  ){
+   print "WARNING!!!: range of dihedrals is large\n";
+  }else{
+   print "range of dihedrals: PASSED\n";
+  }
+
+  $CD_ratio=$CONTENERGY/$DENERGY;
+  if($MAXTHR*$R_CD < $CD_ratio || $MINTHR*$R_CD > $CD_ratio){
+   print "The contact/dihedral ratio: FAILED\n";
    $FAILED++;
   }else{
-   print "ratio between stacking and non-stacking: PASSED\n";
+   print "The contact/dihedral ratio: PASSED\n";
   }
- }
- if($LIGAND_PRESENT){
-  if($LIGdfail > 0){
-   print "ligand dihedrals, contant value: FAILED\n";
-   $FAILED++;
-  }else{
-   print "ligand dihedrals, contant value: PASSED\n";
-  }
- }
- if($AMINO_PRESENT && $NUCLEIC_PRESENT){
-  print "protein: $PBBvalue nucleic acid: $NABBvalue\n";
-  $RR=$PBBvalue/$NABBvalue;
-  $RR_TARGET=$PRO_DIH/$NA_DIH;
-  print "Target ratio: $RR_TARGET\n";
-  print "Actual ratio: $RR\n";
-  if($RR > $MAXTHR*$RR_TARGET || $RR < $MINTHR*$RR_TARGET){
-   print "backbone dihedrals are not consistent between nucleic acids and protein: FAILED\n";
-   $FAILED++;
-  }else{
-   print "consistency between NA-protein backbone dihedrals: PASSED\n";
-  }
- }
- if($AMINO_PRESENT && $LIGAND_PRESENT){
-  print "protein: $PBBvalue Ligand: $LIGdvalue\n";
-  $RR=$PBBvalue/$LIGdvalue;
-  $RR_TARGET=$PRO_DIH/$LIGAND_DIH;
-  print "Target ratio: $RR_TARGET\n";
-  print "Actual ratio: $RR\n";
-  if($RR > $MAXTHR*$RR_TARGET || $RR < $MINTHR*$RR_TARGET){
-   print "backbone dihedrals are not consistent between ligands and protein: FAILED\n";
-   $FAILED++;
-  }else{
-   print "consistency between ligand-protein backbone dihedrals: PASSED\n";
-  }
- }
- if($LIGAND_PRESENT && $NUCLEIC_PRESENT){
-  print "ligand: $LIGdvalue nucleic acid: $NABBvalue\n";
-  $RR=$LIGdvalue/$NABBvalue;
-  $RR_TARGET=$LIGAND_DIH/$NA_DIH;
-  print "Target ratio: $RR_TARGET\n";
-  print "Actual ratio: $RR\n";
-  if($RR > $MAXTHR*$RR_TARGET || $RR < $MINTHR*$RR_TARGET){
-   print "backbone dihedrals are not consistent between nucleic acids and ligand: FAILED\n";
-   $FAILED++;
-  }else{
-   print "consistency between NA-ligand backbone dihedrals: PASSED\n";
-  }
- }
- ## check if the range of dihedrals is reasonable  
- if($D_R > $MAXTHR*4*$R_P_BB_SC  ){
-  print "WARNING!!!: range of dihedrals is large\n";
- }else{
-  print "PASSED: range of dihedrals ok\n";
- }
- 
+ } 
+
+
  open(CFILE,"$PDB.contacts") or die "can\'t open $PDB.contacts\n";
  $NUMBER_OF_CONTACTS_SHADOW=0;
  while(<CFILE>){
@@ -1063,5 +1155,13 @@ sub checkvalues
  $E_TOTAL=$DENERGY+$CONTENERGY;
  $CTHRESH=$NUMATOMS*10.0/$PRECISION;
  print "number of non-ligand atoms $NUMATOMS_LIGAND total E $E_TOTAL\n";
+ if($model eq "AA"){ 
+  if(abs($NUMATOMS_LIGAND-$E_TOTAL) > $CTHRESH){
+   print "The total energy: FAILED\n";
+   $FAILED++;
+  }else{
+   print "The total energy: PASSED\n";
+  }
+ }
 }
 
