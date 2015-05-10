@@ -1044,6 +1044,7 @@ while(<PARMS>){
   `mv $PDB.settings  $FAILDIR/$PDB.fail$NFAIL.settings`;
   `mv $PDB.contacts  $FAILDIR/$PDB.fail$NFAIL.contacts`;
   `mv $PDB.output  $FAILDIR/$PDB.fail$NFAIL.output`;
+  `mv shadow.log  $FAILDIR/$PDB.fail$NFAIL.shadow.log`;
   `mv temp.bifsif $FAILDIR/$PDB.fail$NFAIL.bifsif`;
   $NFAIL++;
   $FAIL_SYSTEM++;
