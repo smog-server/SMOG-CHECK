@@ -287,9 +287,10 @@ sub preparesettings
   $PARM_P_SC=$PRO_DIH/$R_P_BB_SC;
   $PARM_N_BB=$NA_DIH;
   $PARM_N_SC=$NA_DIH*$R_N_SC_BB;
-  `sed "s/EPS_CONT/$epsilonCAC/g;s/EPS_DIH/$epsilonCAD/g" $TEMPLATE_DIR_CA/*.sif > temp.bifsif/tmp.sif`;
+  $epsilonCAD3=$epsilonCAD/2.0;
+  `sed "s/EPS_CONT/$epsilonCAC/g;s/EPS_DIH/$epsilonCAD/g;s/EPS_dih3/$epsilonCAD3/g" $TEMPLATE_DIR_CA/*.sif > temp.bifsif/tmp.sif`;
   `sed "s/PARM_C12/$rep_s12/g;s/EPS_CONT/$epsilonCAC/g" $TEMPLATE_DIR_CA/*.nb > temp.bifsif/tmp.nb`;
-  `sed "s/EPS_CONT/$epsilonCAC/g;s/EPS_DIH/$epsilonCAD/g" $TEMPLATE_DIR_CA/*.b > temp.bifsif/tmp.b`;
+  `sed "s/EPS_CONT/$epsilonCAC/g;s/EPS_DIH/$epsilonCAD/g;s/EPS_dih3/$epsilonCAD3/g" $TEMPLATE_DIR_CA/*.b > temp.bifsif/tmp.b`;
   `cp $TEMPLATE_DIR_CA/*.bif temp.bifsif/tmp.bif`;
  } 
 
@@ -337,6 +338,10 @@ sub readtop
  close(TOP);
  $NCONTACTS=0;
  open(TOP,"$PDB.top") or die " $PDB.top can not be opened...\n";
+ $NUCLEIC_PRESENT=0;
+ $AMINO_PRESENT=0;
+ $LIGAND_PRESENT=0;
+ $ION_PRESENT=0;
  while(<TOP>){
   $LINE=$_;
   chomp($LINE);
@@ -681,6 +686,8 @@ sub readtop
    $Nphi=0;
    $double_dihedral=0;
    $missing_dihedral_3=0;
+   $wrongW3=0;
+   $wrongS3=0;
    undef %dihedral_array;
    $#A = -1;
    $#ED_T = -1;
@@ -696,6 +703,15 @@ sub readtop
     # save the angles
     $phi[$Nphi]="$string";
     $Nphi++;
+    ##if dihedral is type 1, then save the information, so we can make sure the next is n=3
+    if($A[7] == 1){
+     $LAST_W=$A[6];
+     $string_last=$string;
+    }elsif($A[7] == 3 && ($A[6] < $MINTHR*0.5*$LAST_W || $A[6] > $MAXTHR*0.5*$LAST_W)){
+     $wrongW3++; 
+    }elsif($A[7] == 3 && ($string ne $string_last)){
+     $wrongS3++; 
+    }
     ##check if dihedral has been seen already...
     if($A[7] != 3){
      if($dihedral_array{$string} != 1 ){
@@ -1066,6 +1082,18 @@ sub checkvalues
   $FAILED++;
  }else{
   print "Dihedral weights: PASSED\n";
+ }
+ if($wrongW3 > 0){
+  print "energies of n=1 and n=3 dihedrals are not consistent: FAILED\n";
+  $FAILED++;
+ }else{
+  print "energies of n=1 and n=3 dihedrals: PASSED\n";
+ }
+ if($wrongS3 > 0){
+  print "ordering of n=1 and n=3 dihedrals is not consistent: FAILED\n";
+  $FAILED++;
+ }else{
+  print "ordering of n=1 and n=3 dihedrals: PASSED\n";
  }
  if($PBBfail >0){
   print "FAILED: $PBBfail protein backbone dihedrals dont have the same values...\n";
