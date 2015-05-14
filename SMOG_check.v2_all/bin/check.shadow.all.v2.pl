@@ -122,7 +122,7 @@ while(<PARMS>){
   next;
  }
   print "\n*************************************************************\n";
-  print "                 STARTING TEST $TESTNUM ($PDB)!!!\n";
+  print "                 STARTING TEST $TESTNUM ($PDB)\n";
   print "*************************************************************\n";
  
 ## These next few lines are currently obsolete, since we are only testing the SHADOW map
