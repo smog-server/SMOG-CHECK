@@ -17,6 +17,15 @@ $TEMPLATE_DIR_AA=$ENV{'BIFSIF_AA_TESTING'};
 $TEMPLATE_DIR_AA_STATIC=$ENV{'BIFSIF_STATIC_TESTING'};
 $TEMPLATE_DIR_CA=$ENV{'BIFSIF_CA_TESTING'};
 
+unless(-d $BIFSIF_AA && -d $BIFSIF_CA && -d $TEMPLATE_DIR_AA && -d $TEMPLATE_DIR_AA_STATIC && -d $TEMPLATE_DIR_CA){
+ print "Can\'t find the template directories. Something is wrong with the configurations of this script.\n";
+ print "Your intallation of SMOG2 may be ok, but we can\'t tell\n";
+ print "Giving up...\n";
+ die;
+}
+
+# default location of test PDBs
+$PDB_DIR="PDB.files";
 print "environment variables read\n";
 print "EXEC_NAME $EXEC_NAME\n";
 
@@ -95,7 +104,7 @@ while(<ion>){
 $SETTINGS_FILE=<STDIN>;
 chomp($SETTINGS_FILE);
 open(PARMS,"$SETTINGS_FILE") or die "The settings file is missing...\n";
-
+$TESTNUM=0;
 ## Run tests for each pdb
 while(<PARMS>){
  $LINE=$_;
@@ -106,8 +115,16 @@ while(<PARMS>){
  chomp($LINE);
  @A=split(/ /,$LINE);
  $PDB=$A[0];
- print "\n*******************************\nSTARTING TESTS for $PDB.pdb\n*******************************\n\n\n";
-
+ $TESTNUM++;
+ unless(-e "$PDB_DIR/$PDB.pdb"){
+  print "Unable to find PDB file $PDB_DIR/$PDB.pdb for testing.  Skipping this test\n";
+  $FAIL_SYSTEM++;
+  next;
+ }
+  print "\n*************************************************************\n";
+  print "                 STARTING TEST $TESTNUM ($PDB)!!!\n";
+  print "*************************************************************\n";
+ 
 ## These next few lines are currently obsolete, since we are only testing the SHADOW map
 ## they are left in for future extentions to cut-off maps
 
@@ -184,9 +201,14 @@ while(<PARMS>){
 
  # If any systems failed, output message
  if($FAIL_SYSTEM > 0){
-  print "\n*********************************\n TESTS FAILED  !!!\n*********************************\n\n";
+  print "\n*************************************************************\n";
+  print "                     TESTS FAILED: CHECK MESSAGES ABOVE  !!!\n";
+  print "*************************************************************\n";
+ 
  }else{
-  print "\n*******************************\nPASSED ALL BASIC TESTS\n*******************************\n\n\n";
+  print "\n*************************************************************\n";
+  print "                     PASSED ALL TESTS  !!!\n";
+  print "*************************************************************\n";
  }
 
 sub smogchecker
@@ -199,18 +221,18 @@ sub smogchecker
  # RUN SMOG2
  if($default eq "yes"){
   if($model eq "CA"){
-   `$EXEC_NAME -i PDB.files/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -tCG $BIFSIF_CA -contactRes $BIFSIF_AA &> $PDB.output`;
+   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -tCG $BIFSIF_CA -contactRes $BIFSIF_AA &> $PDB.output`;
   }elsif($model eq "AA"){
-   `$EXEC_NAME -i PDB.files/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -tAA $BIFSIF_AA  &> $PDB.output`;
+   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -tAA $BIFSIF_AA  &> $PDB.output`;
   }else{
    print "unrecognized model.  Quitting..\n";
    die;
   }
  }else{
   if($model eq "CA"){
-   `$EXEC_NAME -i PDB.files/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -tCG temp.bifsif/ -contactRes $TEMPLATE_DIR_AA_STATIC &> $PDB.output`;
+   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -tCG temp.bifsif/ -contactRes $TEMPLATE_DIR_AA_STATIC &> $PDB.output`;
   }elsif($model eq "AA"){
-   `$EXEC_NAME -i PDB.files/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -tAA temp.bifsif/  &> $PDB.output`;
+   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -tAA temp.bifsif/  &> $PDB.output`;
   }else{
    print "unrecognized model.  Quitting..\n";
    die;
@@ -732,7 +754,9 @@ sub readtop
     }
     if($A[4] == 1 && $A[7] == 1 ){
      if(($A[6] < $MINTHR*$epsilonCAD || $A[6] > $MAXTHR*$epsilonCAD) && $model eq "CA"){
-      $DIHSFAIL++;	
+      $DIHSFAIL++;
+      print "error in dihedral stength on line:";
+      print "$LINE\n";
      }
      if($MOLTYPE[$A[0]] ne "LIGAND" ){
       $DENERGY+=$A[6];
@@ -832,6 +856,8 @@ sub readtop
       print "Error in EpsilonC values\n";
       print "Value: Target\n";
       print "$W $epsilonCAC\n";
+      print "line:\n";
+      print "$LINE\n";
      }
     }elsif($model eq "AA"){
      if($Cdist > 0.6){
@@ -850,7 +876,7 @@ sub readtop
        $stackingE=$W;
       }elsif(abs($stackingE - $W) > 10.0/($PRECISION*1.0) ){
        $FAILSTACK++;
-       print "$stackingE  $W $A[0] $A[1] \n";
+       print "error in stacking energies: $stackingE  $W $A[0] $A[1] \n";
        }
      }else{
      # it is not a stacking contact.  Do the same checks for non-stacking interactions
@@ -858,7 +884,9 @@ sub readtop
        $NonstackingE=$W;
       }elsif(abs($NonstackingE - $W) > 10.0/($PRECISION*1.0) ){
        $FAILNONSTACK++;
-       print "$NonstackingE $W\n";
+       print "error in non-stacking contacts: $NonstackingE $W\n";
+       print "line:\n";
+       print "$LINE\n";
       }
      }
     }else{
@@ -1239,7 +1267,9 @@ sub checkvalues
 sub summary
 {
  if($FAILED > 0){
-  print "\n*********************************\n $FAILED TESTS FAILED!!!\n*********************************\n\n";
+  print "\n*************************************************************\n";
+  print "                 $FAILED TESTS FAILED FOR TEST $TESTNUM ($PDB)!!!\n";
+  print  "*************************************************************\n";
   print "saving files with names $PDB.fail$NFAIL.X\n";
   `mv $PDB.top $FAILDIR/$PDB.fail$NFAIL.top`;
   `cp $PDB.pdb $FAILDIR/$PDB.fail$NFAIL.pdb`;
@@ -1254,7 +1284,9 @@ sub summary
   $NFAIL++;
   $FAIL_SYSTEM++;
  }else{
-  print "\n*******************************\nPASSED\n*******************************\n\n\n";
+  print "\n*************************************************************\n";
+  print "                 TEST $TESTNUM PASSED ($PDB)!!!\n";
+  print  "*************************************************************\n";
   `rm $PDB.top $PDB.gro $PDB.ndx $PDB.settings $PDB.output`;
  }
 }
