@@ -15,7 +15,7 @@ Paul Whitford
 When everything work well, all you need to do is issue 
 the command
 
-./tests <SMOG_BIN>
+./smog-check <SMOG_BIN>
 
 SMOG_BIN is the directory in which your installation 
 of SMOG2 is located.
