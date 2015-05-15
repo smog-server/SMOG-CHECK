@@ -1,2 +1,2 @@
 #!/bin/bash
-rm -r *contacts *settings *output *top *ndx shadow.log FAILED temp.bifsif
+rm -r $.gro *.contacts *.settings *.output *.top *.ndx shadow.log FAILED temp.bifsif
