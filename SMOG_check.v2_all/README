@@ -1,8 +1,8 @@
 ########################################################
-README for SMOG2 tests.  This is a very simple script
-that will test to see if your installation of SMOG2
-is generating CA and AA .top files that are consistent
-with the default settings.
+README for the SMOG2 smog-check. This is a very simple 
+script that will test to see if your installation of 
+SMOG2 is generating CA and AA .top files that are 
+consistent with the default settings.
 
 Paul Whitford
 ########################################################
@@ -19,6 +19,9 @@ the command
 
 SMOG_BIN is the directory in which your installation 
 of SMOG2 is located.
+
+The script assumes that perl is located at /usr/bin/perl 
+and that sed and bash are in your path.
 
 This script has been tested on Linux and OSX platforms.
 If you are using altnerate platforms, the most common

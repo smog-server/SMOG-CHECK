@@ -25,7 +25,7 @@ unless(-d $BIFSIF_AA && -d $BIFSIF_CA && -d $TEMPLATE_DIR_AA && -d $TEMPLATE_DIR
 }
 
 # default location of test PDBs
-$PDB_DIR="PDB.files";
+$PDB_DIR="share/PDB.files";
 print "environment variables read\n";
 print "EXEC_NAME $EXEC_NAME\n";
 
@@ -38,14 +38,14 @@ unless( -e $EXEC_NAME){
 }
 
 ## read in the backbone atom types.  Remember, CA and C1* can be involved in sidechain dihedrals
-open(bbamino,"backboneatoms/aminoacids") or die "no amino acid file\n";
+open(bbamino,"share/backboneatoms/aminoacids") or die "no amino acid file\n";
 while(<bbamino>){
  $LINE=$_;
  chomp($LINE);
  $BBTYPE{$LINE}= "BACKBONE";
 }
 
-open(bbnucleic,"backboneatoms/nucleicacids") or die "no amino acid file\n";
+open(bbnucleic,"share/backboneatoms/nucleicacids") or die "no amino acid file\n";
 while(<bbnucleic>){
  $LINE=$_;
  chomp($LINE);
@@ -54,7 +54,7 @@ while(<bbnucleic>){
 
 ## LOAD INFORMATION ABOUT WHAT TYPES OF RESIDUES ARE RECOGNIZED BY SMOG2
 #amino acids
-open(amino,"residues/aminoacids") or die "no amino acid file\n";
+open(amino,"share/residues/aminoacids") or die "no amino acid file\n";
 $AAn=0;
 while(<amino>){
  $LINE=$_;
@@ -66,7 +66,7 @@ while(<amino>){
 
 
 #nucleic acids
-open(nucleic,"residues/nucleicacids") or die "no nucleic acid file\n";
+open(nucleic,"share/residues/nucleicacids") or die "no nucleic acid file\n";
 $NUCLEICn=0;
 while(<nucleic>){
  $LINE=$_;
@@ -77,7 +77,7 @@ while(<nucleic>){
 }
 
 #ligands
-open(ligand,"residues/ligands") or die "no nucleic acid file\n";
+open(ligand,"share/residues/ligands") or die "no nucleic acid file\n";
 $LIGANDn=0;
 while(<ligand>){
  $LINE=$_;
@@ -88,7 +88,7 @@ while(<ligand>){
 }
 
 #ions
-open(ion,"residues/ions") or die "no ion file\n";
+open(ion,"share/residues/ions") or die "no ion file\n";
 $IONn=0;
 while(<ion>){
  $LINE=$_;
@@ -1285,7 +1285,7 @@ sub summary
   $FAIL_SYSTEM++;
  }else{
   print "\n*************************************************************\n";
-  print "                 TEST $TESTNUM PASSED ($PDB)!!!\n";
+  print "                 TEST $TESTNUM PASSED ($PDB)\n";
   print  "*************************************************************\n";
   `rm $PDB.top $PDB.gro $PDB.ndx $PDB.settings $PDB.output`;
  }
