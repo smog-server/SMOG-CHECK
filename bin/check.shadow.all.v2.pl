@@ -710,6 +710,7 @@ sub readtop
    $missing_dihedral_3=0;
    $wrongW3=0;
    $wrongS3=0;
+   $wrongA3=0;
    undef %dihedral_array;
    $#A = -1;
    $#ED_T = -1;
@@ -729,12 +730,18 @@ sub readtop
     if($A[7] == 1){
      $LAST_W=$A[6];
      $string_last=$string;
-    }elsif($A[7] == 3 && ($A[6] < $MINTHR*0.5*$LAST_W || $A[6] > $MAXTHR*0.5*$LAST_W)){
+     $DANGLE_LAST=$A[5];
+    }
+    if($A[7] == 3 && ($A[6] < $MINTHR*0.5*$LAST_W || $A[6] > $MAXTHR*0.5*$LAST_W)){
      $wrongW3++; 
-    }elsif($A[7] == 3 && ($string ne $string_last)){
+    }
+    if($A[7] == 3 && ($string ne $string_last)){
      $wrongS3++; 
     }
-    ##check if dihedral has been seen already...
+    if($A[7] == 3 && ( ($A[5] % 360) < $MINTHR*(3*$DANGLE_LAST % 360) || ($A[5] % 360) > $MAXTHR*(3*$DANGLE_LAST % 360)  )){
+     $wrongA3++; 
+    }
+   ##check if dihedral has been seen already...
     if($A[7] != 3){
      if($dihedral_array{$string} != 1 ){
       ## dihedral was not assigned.
@@ -1123,7 +1130,13 @@ sub checkvalues
  }else{
   print "ordering of n=1 and n=3 dihedrals: PASSED\n";
  }
- if($PBBfail >0){
+ if($wrongA3 > 0){
+  print "values of n=1 and n=3 dihedral angles are not consistent: FAILED\n";
+  $FAILED++;
+ }else{
+  print "values of n=1 and n=3 dihedral angles are consistent: PASSED\n";
+ }
+if($PBBfail >0){
   print "FAILED: $PBBfail protein backbone dihedrals dont have the same values...\n";
   $FAILED++;
  }else{
