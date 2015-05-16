@@ -106,10 +106,10 @@ chomp($SETTINGS_FILE);
 open(PARMS,"$SETTINGS_FILE") or die "The settings file is missing...\n";
 $TESTNUM=0;
 ## Run tests for each pdb
+$NFAIL=0;
 while(<PARMS>){
  $LINE=$_;
  chomp($LINE);
- $NFAIL=0;
  $FAILED=0;
  $LINE=$_;
  chomp($LINE);
@@ -715,6 +715,7 @@ sub readtop
    $#A = -1;
    $#ED_T = -1;
    $#EDrig_T = -1;
+   $CHECK13=0;
    $LINE=<TOP>;
    @A=split(/ /,$LINE);
    until($A[0] eq "["){
@@ -732,6 +733,11 @@ sub readtop
      $string_last=$string;
      $DANGLE_LAST=$A[5];
     }
+    if($LAST_N == 1 && $A[7] != 3){
+     $CHECK13++;
+     print "$LAST_N\n $A[7]\n $LINE";
+    }
+    $LAST_N=$A[7];
     if($A[7] == 3 && ($A[6] < $MINTHR*0.5*$LAST_W || $A[6] > $MAXTHR*0.5*$LAST_W)){
      $wrongW3++; 
     }
@@ -1136,6 +1142,13 @@ sub checkvalues
  }else{
   print "values of n=1 and n=3 dihedral angles are consistent: PASSED\n";
  }
+ if($CHECK13 > 0){
+  print "n=1 and n=3 dihedrals don\'t appear in pairs: FAILED\n";
+  $FAILED++;
+ }else{
+  print "n=1 and n=3 dihedrals appear in pairs: PASSED\n";
+ }
+
 if($PBBfail >0){
   print "FAILED: $PBBfail protein backbone dihedrals dont have the same values...\n";
   $FAILED++;
