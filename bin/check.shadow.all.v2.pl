@@ -364,13 +364,38 @@ sub readtop
  $AMINO_PRESENT=0;
  $LIGAND_PRESENT=0;
  $ION_PRESENT=0;
+
+ @FIELDS=("defaults","atomtypes","moleculetype","atoms","pairs","bonds","angles","dihedrals","system","molecules");
+ foreach(@FIELDS){
+  ${'FIELD_'.$_}=0;
+ }
+
  while(<TOP>){
   $LINE=$_;
   chomp($LINE);
   @A=split(/ /,$LINE);
- 
-  # check the excluded volume is consistent with the settings.
+
+  if($A[1] eq "defaults"){
+   $FIELD_defaults=1;
+   $LINE=<TOP>;
+   chomp($TOP);
+   @A=split(/ /,$LINE);
+   if($A[0] != 1){
+    print "default nbfunc is not correctly set.\n";
+    $FAILED++;
+   }
+   if($A[1] != 1){
+    print "default comb-rule is not correctly set.\n";
+    $FAILED++;
+   }
+   if($A[2] ne "no"){
+    print "default gen-pairs is not correctly set.\n";
+    $FAILED++;
+   }
+  }
+
   if($A[1] eq "atomtypes"){
+   $FIELD_atomtypes=1;
    $EXCL=0;
    $#A = -1;
    $LINE=<TOP>;
@@ -386,8 +411,25 @@ sub readtop
    }
   }
  
+  # check the excluded volume is consistent with the settings.
+  if($A[1] eq "moleculetype"){
+   $FIELD_moleculetype=1;
+   $LINE=<TOP>;
+   chomp($TOP);
+   @A=split(/ /,$LINE);
+   if($A[0] ne "Macromolecule"){
+    print "default molecule name is off.\n";
+    $FAILED++;
+   }
+   if($A[1] != 3){
+    print "nrexcl is not set to 3.\n";
+    $FAILED++;
+   }
+  }
+ 
   # read the atoms, and store information about them
   if($A[1] eq "atoms"){
+   $FIELD_atoms=1;
    $NUMATOMS=0;
    $NUMATOMS_LIGAND=0;
    $#A = -1;
@@ -432,6 +474,7 @@ sub readtop
  
   # read the bonds.  Make sure they are not assigned twice.  Also, save the bonds, so we can generate all possible bond angles later.
   if($A[1] eq "bonds"){
+   $FIELD_bonds=1;
    $#A = -1;
    $#bonds = -1;
    $#bondWatom = -1;
@@ -520,6 +563,7 @@ sub readtop
  
  
   if($A[1] eq "angles"){
+   $FIELD_angles=1;
    $#A = -1;
    $double_angle=0;
    $Nangles=0;
@@ -700,9 +744,8 @@ sub readtop
    }
   }
  
- 
- 
   if($A[1] eq "dihedrals"){
+   $FIELD_dihedrals=1;
    $DIHSFAIL=0;
    $DENERGY=0;
    $Nphi=0;
@@ -834,6 +877,7 @@ sub readtop
  
   # check values for contact energy
   if($A[1] eq "pairs"){
+   $FIELD_pairs=1;
   # reset all the values because we can analyze multiple settings, and we want to make sure we always start at 0 and with arrays cleared.
    $stackingE=0;
    $NonstackingE=0;
@@ -919,6 +963,7 @@ sub readtop
  
  
   if($A[1] eq "exclusions"){
+   $FIELD_exclusions=1;
    $#A = -1;
    $LINE=<TOP>;
    @A=split(/ /,$LINE);
@@ -945,13 +990,46 @@ sub readtop
     $FAILEXCLUSIONS++;
    }
   }
- }
 
+  if($A[1] eq "system"){
+   $FIELD_system=1;
+   $LINE=<TOP>;
+   chomp($TOP);
+   @A=split(/ /,$LINE);
+   if($A[0] ne "Macromolecule"){
+    print "default system name is off\n";
+    $FAILED++;
+   }
+  }
+  if($A[1] eq "molecules"){
+   $FIELD_molecules=1;
+   $LINE=<TOP>;
+   chomp($TOP);
+   @A=split(/ /,$LINE);
+   if($A[0] ne "Macromolecule"){
+    print "default system name is off\n";
+    $FAILED++;
+   }
+    if($A[1] != 1){
+    print "wrong number of molecules...\n";
+    $FAILED++;
+   }
+  }
+ }
 }
 
 
 sub checkvalues
 {
+
+ foreach(@FIELDS){
+  $FF=$_;
+  if(${'FIELD_'.$_}==0){
+   print "Error: [ $FF ] not found in top file.  This means SMOG did not complete.\n";
+   $FAILED++; 
+  };
+ }
+
  ## DONE READING IN THE FILE.  TIME TO CHECK AND SEE IF ALL THE RATIOS ARE CORRECT
  print "number of atoms = $NUMATOMS\n";
  print "number of atoms(excluding ligands) = $NUMATOMS_LIGAND\n";
