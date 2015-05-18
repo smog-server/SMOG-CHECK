@@ -1,0 +1,15 @@
+
+Shadow Contact Map Java Application (SCM)
+Created by Jeff Noel at CTBP-Rice
+Version 1.32
+
+Reading grofile: 1F4N_v2.gro.
+Found 852 atoms.
+Reading Topology.
+Initializing connected list.
+Found 1 atom types.
+Found 0 pairs.
+Found 859 bonds.
+Found 1157 angles.
+Found 2619 dihedrals.
+Calculating contacts.

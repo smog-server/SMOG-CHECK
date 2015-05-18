@@ -15,10 +15,7 @@ Paul Whitford
 When everything works well, all you need to do is issue 
 the command
 
-./smog-check <SMOG_BIN>
-
-SMOG_BIN is the directory in which your installation 
-of SMOG2 is located.
+./smog-check 
 
 The script assumes that perl is located at /usr/bin/perl 
 and that sed and bash are in your path.
