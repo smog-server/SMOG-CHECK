@@ -1,4 +1,4 @@
-SMOGV2
+Gro file for a structure based model, generated with SMOG Version 2.Beta
 504
     1MET      N    1  -1.138   0.524   0.076
     1MET     CA    2  -1.073   0.615   0.170
@@ -504,3 +504,4 @@ SMOGV2
    64GLYT     C  502   0.157   1.220   0.586
    64GLYT     O  503   0.114   1.308   0.661
    64GLYT   OXT  504   0.270   1.166   0.587
+5.1403 5.3449 4.0016

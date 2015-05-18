@@ -1,10 +1,10 @@
 ########################################################
-README for the SMOG2 smog-check. This is a very simple 
-script that will test to see if your installation of 
+README for the SMOG2 smog-check. These are very simple 
+scripts that will test to see if your installation of 
 SMOG2 is generating CA and AA .top files that are 
 consistent with the default settings.
 
-Paul Whitford
+Paul Whitford, Jeff Noel
 ########################################################
 
 
@@ -12,20 +12,32 @@ Paul Whitford
 
 			USAGE
 
-When everything works well, all you need to do is issue 
-the command (after running config.bash)
+There are two check scripts provided by this bundle. 
+One script is very fast, whereas the second is very 
+comprehensive and can be used to test new SMOG models
+that you may design.
+
+When everything works well, running the checks is 
+fairly quick and easy.  Just make sure you run 
+config.bash before running the tests.
+
+For the less comprehensive check, issue the command:
+
+./quick_check
+
+For the comprehensive check (may take ~30 minutes): 
 
 ./smog-check 
 
-The script assumes that perl is located at /usr/bin/perl 
-and that sed and bash are in your path.
+The scripts assumes that perl is located at 
+/usr/bin/perl and that sed and bash are in your path.
 
-This script has been tested on Linux and OSX platforms.
-If you are using alternate platforms, the most common
-issue is that perl is located in a different directory
-than expected.  If that is the case, you will want to
-update the .pl files, such that the proper interpreter
-is used.
+These scripts has been tested on Linux and OSX 
+platforms. If you are using alternate platforms, the 
+most common issue is that perl is located in a different 
+directory than expected.  If that is the case, you will 
+want to update the .pl files, such that the proper 
+interpreter is used.
 
 Direct all questions to info@smog-server.org.
 
