@@ -2,6 +2,9 @@
 PATH_TO_SMOG2=$SMOG_PATH
 dir=$(pwd)
 
+echo "Using the executables found in $SMOG_PATH"
+echo "This is when running config.bash"
+
 for pdb in CI2
 do
 if [ -d testing ]
