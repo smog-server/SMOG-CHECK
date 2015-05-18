@@ -778,7 +778,8 @@ sub readtop
     }
     if($LAST_N == 1 && $A[7] != 3){
      $CHECK13++;
-     print "$LAST_N\n $A[7]\n $LINE";
+     print "1-3 pairs not consistent.  Offending line:";
+     print "$LINE";
     }
     $LAST_N=$A[7];
     if($A[7] == 3 && ($A[6] < $MINTHR*0.5*$LAST_W || $A[6] > $MAXTHR*0.5*$LAST_W)){
