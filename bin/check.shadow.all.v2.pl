@@ -106,10 +106,10 @@ chomp($SETTINGS_FILE);
 open(PARMS,"$SETTINGS_FILE") or die "The settings file is missing...\n";
 $TESTNUM=0;
 ## Run tests for each pdb
+$NFAIL=0;
 while(<PARMS>){
  $LINE=$_;
  chomp($LINE);
- $NFAIL=0;
  $FAILED=0;
  $LINE=$_;
  chomp($LINE);
@@ -364,13 +364,38 @@ sub readtop
  $AMINO_PRESENT=0;
  $LIGAND_PRESENT=0;
  $ION_PRESENT=0;
+
+ @FIELDS=("defaults","atomtypes","moleculetype","atoms","pairs","bonds","angles","dihedrals","system","molecules");
+ foreach(@FIELDS){
+  ${'FIELD_'.$_}=0;
+ }
+
  while(<TOP>){
   $LINE=$_;
   chomp($LINE);
   @A=split(/ /,$LINE);
- 
-  # check the excluded volume is consistent with the settings.
+
+  if($A[1] eq "defaults"){
+   $FIELD_defaults=1;
+   $LINE=<TOP>;
+   chomp($TOP);
+   @A=split(/ /,$LINE);
+   if($A[0] != 1){
+    print "default nbfunc is not correctly set.\n";
+    $FAILED++;
+   }
+   if($A[1] != 1){
+    print "default comb-rule is not correctly set.\n";
+    $FAILED++;
+   }
+   if($A[2] ne "no"){
+    print "default gen-pairs is not correctly set.\n";
+    $FAILED++;
+   }
+  }
+
   if($A[1] eq "atomtypes"){
+   $FIELD_atomtypes=1;
    $EXCL=0;
    $#A = -1;
    $LINE=<TOP>;
@@ -386,8 +411,25 @@ sub readtop
    }
   }
  
+  # check the excluded volume is consistent with the settings.
+  if($A[1] eq "moleculetype"){
+   $FIELD_moleculetype=1;
+   $LINE=<TOP>;
+   chomp($TOP);
+   @A=split(/ /,$LINE);
+   if($A[0] ne "Macromolecule"){
+    print "default molecule name is off.\n";
+    $FAILED++;
+   }
+   if($A[1] != 3){
+    print "nrexcl is not set to 3.\n";
+    $FAILED++;
+   }
+  }
+ 
   # read the atoms, and store information about them
   if($A[1] eq "atoms"){
+   $FIELD_atoms=1;
    $NUMATOMS=0;
    $NUMATOMS_LIGAND=0;
    $#A = -1;
@@ -432,6 +474,7 @@ sub readtop
  
   # read the bonds.  Make sure they are not assigned twice.  Also, save the bonds, so we can generate all possible bond angles later.
   if($A[1] eq "bonds"){
+   $FIELD_bonds=1;
    $#A = -1;
    $#bonds = -1;
    $#bondWatom = -1;
@@ -520,6 +563,7 @@ sub readtop
  
  
   if($A[1] eq "angles"){
+   $FIELD_angles=1;
    $#A = -1;
    $double_angle=0;
    $Nangles=0;
@@ -700,9 +744,8 @@ sub readtop
    }
   }
  
- 
- 
   if($A[1] eq "dihedrals"){
+   $FIELD_dihedrals=1;
    $DIHSFAIL=0;
    $DENERGY=0;
    $Nphi=0;
@@ -710,10 +753,12 @@ sub readtop
    $missing_dihedral_3=0;
    $wrongW3=0;
    $wrongS3=0;
+   $wrongA3=0;
    undef %dihedral_array;
    $#A = -1;
    $#ED_T = -1;
    $#EDrig_T = -1;
+   $CHECK13=0;
    $LINE=<TOP>;
    @A=split(/ /,$LINE);
    until($A[0] eq "["){
@@ -729,12 +774,24 @@ sub readtop
     if($A[7] == 1){
      $LAST_W=$A[6];
      $string_last=$string;
-    }elsif($A[7] == 3 && ($A[6] < $MINTHR*0.5*$LAST_W || $A[6] > $MAXTHR*0.5*$LAST_W)){
+     $DANGLE_LAST=$A[5];
+    }
+    if($LAST_N == 1 && $A[7] != 3){
+     $CHECK13++;
+     print "1-3 pairs not consistent.  Offending line:";
+     print "$LINE";
+    }
+    $LAST_N=$A[7];
+    if($A[7] == 3 && ($A[6] < $MINTHR*0.5*$LAST_W || $A[6] > $MAXTHR*0.5*$LAST_W)){
      $wrongW3++; 
-    }elsif($A[7] == 3 && ($string ne $string_last)){
+    }
+    if($A[7] == 3 && ($string ne $string_last)){
      $wrongS3++; 
     }
-    ##check if dihedral has been seen already...
+    if($A[7] == 3 && ( ($A[5] % 360) < $MINTHR*(3*$DANGLE_LAST % 360) || ($A[5] % 360) > $MAXTHR*(3*$DANGLE_LAST % 360)  )){
+     $wrongA3++; 
+    }
+   ##check if dihedral has been seen already...
     if($A[7] != 3){
      if($dihedral_array{$string} != 1 ){
       ## dihedral was not assigned.
@@ -821,6 +878,7 @@ sub readtop
  
   # check values for contact energy
   if($A[1] eq "pairs"){
+   $FIELD_pairs=1;
   # reset all the values because we can analyze multiple settings, and we want to make sure we always start at 0 and with arrays cleared.
    $stackingE=0;
    $NonstackingE=0;
@@ -906,6 +964,7 @@ sub readtop
  
  
   if($A[1] eq "exclusions"){
+   $FIELD_exclusions=1;
    $#A = -1;
    $LINE=<TOP>;
    @A=split(/ /,$LINE);
@@ -932,13 +991,46 @@ sub readtop
     $FAILEXCLUSIONS++;
    }
   }
- }
 
+  if($A[1] eq "system"){
+   $FIELD_system=1;
+   $LINE=<TOP>;
+   chomp($TOP);
+   @A=split(/ /,$LINE);
+   if($A[0] ne "Macromolecule"){
+    print "default system name is off\n";
+    $FAILED++;
+   }
+  }
+  if($A[1] eq "molecules"){
+   $FIELD_molecules=1;
+   $LINE=<TOP>;
+   chomp($TOP);
+   @A=split(/ /,$LINE);
+   if($A[0] ne "Macromolecule"){
+    print "default system name is off\n";
+    $FAILED++;
+   }
+    if($A[1] != 1){
+    print "wrong number of molecules...\n";
+    $FAILED++;
+   }
+  }
+ }
 }
 
 
 sub checkvalues
 {
+
+ foreach(@FIELDS){
+  $FF=$_;
+  if(${'FIELD_'.$_}==0){
+   print "Error: [ $FF ] not found in top file.  This means SMOG did not complete.\n";
+   $FAILED++; 
+  };
+ }
+
  ## DONE READING IN THE FILE.  TIME TO CHECK AND SEE IF ALL THE RATIOS ARE CORRECT
  print "number of atoms = $NUMATOMS\n";
  print "number of atoms(excluding ligands) = $NUMATOMS_LIGAND\n";
@@ -1123,7 +1215,20 @@ sub checkvalues
  }else{
   print "ordering of n=1 and n=3 dihedrals: PASSED\n";
  }
- if($PBBfail >0){
+ if($wrongA3 > 0){
+  print "values of n=1 and n=3 dihedral angles are not consistent: FAILED\n";
+  $FAILED++;
+ }else{
+  print "values of n=1 and n=3 dihedral angles are consistent: PASSED\n";
+ }
+ if($CHECK13 > 0){
+  print "n=1 and n=3 dihedrals don\'t appear in pairs: FAILED\n";
+  $FAILED++;
+ }else{
+  print "n=1 and n=3 dihedrals appear in pairs: PASSED\n";
+ }
+
+if($PBBfail >0){
   print "FAILED: $PBBfail protein backbone dihedrals dont have the same values...\n";
   $FAILED++;
  }else{
