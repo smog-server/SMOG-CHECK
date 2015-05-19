@@ -399,6 +399,10 @@ sub readtop
   }
 
   if($A[1] eq "atomtypes"){
+   $FAIL_MASS=0;
+   $FAIL_CHARGE=0;
+   $FAIL_PARTICLE=0;
+   $FAIL_C6=0;
    $FIELD_atomtypes=1;
    $EXCL=0;
    $#A = -1;
@@ -406,6 +410,18 @@ sub readtop
    @A=split(/ /,$LINE);
    until($A[0] eq "["){
    # make sure the ex vol is within n% of the desired.
+    if($A[1] != 1){
+     $FAIL_MASS++;
+    }
+    if($A[2] != 0){
+     $FAIL_CHARGE++;
+    }
+    if($A[3] ne "A"){
+     $FAIL_PARTICLE++;
+    }
+    if($A[4] != 0.0){
+     $FAIL_C6++;
+    }
     if($A[5] < $MINTHR*$rep_s12 || $A[5] > $MAXTHR*$rep_s12){
      $EXCL++;
     }
@@ -478,6 +494,8 @@ sub readtop
  
   # read the bonds.  Make sure they are not assigned twice.  Also, save the bonds, so we can generate all possible bond angles later.
   if($A[1] eq "bonds"){
+   $FAIL_BTYPE=0;
+   $FAIL_BW=0;
    $FIELD_bonds=1;
    $#A = -1;
    $#bonds = -1;
@@ -490,7 +508,12 @@ sub readtop
    $LINE=<TOP>;
    @A=split(/ /,$LINE);
    until($A[0] eq "["){
-    if($A[2] ==1){				
+    if($A[2] == 1){
+      if($A[4] != $bondEps){
+       print "bond has incorrect weight\n";
+       print "$LINE";
+       $FAIL_BW++; 
+      }				
      if($A[0] < $A[1]){
       $string=sprintf("%i-%i", $A[0], $A[1]);
      }else{
@@ -514,6 +537,10 @@ sub readtop
      }
     }elsif($A[2] ==6){
      $bondtype6++;
+    }else{
+      print "unknown function type for bond\n";
+      print "$LINE";
+      $FAIL_BTYPE++;
     }
     $LINE=<TOP>;
     @A=split(/ /,$LINE);
@@ -567,6 +594,8 @@ sub readtop
  
  
   if($A[1] eq "angles"){
+   $FAIL_AW=0;
+   $FAIL_AT=0;
    $FIELD_angles=1;
    $#A = -1;
    $double_angle=0;
@@ -579,6 +608,12 @@ sub readtop
    $LINE=<TOP>;
    @A=split(/ /,$LINE);
    until($A[0] eq "["){
+    if($A[3] != 1){
+     $FAIL_AT++;
+    }
+    if($A[5] != $angleEps){
+     $FAIL_AW++;
+    }
     if($A[0] < $A[2]){
      $string=sprintf("%i-%i-%i", $A[0], $A[1], $A[2]);
     }else{
@@ -1163,6 +1198,31 @@ sub checkvalues
    }
   }
  }
+
+ if($FAIL_MASS>0){
+  print "Masses: FAILED\n";
+  $FAILED++;
+ }else{
+  print "Masses: PASSED\n";
+ }
+ if($FAIL_CHARGE>0){
+  print "Chages: FAILED\n";
+  $FAILED++;
+ }else{
+  print "Charges: PASSED\n";
+ }
+  if($FAIL_PARTICLE>0){
+  print "Particle Types: FAILED\n";
+  $FAILED++;
+ }else{
+  print "Particle Types: PASSED\n";
+ }
+  if($FAIL_C6>0){
+  print "nonbonded C6: FAILED\n";
+  $FAILED++;
+ }else{
+  print "nonbonded C6: PASSED\n";
+ }
  if($ContactFAIL>0){
   print "FAIL: some contacts were not the proper strength\n";
   $FAILED++;
@@ -1175,11 +1235,35 @@ sub checkvalues
  }else{
    print "duplicate bonds...: PASSED\n";
  }
+ if($FAIL_BTYPE >0){
+  print "Some bonds had incorrect type:FAILED\n";
+  $FAILED++;
+ }else{
+   print "Bond types: PASSED\n";
+ }
+ if($FAIL_BW >0){
+  print "Some bonds had incorrect weights:FAILED\n";
+  $FAILED++;
+ }else{
+   print "Bond weights: PASSED\n";
+ }
  if($double_angle >0){
   print "Some angles were assigned more than once\n";
   $FAILED++;
  }else{
   print "duplicate angles...: PASSED\n";
+ }
+ if($FAIL_AT >0){
+  print "Some angles had incorrect type: FAILED\n";
+  $FAILED++;
+ }else{
+  print "Angle types: PASSED\n";
+ }
+ if($FAIL_AW >0){
+  print "Some angles had incorrect weights: FAILED\n";
+  $FAILED++;
+ }else{
+  print "Angle weights: PASSED\n";
  }
  if($FAIL_angles >0){
   print "Something funny with the angles... not consistent between script and top.\n";
