@@ -192,6 +192,7 @@ while(<PARMS>){
   $sigmaCA=$A[18];
  }
  $bondEps=20000;
+ $bondMG=200;
  $angleEps=40;
  $ringEps=40;
  $omegaEps=10;
@@ -537,6 +538,11 @@ sub readtop
      }
     }elsif($A[2] ==6){
      $bondtype6++;
+      if($A[4] != $bondMG){
+       print "BMG bond has incorrect weight\n";
+       print "$LINE";
+       $FAIL_BW++; 
+      }	
     }else{
       print "unknown function type for bond\n";
       print "$LINE";
