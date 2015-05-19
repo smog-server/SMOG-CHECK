@@ -1,0 +1,28 @@
+#!/bin/bash
+PATH_TO_SMOG2=$SMOG_PATH
+dir=$(pwd)
+
+echo "Using the executables found in $SMOG_PATH"
+echo "This is when running config.bash"
+
+for pdb in CI2
+do
+if [ -d testing ]
+then
+rm -r testing
+fi
+mkdir testing
+
+$PATH_TO_SMOG2/smogv2 -i $dir/benchmarks/$pdb.pdb -tAA $PATH_TO_SMOG2/SBM_AA -contactRes $PATH_TO_SMOG2/SBM_AA -o $dir/testing/$pdb.top -g $dir/testing/$pdb.gro -s $dir/testing/$pdb.shadow -n $dir/testing/$pdb.ndx &> /dev/null
+
+perl bin/quick_check.pl benchmarks/$pdb.top testing/$pdb.top > testing/$pdb.test
+
+a=$(grep ERROR testing/$pdb.test | wc -l | awk '{print $1}')
+if [ $a -gt 0 ]
+then
+echo There are errors. Check testing/$pdb.test for details.
+else
+echo Congratulations there are no errors for $pdb.
+fi
+
+done

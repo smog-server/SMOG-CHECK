@@ -191,7 +191,11 @@ while(<PARMS>){
   $epsilonCAD=$A[17];
   $sigmaCA=$A[18];
  }
-
+ $bondEps=20000;
+ $angleEps=40;
+ $ringEps=40;
+ $omegaEps=10;
+ $impEps=10;
  $contacts="shadow";
 
  &smogchecker;
@@ -746,6 +750,7 @@ sub readtop
  
   if($A[1] eq "dihedrals"){
    $FIELD_dihedrals=1;
+   $IMPFAILED=0;
    $DIHSFAIL=0;
    $DENERGY=0;
    $Nphi=0;
@@ -847,10 +852,19 @@ sub readtop
       $F=$A[2]-$A[1];
       $EDrig_T[$A[1]][$A[2]-$A[1]]+=$A[6];
      }
+    
      if($F > $DISP_MAX){
       $DISP_MAX=$F;
      }
     }
+    if($A[4] == 2 && $improper_gen_as{$string} == 1){
+     if($impEps != $A[6]){
+      print "improper dihedral has wrong weight\n";
+      print "$LINE";
+      $IMPFAILED++;
+     }
+    }
+
     $#A = -1;
     $LINE=<TOP>;
     @A=split(/ /,$LINE);
@@ -1079,7 +1093,7 @@ sub checkvalues
    if($EDrig_T[$i][$j] > 0){
     $NUM_NONZERO++;	
     if( ($ATOMNAME[$i] eq "C"  && $ATOMNAME[$i+$j] eq "N") || (  $ATOMNAME[$i] eq "N"  && $ATOMNAME[$i+$j] eq "C"   )){
-     if( abs($EDrig_T[$i][$j]-10.0) > 0.1 ){
+     if( abs($EDrig_T[$i][$j]-$omegaEps) > $TOLERANCE ){
       print "weird omega rigid...\n";
       print "$i $j $EDrig_T[$i][$j]\n";
       print "$ATOMNAME[$i] $ATOMNAME[$i+$j]\n"; 
@@ -1087,7 +1101,7 @@ sub checkvalues
       $rigid_fail++;	
      }
     }else{
-     if(abs($EDrig_T[$i][$j]-40.0) > 0.1 ){
+     if(abs($EDrig_T[$i][$j]-$ringEps) > $TOLERANCE ){
       print "weird ring dihedral...\n";
       print "$i $j $EDrig_T[$i][$j]\n";
       print "$ATOMNAME[$i] $ATOMNAME[$i+$j]\n";
@@ -1172,6 +1186,12 @@ sub checkvalues
   $FAILED++;
  }else{
   print "bond angles...: PASSED\n";
+ }
+ if($IMPFAILED>0){
+   print "Improper dihedrals weights: FAILED\n";
+  $FAILED++;
+ }else{
+  print "Improper dihedral weights...: PASSED\n";
  }
  if($FAIL_phi >0){
   print "Something funny with the dihedral angles... not consistent between script and top.\n";

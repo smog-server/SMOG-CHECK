@@ -1,0 +1,6856 @@
+*******************
+Reading .top: benchmarks/CI2.top
+Found heading keyword: defaults 	1 entries.
+Found heading keyword: atomtypes 	1 entries.
+Found heading keyword: moleculetype 	1 entries.
+Found heading keyword: atoms 	504 entries.
+Found heading keyword: bonds 	511 entries.
+Found heading keyword: angles 	693 entries.
+Found heading keyword: dihedrals 	1572 entries.
+Found heading keyword: pairs 	599 entries.
+Found heading keyword: exclusions 	599 entries.
+Found heading keyword: system 	1 entries.
+*******************
+Reading .top: testing/CI2.top
+Found heading keyword: defaults 	1 entries.
+Found heading keyword: atomtypes 	1 entries.
+Found heading keyword: moleculetype 	1 entries.
+Found heading keyword: atoms 	504 entries.
+Found heading keyword: bonds 	511 entries.
+Found heading keyword: angles 	693 entries.
+Found heading keyword: dihedrals 	1572 entries.
+Found heading keyword: pairs 	599 entries.
+Found heading keyword: exclusions 	599 entries.
+Found heading keyword: system 	1 entries.
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 20 Token: 1 
+Should be: 17
+But is instead: 18
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 20 Token: 3 
+Should be: 18
+But is instead: 10
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 21 Token: 3 
+Should be: 10
+But is instead: 17
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 22 Token: 1 
+Should be: 20
+But is instead: 18
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 22 Token: 3 
+Should be: 18
+But is instead: 20
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 23 Token: 1 
+Should be: 21
+But is instead: 18
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 23 Token: 2 
+Should be: 20
+But is instead: 19
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 23 Token: 3 
+Should be: 19
+But is instead: 23
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 24 Token: 1 
+Should be: 21
+But is instead: 19
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 24 Token: 3 
+Should be: 22
+But is instead: 21
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 25 Token: 1 
+Should be: 22
+But is instead: 19
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 25 Token: 3 
+Should be: 19
+But is instead: 22
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 26 Token: 1 
+Should be: 23
+But is instead: 19
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 26 Token: 2 
+Should be: 19
+But is instead: 23
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 26 Token: 3 
+Should be: 18
+But is instead: 24
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 27 Token: 1 
+Should be: 23
+But is instead: 21
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 27 Token: 2 
+Should be: 19
+But is instead: 20
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 27 Token: 3 
+Should be: 20
+But is instead: 22
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 28 Token: 2 
+Should be: 25
+But is instead: 19
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 28 Token: 3 
+Should be: 26
+But is instead: 20
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 29 Token: 1 
+Should be: 24
+But is instead: 23
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 29 Token: 2 
+Should be: 23
+But is instead: 25
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 29 Token: 3 
+Should be: 19
+But is instead: 26
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 30 Token: 1 
+Should be: 24
+But is instead: 25
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 30 Token: 3 
+Should be: 25
+But is instead: 19
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 31 Token: 3 
+Should be: 19
+But is instead: 24
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 32 Token: 1 
+Should be: 27
+But is instead: 25
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 32 Token: 3 
+Should be: 25
+But is instead: 27
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 33 Token: 1 
+Should be: 28
+But is instead: 25
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 33 Token: 2 
+Should be: 27
+But is instead: 26
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 33 Token: 3 
+Should be: 26
+But is instead: 32
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 34 Token: 1 
+Should be: 28
+But is instead: 26
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 34 Token: 2 
+Should be: 29
+But is instead: 32
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 34 Token: 3 
+Should be: 30
+But is instead: 33
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 35 Token: 2 
+Should be: 29
+But is instead: 27
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 35 Token: 3 
+Should be: 31
+But is instead: 26
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 36 Token: 1 
+Should be: 29
+But is instead: 28
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 36 Token: 2 
+Should be: 28
+But is instead: 29
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 36 Token: 3 
+Should be: 27
+But is instead: 30
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 37 Token: 1 
+Should be: 30
+But is instead: 28
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 38 Token: 1 
+Should be: 32
+But is instead: 29
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 38 Token: 2 
+Should be: 26
+But is instead: 28
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 38 Token: 3 
+Should be: 25
+But is instead: 27
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 39 Token: 1 
+Should be: 32
+But is instead: 30
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 39 Token: 2 
+Should be: 26
+But is instead: 29
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 39 Token: 3 
+Should be: 27
+But is instead: 31
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 40 Token: 2 
+Should be: 34
+But is instead: 26
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 40 Token: 3 
+Should be: 35
+But is instead: 27
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 41 Token: 1 
+Should be: 33
+But is instead: 32
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 41 Token: 2 
+Should be: 32
+But is instead: 34
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 41 Token: 3 
+Should be: 26
+But is instead: 35
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 77 Token: 1 
+Should be: 54
+But is instead: 55
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 77 Token: 3 
+Should be: 55
+But is instead: 52
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 78 Token: 3 
+Should be: 52
+But is instead: 54
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 79 Token: 1 
+Should be: 57
+But is instead: 55
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 79 Token: 3 
+Should be: 55
+But is instead: 57
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 80 Token: 1 
+Should be: 58
+But is instead: 55
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 80 Token: 2 
+Should be: 57
+But is instead: 56
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 80 Token: 3 
+Should be: 56
+But is instead: 62
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 81 Token: 1 
+Should be: 58
+But is instead: 56
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 81 Token: 2 
+Should be: 59
+But is instead: 62
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 81 Token: 3 
+Should be: 60
+But is instead: 63
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 82 Token: 2 
+Should be: 59
+But is instead: 57
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 82 Token: 3 
+Should be: 61
+But is instead: 56
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 83 Token: 1 
+Should be: 59
+But is instead: 58
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 83 Token: 2 
+Should be: 58
+But is instead: 59
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 83 Token: 3 
+Should be: 57
+But is instead: 60
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 84 Token: 1 
+Should be: 60
+But is instead: 58
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 85 Token: 1 
+Should be: 62
+But is instead: 59
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 85 Token: 2 
+Should be: 56
+But is instead: 58
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 85 Token: 3 
+Should be: 55
+But is instead: 57
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 86 Token: 1 
+Should be: 62
+But is instead: 60
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 86 Token: 2 
+Should be: 56
+But is instead: 59
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 86 Token: 3 
+Should be: 57
+But is instead: 61
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 87 Token: 2 
+Should be: 64
+But is instead: 56
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 87 Token: 3 
+Should be: 65
+But is instead: 57
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 88 Token: 1 
+Should be: 63
+But is instead: 62
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 88 Token: 2 
+Should be: 62
+But is instead: 64
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 88 Token: 3 
+Should be: 56
+But is instead: 65
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 186 Token: 1 
+Should be: 136
+But is instead: 137
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 186 Token: 3 
+Should be: 137
+But is instead: 129
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 187 Token: 3 
+Should be: 129
+But is instead: 136
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 188 Token: 1 
+Should be: 139
+But is instead: 137
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 188 Token: 3 
+Should be: 137
+But is instead: 139
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 189 Token: 1 
+Should be: 140
+But is instead: 137
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 189 Token: 2 
+Should be: 139
+But is instead: 138
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 189 Token: 3 
+Should be: 138
+But is instead: 142
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 190 Token: 1 
+Should be: 140
+But is instead: 138
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 190 Token: 3 
+Should be: 141
+But is instead: 140
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 191 Token: 1 
+Should be: 141
+But is instead: 138
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 191 Token: 3 
+Should be: 138
+But is instead: 141
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 192 Token: 1 
+Should be: 142
+But is instead: 138
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 192 Token: 2 
+Should be: 138
+But is instead: 142
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 192 Token: 3 
+Should be: 137
+But is instead: 143
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 193 Token: 1 
+Should be: 142
+But is instead: 140
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 193 Token: 2 
+Should be: 138
+But is instead: 139
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 193 Token: 3 
+Should be: 139
+But is instead: 141
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 194 Token: 2 
+Should be: 144
+But is instead: 138
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 194 Token: 3 
+Should be: 145
+But is instead: 139
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 195 Token: 1 
+Should be: 143
+But is instead: 142
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 195 Token: 2 
+Should be: 142
+But is instead: 144
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 195 Token: 3 
+Should be: 138
+But is instead: 145
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 241 Token: 1 
+Should be: 176
+But is instead: 177
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 241 Token: 3 
+Should be: 177
+But is instead: 170
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 242 Token: 3 
+Should be: 170
+But is instead: 176
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 243 Token: 1 
+Should be: 179
+But is instead: 177
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 243 Token: 3 
+Should be: 177
+But is instead: 179
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 244 Token: 1 
+Should be: 180
+But is instead: 177
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 244 Token: 2 
+Should be: 179
+But is instead: 178
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 244 Token: 3 
+Should be: 178
+But is instead: 184
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 245 Token: 1 
+Should be: 180
+But is instead: 178
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 245 Token: 2 
+Should be: 181
+But is instead: 184
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 245 Token: 3 
+Should be: 182
+But is instead: 185
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 246 Token: 1 
+Should be: 181
+But is instead: 180
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 246 Token: 2 
+Should be: 180
+But is instead: 179
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 246 Token: 3 
+Should be: 179
+But is instead: 178
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 247 Token: 1 
+Should be: 181
+But is instead: 180
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 247 Token: 2 
+Should be: 182
+But is instead: 181
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 247 Token: 3 
+Should be: 183
+But is instead: 182
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 248 Token: 1 
+Should be: 184
+But is instead: 181
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 248 Token: 2 
+Should be: 178
+But is instead: 180
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 248 Token: 3 
+Should be: 177
+But is instead: 179
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 249 Token: 1 
+Should be: 184
+But is instead: 181
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 249 Token: 2 
+Should be: 178
+But is instead: 182
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 249 Token: 3 
+Should be: 179
+But is instead: 183
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 250 Token: 2 
+Should be: 186
+But is instead: 178
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 250 Token: 3 
+Should be: 190
+But is instead: 179
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 251 Token: 1 
+Should be: 185
+But is instead: 184
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 251 Token: 2 
+Should be: 184
+But is instead: 186
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 251 Token: 3 
+Should be: 178
+But is instead: 187
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 252 Token: 1 
+Should be: 185
+But is instead: 184
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 252 Token: 2 
+Should be: 184
+But is instead: 186
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 252 Token: 3 
+Should be: 186
+But is instead: 190
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 254 Token: 1 
+Should be: 187
+But is instead: 186
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 254 Token: 2 
+Should be: 186
+But is instead: 184
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 254 Token: 3 
+Should be: 184
+But is instead: 185
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 255 Token: 1 
+Should be: 187
+But is instead: 186
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 255 Token: 2 
+Should be: 186
+But is instead: 190
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 255 Token: 3 
+Should be: 190
+But is instead: 189
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 256 Token: 1 
+Should be: 187
+But is instead: 186
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 256 Token: 2 
+Should be: 188
+But is instead: 190
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 256 Token: 3 
+Should be: 189
+But is instead: 191
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 257 Token: 1 
+Should be: 188
+But is instead: 187
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 257 Token: 2 
+Should be: 187
+But is instead: 188
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 257 Token: 3 
+Should be: 186
+But is instead: 189
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 258 Token: 2 
+Should be: 189
+But is instead: 187
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 258 Token: 3 
+Should be: 190
+But is instead: 186
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 259 Token: 1 
+Should be: 189
+But is instead: 188
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 259 Token: 2 
+Should be: 190
+But is instead: 189
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 259 Token: 3 
+Should be: 186
+But is instead: 190
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 260 Token: 1 
+Should be: 191
+But is instead: 190
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 260 Token: 2 
+Should be: 190
+But is instead: 186
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 260 Token: 3 
+Should be: 186
+But is instead: 187
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 261 Token: 1 
+Should be: 191
+But is instead: 190
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 261 Token: 2 
+Should be: 190
+But is instead: 191
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 261 Token: 3 
+Should be: 189
+But is instead: 192
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 262 Token: 2 
+Should be: 193
+But is instead: 190
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 262 Token: 3 
+Should be: 194
+But is instead: 189
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 263 Token: 1 
+Should be: 192
+But is instead: 191
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 263 Token: 2 
+Should be: 191
+But is instead: 193
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 263 Token: 3 
+Should be: 190
+But is instead: 194
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 264 Token: 1 
+Should be: 192
+But is instead: 193
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 264 Token: 3 
+Should be: 193
+But is instead: 190
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 265 Token: 3 
+Should be: 190
+But is instead: 192
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 266 Token: 1 
+Should be: 195
+But is instead: 193
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 266 Token: 3 
+Should be: 193
+But is instead: 195
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 267 Token: 1 
+Should be: 196
+But is instead: 193
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 267 Token: 2 
+Should be: 195
+But is instead: 194
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 267 Token: 3 
+Should be: 194
+But is instead: 200
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 268 Token: 1 
+Should be: 196
+But is instead: 194
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 268 Token: 2 
+Should be: 197
+But is instead: 200
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 268 Token: 3 
+Should be: 198
+But is instead: 201
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 269 Token: 2 
+Should be: 197
+But is instead: 195
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 269 Token: 3 
+Should be: 199
+But is instead: 194
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 270 Token: 1 
+Should be: 197
+But is instead: 196
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 270 Token: 2 
+Should be: 196
+But is instead: 197
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 270 Token: 3 
+Should be: 195
+But is instead: 198
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 271 Token: 1 
+Should be: 198
+But is instead: 196
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 272 Token: 1 
+Should be: 200
+But is instead: 197
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 272 Token: 2 
+Should be: 194
+But is instead: 196
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 272 Token: 3 
+Should be: 193
+But is instead: 195
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 273 Token: 1 
+Should be: 200
+But is instead: 198
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 273 Token: 2 
+Should be: 194
+But is instead: 197
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 273 Token: 3 
+Should be: 195
+But is instead: 199
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 274 Token: 2 
+Should be: 202
+But is instead: 194
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 274 Token: 3 
+Should be: 203
+But is instead: 195
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 275 Token: 1 
+Should be: 201
+But is instead: 200
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 275 Token: 2 
+Should be: 200
+But is instead: 202
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 275 Token: 3 
+Should be: 194
+But is instead: 203
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 471 Token: 1 
+Should be: 341
+But is instead: 342
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 471 Token: 3 
+Should be: 342
+But is instead: 335
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 472 Token: 3 
+Should be: 335
+But is instead: 341
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 473 Token: 1 
+Should be: 344
+But is instead: 342
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 473 Token: 3 
+Should be: 342
+But is instead: 344
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 474 Token: 1 
+Should be: 344
+But is instead: 342
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 474 Token: 2 
+Should be: 345
+But is instead: 343
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 474 Token: 3 
+Should be: 347
+But is instead: 348
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 475 Token: 1 
+Should be: 345
+But is instead: 343
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 475 Token: 2 
+Should be: 344
+But is instead: 348
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 475 Token: 3 
+Should be: 343
+But is instead: 349
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 476 Token: 1 
+Should be: 346
+But is instead: 345
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 476 Token: 2 
+Should be: 345
+But is instead: 344
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 476 Token: 3 
+Should be: 344
+But is instead: 343
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 477 Token: 3 
+Should be: 347
+But is instead: 344
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 478 Token: 1 
+Should be: 348
+But is instead: 346
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 478 Token: 2 
+Should be: 343
+But is instead: 345
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 478 Token: 3 
+Should be: 342
+But is instead: 347
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 479 Token: 1 
+Should be: 348
+But is instead: 347
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 479 Token: 2 
+Should be: 343
+But is instead: 345
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 480 Token: 2 
+Should be: 350
+But is instead: 343
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 480 Token: 3 
+Should be: 351
+But is instead: 344
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 481 Token: 1 
+Should be: 349
+But is instead: 348
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 481 Token: 2 
+Should be: 348
+But is instead: 350
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 481 Token: 3 
+Should be: 343
+But is instead: 351
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 568 Token: 1 
+Should be: 412
+But is instead: 413
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 568 Token: 3 
+Should be: 413
+But is instead: 406
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 569 Token: 3 
+Should be: 406
+But is instead: 412
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 570 Token: 1 
+Should be: 415
+But is instead: 413
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 570 Token: 3 
+Should be: 413
+But is instead: 415
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 571 Token: 1 
+Should be: 416
+But is instead: 413
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 571 Token: 2 
+Should be: 415
+But is instead: 414
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 571 Token: 3 
+Should be: 414
+But is instead: 420
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 572 Token: 1 
+Should be: 416
+But is instead: 414
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 572 Token: 2 
+Should be: 417
+But is instead: 420
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 572 Token: 3 
+Should be: 418
+But is instead: 421
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 573 Token: 1 
+Should be: 417
+But is instead: 416
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 573 Token: 2 
+Should be: 416
+But is instead: 415
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 573 Token: 3 
+Should be: 415
+But is instead: 414
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 574 Token: 1 
+Should be: 417
+But is instead: 416
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 574 Token: 2 
+Should be: 418
+But is instead: 417
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 574 Token: 3 
+Should be: 419
+But is instead: 418
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 575 Token: 1 
+Should be: 420
+But is instead: 417
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 575 Token: 2 
+Should be: 414
+But is instead: 416
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 575 Token: 3 
+Should be: 413
+But is instead: 415
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 576 Token: 1 
+Should be: 420
+But is instead: 417
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 576 Token: 2 
+Should be: 414
+But is instead: 418
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 576 Token: 3 
+Should be: 415
+But is instead: 419
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 577 Token: 2 
+Should be: 422
+But is instead: 414
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 577 Token: 3 
+Should be: 423
+But is instead: 415
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 578 Token: 1 
+Should be: 421
+But is instead: 420
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 578 Token: 2 
+Should be: 420
+But is instead: 422
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 578 Token: 3 
+Should be: 414
+But is instead: 423
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 590 Token: 1 
+Should be: 429
+But is instead: 430
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 590 Token: 3 
+Should be: 430
+But is instead: 423
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 591 Token: 3 
+Should be: 423
+But is instead: 429
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 592 Token: 1 
+Should be: 432
+But is instead: 430
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 592 Token: 3 
+Should be: 430
+But is instead: 432
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 593 Token: 1 
+Should be: 432
+But is instead: 430
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 593 Token: 2 
+Should be: 433
+But is instead: 431
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 593 Token: 3 
+Should be: 435
+But is instead: 436
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 594 Token: 1 
+Should be: 433
+But is instead: 431
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 594 Token: 2 
+Should be: 432
+But is instead: 436
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 594 Token: 3 
+Should be: 431
+But is instead: 437
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 595 Token: 1 
+Should be: 434
+But is instead: 433
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 595 Token: 2 
+Should be: 433
+But is instead: 432
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 595 Token: 3 
+Should be: 432
+But is instead: 431
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 596 Token: 3 
+Should be: 435
+But is instead: 432
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 597 Token: 1 
+Should be: 436
+But is instead: 434
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 597 Token: 2 
+Should be: 431
+But is instead: 433
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 597 Token: 3 
+Should be: 430
+But is instead: 435
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 598 Token: 1 
+Should be: 436
+But is instead: 435
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 598 Token: 2 
+Should be: 431
+But is instead: 433
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 599 Token: 2 
+Should be: 438
+But is instead: 431
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 599 Token: 3 
+Should be: 439
+But is instead: 432
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 600 Token: 1 
+Should be: 437
+But is instead: 436
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 600 Token: 2 
+Should be: 436
+But is instead: 438
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 600 Token: 3 
+Should be: 431
+But is instead: 439
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 642 Token: 1 
+Should be: 467
+But is instead: 468
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 642 Token: 3 
+Should be: 468
+But is instead: 460
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 643 Token: 3 
+Should be: 460
+But is instead: 467
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 644 Token: 1 
+Should be: 470
+But is instead: 468
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 644 Token: 3 
+Should be: 468
+But is instead: 470
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 645 Token: 1 
+Should be: 471
+But is instead: 468
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 645 Token: 2 
+Should be: 470
+But is instead: 469
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 645 Token: 3 
+Should be: 469
+But is instead: 473
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 646 Token: 1 
+Should be: 471
+But is instead: 469
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 646 Token: 3 
+Should be: 472
+But is instead: 471
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 647 Token: 1 
+Should be: 472
+But is instead: 469
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 647 Token: 3 
+Should be: 469
+But is instead: 472
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 648 Token: 1 
+Should be: 473
+But is instead: 469
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 648 Token: 2 
+Should be: 469
+But is instead: 473
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 648 Token: 3 
+Should be: 468
+But is instead: 474
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 649 Token: 1 
+Should be: 473
+But is instead: 471
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 649 Token: 2 
+Should be: 469
+But is instead: 470
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 649 Token: 3 
+Should be: 470
+But is instead: 472
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 650 Token: 2 
+Should be: 475
+But is instead: 469
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 650 Token: 3 
+Should be: 479
+But is instead: 470
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 651 Token: 1 
+Should be: 474
+But is instead: 473
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 651 Token: 2 
+Should be: 473
+But is instead: 475
+ERROR.
+
+Difference at:
+Directive: angles
+Line: 651 Token: 3 
+Should be: 469
+But is instead: 479
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 45 Token: 1 
+Should be: 17
+But is instead: 19
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 45 Token: 2 
+Should be: 16
+But is instead: 18
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 45 Token: 3 
+Should be: 18
+But is instead: 16
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 45 Token: 4 
+Should be: 19
+But is instead: 10
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 46 Token: 4 
+Should be: 10
+But is instead: 17
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 47 Token: 1 
+Should be: 20
+But is instead: 16
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 47 Token: 2 
+Should be: 19
+But is instead: 18
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 47 Token: 3 
+Should be: 18
+But is instead: 19
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 47 Token: 4 
+Should be: 16
+But is instead: 20
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 48 Token: 1 
+Should be: 20
+But is instead: 16
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 48 Token: 2 
+Should be: 19
+But is instead: 18
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 48 Token: 3 
+Should be: 18
+But is instead: 19
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 48 Token: 4 
+Should be: 16
+But is instead: 20
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 49 Token: 1 
+Should be: 23
+But is instead: 16
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 49 Token: 2 
+Should be: 19
+But is instead: 18
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 49 Token: 3 
+Should be: 18
+But is instead: 19
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 49 Token: 4 
+Should be: 16
+But is instead: 23
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 50 Token: 1 
+Should be: 23
+But is instead: 16
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 50 Token: 2 
+Should be: 19
+But is instead: 18
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 50 Token: 3 
+Should be: 18
+But is instead: 19
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 50 Token: 4 
+Should be: 16
+But is instead: 23
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 51 Token: 1 
+Should be: 23
+But is instead: 18
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 52 Token: 1 
+Should be: 23
+But is instead: 18
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 53 Token: 1 
+Should be: 23
+But is instead: 18
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 54 Token: 1 
+Should be: 23
+But is instead: 18
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 55 Token: 1 
+Should be: 18
+But is instead: 23
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 55 Token: 3 
+Should be: 23
+But is instead: 20
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 55 Token: 4 
+Should be: 25
+But is instead: 21
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 56 Token: 1 
+Should be: 18
+But is instead: 23
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 56 Token: 3 
+Should be: 23
+But is instead: 20
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 56 Token: 4 
+Should be: 25
+But is instead: 21
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 57 Token: 1 
+Should be: 20
+But is instead: 23
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 57 Token: 3 
+Should be: 23
+But is instead: 20
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 57 Token: 4 
+Should be: 18
+But is instead: 22
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 57 Token: 5 
+Should be: 2
+But is instead: 1
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 57 Token: 8 
+Should be: 
+But is instead: 1
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 58 Token: 1 
+Should be: 20
+But is instead: 23
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 58 Token: 3 
+Should be: 23
+But is instead: 20
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 58 Token: 4 
+Should be: 25
+But is instead: 22
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 58 Token: 8 
+Should be: 1
+But is instead: 3
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 59 Token: 1 
+Should be: 20
+But is instead: 18
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 59 Token: 4 
+Should be: 25
+But is instead: 24
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 59 Token: 8 
+Should be: 3
+But is instead: 1
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 60 Token: 1 
+Should be: 24
+But is instead: 18
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 60 Token: 4 
+Should be: 25
+But is instead: 24
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 60 Token: 5 
+Should be: 2
+But is instead: 1
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 60 Token: 8 
+Should be: 
+But is instead: 3
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 61 Token: 1 
+Should be: 21
+But is instead: 18
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 61 Token: 2 
+Should be: 20
+But is instead: 19
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 61 Token: 3 
+Should be: 19
+But is instead: 23
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 61 Token: 4 
+Should be: 18
+But is instead: 25
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 62 Token: 1 
+Should be: 21
+But is instead: 18
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 62 Token: 2 
+Should be: 20
+But is instead: 19
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 62 Token: 3 
+Should be: 19
+But is instead: 23
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 62 Token: 4 
+Should be: 18
+But is instead: 25
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 63 Token: 1 
+Should be: 22
+But is instead: 20
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 63 Token: 2 
+Should be: 20
+But is instead: 19
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 63 Token: 3 
+Should be: 19
+But is instead: 23
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 63 Token: 5 
+Should be: 1
+But is instead: 2
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 64 Token: 1 
+Should be: 22
+But is instead: 20
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 64 Token: 2 
+Should be: 20
+But is instead: 19
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 64 Token: 3 
+Should be: 19
+But is instead: 23
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 64 Token: 4 
+Should be: 18
+But is instead: 25
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 64 Token: 8 
+Should be: 3
+But is instead: 1
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 65 Token: 1 
+Should be: 19
+But is instead: 20
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 65 Token: 2 
+Should be: 20
+But is instead: 19
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 65 Token: 3 
+Should be: 22
+But is instead: 23
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 65 Token: 4 
+Should be: 21
+But is instead: 25
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 65 Token: 5 
+Should be: 2
+But is instead: 1
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 65 Token: 8 
+Should be: 
+But is instead: 3
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 66 Token: 2 
+Should be: 23
+But is instead: 19
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 66 Token: 3 
+Should be: 19
+But is instead: 23
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 66 Token: 4 
+Should be: 20
+But is instead: 25
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 66 Token: 5 
+Should be: 1
+But is instead: 2
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 67 Token: 1 
+Should be: 24
+But is instead: 19
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 67 Token: 2 
+Should be: 23
+But is instead: 20
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 67 Token: 3 
+Should be: 19
+But is instead: 22
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 67 Token: 4 
+Should be: 20
+But is instead: 21
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 67 Token: 5 
+Should be: 1
+But is instead: 2
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 68 Token: 4 
+Should be: 18
+But is instead: 20
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 69 Token: 4 
+Should be: 18
+But is instead: 20
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 70 Token: 1 
+Should be: 24
+But is instead: 26
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 70 Token: 2 
+Should be: 23
+But is instead: 25
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 70 Token: 3 
+Should be: 25
+But is instead: 23
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 70 Token: 4 
+Should be: 26
+But is instead: 19
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 71 Token: 4 
+Should be: 19
+But is instead: 24
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 72 Token: 1 
+Should be: 27
+But is instead: 23
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 72 Token: 2 
+Should be: 26
+But is instead: 25
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 72 Token: 3 
+Should be: 25
+But is instead: 26
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 72 Token: 4 
+Should be: 23
+But is instead: 27
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 73 Token: 1 
+Should be: 27
+But is instead: 23
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 73 Token: 2 
+Should be: 26
+But is instead: 25
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 73 Token: 3 
+Should be: 25
+But is instead: 26
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 73 Token: 4 
+Should be: 23
+But is instead: 27
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 74 Token: 1 
+Should be: 32
+But is instead: 23
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 74 Token: 2 
+Should be: 26
+But is instead: 25
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 74 Token: 3 
+Should be: 25
+But is instead: 26
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 74 Token: 4 
+Should be: 23
+But is instead: 32
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 75 Token: 1 
+Should be: 32
+But is instead: 23
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 75 Token: 2 
+Should be: 26
+But is instead: 25
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 75 Token: 3 
+Should be: 25
+But is instead: 26
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 75 Token: 4 
+Should be: 23
+But is instead: 32
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 76 Token: 1 
+Should be: 32
+But is instead: 25
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 76 Token: 3 
+Should be: 27
+But is instead: 32
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 76 Token: 4 
+Should be: 28
+But is instead: 33
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 77 Token: 1 
+Should be: 32
+But is instead: 25
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 77 Token: 3 
+Should be: 27
+But is instead: 32
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 77 Token: 4 
+Should be: 28
+But is instead: 33
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 86 Token: 1 
+Should be: 29
+But is instead: 28
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 86 Token: 2 
+Should be: 28
+But is instead: 27
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 86 Token: 3 
+Should be: 27
+But is instead: 26
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 86 Token: 4 
+Should be: 26
+But is instead: 32
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 87 Token: 1 
+Should be: 29
+But is instead: 28
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 87 Token: 2 
+Should be: 28
+But is instead: 27
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 87 Token: 3 
+Should be: 27
+But is instead: 26
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 87 Token: 4 
+Should be: 26
+But is instead: 32
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 88 Token: 1 
+Should be: 27
+But is instead: 26
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 88 Token: 2 
+Should be: 28
+But is instead: 27
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 88 Token: 3 
+Should be: 29
+But is instead: 28
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 88 Token: 4 
+Should be: 30
+But is instead: 29
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 89 Token: 1 
+Should be: 27
+But is instead: 26
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 89 Token: 2 
+Should be: 28
+But is instead: 27
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 89 Token: 3 
+Should be: 29
+But is instead: 28
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 89 Token: 4 
+Should be: 30
+But is instead: 29
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 90 Token: 1 
+Should be: 27
+But is instead: 30
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 90 Token: 2 
+Should be: 28
+But is instead: 29
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 90 Token: 3 
+Should be: 29
+But is instead: 28
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 90 Token: 4 
+Should be: 31
+But is instead: 27
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 91 Token: 1 
+Should be: 27
+But is instead: 30
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 91 Token: 2 
+Should be: 28
+But is instead: 29
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 91 Token: 3 
+Should be: 29
+But is instead: 28
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 91 Token: 4 
+Should be: 31
+But is instead: 27
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 92 Token: 1 
+Should be: 33
+But is instead: 31
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 92 Token: 2 
+Should be: 32
+But is instead: 29
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 92 Token: 3 
+Should be: 26
+But is instead: 28
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 93 Token: 1 
+Should be: 33
+But is instead: 31
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 93 Token: 2 
+Should be: 32
+But is instead: 29
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 93 Token: 3 
+Should be: 26
+But is instead: 28
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 94 Token: 4 
+Should be: 25
+But is instead: 27
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 95 Token: 4 
+Should be: 25
+But is instead: 27
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 164 Token: 1 
+Should be: 54
+But is instead: 56
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 164 Token: 2 
+Should be: 53
+But is instead: 55
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 164 Token: 3 
+Should be: 55
+But is instead: 53
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 164 Token: 4 
+Should be: 56
+But is instead: 54
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 166 Token: 1 
+Should be: 57
+But is instead: 53
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 166 Token: 2 
+Should be: 56
+But is instead: 55
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 166 Token: 3 
+Should be: 55
+But is instead: 56
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 166 Token: 4 
+Should be: 53
+But is instead: 57
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 167 Token: 1 
+Should be: 57
+But is instead: 53
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 167 Token: 2 
+Should be: 56
+But is instead: 55
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 167 Token: 3 
+Should be: 55
+But is instead: 56
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 167 Token: 4 
+Should be: 53
+But is instead: 57
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 168 Token: 1 
+Should be: 62
+But is instead: 53
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 168 Token: 2 
+Should be: 56
+But is instead: 55
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 168 Token: 3 
+Should be: 55
+But is instead: 56
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 168 Token: 4 
+Should be: 53
+But is instead: 62
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 169 Token: 1 
+Should be: 62
+But is instead: 53
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 169 Token: 2 
+Should be: 56
+But is instead: 55
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 169 Token: 3 
+Should be: 55
+But is instead: 56
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 169 Token: 4 
+Should be: 53
+But is instead: 62
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 170 Token: 1 
+Should be: 62
+But is instead: 55
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 170 Token: 3 
+Should be: 57
+But is instead: 62
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 170 Token: 4 
+Should be: 58
+But is instead: 63
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 171 Token: 1 
+Should be: 62
+But is instead: 55
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 171 Token: 3 
+Should be: 57
+But is instead: 62
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 171 Token: 4 
+Should be: 58
+But is instead: 63
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 180 Token: 1 
+Should be: 59
+But is instead: 58
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 180 Token: 2 
+Should be: 58
+But is instead: 57
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 180 Token: 3 
+Should be: 57
+But is instead: 56
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 180 Token: 4 
+Should be: 56
+But is instead: 62
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 181 Token: 1 
+Should be: 59
+But is instead: 58
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 181 Token: 2 
+Should be: 58
+But is instead: 57
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 181 Token: 3 
+Should be: 57
+But is instead: 56
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 181 Token: 4 
+Should be: 56
+But is instead: 62
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 182 Token: 1 
+Should be: 57
+But is instead: 56
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 182 Token: 2 
+Should be: 58
+But is instead: 57
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 182 Token: 3 
+Should be: 59
+But is instead: 58
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 182 Token: 4 
+Should be: 60
+But is instead: 59
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 183 Token: 1 
+Should be: 57
+But is instead: 56
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 183 Token: 2 
+Should be: 58
+But is instead: 57
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 183 Token: 3 
+Should be: 59
+But is instead: 58
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 183 Token: 4 
+Should be: 60
+But is instead: 59
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 184 Token: 1 
+Should be: 57
+But is instead: 60
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 184 Token: 2 
+Should be: 58
+But is instead: 59
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 184 Token: 3 
+Should be: 59
+But is instead: 58
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 184 Token: 4 
+Should be: 61
+But is instead: 57
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 185 Token: 1 
+Should be: 57
+But is instead: 60
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 185 Token: 2 
+Should be: 58
+But is instead: 59
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 185 Token: 3 
+Should be: 59
+But is instead: 58
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 185 Token: 4 
+Should be: 61
+But is instead: 57
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 186 Token: 1 
+Should be: 63
+But is instead: 61
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 186 Token: 2 
+Should be: 62
+But is instead: 59
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 186 Token: 3 
+Should be: 56
+But is instead: 58
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 187 Token: 1 
+Should be: 63
+But is instead: 61
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 187 Token: 2 
+Should be: 62
+But is instead: 59
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 187 Token: 3 
+Should be: 56
+But is instead: 58
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 188 Token: 4 
+Should be: 55
+But is instead: 57
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 189 Token: 4 
+Should be: 55
+But is instead: 57
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 416 Token: 1 
+Should be: 136
+But is instead: 138
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 416 Token: 2 
+Should be: 135
+But is instead: 137
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 416 Token: 3 
+Should be: 137
+But is instead: 135
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 416 Token: 4 
+Should be: 138
+But is instead: 129
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 417 Token: 4 
+Should be: 129
+But is instead: 136
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 418 Token: 1 
+Should be: 139
+But is instead: 135
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 418 Token: 2 
+Should be: 138
+But is instead: 137
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 418 Token: 3 
+Should be: 137
+But is instead: 138
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 418 Token: 4 
+Should be: 135
+But is instead: 139
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 419 Token: 1 
+Should be: 139
+But is instead: 135
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 419 Token: 2 
+Should be: 138
+But is instead: 137
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 419 Token: 3 
+Should be: 137
+But is instead: 138
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 419 Token: 4 
+Should be: 135
+But is instead: 139
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 420 Token: 1 
+Should be: 142
+But is instead: 135
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 420 Token: 2 
+Should be: 138
+But is instead: 137
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 420 Token: 3 
+Should be: 137
+But is instead: 138
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 420 Token: 4 
+Should be: 135
+But is instead: 142
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 421 Token: 1 
+Should be: 142
+But is instead: 135
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 421 Token: 2 
+Should be: 138
+But is instead: 137
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 421 Token: 3 
+Should be: 137
+But is instead: 138
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 421 Token: 4 
+Should be: 135
+But is instead: 142
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 422 Token: 1 
+Should be: 142
+But is instead: 137
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 423 Token: 1 
+Should be: 142
+But is instead: 137
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 424 Token: 1 
+Should be: 142
+But is instead: 137
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 425 Token: 1 
+Should be: 142
+But is instead: 137
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 426 Token: 1 
+Should be: 137
+But is instead: 142
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 426 Token: 3 
+Should be: 142
+But is instead: 139
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 426 Token: 4 
+Should be: 144
+But is instead: 141
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 427 Token: 1 
+Should be: 137
+But is instead: 142
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 427 Token: 3 
+Should be: 142
+But is instead: 139
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 427 Token: 4 
+Should be: 144
+But is instead: 141
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 428 Token: 1 
+Should be: 139
+But is instead: 142
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 428 Token: 3 
+Should be: 142
+But is instead: 139
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 428 Token: 4 
+Should be: 144
+But is instead: 140
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 429 Token: 1 
+Should be: 139
+But is instead: 142
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 429 Token: 3 
+Should be: 142
+But is instead: 139
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 429 Token: 4 
+Should be: 144
+But is instead: 140
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 430 Token: 1 
+Should be: 139
+But is instead: 137
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 430 Token: 4 
+Should be: 137
+But is instead: 144
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 430 Token: 5 
+Should be: 2
+But is instead: 1
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 430 Token: 8 
+Should be: 
+But is instead: 1
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 431 Token: 1 
+Should be: 143
+But is instead: 137
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 431 Token: 5 
+Should be: 2
+But is instead: 1
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 431 Token: 8 
+Should be: 
+But is instead: 3
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 432 Token: 1 
+Should be: 140
+But is instead: 137
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 432 Token: 2 
+Should be: 139
+But is instead: 138
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 432 Token: 3 
+Should be: 138
+But is instead: 142
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 432 Token: 4 
+Should be: 137
+But is instead: 143
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 433 Token: 1 
+Should be: 140
+But is instead: 137
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 433 Token: 2 
+Should be: 139
+But is instead: 138
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 433 Token: 3 
+Should be: 138
+But is instead: 142
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 433 Token: 4 
+Should be: 137
+But is instead: 143
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 434 Token: 1 
+Should be: 141
+But is instead: 139
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 434 Token: 2 
+Should be: 139
+But is instead: 138
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 434 Token: 3 
+Should be: 138
+But is instead: 142
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 434 Token: 4 
+Should be: 137
+But is instead: 144
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 435 Token: 1 
+Should be: 141
+But is instead: 139
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 435 Token: 2 
+Should be: 139
+But is instead: 138
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 435 Token: 3 
+Should be: 138
+But is instead: 142
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 435 Token: 4 
+Should be: 137
+But is instead: 144
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 436 Token: 1 
+Should be: 138
+But is instead: 139
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 436 Token: 2 
+Should be: 139
+But is instead: 138
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 436 Token: 3 
+Should be: 140
+But is instead: 142
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 436 Token: 4 
+Should be: 141
+But is instead: 137
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 437 Token: 2 
+Should be: 142
+But is instead: 138
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 437 Token: 3 
+Should be: 138
+But is instead: 142
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 437 Token: 4 
+Should be: 139
+But is instead: 144
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 437 Token: 5 
+Should be: 1
+But is instead: 2
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 438 Token: 1 
+Should be: 143
+But is instead: 138
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 438 Token: 2 
+Should be: 142
+But is instead: 139
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 438 Token: 3 
+Should be: 138
+But is instead: 140
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 438 Token: 4 
+Should be: 139
+But is instead: 141
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 438 Token: 5 
+Should be: 1
+But is instead: 2
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 439 Token: 4 
+Should be: 137
+But is instead: 139
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 440 Token: 4 
+Should be: 137
+But is instead: 139
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 545 Token: 1 
+Should be: 176
+But is instead: 178
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 545 Token: 2 
+Should be: 175
+But is instead: 177
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 545 Token: 3 
+Should be: 177
+But is instead: 175
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 545 Token: 4 
+Should be: 178
+But is instead: 170
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 546 Token: 4 
+Should be: 170
+But is instead: 176
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 547 Token: 1 
+Should be: 179
+But is instead: 175
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 547 Token: 2 
+Should be: 178
+But is instead: 177
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 547 Token: 3 
+Should be: 177
+But is instead: 178
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 547 Token: 4 
+Should be: 175
+But is instead: 179
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 548 Token: 1 
+Should be: 179
+But is instead: 175
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 548 Token: 2 
+Should be: 178
+But is instead: 177
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 548 Token: 3 
+Should be: 177
+But is instead: 178
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 548 Token: 4 
+Should be: 175
+But is instead: 179
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 549 Token: 1 
+Should be: 184
+But is instead: 175
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 549 Token: 2 
+Should be: 178
+But is instead: 177
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 549 Token: 3 
+Should be: 177
+But is instead: 178
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 549 Token: 4 
+Should be: 175
+But is instead: 184
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 550 Token: 1 
+Should be: 184
+But is instead: 175
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 550 Token: 2 
+Should be: 178
+But is instead: 177
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 550 Token: 3 
+Should be: 177
+But is instead: 178
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 550 Token: 4 
+Should be: 175
+But is instead: 184
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 551 Token: 1 
+Should be: 184
+But is instead: 177
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 551 Token: 3 
+Should be: 179
+But is instead: 184
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 551 Token: 4 
+Should be: 180
+But is instead: 186
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 552 Token: 1 
+Should be: 184
+But is instead: 177
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 552 Token: 3 
+Should be: 179
+But is instead: 184
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 552 Token: 4 
+Should be: 180
+But is instead: 186
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 553 Token: 4 
+Should be: 186
+But is instead: 185
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 554 Token: 4 
+Should be: 186
+But is instead: 185
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 561 Token: 1 
+Should be: 181
+But is instead: 180
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 561 Token: 2 
+Should be: 180
+But is instead: 179
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 561 Token: 3 
+Should be: 179
+But is instead: 178
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 561 Token: 4 
+Should be: 178
+But is instead: 184
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 562 Token: 1 
+Should be: 181
+But is instead: 180
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 562 Token: 2 
+Should be: 180
+But is instead: 179
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 562 Token: 3 
+Should be: 179
+But is instead: 178
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 562 Token: 4 
+Should be: 178
+But is instead: 184
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 563 Token: 1 
+Should be: 179
+But is instead: 178
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 563 Token: 2 
+Should be: 180
+But is instead: 179
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 563 Token: 3 
+Should be: 181
+But is instead: 180
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 563 Token: 4 
+Should be: 182
+But is instead: 181
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 564 Token: 1 
+Should be: 179
+But is instead: 178
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 564 Token: 2 
+Should be: 180
+But is instead: 179
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 564 Token: 3 
+Should be: 181
+But is instead: 180
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 564 Token: 4 
+Should be: 182
+But is instead: 181
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 565 Token: 1 
+Should be: 183
+But is instead: 179
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 565 Token: 2 
+Should be: 182
+But is instead: 180
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 565 Token: 4 
+Should be: 180
+But is instead: 182
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 566 Token: 1 
+Should be: 183
+But is instead: 179
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 566 Token: 2 
+Should be: 182
+But is instead: 180
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 566 Token: 4 
+Should be: 180
+But is instead: 182
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 567 Token: 1 
+Should be: 185
+But is instead: 180
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 567 Token: 2 
+Should be: 184
+But is instead: 181
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 567 Token: 3 
+Should be: 178
+But is instead: 182
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 567 Token: 4 
+Should be: 179
+But is instead: 183
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 568 Token: 1 
+Should be: 185
+But is instead: 180
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 568 Token: 2 
+Should be: 184
+But is instead: 181
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 568 Token: 3 
+Should be: 178
+But is instead: 182
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 568 Token: 4 
+Should be: 179
+But is instead: 183
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 569 Token: 4 
+Should be: 177
+But is instead: 179
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 570 Token: 4 
+Should be: 177
+But is instead: 179
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 571 Token: 1 
+Should be: 185
+But is instead: 178
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 571 Token: 4 
+Should be: 190
+But is instead: 187
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 572 Token: 1 
+Should be: 187
+But is instead: 185
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 572 Token: 2 
+Should be: 186
+But is instead: 184
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 572 Token: 3 
+Should be: 184
+But is instead: 186
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 572 Token: 4 
+Should be: 178
+But is instead: 187
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 573 Token: 1 
+Should be: 187
+But is instead: 190
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 573 Token: 4 
+Should be: 185
+But is instead: 178
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 574 Token: 4 
+Should be: 178
+But is instead: 185
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 575 Token: 1 
+Should be: 187
+But is instead: 184
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 576 Token: 1 
+Should be: 188
+But is instead: 184
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 576 Token: 2 
+Should be: 187
+But is instead: 186
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 576 Token: 3 
+Should be: 186
+But is instead: 190
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 576 Token: 4 
+Should be: 190
+But is instead: 191
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 577 Token: 1 
+Should be: 188
+But is instead: 187
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 577 Token: 2 
+Should be: 187
+But is instead: 186
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 577 Token: 3 
+Should be: 186
+But is instead: 190
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 577 Token: 4 
+Should be: 184
+But is instead: 189
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 578 Token: 1 
+Should be: 189
+But is instead: 188
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 578 Token: 2 
+Should be: 188
+But is instead: 187
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 578 Token: 3 
+Should be: 187
+But is instead: 186
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 578 Token: 4 
+Should be: 186
+But is instead: 190
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 579 Token: 1 
+Should be: 187
+But is instead: 188
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 579 Token: 2 
+Should be: 188
+But is instead: 187
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 579 Token: 3 
+Should be: 189
+But is instead: 186
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 579 Token: 4 
+Should be: 190
+But is instead: 184
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 580 Token: 1 
+Should be: 188
+But is instead: 186
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 580 Token: 2 
+Should be: 189
+But is instead: 187
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 580 Token: 3 
+Should be: 190
+But is instead: 188
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 580 Token: 4 
+Should be: 186
+But is instead: 189
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 581 Token: 1 
+Should be: 189
+But is instead: 190
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 581 Token: 2 
+Should be: 190
+But is instead: 189
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 581 Token: 3 
+Should be: 186
+But is instead: 188
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 581 Token: 4 
+Should be: 184
+But is instead: 187
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 582 Token: 1 
+Should be: 191
+But is instead: 188
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 582 Token: 2 
+Should be: 190
+But is instead: 189
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 582 Token: 3 
+Should be: 186
+But is instead: 190
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 582 Token: 4 
+Should be: 187
+But is instead: 186
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 583 Token: 1 
+Should be: 191
+But is instead: 188
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 583 Token: 2 
+Should be: 190
+But is instead: 189
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 583 Token: 3 
+Should be: 186
+But is instead: 190
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 583 Token: 4 
+Should be: 184
+But is instead: 191
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 584 Token: 3 
+Should be: 189
+But is instead: 186
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 584 Token: 4 
+Should be: 188
+But is instead: 187
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 587 Token: 1 
+Should be: 189
+But is instead: 186
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 587 Token: 4 
+Should be: 193
+But is instead: 192
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 588 Token: 1 
+Should be: 189
+But is instead: 186
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 588 Token: 4 
+Should be: 193
+But is instead: 192
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 589 Token: 4 
+Should be: 186
+But is instead: 193
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 589 Token: 5 
+Should be: 2
+But is instead: 1
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 589 Token: 8 
+Should be: 
+But is instead: 1
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 590 Token: 1 
+Should be: 192
+But is instead: 189
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 590 Token: 5 
+Should be: 2
+But is instead: 1
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 590 Token: 8 
+Should be: 
+But is instead: 3
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 591 Token: 1 
+Should be: 192
+But is instead: 189
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 591 Token: 2 
+Should be: 191
+But is instead: 190
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 591 Token: 3 
+Should be: 190
+But is instead: 191
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 591 Token: 4 
+Should be: 189
+But is instead: 186
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 591 Token: 5 
+Should be: 1
+But is instead: 2
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 592 Token: 2 
+Should be: 191
+But is instead: 190
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 592 Token: 3 
+Should be: 190
+But is instead: 191
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 592 Token: 4 
+Should be: 189
+But is instead: 193
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 592 Token: 5 
+Should be: 1
+But is instead: 2
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 593 Token: 4 
+Should be: 186
+But is instead: 189
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 594 Token: 4 
+Should be: 186
+But is instead: 189
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 595 Token: 1 
+Should be: 192
+But is instead: 194
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 595 Token: 2 
+Should be: 191
+But is instead: 193
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 595 Token: 3 
+Should be: 193
+But is instead: 191
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 595 Token: 4 
+Should be: 194
+But is instead: 192
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 597 Token: 1 
+Should be: 195
+But is instead: 191
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 597 Token: 2 
+Should be: 194
+But is instead: 193
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 597 Token: 3 
+Should be: 193
+But is instead: 194
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 597 Token: 4 
+Should be: 191
+But is instead: 195
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 598 Token: 1 
+Should be: 195
+But is instead: 191
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 598 Token: 2 
+Should be: 194
+But is instead: 193
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 598 Token: 3 
+Should be: 193
+But is instead: 194
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 598 Token: 4 
+Should be: 191
+But is instead: 195
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 599 Token: 1 
+Should be: 200
+But is instead: 191
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 599 Token: 2 
+Should be: 194
+But is instead: 193
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 599 Token: 3 
+Should be: 193
+But is instead: 194
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 599 Token: 4 
+Should be: 191
+But is instead: 200
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 600 Token: 1 
+Should be: 200
+But is instead: 191
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 600 Token: 2 
+Should be: 194
+But is instead: 193
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 600 Token: 3 
+Should be: 193
+But is instead: 194
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 600 Token: 4 
+Should be: 191
+But is instead: 200
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 601 Token: 1 
+Should be: 200
+But is instead: 193
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 601 Token: 3 
+Should be: 195
+But is instead: 200
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 601 Token: 4 
+Should be: 196
+But is instead: 201
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 602 Token: 1 
+Should be: 200
+But is instead: 193
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 602 Token: 3 
+Should be: 195
+But is instead: 200
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 602 Token: 4 
+Should be: 196
+But is instead: 201
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 611 Token: 1 
+Should be: 197
+But is instead: 196
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 611 Token: 2 
+Should be: 196
+But is instead: 195
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 611 Token: 3 
+Should be: 195
+But is instead: 194
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 611 Token: 4 
+Should be: 194
+But is instead: 200
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 612 Token: 1 
+Should be: 197
+But is instead: 196
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 612 Token: 2 
+Should be: 196
+But is instead: 195
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 612 Token: 3 
+Should be: 195
+But is instead: 194
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 612 Token: 4 
+Should be: 194
+But is instead: 200
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 613 Token: 1 
+Should be: 195
+But is instead: 194
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 613 Token: 2 
+Should be: 196
+But is instead: 195
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 613 Token: 3 
+Should be: 197
+But is instead: 196
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 613 Token: 4 
+Should be: 198
+But is instead: 197
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 614 Token: 1 
+Should be: 195
+But is instead: 194
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 614 Token: 2 
+Should be: 196
+But is instead: 195
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 614 Token: 3 
+Should be: 197
+But is instead: 196
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 614 Token: 4 
+Should be: 198
+But is instead: 197
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 615 Token: 1 
+Should be: 195
+But is instead: 198
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 615 Token: 2 
+Should be: 196
+But is instead: 197
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 615 Token: 3 
+Should be: 197
+But is instead: 196
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 615 Token: 4 
+Should be: 199
+But is instead: 195
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 616 Token: 1 
+Should be: 195
+But is instead: 198
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 616 Token: 2 
+Should be: 196
+But is instead: 197
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 616 Token: 3 
+Should be: 197
+But is instead: 196
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 616 Token: 4 
+Should be: 199
+But is instead: 195
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 617 Token: 1 
+Should be: 201
+But is instead: 199
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 617 Token: 2 
+Should be: 200
+But is instead: 197
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 617 Token: 3 
+Should be: 194
+But is instead: 196
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 618 Token: 1 
+Should be: 201
+But is instead: 199
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 618 Token: 2 
+Should be: 200
+But is instead: 197
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 618 Token: 3 
+Should be: 194
+But is instead: 196
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 619 Token: 4 
+Should be: 193
+But is instead: 195
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 620 Token: 4 
+Should be: 193
+But is instead: 195
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1076 Token: 1 
+Should be: 341
+But is instead: 343
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1076 Token: 2 
+Should be: 340
+But is instead: 342
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1076 Token: 3 
+Should be: 342
+But is instead: 340
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1076 Token: 4 
+Should be: 343
+But is instead: 341
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1078 Token: 1 
+Should be: 344
+But is instead: 340
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1078 Token: 2 
+Should be: 343
+But is instead: 342
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1078 Token: 3 
+Should be: 342
+But is instead: 343
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1078 Token: 4 
+Should be: 340
+But is instead: 344
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1079 Token: 1 
+Should be: 344
+But is instead: 340
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1079 Token: 2 
+Should be: 343
+But is instead: 342
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1079 Token: 3 
+Should be: 342
+But is instead: 343
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1079 Token: 4 
+Should be: 340
+But is instead: 344
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1080 Token: 1 
+Should be: 348
+But is instead: 340
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1080 Token: 2 
+Should be: 343
+But is instead: 342
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1080 Token: 3 
+Should be: 342
+But is instead: 343
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1080 Token: 4 
+Should be: 340
+But is instead: 348
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1081 Token: 1 
+Should be: 348
+But is instead: 340
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1081 Token: 2 
+Should be: 343
+But is instead: 342
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1081 Token: 3 
+Should be: 342
+But is instead: 343
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1081 Token: 4 
+Should be: 340
+But is instead: 348
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1082 Token: 1 
+Should be: 348
+But is instead: 342
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1082 Token: 3 
+Should be: 344
+But is instead: 348
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1082 Token: 4 
+Should be: 345
+But is instead: 350
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1083 Token: 1 
+Should be: 348
+But is instead: 342
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1083 Token: 3 
+Should be: 344
+But is instead: 348
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1083 Token: 4 
+Should be: 345
+But is instead: 350
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1084 Token: 4 
+Should be: 350
+But is instead: 349
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1085 Token: 4 
+Should be: 350
+But is instead: 349
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1092 Token: 1 
+Should be: 346
+But is instead: 345
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1092 Token: 2 
+Should be: 345
+But is instead: 344
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1092 Token: 3 
+Should be: 344
+But is instead: 343
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1092 Token: 4 
+Should be: 343
+But is instead: 348
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1093 Token: 1 
+Should be: 346
+But is instead: 345
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1093 Token: 2 
+Should be: 345
+But is instead: 344
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1093 Token: 3 
+Should be: 344
+But is instead: 343
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1093 Token: 4 
+Should be: 343
+But is instead: 348
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1094 Token: 1 
+Should be: 347
+But is instead: 346
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1095 Token: 1 
+Should be: 347
+But is instead: 346
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1096 Token: 1 
+Should be: 349
+But is instead: 347
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1096 Token: 2 
+Should be: 348
+But is instead: 345
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1096 Token: 3 
+Should be: 343
+But is instead: 344
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1096 Token: 4 
+Should be: 344
+But is instead: 343
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1097 Token: 1 
+Should be: 349
+But is instead: 347
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1097 Token: 2 
+Should be: 348
+But is instead: 345
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1097 Token: 3 
+Should be: 343
+But is instead: 344
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1097 Token: 4 
+Should be: 344
+But is instead: 343
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1098 Token: 4 
+Should be: 342
+But is instead: 344
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1099 Token: 4 
+Should be: 342
+But is instead: 344
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1291 Token: 1 
+Should be: 412
+But is instead: 414
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1291 Token: 2 
+Should be: 411
+But is instead: 413
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1291 Token: 3 
+Should be: 413
+But is instead: 411
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1291 Token: 4 
+Should be: 414
+But is instead: 406
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1292 Token: 4 
+Should be: 406
+But is instead: 412
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1293 Token: 1 
+Should be: 415
+But is instead: 411
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1293 Token: 2 
+Should be: 414
+But is instead: 413
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1293 Token: 3 
+Should be: 413
+But is instead: 414
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1293 Token: 4 
+Should be: 411
+But is instead: 415
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1294 Token: 1 
+Should be: 415
+But is instead: 411
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1294 Token: 2 
+Should be: 414
+But is instead: 413
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1294 Token: 3 
+Should be: 413
+But is instead: 414
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1294 Token: 4 
+Should be: 411
+But is instead: 415
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1295 Token: 1 
+Should be: 420
+But is instead: 411
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1295 Token: 2 
+Should be: 414
+But is instead: 413
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1295 Token: 3 
+Should be: 413
+But is instead: 414
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1295 Token: 4 
+Should be: 411
+But is instead: 420
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1296 Token: 1 
+Should be: 420
+But is instead: 411
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1296 Token: 2 
+Should be: 414
+But is instead: 413
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1296 Token: 3 
+Should be: 413
+But is instead: 414
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1296 Token: 4 
+Should be: 411
+But is instead: 420
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1297 Token: 1 
+Should be: 420
+But is instead: 413
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1297 Token: 3 
+Should be: 415
+But is instead: 420
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1297 Token: 4 
+Should be: 416
+But is instead: 421
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1298 Token: 1 
+Should be: 420
+But is instead: 413
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1298 Token: 3 
+Should be: 415
+But is instead: 420
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1298 Token: 4 
+Should be: 416
+But is instead: 421
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1307 Token: 1 
+Should be: 417
+But is instead: 416
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1307 Token: 2 
+Should be: 416
+But is instead: 415
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1307 Token: 3 
+Should be: 415
+But is instead: 414
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1307 Token: 4 
+Should be: 414
+But is instead: 420
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1308 Token: 1 
+Should be: 417
+But is instead: 416
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1308 Token: 2 
+Should be: 416
+But is instead: 415
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1308 Token: 3 
+Should be: 415
+But is instead: 414
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1308 Token: 4 
+Should be: 414
+But is instead: 420
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1309 Token: 1 
+Should be: 415
+But is instead: 414
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1309 Token: 2 
+Should be: 416
+But is instead: 415
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1309 Token: 3 
+Should be: 417
+But is instead: 416
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1309 Token: 4 
+Should be: 418
+But is instead: 417
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1310 Token: 1 
+Should be: 415
+But is instead: 414
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1310 Token: 2 
+Should be: 416
+But is instead: 415
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1310 Token: 3 
+Should be: 417
+But is instead: 416
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1310 Token: 4 
+Should be: 418
+But is instead: 417
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1311 Token: 1 
+Should be: 419
+But is instead: 415
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1311 Token: 2 
+Should be: 418
+But is instead: 416
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1311 Token: 4 
+Should be: 416
+But is instead: 418
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1312 Token: 1 
+Should be: 419
+But is instead: 415
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1312 Token: 2 
+Should be: 418
+But is instead: 416
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1312 Token: 4 
+Should be: 416
+But is instead: 418
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1313 Token: 1 
+Should be: 421
+But is instead: 416
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1313 Token: 2 
+Should be: 420
+But is instead: 417
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1313 Token: 3 
+Should be: 414
+But is instead: 418
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1313 Token: 4 
+Should be: 415
+But is instead: 419
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1314 Token: 1 
+Should be: 421
+But is instead: 416
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1314 Token: 2 
+Should be: 420
+But is instead: 417
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1314 Token: 3 
+Should be: 414
+But is instead: 418
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1314 Token: 4 
+Should be: 415
+But is instead: 419
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1315 Token: 4 
+Should be: 413
+But is instead: 415
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1316 Token: 4 
+Should be: 413
+But is instead: 415
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1342 Token: 1 
+Should be: 429
+But is instead: 431
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1342 Token: 2 
+Should be: 428
+But is instead: 430
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1342 Token: 3 
+Should be: 430
+But is instead: 428
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1342 Token: 4 
+Should be: 431
+But is instead: 423
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1343 Token: 4 
+Should be: 423
+But is instead: 429
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1344 Token: 1 
+Should be: 432
+But is instead: 428
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1344 Token: 2 
+Should be: 431
+But is instead: 430
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1344 Token: 3 
+Should be: 430
+But is instead: 431
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1344 Token: 4 
+Should be: 428
+But is instead: 432
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1345 Token: 1 
+Should be: 432
+But is instead: 428
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1345 Token: 2 
+Should be: 431
+But is instead: 430
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1345 Token: 3 
+Should be: 430
+But is instead: 431
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1345 Token: 4 
+Should be: 428
+But is instead: 432
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1346 Token: 1 
+Should be: 436
+But is instead: 428
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1346 Token: 2 
+Should be: 431
+But is instead: 430
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1346 Token: 3 
+Should be: 430
+But is instead: 431
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1346 Token: 4 
+Should be: 428
+But is instead: 436
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1347 Token: 1 
+Should be: 436
+But is instead: 428
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1347 Token: 2 
+Should be: 431
+But is instead: 430
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1347 Token: 3 
+Should be: 430
+But is instead: 431
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1347 Token: 4 
+Should be: 428
+But is instead: 436
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1348 Token: 1 
+Should be: 436
+But is instead: 430
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1348 Token: 3 
+Should be: 432
+But is instead: 436
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1348 Token: 4 
+Should be: 433
+But is instead: 437
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1349 Token: 1 
+Should be: 436
+But is instead: 430
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1349 Token: 3 
+Should be: 432
+But is instead: 436
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1349 Token: 4 
+Should be: 433
+But is instead: 437
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1358 Token: 1 
+Should be: 434
+But is instead: 433
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1358 Token: 2 
+Should be: 433
+But is instead: 432
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1358 Token: 3 
+Should be: 432
+But is instead: 431
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1358 Token: 4 
+Should be: 431
+But is instead: 436
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1359 Token: 1 
+Should be: 434
+But is instead: 433
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1359 Token: 2 
+Should be: 433
+But is instead: 432
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1359 Token: 3 
+Should be: 432
+But is instead: 431
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1359 Token: 4 
+Should be: 431
+But is instead: 436
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1360 Token: 1 
+Should be: 435
+But is instead: 434
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1361 Token: 1 
+Should be: 435
+But is instead: 434
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1362 Token: 1 
+Should be: 437
+But is instead: 435
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1362 Token: 2 
+Should be: 436
+But is instead: 433
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1362 Token: 3 
+Should be: 431
+But is instead: 432
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1362 Token: 4 
+Should be: 432
+But is instead: 431
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1363 Token: 1 
+Should be: 437
+But is instead: 435
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1363 Token: 2 
+Should be: 436
+But is instead: 433
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1363 Token: 3 
+Should be: 431
+But is instead: 432
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1363 Token: 4 
+Should be: 432
+But is instead: 431
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1364 Token: 4 
+Should be: 430
+But is instead: 432
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1365 Token: 4 
+Should be: 430
+But is instead: 432
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1461 Token: 1 
+Should be: 467
+But is instead: 469
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1461 Token: 2 
+Should be: 466
+But is instead: 468
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1461 Token: 3 
+Should be: 468
+But is instead: 466
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1461 Token: 4 
+Should be: 469
+But is instead: 460
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1462 Token: 4 
+Should be: 460
+But is instead: 467
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1463 Token: 1 
+Should be: 470
+But is instead: 466
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1463 Token: 2 
+Should be: 469
+But is instead: 468
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1463 Token: 3 
+Should be: 468
+But is instead: 469
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1463 Token: 4 
+Should be: 466
+But is instead: 470
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1464 Token: 1 
+Should be: 470
+But is instead: 466
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1464 Token: 2 
+Should be: 469
+But is instead: 468
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1464 Token: 3 
+Should be: 468
+But is instead: 469
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1464 Token: 4 
+Should be: 466
+But is instead: 470
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1465 Token: 1 
+Should be: 473
+But is instead: 466
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1465 Token: 2 
+Should be: 469
+But is instead: 468
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1465 Token: 3 
+Should be: 468
+But is instead: 469
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1465 Token: 4 
+Should be: 466
+But is instead: 473
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1466 Token: 1 
+Should be: 473
+But is instead: 466
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1466 Token: 2 
+Should be: 469
+But is instead: 468
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1466 Token: 3 
+Should be: 468
+But is instead: 469
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1466 Token: 4 
+Should be: 466
+But is instead: 473
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1467 Token: 1 
+Should be: 473
+But is instead: 468
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1468 Token: 1 
+Should be: 473
+But is instead: 468
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1469 Token: 1 
+Should be: 473
+But is instead: 468
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1470 Token: 1 
+Should be: 473
+But is instead: 468
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1471 Token: 1 
+Should be: 468
+But is instead: 473
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1471 Token: 3 
+Should be: 473
+But is instead: 470
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1471 Token: 4 
+Should be: 475
+But is instead: 472
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1472 Token: 1 
+Should be: 468
+But is instead: 473
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1472 Token: 3 
+Should be: 473
+But is instead: 470
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1472 Token: 4 
+Should be: 475
+But is instead: 472
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1473 Token: 1 
+Should be: 470
+But is instead: 473
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1473 Token: 3 
+Should be: 473
+But is instead: 470
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1473 Token: 4 
+Should be: 475
+But is instead: 471
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1474 Token: 1 
+Should be: 470
+But is instead: 473
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1474 Token: 3 
+Should be: 473
+But is instead: 470
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1474 Token: 4 
+Should be: 475
+But is instead: 471
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1475 Token: 1 
+Should be: 470
+But is instead: 468
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1475 Token: 4 
+Should be: 468
+But is instead: 475
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1475 Token: 5 
+Should be: 2
+But is instead: 1
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1475 Token: 8 
+Should be: 
+But is instead: 1
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1476 Token: 1 
+Should be: 474
+But is instead: 468
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1476 Token: 5 
+Should be: 2
+But is instead: 1
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1476 Token: 8 
+Should be: 
+But is instead: 3
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1477 Token: 1 
+Should be: 471
+But is instead: 468
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1477 Token: 2 
+Should be: 470
+But is instead: 469
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1477 Token: 3 
+Should be: 469
+But is instead: 473
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1477 Token: 4 
+Should be: 468
+But is instead: 474
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1478 Token: 1 
+Should be: 471
+But is instead: 468
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1478 Token: 2 
+Should be: 470
+But is instead: 469
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1478 Token: 3 
+Should be: 469
+But is instead: 473
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1478 Token: 4 
+Should be: 468
+But is instead: 474
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1479 Token: 1 
+Should be: 472
+But is instead: 470
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1479 Token: 2 
+Should be: 470
+But is instead: 469
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1479 Token: 3 
+Should be: 469
+But is instead: 473
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1479 Token: 4 
+Should be: 468
+But is instead: 475
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1480 Token: 1 
+Should be: 472
+But is instead: 470
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1480 Token: 2 
+Should be: 470
+But is instead: 469
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1480 Token: 3 
+Should be: 469
+But is instead: 473
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1480 Token: 4 
+Should be: 468
+But is instead: 475
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1481 Token: 1 
+Should be: 469
+But is instead: 470
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1481 Token: 2 
+Should be: 470
+But is instead: 469
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1481 Token: 3 
+Should be: 471
+But is instead: 473
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1481 Token: 4 
+Should be: 472
+But is instead: 468
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1482 Token: 2 
+Should be: 473
+But is instead: 469
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1482 Token: 3 
+Should be: 469
+But is instead: 473
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1482 Token: 4 
+Should be: 470
+But is instead: 475
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1482 Token: 5 
+Should be: 1
+But is instead: 2
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1483 Token: 1 
+Should be: 474
+But is instead: 469
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1483 Token: 2 
+Should be: 473
+But is instead: 470
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1483 Token: 3 
+Should be: 469
+But is instead: 471
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1483 Token: 4 
+Should be: 470
+But is instead: 472
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1483 Token: 5 
+Should be: 1
+But is instead: 2
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1484 Token: 4 
+Should be: 468
+But is instead: 470
+ERROR.
+
+Difference at:
+Directive: dihedrals
+Line: 1485 Token: 4 
+Should be: 468
+But is instead: 470
