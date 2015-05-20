@@ -32,12 +32,17 @@ For the comprehensive check (may take ~30 minutes):
 The scripts assumes that perl is located at 
 /usr/bin/perl and that sed and bash are in your path.
 
-These scripts has been tested on Linux and OSX 
+These scripts have been tested on Linux and OSX 
 platforms. If you are using alternate platforms, the 
 most common issue is that perl is located in a different 
 directory than expected.  If that is the case, you will 
 want to update the .pl files, such that the proper 
 interpreter is used.
+
+MAC users: If smog2 will not start, you may need to 
+change the first line to: 
+#!/usr/bin/env perl -w
+
 
 Direct all questions to info@smog-server.org.
 
