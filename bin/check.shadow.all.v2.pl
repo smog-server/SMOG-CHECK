@@ -32,10 +32,10 @@ print "EXEC_NAME $EXEC_NAME\n";
 ## this is the all-atom smog check with shadow.
 $FAILDIR="FAILED";
 
-unless( -e $EXEC_NAME){
- print "Can\'t find the SMOG executable\n";
- die;
-}
+##unless( -e $EXEC_NAME){
+## print "Can\'t find the SMOG executable\n";
+## die;
+##}
 
 ## read in the backbone atom types.  Remember, CA and C1* can be involved in sidechain dihedrals
 open(bbamino,"share/backboneatoms/aminoacids") or die "no amino acid file\n";
