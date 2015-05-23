@@ -5,6 +5,8 @@
 # a testing script, it is not designed to be efficient, but to be thorough, and foolproof...
  
 $EXEC_NAME=$ENV{'smog_exec'};
+$SMOGDIR=$ENV{'SMOG_PATH'};
+$SCM="$SMOGDIR/tools/SCM.jar";
 $TOLERANCE=$ENV{'TOLERANCE'};
 $MAXTHR=1.0+$TOLERANCE;
 $MINTHR=1.0-$TOLERANCE;
@@ -17,7 +19,7 @@ $TEMPLATE_DIR_AA=$ENV{'BIFSIF_AA_TESTING'};
 $TEMPLATE_DIR_AA_STATIC=$ENV{'BIFSIF_STATIC_TESTING'};
 $TEMPLATE_DIR_CA=$ENV{'BIFSIF_CA_TESTING'};
 
-unless(-d $BIFSIF_AA && -d $BIFSIF_CA && -d $TEMPLATE_DIR_AA && -d $TEMPLATE_DIR_AA_STATIC && -d $TEMPLATE_DIR_CA){
+unless(-d $BIFSIF_AA && -d $BIFSIF_CA && -d $TEMPLATE_DIR_AA && -d $TEMPLATE_DIR_AA_STATIC && -d $TEMPLATE_DIR_CA ){
  print "Can\'t find the template directories. Something is wrong with the configurations of this script.\n";
  print "Your intallation of SMOG2 may be ok, but we can\'t tell\n";
  print "Giving up...\n";
@@ -32,10 +34,10 @@ print "EXEC_NAME $EXEC_NAME\n";
 ## this is the all-atom smog check with shadow.
 $FAILDIR="FAILED";
 
-##unless( -e $EXEC_NAME){
-## print "Can\'t find the SMOG executable\n";
-## die;
-##}
+unless( -e $SCM){
+ print "Can\'t find Shadow! Quitting!!\n";
+ die;
+}
 
 ## read in the backbone atom types.  Remember, CA and C1* can be involved in sidechain dihedrals
 open(bbamino,"share/backboneatoms/aminoacids") or die "no amino acid file\n";
@@ -129,14 +131,14 @@ while(<PARMS>){
 ## they are left in for future extentions to cut-off maps
 
  $model=$A[1];
- if($A[2] eq "default"){
+ if($A[2] =~ m/default/){
   $default="yes";
  }else{
   $default="no";
  }
- if($model eq "CA"){
+ if($model =~ m/CA/){
   print "Testing CA model\n";
- }elsif($model eq "AA"){
+ }elsif($model =~ m/AA/){
   print "Testing AA model\n";
  }else{
   print "Model name $model, not understood. Only CA and AA models are supported by the test script.  Quitting...\n";
@@ -145,18 +147,13 @@ while(<PARMS>){
 
  if($default eq "yes"){
   print "checking default parameters\n";
-  ## CUT-OFF settings (not used)
-  $PP_cutoff=4.0;
-  $PN_cutoff=4.0;
-  $NN_cutoff=4.0;
-  $PN_L_cutoff=4.0;
-  # minimum sequence distance
-  $PP_seq=4;
-  $NN_seq=1;
-  # End of unused stuff
   # energy distributions
 
   ## Settings relevant for the default model
+  $CONTTYPE="shadow";
+  $CONTD=6.0;
+  $CONTR=1.0;
+  $BBRAD=0.5;
   $R_CD=2.0;
   $R_P_BB_SC=2.0;
   $R_N_SC_BB=1.0;
@@ -170,26 +167,52 @@ while(<PARMS>){
   $sigmaCA=4.0;
  }else{
   print "checking non-default parameters for SMOG models\n";
-  $PP_cutoff=$A[2];
-  $PN_cutoff=$A[3];
-  $NN_cutoff=$A[4];
-  $PN_L_cutoff=$A[5];
-  # minimum sequence distance
-  $PP_seq=$A[6];
-  $NN_seq=$A[7];
+  $ARG=2;
   # energy distributions
-  $R_CD=$A[8];
-  $R_P_BB_SC=$A[9];
-  $R_N_SC_BB=$A[10];
-  $PRO_DIH=$A[11];
-  $NA_DIH=$A[12];
-  $LIGAND_DIH=$A[13];
+  # map type
+  $CONTTYPE=$A[$ARG];
+  $ARG++;
+  if($CONTTYPE =~ m/shadow/){
+   $CONTD=$A[$ARG];
+   $ARG++;
+   $CONTR=$A[$ARG];
+   $ARG++;
+   $BBRAD=0.5;
+  }elsif($CONTTYPE =~ m/cutoff/){
+   $CONTD=$A[$ARG];
+   $ARG++;
+   $CONTR=0;
+   $BBRAD=0.0;
+  }else{
+   print "Contact scheme $CONTTYPE is not supported. This is a mistake in the test suite.  Quitting...\n";
+   die
+  }
+
+   #if shadow, read length and size
+  # if cutoff, just read length
+  $R_CD=$A[$ARG];
+   $ARG++;
+  $R_P_BB_SC=$A[$ARG];
+   $ARG++;
+  $R_N_SC_BB=$A[$ARG];
+   $ARG++;
+  $PRO_DIH=$A[$ARG];
+   $ARG++;
+  $NA_DIH=$A[$ARG];
+   $ARG++;
+  $LIGAND_DIH=$A[$ARG];
+   $ARG++;
   # excluded volumes
-  $sigma=$A[14];
-  $epsilon=$A[15];
-  $epsilonCAC=$A[16];
-  $epsilonCAD=$A[17];
-  $sigmaCA=$A[18];
+  $sigma=$A[$ARG];
+   $ARG++;
+  $epsilon=$A[$ARG];
+   $ARG++;
+  $epsilonCAC=$A[$ARG];
+   $ARG++;
+  $epsilonCAD=$A[$ARG];
+   $ARG++;
+  $sigmaCA=$A[$ARG];
+   $ARG++;
  }
  $bondEps=20000;
  $bondMG=200;
@@ -235,16 +258,28 @@ sub smogchecker
   }
  }else{
   if($model eq "CA"){
-   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -tCG temp.bifsif/ -contactRes $TEMPLATE_DIR_AA_STATIC &> $PDB.output`;
+   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -tCG temp.bifsif/ -contactRes temp.cont.bifsif &> $PDB.output`;
   }elsif($model eq "AA"){
    `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -tAA temp.bifsif/  &> $PDB.output`;
   }else{
    print "unrecognized model.  Quitting..\n";
    die;
   }
-
-
  }
+
+ if($model eq "AA"){
+  `java -jar $SCM  -g $PDB.gro -t $PDB.top -ch $PDB.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD --distance`;
+  $CONTDIFF=`diff $PDB.contacts $PDB.contacts.SCM | wc -l`;
+   if($CONTDIFF > 0){
+    print "contact map consistency check: FAILED\n";
+    $FAILED++; 
+   }else{
+    print "contact map consistency check: PASSED\n";
+   }
+ }elsif($model eq "CA"){
+   print "Contact map comparison only enabled for AA model.\n";
+ }
+
  # CHECK THE OUTPUT
  &checkgro; 
  &checkndx;
@@ -268,6 +303,9 @@ sub checkgro
  $ZMIN=10000000;
  $ZMAX=-10000000;
  $#GRODATA=-1;
+ $#XT=-1;
+ $#YT=-1;
+ $#ZT=-1;
  for($I=0;$I<$NUMOFATOMS;$I++){
   $LINE=<GRO>;
   chomp($LINE);
@@ -275,6 +313,9 @@ sub checkgro
   $GRODATA[$I][1]=substr($LINE,5,5);
   $GRODATA[$I][2]=substr($LINE,10,5);
   $GRODATA[$I][3]=substr($LINE,15,5);
+  $XT[$I+1]=substr($LINE,20,8);
+  $YT[$I+1]=substr($LINE,28,8);
+  $ZT[$I+1]=substr($LINE,36,8);
   $X=substr($LINE,20,8);
   $Y=substr($LINE,28,8);
   $Z=substr($LINE,36,8);
@@ -340,12 +381,6 @@ sub preparesettings
  printf READSET ("%s.ndx\n", $PDB);
  printf READSET ("%s\n", "All-Atom");
  # do not upload a contact file.
- printf READSET ("PP_cutoff %s\n", $PP_cutoff);
- printf READSET ("NN_cutoff %s\n", $NN_cutoff);
- printf READSET ("PN_cutoff %s\n", $PN_cutoff);
- printf READSET ("PN_L_cutoff %s\n", $PN_L_cutoff);
- printf READSET ("PP_seq %s\n", $PP_seq);
- printf READSET ("NN_seq %s\n", $NN_seq);
  printf READSET ("R_CD %s\n", $R_CD);
  printf READSET ("R_P_BB_SC %s\n", $R_P_BB_SC);
  printf READSET ("R_N_SC_BB %s\n", $R_N_SC_BB);
@@ -374,8 +409,11 @@ sub preparesettings
  if(-d "temp.bifsif"){
   `rm -r temp.bifsif`;
  }
+  if(-d "temp.cont.bifsif"){
+  `rm -r temp.cont.bifsif`;
+ }
  if($model eq "CA" && $default ne "yes"){
-  `mkdir temp.bifsif`;
+  `mkdir temp.bifsif temp.cont.bifsif`;
   $PARM_P_BB=$PRO_DIH;
   $PARM_P_SC=$PRO_DIH/$R_P_BB_SC;
   $PARM_N_BB=$NA_DIH;
@@ -385,6 +423,13 @@ sub preparesettings
   `sed "s/PARM_C12/$rep_s12/g;s/EPS_CONT/$epsilonCAC/g" $TEMPLATE_DIR_CA/*.nb > temp.bifsif/tmp.nb`;
   `sed "s/EPS_CONT/$epsilonCAC/g;s/EPS_DIH/$epsilonCAD/g;s/EPS_dih3/$epsilonCAD3/g" $TEMPLATE_DIR_CA/*.b > temp.bifsif/tmp.b`;
   `cp $TEMPLATE_DIR_CA/*.bif temp.bifsif/tmp.bif`;
+
+  `cp $TEMPLATE_DIR_AA_STATIC/*.bif temp.cont.bifsif/tmp.cont.bif`;
+  `cp $TEMPLATE_DIR_AA_STATIC/*.nb temp.cont.bifsif/tmp.cont.nb`;
+  `cp $TEMPLATE_DIR_AA_STATIC/*.b temp.cont.bifsif/tmp.cont.b`;
+  `sed "s/CONTMAP/$CONTTYPE/g;s/CUTDIST/$CONTD/g;s/SCM_R/$CONTR/g" $TEMPLATE_DIR_AA_STATIC/*.sif > temp.cont.bifsif/tmp.cont.sif`;
+
+
  } 
 
  if($model eq "AA" && $default ne "yes"){
@@ -393,7 +438,7 @@ sub preparesettings
   $PARM_P_SC=$PRO_DIH/$R_P_BB_SC;
   $PARM_N_BB=$NA_DIH;
   $PARM_N_SC=$NA_DIH*$R_N_SC_BB;
-  `sed "s/PARM_C_D/$R_CD/g;s/PARM_P_BB/$PARM_P_BB/g;s/PARM_P_SC/$PARM_P_SC/g;s/PARM_N_BB/$PARM_N_BB/g;s/PARM_N_SC/$PARM_N_SC/g;" $TEMPLATE_DIR_AA/*.sif > temp.bifsif/tmp.sif`;
+  `sed "s/PARM_C_D/$R_CD/g;s/PARM_P_BB/$PARM_P_BB/g;s/PARM_P_SC/$PARM_P_SC/g;s/PARM_N_BB/$PARM_N_BB/g;s/PARM_N_SC/$PARM_N_SC/g;s/CONTMAP/$CONTTYPE/g;s/CUTDIST/$CONTD/g;s/SCM_R/$CONTR/g" $TEMPLATE_DIR_AA/*.sif > temp.bifsif/tmp.sif`;
   `sed "s/PARM_C12/$rep_s12/g" $TEMPLATE_DIR_AA/*.nb > temp.bifsif/tmp.nb`;
   `cp $TEMPLATE_DIR_AA/*.bif temp.bifsif/tmp.bif`;
   `cp $TEMPLATE_DIR_AA/*.b temp.bifsif/tmp.b`;
@@ -1025,6 +1070,7 @@ sub readtop
    $FAILNONSTACK=0;
    $longcontact=0;
    $ContactFAIL=0;
+   $ContactDistFail=0;
    $#A = -1;
    $LINE=<TOP>;
    @A=split(/ /,$LINE);
@@ -1042,7 +1088,17 @@ sub readtop
      die;
     }
     if($model eq "AA"){
-     $Cdist=($A[4]/(2*$A[3]))**(1.0/6.0);
+     $Cdist=(2*$A[4]/($A[3]))**(1.0/6.0);
+     $CALCD=(($XT[$A[0]]-$XT[$A[1]])**2+($YT[$A[0]]-$YT[$A[1]])**2+($ZT[$A[0]]-$ZT[$A[1]])**2)**(0.5);
+     if(abs($Cdist-$CALCD) > 10.0/($PRECISION*1.0) ){
+      $ContactDistFail++;
+     }
+    }elsif($model eq "CA"){
+     $Cdist=(6.0*$A[4]/(5.0*$A[3]))**(1.0/2.0);
+     $CALCD=(($XT[$A[0]]-$XT[$A[1]])**2+($YT[$A[0]]-$YT[$A[1]])**2+($ZT[$A[0]]-$ZT[$A[1]])**2)**(0.5);
+     if(abs($Cdist-$CALCD) > 10.0/($PRECISION*1.0)){
+      $ContactDistFail++;
+     }
     }
     # so long as the contacts are not with ligands, then we add the sum
     if($model eq "CA"){
@@ -1056,8 +1112,8 @@ sub readtop
       print "$LINE\n";
      }
     }elsif($model eq "AA"){
-     if($Cdist > 0.6){
-      print "long contacts! distance $sigma nm.\n";
+     if(int(($Cdist * $PRECISION))/($PRECISION*1.0) > $CONTD/10.0){
+      print "long contacts! distance $Cdist nm.\n";
       print "$LINE";
       $longcontact++;
      }
@@ -1324,6 +1380,12 @@ sub checkvalues
  }else{
   print "contact strength: PASSED\n";
  }
+ if($ContactDistFail>0){
+  print "Contact distance consistency: FAILED\n";
+  $FAILED++;
+ }else{
+  print "Contact distance consistency: PASSED\n";
+ }
  if($double_bond >0){
   print "Some bonds were assigned more than once\n";
   $FAILED++;
@@ -1574,16 +1636,20 @@ sub summary
   print "\n*************************************************************\n";
   print "                 $FAILED TESTS FAILED FOR TEST $TESTNUM ($PDB)!!!\n";
   print  "*************************************************************\n";
-  print "saving files with names $PDB.fail$NFAIL.X\n";
-  `mv $PDB.top $FAILDIR/$PDB.fail$NFAIL.top`;
-  `cp $PDB.pdb $FAILDIR/$PDB.fail$NFAIL.pdb`;
-  `mv $PDB.gro  $FAILDIR/$PDB.fail$NFAIL.gro`;
-  `mv $PDB.ndx  $FAILDIR/$PDB.fail$NFAIL.ndx`;
-  `mv $PDB.settings  $FAILDIR/$PDB.fail$NFAIL.settings`;
-  `mv $PDB.contacts  $FAILDIR/$PDB.fail$NFAIL.contacts`;
-  `mv $PDB.output  $FAILDIR/$PDB.fail$NFAIL.output`;
+  print "saving files with names $PDB.fail$TESTNUM.X\n";
+  `mv $PDB.top $FAILDIR/$PDB.fail$TESTNUM.top`;
+  `cp share/PDB.files/$PDB.pdb $FAILDIR/$PDB.fail$TESTNUM.pdb`;
+  `mv $PDB.gro  $FAILDIR/$PDB.fail$TESTNUM.gro`;
+  `mv $PDB.ndx  $FAILDIR/$PDB.fail$TESTNUM.ndx`;
+  `mv $PDB.settings  $FAILDIR/$PDB.fail$TESTNUM.settings`;
+  `mv $PDB.contacts  $FAILDIR/$PDB.fail$TESTNUM.contacts`;
+  `mv $PDB.output  $FAILDIR/$PDB.fail$TESTNUM.output`;
+  `mv $PDB.contacts.SCM  $FAILDIR/$PDB.fail$TESTNUM.contacts.SCM`;
   if($default ne "yes"){
-   `mv temp.bifsif $FAILDIR/$PDB.fail$NFAIL.bifsif`;
+   `mv temp.bifsif $FAILDIR/$PDB.fail$TESTNUM.bifsif`;
+   if(-d temp.cont.bifsif){
+    `mv temp.cont.bifsif $FAILDIR/$PDB.fail$TESTNUM.cont.bifsif`;
+   }
   } 
   $NFAIL++;
   $FAIL_SYSTEM++;
@@ -1591,6 +1657,6 @@ sub summary
   print "\n*************************************************************\n";
   print "                 TEST $TESTNUM PASSED ($PDB)\n";
   print  "*************************************************************\n";
-  `rm $PDB.top $PDB.gro $PDB.ndx $PDB.settings $PDB.output`;
+  `rm $PDB.top $PDB.gro $PDB.ndx $PDB.settings $PDB.output $PDB.contacts`;
  }
 }

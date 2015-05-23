@@ -1,11 +1,10 @@
 1AKEapo_v2 AA default
 1AKEapo_v2 CA default
-3PTA AA default 
-2ci2_v2 AA default
-3PTA AA 4.0 4.0 4.0 3.0 4 1 2.0 4.0 1.0 1.0 1.0 1.0 2.5 1.0
-1AKEapo_v2 CA 4.0 4.0 4.0 4.0 4 1 1.0 2.0 1.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0
-1AKEapo_v2 AA 4.0 4.0 4.0 4.0 4 1 1.0 2.0 1.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0
-1AKEapo_v2 CA 4.0 4.0 4.0 4.0 4 1 1.0 2.0 1.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0
+1AKEapo_v2 CA shadow 5.0 1.2 1.0 2.0 1.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0
+1AKEapo_v2 AA cutoff 6.0 1.0 2.0 1.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0
+3PTA AA shadow 8.0 1.0 2.0 4.0 1.0 1.0 1.0 1.0 2.5 1.0
+1AKEapo_v2 CA shadow 5.0 1.2 1.0 2.0 1.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0
+1AKEapo_v2 AA cutoff 6.0 1.0 2.0 1.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0
 2ci2_v2 CA default
 1AKEapo_v2 CA default
 2ci2_v2 AA default
