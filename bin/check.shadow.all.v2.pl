@@ -343,15 +343,15 @@ sub checkgro
  chomp($LINE);
  $LINE =~ /^\s+|\s+$/;
  @BOUNDS=split(/ /,$LINE);
- $BOUNDS[0]=int(($BOUNDS[0] * $PRECISION))/($PRECISION*1.0);
- $BOUNDS[1]=int(($BOUNDS[1] * $PRECISION))/($PRECISION*1.0);
- $BOUNDS[2]=int(($BOUNDS[2] * $PRECISION))/($PRECISION*1.0);
+ $BOUNDS[0]=int(($BOUNDS[0] * $PRECISION*0.1))/($PRECISION*0.1);
+ $BOUNDS[1]=int(($BOUNDS[1] * $PRECISION*0.1))/($PRECISION*0.1);
+ $BOUNDS[2]=int(($BOUNDS[2] * $PRECISION*0.1))/($PRECISION*0.1);
  $DX=$XMAX-$XMIN+2;
  $DY=$YMAX-$YMIN+2;
  $DZ=$ZMAX-$ZMIN+2;
- $DX=int(($DX * $PRECISION))/($PRECISION*1.0);
- $DY=int(($DY * $PRECISION))/($PRECISION*1.0);
- $DZ=int(($DZ * $PRECISION))/($PRECISION*1.0);
+ $DX=int(($DX * $PRECISION/10.0))/($PRECISION*0.1);
+ $DY=int(($DY * $PRECISION/10.0))/($PRECISION*0.1);
+ $DZ=int(($DZ * $PRECISION/10.0))/($PRECISION*0.1);
  if($BOUNDS[0] != $DX || $BOUNDS[1] != $DY || $BOUNDS[2] != $DZ ){
   $FAILED++;
   print "Gro box size check: FAILED\n";
@@ -536,6 +536,7 @@ sub readtop
     }
     $#A = -1;
     $LINE=<TOP>;
+    last unless defined $LINE;
     @A=split(/ /,$LINE);
    }
   }
@@ -615,6 +616,7 @@ sub readtop
     $NUMATOMS++;
     $#A = -1;
     $LINE=<TOP>;
+    last unless defined $LINE;
     @A=split(/ /,$LINE);
    }
   }
@@ -677,6 +679,7 @@ sub readtop
       $FAIL_BTYPE++;
     }
     $LINE=<TOP>;
+    last unless defined $LINE;
     @A=split(/ /,$LINE);
    }
    # generate the angles
@@ -775,6 +778,7 @@ sub readtop
      $double_angle++;
     }
     $LINE=<TOP>;
+    last unless defined $LINE;
     @A=split(/ /,$LINE);
    }
    ## cross-check the angles
@@ -1036,6 +1040,7 @@ sub readtop
 
     $#A = -1;
     $LINE=<TOP>;
+    last unless defined $LINE;
     @A=split(/ /,$LINE);
    }
    $FAIL_phi=0;
@@ -1151,6 +1156,7 @@ sub readtop
     # read the next line
     $#A = -1;
     $LINE=<TOP>;
+    last unless defined $LINE;
     @A=split(/ /,$LINE);
    }
   }
@@ -1175,6 +1181,7 @@ sub readtop
     # read the next line
     $#A = -1;
     $LINE=<TOP>;
+    last unless defined $LINE;
     @A=split(/ /,$LINE);
    }
    print "checking number of contacts and exclusions match...\n";
