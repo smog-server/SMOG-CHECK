@@ -352,7 +352,7 @@ sub checkgro
  $DX=int(($DX * $PRECISION/10.0))/($PRECISION*0.1);
  $DY=int(($DY * $PRECISION/10.0))/($PRECISION*0.1);
  $DZ=int(($DZ * $PRECISION/10.0))/($PRECISION*0.1);
- if($BOUNDS[0] != $DX || $BOUNDS[1] != $DY || $BOUNDS[2] != $DZ ){
+ if(abs($BOUNDS[0]-$DX) > $TOLERANCE || abs($BOUNDS[1] - $DY) > $TOLERANCE || abs($BOUNDS[2] - $DZ) > $TOLERANCE ){
   $FAILED++;
   print "Gro box size check: FAILED\n";
   print "$BOUNDS[0], $XMAX,$XMIN,$BOUNDS[1],$YMAX,$YMIN,$BOUNDS[2],$ZMAX,$ZMIN\n";
