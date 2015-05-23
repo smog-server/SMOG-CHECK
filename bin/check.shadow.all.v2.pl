@@ -4,7 +4,7 @@
 # This is intended to be a brute-force evaluation of everything that should appear. Since this is
 # a testing script, it is not designed to be efficient, but to be thorough, and foolproof...
  
-$EXEC_NAME=$ENV{'EXEC_SMOG'};
+$EXEC_NAME=$ENV{'smog_exec'};
 $TOLERANCE=$ENV{'TOLERANCE'};
 $MAXTHR=1.0+$TOLERANCE;
 $MINTHR=1.0-$TOLERANCE;
@@ -246,7 +246,7 @@ sub smogchecker
 
  }
  # CHECK THE OUTPUT
- 
+ &checkgro; 
  &checkndx;
  &readtop;
  &checkvalues;
@@ -254,6 +254,72 @@ sub smogchecker
 
 }
 
+sub checkgro
+{
+ open(GRO,"$PDB.gro") or die " $PDB.gro can not be opened. This means SMOG did not complete the check\n";
+ $LINE=<GRO>; # header comment
+ $NUMOFATOMS=<GRO>; # header comment
+ chomp($NUMOFATOMS);
+ # store atom information
+ $XMIN=10000000;
+ $XMAX=-10000000;
+ $YMIN=10000000;
+ $YMAX=-10000000;
+ $ZMIN=10000000;
+ $ZMAX=-10000000;
+ $#GRODATA=-1;
+ for($I=0;$I<$NUMOFATOMS;$I++){
+  $LINE=<GRO>;
+  chomp($LINE);
+  $GRODATA[$I][0]=substr($LINE,0,5);
+  $GRODATA[$I][1]=substr($LINE,5,5);
+  $GRODATA[$I][2]=substr($LINE,10,5);
+  $GRODATA[$I][3]=substr($LINE,15,5);
+  $X=substr($LINE,20,8);
+  $Y=substr($LINE,28,8);
+  $Z=substr($LINE,36,8);
+
+  if($X > $XMAX){
+   $XMAX=$X;
+  }
+  if($X < $XMIN){
+   $XMIN=$X;
+  }
+  if($Y > $YMAX){
+   $YMAX=$Y;
+  }
+  if($Y < $YMIN){
+   $YMIN=$Y;
+  }
+  if($Z > $ZMAX){
+   $ZMAX=$Z;
+  }
+  if($Z < $ZMIN){
+   $ZMIN=$Z;
+  }
+ }
+ $LINE=<GRO>;
+ chomp($LINE);
+ $LINE =~ /^\s+|\s+$/;
+ @BOUNDS=split(/ /,$LINE);
+ $BOUNDS[0]=int(($BOUNDS[0] * $PRECISION))/($PRECISION*1.0);
+ $BOUNDS[1]=int(($BOUNDS[1] * $PRECISION))/($PRECISION*1.0);
+ $BOUNDS[2]=int(($BOUNDS[2] * $PRECISION))/($PRECISION*1.0);
+ $DX=$XMAX-$XMIN+2;
+ $DY=$YMAX-$YMIN+2;
+ $DZ=$ZMAX-$ZMIN+2;
+ $DX=int(($DX * $PRECISION))/($PRECISION*1.0);
+ $DY=int(($DY * $PRECISION))/($PRECISION*1.0);
+ $DZ=int(($DZ * $PRECISION))/($PRECISION*1.0);
+ if($BOUNDS[0] != $DX || $BOUNDS[1] != $DY || $BOUNDS[2] != $DZ ){
+  $FAILED++;
+  print "Gro box size check: FAILED\n";
+  print "$BOUNDS[0], $XMAX,$XMIN,$BOUNDS[1],$YMAX,$YMIN,$BOUNDS[2],$ZMAX,$ZMIN\n";
+ }else{
+  print "Passed gro box size check\n";
+ }
+
+}
 
 sub preparesettings
 {
@@ -359,10 +425,8 @@ sub readtop
 
  `bin/top.clean.bash $PDB.top $PDB.top2`;
  `mv $PDB.top2 $PDB.top`;
- open(TOP,"$PDB.top") or die " $PDB.top can not be opened...";
  $DIH_MIN=100000000;
  $DIH_MAX=-100000000;
- close(TOP);
  $NCONTACTS=0;
  open(TOP,"$PDB.top") or die " $PDB.top can not be opened...\n";
  $NUCLEIC_PRESENT=0;
@@ -410,7 +474,6 @@ sub readtop
    $LINE=<TOP>;
    @A=split(/ /,$LINE);
    until($A[0] eq "["){
-   # make sure the ex vol is within n% of the desired.
     if($A[1] != 1){
      $FAIL_MASS++;
     }
@@ -450,6 +513,7 @@ sub readtop
  
   # read the atoms, and store information about them
   if($A[1] eq "atoms"){
+   $FAIL_GROTOP=0;
    $FIELD_atoms=1;
    $NUMATOMS=0;
    $NUMATOMS_LIGAND=0;
@@ -460,13 +524,32 @@ sub readtop
    # store information about each atom
    # atom name
     $ATOMNAME[$A[0]]=$A[4];
+    for($J=0;$J<5;$J++){
+     $A[$J] =~ s/^\s+|\s+$//g;
+    }
+    for($J=0;$J<4;$J++){
+     $GRODATA[$NUMATOMS][$J] =~ s/^\s+|\s+$//g;
+    }
+    if($A[0] != $GRODATA[$NUMATOMS][3]){
+     $FAIL_GROTOP++;
+    }
+
+   if($A[4] ne $GRODATA[$NUMATOMS][2]){
+     $FAIL_GROTOP++;
+   }
     # check if it is a backbone atom. This list does not include CA and C1* because this classification is only used for determining which bonds are backbone and which are sidechain
     $ATOMTYPE[$A[0]]=$BBTYPE{$A[4]};
     # residue number
     $RESNUM[$A[0]]=$A[2];
+    if($A[2] != $GRODATA[$NUMATOMS][0]){
+     $FAIL_GROTOP++;
+    }
     # residue name
     $RESNAME[$A[0]]=$A[3];
-    # nucleic acid, protein, ligand
+    if($A[3] ne $GRODATA[$NUMATOMS][1]){
+     $FAIL_GROTOP++;
+    }
+   # nucleic acid, protein, ligand
     $MOLTYPE[$A[0]]=$TYPE{$A[3]};
     # see if there are any amino acids, na, or ligands in the system.
     if($MOLTYPE[$A[0]] eq "AMINO"){
@@ -1205,6 +1288,12 @@ sub checkvalues
   }
  }
 
+ if($FAIL_GROTOP>0){
+  print "Consistency check between gro and top files: FAILED\n";
+  $FAILED++;
+ }else{
+  print "Consistency check between gro and top files: PASSED\n";
+ }
  if($FAIL_MASS>0){
   print "Masses: FAILED\n";
   $FAILED++;
