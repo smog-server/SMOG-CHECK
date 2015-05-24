@@ -1664,6 +1664,6 @@ sub summary
   print "\n*************************************************************\n";
   print "                 TEST $TESTNUM PASSED ($PDB)\n";
   print  "*************************************************************\n";
-  `rm $PDB.top $PDB.gro $PDB.ndx $PDB.settings $PDB.output $PDB.contacts`;
+  `rm $PDB.top $PDB.gro $PDB.ndx $PDB.settings $PDB.output $PDB.contacts $PDB.contacts.SCM`;
  }
 }
