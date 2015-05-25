@@ -249,18 +249,18 @@ sub smogchecker
  # RUN SMOG2
  if($default eq "yes"){
   if($model eq "CA"){
-   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -tCG $BIFSIF_CA -contactRes $BIFSIF_AA &> $PDB.output`;
+   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -t $BIFSIF_CA -CG -t_contacts $BIFSIF_AA &> $PDB.output`;
   }elsif($model eq "AA"){
-   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -tAA $BIFSIF_AA  &> $PDB.output`;
+   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -t $BIFSIF_AA  &> $PDB.output`;
   }else{
    print "unrecognized model.  Quitting..\n";
    die;
   }
  }else{
   if($model eq "CA"){
-   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -tCG temp.bifsif/ -contactRes temp.cont.bifsif &> $PDB.output`;
+   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -t temp.bifsif/ -CG -t_contacts temp.cont.bifsif &> $PDB.output`;
   }elsif($model eq "AA"){
-   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -tAA temp.bifsif/  &> $PDB.output`;
+   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -t temp.bifsif/  &> $PDB.output`;
   }else{
    print "unrecognized model.  Quitting..\n";
    die;
@@ -1664,6 +1664,9 @@ sub summary
   print "\n*************************************************************\n";
   print "                 TEST $TESTNUM PASSED ($PDB)\n";
   print  "*************************************************************\n";
-  `rm $PDB.top $PDB.gro $PDB.ndx $PDB.settings $PDB.output $PDB.contacts $PDB.contacts.SCM`;
+  `rm $PDB.top $PDB.gro $PDB.ndx $PDB.settings $PDB.output $PDB.contacts`;
+  if(-e "$PDB.contacts.SCM"){
+   `rm $PDB.contacts.SCM`;
+  }
  }
 }
