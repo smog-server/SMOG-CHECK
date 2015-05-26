@@ -1652,6 +1652,7 @@ sub summary
   `mv $PDB.contacts  $FAILDIR/$PDB.fail$TESTNUM.contacts`;
   `mv $PDB.output  $FAILDIR/$PDB.fail$TESTNUM.output`;
   `mv $PDB.contacts.SCM  $FAILDIR/$PDB.fail$TESTNUM.contacts.SCM`;
+  `mv shadow.log  $FAILDIR/$PDB.fail$TESTNUM.shadow.log`;
   if($default ne "yes"){
    `mv temp.bifsif $FAILDIR/$PDB.fail$TESTNUM.bifsif`;
    if(-d temp.cont.bifsif){
@@ -1664,7 +1665,7 @@ sub summary
   print "\n*************************************************************\n";
   print "                 TEST $TESTNUM PASSED ($PDB)\n";
   print  "*************************************************************\n";
-  `rm $PDB.top $PDB.gro $PDB.ndx $PDB.settings $PDB.output $PDB.contacts`;
+  `rm $PDB.top $PDB.gro $PDB.ndx $PDB.settings $PDB.output $PDB.contacts shadow.log`;
   if(-e "$PDB.contacts.SCM"){
    `rm $PDB.contacts.SCM`;
   }
