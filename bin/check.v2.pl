@@ -277,7 +277,17 @@ sub smogchecker
     print "contact map consistency check: PASSED\n";
    }
  }elsif($model eq "CA"){
-   print "Contact map comparison only enabled for AA model.\n";
+  # run AA model to get top
+#   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.meta1.gro -o $PDB.meta1.top -n $PDB.meta1.ndx -s $PDB.meta1.contacts -t $BIFSIF_AA  &> $PDB.meta1.output`;
+#  `java -jar $SCM   --coarse CA -g $PDB.meta1.gro -t $PDB.meta1.top -ch $PDB.meta1.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD --distance`;
+  # run SCM to get map
+#  $CONTDIFF=`diff $PDB.contacts $PDB.contacts.SCM | wc -l`;
+#    if($CONTDIFF > 0){
+#    print "contact map consistency check: FAILED\n";
+#    $FAILED++; 
+#   }else{
+#    print "contact map consistency check: PASSED\n";
+#   }
  }
 
  # CHECK THE OUTPUT
@@ -291,7 +301,7 @@ sub smogchecker
 
 sub checkgro
 {
- open(GRO,"$PDB.gro") or die " $PDB.gro can not be opened. This means SMOG did not complete the check\n";
+ open(GRO,"$PDB.gro") or die " $PDB.gro can not be opened. This means SMOG died unexpectedly.  Aborting tests.\n";
  $LINE=<GRO>; # header comment
  $NUMOFATOMS=<GRO>; # header comment
  chomp($NUMOFATOMS);
@@ -343,9 +353,9 @@ sub checkgro
  chomp($LINE);
  $LINE =~ /^\s+|\s+$/;
  @BOUNDS=split(/ /,$LINE);
- $BOUNDS[0]=int(($BOUNDS[0] * $PRECISION*0.1))/($PRECISION*0.1);
- $BOUNDS[1]=int(($BOUNDS[1] * $PRECISION*0.1))/($PRECISION*0.1);
- $BOUNDS[2]=int(($BOUNDS[2] * $PRECISION*0.1))/($PRECISION*0.1);
+ $BOUNDS[0]=int(($BOUNDS[0] * $PRECISION))/($PRECISION);
+ $BOUNDS[1]=int(($BOUNDS[1] * $PRECISION))/($PRECISION);
+ $BOUNDS[2]=int(($BOUNDS[2] * $PRECISION))/($PRECISION);
  $DX=$XMAX-$XMIN+2;
  $DY=$YMAX-$YMIN+2;
  $DZ=$ZMAX-$ZMIN+2;
@@ -355,7 +365,7 @@ sub checkgro
  if(abs($BOUNDS[0]-$DX) > $TOLERANCE || abs($BOUNDS[1] - $DY) > $TOLERANCE || abs($BOUNDS[2] - $DZ) > $TOLERANCE ){
   $FAILED++;
   print "Gro box size check: FAILED\n";
-  print "$BOUNDS[0], $XMAX,$XMIN,$BOUNDS[1],$YMAX,$YMIN,$BOUNDS[2],$ZMAX,$ZMIN\n";
+  print "$BOUNDS[0], $XMAX, $XMIN,$BOUNDS[1],$YMAX,$YMIN,$BOUNDS[2],$ZMAX,$ZMIN\n";
  }else{
   print "Passed gro box size check\n";
  }
@@ -1394,10 +1404,10 @@ sub checkvalues
   print "Contact distance consistency: PASSED\n";
  }
  if($double_bond >0){
-  print "Some bonds were assigned more than once\n";
+  print "duplicate bonds: FAILED\n";
   $FAILED++;
  }else{
-   print "duplicate bonds...: PASSED\n";
+   print "duplicate bonds: PASSED\n";
  }
  if($FAIL_BTYPE >0){
   print "Some bonds had incorrect type:FAILED\n";
@@ -1415,7 +1425,7 @@ sub checkvalues
   print "Some angles were assigned more than once\n";
   $FAILED++;
  }else{
-  print "duplicate angles...: PASSED\n";
+  print "duplicate angles: PASSED\n";
  }
  if($FAIL_AT >0){
   print "Some angles had incorrect type: FAILED\n";
@@ -1430,22 +1440,22 @@ sub checkvalues
   print "Angle weights: PASSED\n";
  }
  if($FAIL_angles >0){
-  print "Something funny with the angles... not consistent between script and top.\n";
+  print "Something funny with the bond angles. Inconsistency detected between script and top.\n";
   $FAILED++;
  }else{
-  print "bond angles...: PASSED\n";
+  print "bond angles: PASSED\n";
  }
  if($IMPFAILED>0){
    print "Improper dihedrals weights: FAILED\n";
   $FAILED++;
  }else{
-  print "Improper dihedral weights...: PASSED\n";
+  print "Improper dihedral weights: PASSED\n";
  }
  if($FAIL_phi >0){
   print "Something funny with the dihedral angles... not consistent between script and top.\n";
   $FAILED++;
  }else{
-  print "dihedral angles...: PASSED\n";
+  print "dihedral angles: PASSED\n";
  }
  if($rigid_fail >0){
   print "Rigid dihedrals do not have the correct strengths\n";
@@ -1457,13 +1467,13 @@ sub checkvalues
   print "Some dihedral were assigned more than once\n";
   $FAILED++;
  }else{
-  print "duplicate dihedrals...: PASSED\n";
+  print "duplicate dihedrals: PASSED\n";
  }
  if($missing_dihedral_3 >0){
   print "A type 3 dihedral was present without a type 1...\n";
   $FAILED++;
  }else{
-  print "Type-3 dihedrals...: PASSED\n";
+  print "Type-3 dihedrals: PASSED\n";
  }
  if($DIHSFAIL > 0){
   print "FAILED: $DIHSFAIL dihedral weights are wrong...\n";
