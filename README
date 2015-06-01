@@ -26,7 +26,7 @@ config.bash before running the tests.
 
 For the less comprehensive check, issue the command:
 
-./quick_check
+./quick-check
 
 For the comprehensive check (may take ~30 minutes): 
 
