@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Using the executables found in $SMOG_PATH"
+echo "Using the files found in $SMOG_PATH"
 echo "This is set when running configure.smog2"
 export BIFSIF_AA_DEFAULT=$SMOG_PATH/SBM_AA
 export BIFSIF_CA_DEFAULT=$SMOG_PATH/SBM_calpha
@@ -12,4 +12,4 @@ export PRECISION=10000
 
 bin/cleanup.bash
 mkdir FAILED
-echo share/PDB.files/all.pdbs | $perl4smog bin/check.shadow.all.v2.pl
+echo share/PDB.files/all.pdbs | $perl4smog bin/check.v2.pl

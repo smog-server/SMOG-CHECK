@@ -1,3 +1,11 @@
+2ci2_v2 CA default
+terminaltest AA default
+terminaltest CA default
+terminaltest AA shadow 8.0 1.0 2.0 4.0 1.0 1.0 1.0 1.0 2.5 1.0
+terminaltest AA cutoff 5.0 1.2 1.0 2.0 1.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0
+terminaltest CA shadow 5.0 1.2 1.0 2.0 1.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0
+terminaltest CA cutoff 6.0 1.0 2.0 1.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0
+1AKEapo_v2 CA default
 1AKEapo_v2 AA default
 1AKEapo_v2 AA default
 1AKEapo_v2 CA default
@@ -13,3 +21,4 @@
 1F4N_v2 AA default
 3IZH_v2 AA default
 1F4N_v2 CA default
+full.pre AA default
