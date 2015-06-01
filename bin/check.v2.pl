@@ -278,16 +278,16 @@ sub smogchecker
    }
  }elsif($model eq "CA"){
   # run AA model to get top
-#   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.meta1.gro -o $PDB.meta1.top -n $PDB.meta1.ndx -s $PDB.meta1.contacts -t $BIFSIF_AA  &> $PDB.meta1.output`;
-#  `java -jar $SCM   --coarse CA -g $PDB.meta1.gro -t $PDB.meta1.top -ch $PDB.meta1.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD --distance`;
+   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.meta1.gro -o $PDB.meta1.top -n $PDB.meta1.ndx -s $PDB.meta1.contacts -t $BIFSIF_AA  &> $PDB.meta1.output`;
+  `java -jar $SCM   --coarse CA -g $PDB.meta1.gro -t $PDB.meta1.top -ch $PDB.meta1.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD --distance`;
   # run SCM to get map
-#  $CONTDIFF=`diff $PDB.contacts $PDB.contacts.SCM | wc -l`;
-#    if($CONTDIFF > 0){
-#    print "contact map consistency check: FAILED\n";
-#    $FAILED++; 
-#   }else{
-#    print "contact map consistency check: PASSED\n";
-#   }
+  $CONTDIFF=`diff $PDB.contacts $PDB.contacts.SCM | wc -l`;
+    if($CONTDIFF > 0){
+    print "contact map consistency check: FAILED\n";
+    $FAILED++; 
+   }else{
+    print "contact map consistency check: PASSED\n";
+   }
  }
 
  # CHECK THE OUTPUT
