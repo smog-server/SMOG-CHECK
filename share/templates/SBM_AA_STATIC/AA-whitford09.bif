@@ -2927,7 +2927,7 @@
 		</residue>
 
 <!--RNA A5' 1 P-->
-		<residue name="A1P" type="nucleic">
+		<residue name="A5" type="nucleic">
 			<atoms>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">P</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">O1P</atom>
@@ -3588,7 +3588,7 @@
 		</residue>
 
 <!--RNA G5' 1 P-->
-		<residue name="G1P" type="nucleic">
+		<residue name="G5" type="nucleic">
 			<atoms>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">P</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">O1P</atom>
@@ -4221,7 +4221,7 @@
 		</residue>
 
 <!--RNA U5' 1 P-->
-		<residue name="U1P" type="nucleic">
+		<residue name="U5" type="nucleic">
 			<atoms>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">P</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">O1P</atom>
@@ -4816,7 +4816,7 @@
 		</residue>
 
 <!--RNA C5' 1 P-->
-		<residue name="C1P" type="nucleic">
+		<residue name="C5" type="nucleic">
 			<atoms>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">P</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">O1P</atom>
@@ -5409,7 +5409,7 @@
 		</residue>
 
 <!--DNA A5' 1 P-->
-		<residue name="DA1P" type="nucleic">
+		<residue name="DA5" type="nucleic">
 			<atoms>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">P</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">O1P</atom>
@@ -6010,7 +6010,7 @@
 		</residue>
 
 <!--DNA G5' 1 P-->
-		<residue name="DG1P" type="nucleic">
+		<residue name="DG5" type="nucleic">
 			<atoms>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">P</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">O1P</atom>
@@ -6593,7 +6593,7 @@
 		</residue>
 
 <!--DNA T5' 1 P-->
-		<residue name="DT1P" type="nucleic">
+		<residue name="DT5" type="nucleic">
 			<atoms>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">P</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">O1P</atom>
@@ -7138,7 +7138,7 @@
 		</residue>
 
 <!--DNA C5' 1 P-->
-		<residue name="DC1P" type="nucleic">
+		<residue name="DC5" type="nucleic">
 			<atoms>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">P</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">O1P</atom>

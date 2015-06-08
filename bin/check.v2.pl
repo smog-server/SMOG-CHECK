@@ -34,6 +34,8 @@ print "EXEC_NAME $EXEC_NAME\n";
 ## this is the all-atom smog check with shadow.
 $FAILDIR="FAILED";
 
+@FILETYPES=("top","gro","ndx","settings","contacts","output","contacts.SCM");
+
 unless( -e $SCM){
  print "Can\'t find Shadow! Quitting!!\n";
  die;
@@ -301,7 +303,11 @@ sub smogchecker
 
 sub checkgro
 {
- open(GRO,"$PDB.gro") or die " $PDB.gro can not be opened. This means SMOG died unexpectedly.  Aborting tests.\n";
+ unless(open(GRO,"$PDB.gro")){
+  print "ERROR: $PDB.gro can not be opened. This means SMOG died unexpectedly.\n";
+  $FAILED++;
+  return;
+ }
  $LINE=<GRO>; # header comment
  $NUMOFATOMS=<GRO>; # header comment
  chomp($NUMOFATOMS);
@@ -1094,6 +1100,11 @@ sub readtop
     $PAIRS[$NCONTACTS][1]=$A[1];
     $NCONTACTS++;
     # determine the epsilon of the contact
+    if($A[4] == 0){
+     print "\nERROR: A divide by zero was encountered during testing. This typically means the top file is incomplete\n";
+     $FAILED++; 
+     last;
+    }
     if($model eq "CA"){
      $W=5.0**5.0/6.0**6.0*($A[3]**6.0)/($A[4]**5.0);
     }elsif($model eq "AA"){
@@ -1614,7 +1625,10 @@ if($PBBfail >0){
  } 
 
 
- open(CFILE,"$PDB.contacts") or die "can\'t open $PDB.contacts\n";
+ unless(open(CFILE,"$PDB.contacts")){
+  print "can\'t open $PDB.contacts\n";
+  $FAILED++;
+ }
  $NUMBER_OF_CONTACTS_SHADOW=0;
  while(<CFILE>){
   $NUMBER_OF_CONTACTS_SHADOW++;
@@ -1654,15 +1668,17 @@ sub summary
   print "                 $FAILED TESTS FAILED FOR TEST $TESTNUM ($PDB)!!!\n";
   print  "*************************************************************\n";
   print "saving files with names $PDB.fail$TESTNUM.X\n";
-  `mv $PDB.top $FAILDIR/$PDB.fail$TESTNUM.top`;
   `cp share/PDB.files/$PDB.pdb $FAILDIR/$PDB.fail$TESTNUM.pdb`;
-  `mv $PDB.gro  $FAILDIR/$PDB.fail$TESTNUM.gro`;
-  `mv $PDB.ndx  $FAILDIR/$PDB.fail$TESTNUM.ndx`;
-  `mv $PDB.settings  $FAILDIR/$PDB.fail$TESTNUM.settings`;
-  `mv $PDB.contacts  $FAILDIR/$PDB.fail$TESTNUM.contacts`;
-  `mv $PDB.output  $FAILDIR/$PDB.fail$TESTNUM.output`;
-  `mv $PDB.contacts.SCM  $FAILDIR/$PDB.fail$TESTNUM.contacts.SCM`;
-  `mv shadow.log  $FAILDIR/$PDB.fail$TESTNUM.shadow.log`;
+
+  foreach(@FILETYPES){
+   if(-e "$PDB.$_"){
+    `mv $PDB.$_ $FAILDIR/$PDB.fail$TESTNUM.$_`;
+   }
+   if(-e "$PDB.meta1.$_"){
+    `mv $PDB.meta1.$_ $FAILDIR/$PDB.fail$TESTNUM.meta1.$_`;
+   }
+  }
+
   if($default ne "yes"){
    `mv temp.bifsif $FAILDIR/$PDB.fail$TESTNUM.bifsif`;
    if(-d temp.cont.bifsif){
@@ -1675,9 +1691,13 @@ sub summary
   print "\n*************************************************************\n";
   print "                 TEST $TESTNUM PASSED ($PDB)\n";
   print  "*************************************************************\n";
-  `rm $PDB.top $PDB.gro $PDB.ndx $PDB.settings $PDB.output $PDB.contacts shadow.log`;
-  if(-e "$PDB.contacts.SCM"){
-   `rm $PDB.contacts.SCM`;
+  foreach(@FILETYPES){
+   if(-e "$PDB.$_"){
+    `rm $PDB.$_`;
+   }
+   if(-e "$PDB.meta1.$_"){
+    `rm $PDB.meta1.$_`;
+   }
   }
  }
 }
