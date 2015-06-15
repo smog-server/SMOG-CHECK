@@ -10,7 +10,7 @@
 	</nonbond>
 	
     <!-- CONTACTSGAUSSIAN -->
-    <contact func="sbm_contacts_10-12(EPS_CONT,?,?)" contactGroup="c">
+    <contact func="contact_2(5*?**12,6*?**10,?,EPS_CONT)" contactGroup="c">
     <pairType>*</pairType>
     <pairType>*</pairType>
     </contact>

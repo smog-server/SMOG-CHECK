@@ -1615,7 +1615,12 @@ if($PBBfail >0){
    print "range of dihedrals: PASSED\n";
   }
 
-  $CD_ratio=$CONTENERGY/$DENERGY;
+  if($DENERGY > 0){
+   $CD_ratio=$CONTENERGY/$DENERGY;
+  }else{
+   $FAILED++;
+   print "Dihedral energy is zero... FAIL\n";
+  }
   if($MAXTHR*$R_CD < $CD_ratio || $MINTHR*$R_CD > $CD_ratio){
    print "The contact/dihedral ratio: FAILED\n";
    $FAILED++;
