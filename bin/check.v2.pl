@@ -1569,6 +1569,23 @@ if($PBBfail >0){
     print "ligand dihedrals, contant value: PASSED\n";
    }
   }
+  if($AMINO_PRESENT){
+   if(($PBBvalue/$PSCvalue > $MAXTHR*$R_P_BB_SC )  || ($PBBvalue/$PSCvalue < $MINTHR*$R_P_BB_SC ) ){
+    print "protein backbone-to-sidechain dihedrals ratio is not correct: FAILED\n";
+    $FAILED++;
+   }else{
+    print "protein backbone-to-sidechain dihedrals ratio: PASSED\n";
+   }
+  }
+  if($NUCLEIC_PRESENT){
+   if(($NABBvalue/$NASCvalue > $MAXTHR*$R_N_BB_SC )  || ($NABBvalue/$NASCvalue < $MINTHR*$R_N_BB_SC ) ){
+    print "nucleic backbone-to-sidechain dihedrals ratio is not correct: FAILED\n";
+    $FAILED++;
+   }else{
+    print "nucleic backbone-to-sidechain dihedrals ratio: PASSED\n";
+   }
+  }
+
   if($AMINO_PRESENT && $NUCLEIC_PRESENT){
    print "protein: $PBBvalue nucleic acid: $NABBvalue\n";
    $RR=$PBBvalue/$NABBvalue;
@@ -1615,6 +1632,7 @@ if($PBBfail >0){
    print "range of dihedrals: PASSED\n";
   }
 
+  print "ENERGIES: Contact=$CONTENERGY; Dihedral=$DENERGY\n";
   if($DENERGY > 0){
    $CD_ratio=$CONTENERGY/$DENERGY;
   }else{
