@@ -4,6 +4,24 @@
 # This is the main script that runs SMOG2 and then checks to see if the generated files are correct.
 # This is intended to be a brute-force evaluation of everything that should appear. Since this is
 # a testing script, it is not designed to be efficient, but to be thorough, and foolproof...
+
+
+print <<EOT;
+*****************************************************************************************
+                                       smog-check                                   
+
+       smog-check is part of the SMOG v2 distribution, available at smog-server.org     
+
+       This tool will check your installation of SMOG v2, to ensure that a range of
+                         models are being constructed properly.
+
+                       See the SMOG manual for usage guidelines.
+
+            For questions regarding this script, contact info\@smog-server.org              
+*****************************************************************************************
+EOT
+
+
  
 our $EXEC_NAME=$ENV{'smog_exec'};
 our $SMOGDIR=$ENV{'SMOG_PATH'};
