@@ -53,11 +53,23 @@ print "EXEC_NAME $EXEC_NAME\n";
 ## this is the all-atom smog check with shadow.
 our $FAILDIR="FAILED";
 
+
+sub internal_error
+{
+ my $MESSAGE=@_;
+ chomp($MESSAGE);
+  print "Internal error at $MESSAGE\n";
+  print "Please report this to info\@smog-server.org\n";
+  print "Quitting.\n";
+  exit;
+}
+
+
 our @FILETYPES=("top","gro","ndx","settings","contacts","output","contacts.SCM");
 
 unless( -e $SCM){
  print "Can\'t find Shadow! Quitting!!\n";
- die;
+ exit;
 }
 our %BBTYPE;
 ## read in the backbone atom types.  Remember, CA and C1* can be involved in sidechain dihedrals
@@ -165,34 +177,36 @@ our $AMINO_PRESENT;
 our $LIGAND_PRESENT;
 our $ION_PRESENT;
 our @FIELDS;
-our $FAIL_MASS;
-our $FAIL_CHARGE;
-our $FAIL_PARTICLE;
-our $FAIL_C6;
-our $FAIL_EXCL;
-our $FAIL_BTYPE;
-our $FAIL_GROTOP; 
-our $FAIL_BW; 
-our $FAIL_AT; 
-our $FAIL_AW; 
-our $FAIL_doublebond; 
-our $FAIL_doubleangle; 
-our $FAIL_angles; 
-our $FAIL_IMP; 
-our $FAIL_DIHS; 
-our $FAIL_doubledih;
-our $FAIL_dih3_missing;
-our $FAIL_W3;
-our $FAIL_S3;
-our $FAIL_A3;
-our $FAIL_check13;
-our $FAIL_phi;
-our $FAIL_STACK;
-our $FAIL_NONSTACK;
-our $FAIL_LONGCONT;
-our $FAIL_CONTACT;
-our $FAIL_ContactDist;
-our $FAIL_EXCLUSIONS;
+our @FAILLIST = {'MASS', 'CHARGE', 'PARTICLE', 'C6', 'EXCL', 'BTYPE', 'GROTOP', 'BW', 'AT', 'AW', 'doublebond', 'doubleangle', 'angles', 'IMP', 'DIHS', 'doubledih', 'dih3_missing', 'W3', 'S3', 'A3', 'check13', 'phi', 'STACK', 'NONSTACK', 'LONGCONT', 'CONTACT', 'ContactDist', 'EXCLUSIONS', 'BOX'};
+# our $FAIL_MASS;
+# our $FAIL_CHARGE;
+# our $FAIL_PARTICLE;
+# our $FAIL_C6;
+# our $FAIL_EXCL;
+# our $FAIL_BTYPE;
+# our $FAIL_GROTOP; 
+# our $FAIL_BW; 
+# our $FAIL_AT; 
+# our $FAIL_AW; 
+# our $FAIL_doublebond; 
+# our $FAIL_doubleangle; 
+# our $FAIL_angles; 
+# our $FAIL_IMP; 
+# our $FAIL_DIHS; 
+# our $FAIL_doubledih;
+# our $FAIL_dih3_missing;
+# our $FAIL_W3;
+# our $FAIL_S3;
+# our $FAIL_A3;
+# our $FAIL_check13;
+# our $FAIL_phi;
+# our $FAIL_STACK;
+# our $FAIL_NONSTACK;
+# our $FAIL_LONGCONT;
+# our $FAIL_CONTACT;
+# our $FAIL_ContactDist;
+# our $FAIL_EXCLUSIONS;
+# our $FAIL_BOX;
 our $rep_s12;
 our @ATOMNAME;
 our @GRODATA;
@@ -259,7 +273,7 @@ while(<PARMS>){
   print "Testing AA model\n";
  }else{
   print "Model name $model, not understood. Only CA and AA models are supported by the test script.  Quitting...\n";
-  die;
+  exit;
  }
 
  if($default eq "yes"){
@@ -302,7 +316,7 @@ while(<PARMS>){
    $BBRAD=0.0;
   }else{
    print "Contact scheme $CONTTYPE is not supported. This is a mistake in the test suite.  Quitting...\n";
-   die
+   exit;
   }
 
    #if shadow, read length and size
@@ -371,7 +385,7 @@ sub smogchecker
    `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -t $BIFSIF_AA  &> $PDB.output`;
   }else{
    print "unrecognized model.  Quitting..\n";
-   die;
+   exit;
   }
  }else{
   if($model eq "CA"){
@@ -380,7 +394,7 @@ sub smogchecker
    `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -t temp.bifsif/  &> $PDB.output`;
   }else{
    print "unrecognized model.  Quitting..\n";
-   die;
+   exit;
   }
  }
 
@@ -486,9 +500,10 @@ sub checkgro
  $DZ=int(($DZ * $PRECISION/10.0))/($PRECISION*0.1);
  if(abs($BOUNDS[0]-$DX) > $TOLERANCE || abs($BOUNDS[1] - $DY) > $TOLERANCE || abs($BOUNDS[2] - $DZ) > $TOLERANCE ){
   $FAILED++;
-  print "Gro box size check: FAILED\n";
+  print "Gro box size inconsistent\n";
   print "$BOUNDS[0], $XMAX, $XMIN,$BOUNDS[1],$YMAX,$YMIN,$BOUNDS[2],$ZMAX,$ZMIN\n";
  }else{
+  $FAIL_BOX=0;
   print "Passed gro box size check\n";
  }
 
@@ -1295,7 +1310,7 @@ sub readtop
       $W=($A[3]*$A[3])/(4*$A[4]);
      }else{
       print "unrecognized model.  Quitting...\n";
-      die;
+      exit;
      }
      if($model eq "AA"){
       $Cdist=(2*$A[4]/($A[3]))**(1.0/6.0);
@@ -1572,6 +1587,14 @@ sub checkvalues
   }
  }
 
+ if($FAIL_BOX==1){
+    $FAILED++;
+  print "Gro box size:FAILED\n";
+ }elsif($FAIL_BOX==0){
+  print "Gro box size:PASSED \n";
+ }else{
+  internal_error("BOX CHECK");
+ }
  if($FAIL_GROTOP>0){
   print "Consistency check between gro and top files: FAILED\n";
   $FAILED++;
