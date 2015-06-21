@@ -177,13 +177,10 @@ our $AMINO_PRESENT;
 our $LIGAND_PRESENT;
 our $ION_PRESENT;
 our @FIELDS;
-our @FAILLIST = ('MASS', 'CHARGE', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'ANGLE TYPES', 'ANGLE WEIGHTS', 'DUPLICATE BONDS', 'DUPLICATE ANGLES', 'angles', 'IMP', 'DIHS', 'doubledih', 'dih3_missing', 'W3', 'S3', 'A3', 'check13', 'phi', 'STACK', 'NONSTACK', 'LONGCONT', 'CONTACT', 'ContactDist', 'EXCLUSIONS', 'BOX');
+our @FAILLIST = ('MASS', 'CHARGE', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'ANGLE TYPES', 'ANGLE WEIGHTS', 'DUPLICATE BONDS', 'DUPLICATE ANGLES', 'ANGLE CONSISTENCY', 'IMPROPER WEIGHTS', 'CA DIHEDRAL WEIGHTS', 'doubledih', 'dih3_missing', 'W3', 'S3', 'A3', 'check13', 'phi', 'STACK', 'NONSTACK', 'LONGCONT', 'CONTACT', 'ContactDist', 'EXCLUSIONS', 'BOX');
 our %FAIL;
 
 
-our $FAIL_angles; 
-our $FAIL_IMP; 
-our $FAIL_DIHS; 
 our $FAIL_doubledih;
 our $FAIL_dih3_missing;
 our $FAIL_W3;
@@ -1018,27 +1015,44 @@ sub readtop
     }
 
     ## cross-check the angles
-    if($theta_gen_N != $Nangles){
+    if($theta_gen_N == $Nangles){
+     $FAIL{'ANGLE CONSISTENCY'}=0;
+    }else{
      print "the number of generated angles is inconsistent with the number of angles in the top file\n";
      print "$theta_gen_N $Nangles\n";
-    $FAILED++;
+     $FAIL{'ANGLE CONSISTENCY'}=1;
     }
-    $FAIL_angles=0;
+    my $CONangles=0;
     # check to see if all the generated angles (from this script) are present in the top file
     for(my $i=0;$i<$theta_gen_N;$i++){
-     if($angle_array{$theta_gen[$i]} != 1){
-      $FAIL_angles++;
-      print "angle generated, but not in top: $theta_gen[$i]\n";
+     if(exists $angle_array{$theta_gen[$i]} ){
+       $CONangles++;
+      }else{
+       print "angle generated, but not in top: $theta_gen[$i]\n";
      }
     }
+    if($CONangles == $theta_gen_N){
+     $FAIL{'ANGLE CONSISTENCY'}=0;
+    }else{
+     $FAIL{'ANGLE CONSISTENCY'}=0;
+    }
+
+    $CONangles=0;
     # check to see if all top angles are present in the generate list.
     for(my $i=0;$i<$Nangles;$i++){
-     if($theta_gen_as{$angles1[$i]} != 1){
+     if(exists $theta_gen_as{$angles1[$i]}){
+      $CONangles++;
+     }else{
       print "angle in top, but not generated: $angles1[$i]\n";
-      $FAIL_angles++;
      }
     }
-  
+     if($CONangles == $Nangles){
+     $FAIL{'ANGLE CONSISTENCY'}=0;
+    }else{
+     $FAIL{'ANGLE CONSISTENCY'}=0;
+    }
+
+ 
     # generate all possible dihedral angles based on bond angles
     undef %phi_gen_as;
     $phi_gen_N=0;
@@ -1162,9 +1176,11 @@ sub readtop
   } 
   if(exists $A[1]){
    if($A[1] eq "dihedrals"){
+    my $CORIMP=0;
     $FOUND{'dihedrals'}=1;
-    $FAIL_IMP=0;
-    $FAIL_DIHS=0;
+    if($model ne "CA" ){
+     $FAIL{'CA DIHEDRAL WEIGHTS'}=-1;
+    }
     $DENERGY=0;
     my $Nphi=0;
     $FAIL_doubledih=0;
@@ -1178,6 +1194,7 @@ sub readtop
     my $string_last;
     my $DANGLE_LAST;
     my $LAST_N=0;
+    my $DIHSW=0;
     $#A = -1;
     $#ED_T = -1;
     $#EDrig_T = -1;
@@ -1234,9 +1251,10 @@ sub readtop
       }
       if($A[4] == 1 && $A[7] == 1 ){
        my $F;
-       if(($A[6] < $MINTHR*$epsilonCAD || $A[6] > $MAXTHR*$epsilonCAD) && $model eq "CA"){
-        $FAIL_DIHS++;
-        print "error in dihedral stength on line:";
+       if(($A[6] > $MINTHR*$epsilonCAD && $A[6] < $MAXTHR*$epsilonCAD) && $model eq "CA"){
+        $DIHSW++;
+       }elsif(($A[6] < $MINTHR*$epsilonCAD || $A[6] > $MAXTHR*$epsilonCAD) && $model eq "CA"){
+        print "error in dihedral strength on line:";
         print "$LINE\n";
        }
        if($MOLTYPE[$A[0]] ne "LIGAND" ){
@@ -1287,10 +1305,12 @@ sub readtop
       }
      }
      if($A[4] == 2 && exists $improper_gen_as{$string} ){
-      if($impEps != $A[6]){
+       $CORIMP++;
+      if($impEps == $A[6]){
+       $CORIMP--;
+      }else{
        print "improper dihedral has wrong weight\n";
        print "$LINE";
-       $FAIL_IMP++;
       }
      }
 
@@ -1300,6 +1320,7 @@ sub readtop
      $LINE =~ s/\s+$//;
      @A=split(/ /,$LINE);
     }
+
     $FAIL_phi=0;
     # check to see if all the generated dihedrals (from this script) are present in the top file
     for(my $i=0;$i<$phi_gen_N;$i++){
@@ -1317,9 +1338,16 @@ sub readtop
       print "$FAIL_phi, $i, $phi[$i], $phi_gen_as{$phi[$i]}\n"
      }
     }
+    if($CORIMP == 0){
+     $FAIL{'IMPROPER WEIGHTS'}=0;
+    } 
+    if($model eq "CA" && $Nphi/2 == $DIHSW){
+     $FAIL{'CA DIHEDRAL WEIGHTS'}=0;
+    }else{
+     print "$Nphi $DIHSW\n";
+    }
    }
   } 
-  
   
   if(exists $A[1]){
    # check values for contact energy
@@ -1635,6 +1663,8 @@ sub checkvalues
    $FAILED++;
   }elsif($FAIL{$TEST}==0){
    print "$TEST CHECK : PASSED\n";
+  }elsif($FAIL{$TEST}==-1){
+   print "$TEST CHECK : N/A here\n";
   }else{
    internal_error("$TEST");
   }
@@ -1652,18 +1682,6 @@ sub checkvalues
   $FAILED++;
  }else{
   print "Contact distance consistency: PASSED\n";
- }
- if($FAIL_angles >0){
-  print "Something funny with the bond angles. Inconsistency detected between script and top.\n";
-  $FAILED++;
- }else{
-  print "bond angles: PASSED\n";
- }
- if($FAIL_IMP>0){
-   print "Improper dihedrals weights: FAILED\n";
-  $FAILED++;
- }else{
-  print "Improper dihedral weights: PASSED\n";
  }
  if($FAIL_phi >0){
   print "Something funny with the dihedral angles... not consistent between script and top.\n";
@@ -1688,12 +1706,6 @@ sub checkvalues
   $FAILED++;
  }else{
   print "Type-3 dihedrals: PASSED\n";
- }
- if($FAIL_DIHS > 0){
-  print "FAILED: $FAIL_DIHS dihedral weights are wrong...\n";
-  $FAILED++;
- }else{
-  print "Dihedral weights: PASSED\n";
  }
  if($FAIL_W3 > 0){
   print "energies of n=1 and n=3 dihedrals are not consistent: FAILED\n";
