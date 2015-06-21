@@ -149,7 +149,7 @@ while(<ION>){
 my $FAIL_SYSTEM=0;
  
 # FAILLIST is a list of all the tests.  If you want to supress a failed test (not recommended), then remove it from this list.
-our @FAILLIST = ('MASS', 'CHARGE', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'ANGLE TYPES', 'ANGLE WEIGHTS', 'DUPLICATE BONDS', 'DUPLICATE ANGLES', 'ANGLE CONSISTENCY', 'IMPROPER WEIGHTS', 'CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL CONSISTENCY','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'ContactDist', 'EXCLUSIONS', 'BOX DIMENSIONS');
+our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','TOP FIELDS FOUND','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'ANGLE TYPES', 'ANGLE WEIGHTS', 'DUPLICATE BONDS', 'DUPLICATE ANGLES', 'ANGLE CONSISTENCY', 'IMPROPER WEIGHTS', 'CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL CONSISTENCY','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','SCM CONTACT COMPARISON', 'NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS');
 our $default;
 our $model;
 our $PDB;
@@ -181,8 +181,6 @@ our $LIGAND_PRESENT;
 our $ION_PRESENT;
 our @FIELDS;
 our %FAIL;
-our $FAIL_ContactDist;
-our $FAIL_EXCLUSIONS;
 our $rep_s12;
 our @ATOMNAME;
 our @GRODATA;
@@ -250,6 +248,10 @@ while(<PARMS>){
  }else{
   print "Model name $model, not understood. Only CA and AA models are supported by the test script.  Quitting...\n";
   exit;
+ }
+# clean up the tracking for the next test
+ foreach my $item(@FAILLIST){
+  $FAIL{$item}=1;
  }
 
  if($default eq "yes"){
@@ -349,6 +351,7 @@ while(<PARMS>){
 sub smogchecker
 {
 
+
  ### Going to add if statements for any CA-only, or AA-only calculations
  
  &preparesettings;
@@ -377,11 +380,8 @@ sub smogchecker
  if($model eq "AA"){
   `java -jar $SCM  -g $PDB.gro -t $PDB.top -ch $PDB.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD --distance`;
   my $CONTDIFF=`diff $PDB.contacts $PDB.contacts.SCM | wc -l`;
-   if($CONTDIFF > 0){
-    print "contact map consistency check: FAILED\n";
-    $FAILED++; 
-   }else{
-    print "contact map consistency check: PASSED\n";
+   if($CONTDIFF == 0){
+    $FAIL{'SCM CONTACT COMPARISON'}=0;
    }
  }elsif($model eq "CA"){
   # run AA model to get top
@@ -389,19 +389,11 @@ sub smogchecker
   `java -jar $SCM   --coarse CA -g $PDB.meta1.gro -t $PDB.meta1.top -ch $PDB.meta1.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD --distance`;
   # run SCM to get map
   my $CONTDIFF=`diff $PDB.contacts $PDB.contacts.SCM | wc -l`;
-   if($CONTDIFF > 0){
-    print "contact map consistency check: FAILED\n";
-    $FAILED++; 
-   }else{
-    print "contact map consistency check: PASSED\n";
+    if($CONTDIFF == 0){
+    $FAIL{'SCM CONTACT COMPARISON'}=0;
    }
- }
 
-# clean up the tracking for the next test
- foreach my $item(@FAILLIST){
-  $FAIL{$item}=1;
  }
-
 
  # CHECK THE OUTPUT
  &checkgro; 
@@ -414,9 +406,10 @@ sub smogchecker
 
 sub checkgro
 {
- unless(open(GRO,"$PDB.gro")){
+ if(open(GRO,"$PDB.gro")){
+  $FAIL{'OPEN GRO'}=0;
+ }else{
   print "ERROR: $PDB.gro can not be opened. This means SMOG died unexpectedly.\n";
-  $FAILED++;
   return;
  }
  my $LINE=<GRO>; # header comment
@@ -481,7 +474,6 @@ sub checkgro
  $DY=int(($DY * $PRECISION/10.0))/($PRECISION*0.1);
  $DZ=int(($DZ * $PRECISION/10.0))/($PRECISION*0.1);
  if(abs($BOUNDS[0]-$DX) > $TOLERANCE || abs($BOUNDS[1] - $DY) > $TOLERANCE || abs($BOUNDS[2] - $DZ) > $TOLERANCE ){
-  $FAILED++;
   print "Gro box size inconsistent\n";
   print "$BOUNDS[0], $XMAX, $XMIN,$BOUNDS[1],$YMAX,$YMIN,$BOUNDS[2],$ZMAX,$ZMIN\n";
  }else{
@@ -643,17 +635,20 @@ sub readtop
     chomp($LINE);
     $LINE =~ s/\s+$//;
     @A=split(/ /,$LINE);
-    if($A[0] != 1){
+    if($A[0] == 1){
+     $FAIL{'DEFAULTS, nbfunc'}=0; 
+    }else{
      print "default nbfunc is not correctly set.\n";
-     $FAILED++;
     }
-    if($A[1] != 1){
+    if($A[1] == 1){
+     $FAIL{'DEFAULTS, comb-rule'}=0; 
+    }else{
      print "default comb-rule is not correctly set.\n";
-     $FAILED++;
     }
-    if($A[2] ne "no"){
+    if($A[2] eq "no"){
+     $FAIL{'DEFAULTS, gen-pairs'}=0; 
+    }else{
      print "default gen-pairs is not correctly set.\n";
-     $FAILED++;
     }
    }
   }
@@ -721,13 +716,15 @@ sub readtop
     chomp($LINE); 
     $LINE =~ s/\s+$//;
     @A=split(/ /,$LINE);
-    if($A[0] ne "Macromolecule"){
+    if($A[0] eq "Macromolecule"){
+     $FAIL{'moleculetype=Macromolecule'}=0;
+    }else{
      print "default molecule name is off.\n";
-     $FAILED++;
     }
-    if($A[1] != 3){
+    if($A[1] == 3){
+     $FAIL{'nrexcl=3'}=0;
+    }else{
      print "nrexcl is not set to 3.\n";
-     $FAILED++;
     }
    }
   } 
@@ -1420,7 +1417,7 @@ sub readtop
     my $FAIL_NONSTACK=0;
     my $LONGCONT=0;
     my $CONTACT_W_CA=0;
-    $FAIL_ContactDist=0;
+    my $ContactDist=0;
     $#A = -1;
     $LINE=<TOP>;
     $LINE =~ s/\s+$//;
@@ -1449,14 +1446,14 @@ sub readtop
      if($model eq "AA"){
       $Cdist=(2*$A[4]/($A[3]))**(1.0/6.0);
       $CALCD=(($XT[$A[0]]-$XT[$A[1]])**2+($YT[$A[0]]-$YT[$A[1]])**2+($ZT[$A[0]]-$ZT[$A[1]])**2)**(0.5);
-      if(abs($Cdist-$CALCD) > 10.0/($PRECISION*1.0) ){
-       $FAIL_ContactDist++;
+      if(abs($Cdist-$CALCD) < 10.0/($PRECISION*1.0) ){
+       $ContactDist++;
       }
      }elsif($model eq "CA"){
       $Cdist=(6.0*$A[4]/(5.0*$A[3]))**(1.0/2.0);
       $CALCD=(($XT[$A[0]]-$XT[$A[1]])**2+($YT[$A[0]]-$YT[$A[1]])**2+($ZT[$A[0]]-$ZT[$A[1]])**2)**(0.5);
-      if(abs($Cdist-$CALCD) > 10.0/($PRECISION*1.0)){
-       $FAIL_ContactDist++;
+      if(abs($Cdist-$CALCD) < 10.0/($PRECISION*1.0)){
+       $ContactDist++;
       }
      }
      # so long as the contacts are not with ligands, then we add the sum
@@ -1516,6 +1513,10 @@ sub readtop
      $LINE =~ s/\s+$//;
      @A=split(/ /,$LINE);
     }
+
+    if($ContactDist == $NCONTACTS){
+     $FAIL{'CONTACT DISTANCES'}=0;
+    }
     if($model eq "AA"){
      if($LONGCONT == $NCONTACTS){
       $FAIL{'LONG CONTACTS'}=0;
@@ -1528,9 +1529,9 @@ sub readtop
        $FAIL{'STACKING CONTACT WEIGHTS'}=0;	
       }
      }else{
-       $FAIL{'NON-STACKING CONTACT WEIGHTS'}=-1;	
-      if($FAIL_STACK == 0 and $stackingE != 0 ){
-       $FAIL{'STACKING CONTACT WEIGHTS'}=0;	
+       $FAIL{'STACKING CONTACT WEIGHTS'}=-1;	
+      if($FAIL_NONSTACK == 0 and $NonstackingE != 0 ){
+       $FAIL{'NON-STACKING CONTACT WEIGHTS'}=0;	
       }
      } 
      $FAIL{'CA CONTACT WEIGHTS'}=-1;	
@@ -1557,10 +1558,10 @@ sub readtop
     $LINE =~ s/\s+$//;
     @A=split(/ /,$LINE);
     my $NEXCL=0;
-    $FAIL_EXCLUSIONS=0;
+    my $NEXCLUSIONS=0;
     until($A[0] eq "["){
      if($PAIRS[$NEXCL][0] != $A[0] || $PAIRS[$NEXCL][1] != $A[1]){
-      $FAIL_EXCLUSIONS++;
+      $NEXCLUSIONS++;
       print "FAIL: mis-match between pairs and exclusions (pair $NEXCL)\n";
       print "pair: $PAIRS[$NEXCL][0] $PAIRS[$NEXCL][1]\n";
       print "excl: $A[0] $A[1]\n";
@@ -1573,12 +1574,8 @@ sub readtop
      $LINE =~ s/\s+$//;
      @A=split(/ /,$LINE);
     }
-    print "checking number of contacts and exclusions match...\n";
     if($NEXCL == $NCONTACTS){
-     print "$NEXCL $NCONTACTS PASSED\n";
-    }else{
-     print "FAILED\n";
-     $FAIL_EXCLUSIONS++;
+     $FAIL{'NUMBER OF EXCLUSIONS'}=0;
     }
    }
   }
@@ -1589,12 +1586,14 @@ sub readtop
     chomp($LINE);
     $LINE =~ s/\s+$//;
     @A=split(/ /,$LINE);
-    if($A[0] ne "Macromolecule"){
-     print "default system name is off\n";
-     $FAILED++;
+    if($A[0] eq "Macromolecule"){
+     $FAIL{'NAME'}=0;
+    }else{
+     print "Default system name is ($A[0]) non-standard\n";
     }
    }
   }
+
   if(exists $A[1]){
    if($A[1] eq "molecules"){
     $FOUND{'molecules'}=1;
@@ -1602,30 +1601,32 @@ sub readtop
     chomp($LINE);
     $LINE =~ s/\s+$//;
     @A=split(/ /,$LINE);
-    if($A[0] ne "Macromolecule"){
-     print "default system name is off\n";
-     $FAILED++;
-    }
-     if($A[1] != 1){
-     print "wrong number of molecules...\n";
-     $FAILED++;
+    if($A[0] eq "Macromolecule"){
+     $FAIL{'NAME'}=0;
+     if($A[1] == 1){
+      $FAIL{'1 MOLECULE'}=0;
+     }else{
+      print "wrong number of molecules...\n";
+     }
     }
    }
   }
  }
 
-
+ my $NFIELDS=@FIELDS;
+ my $NFIELDC=0;
  foreach(@FIELDS){
   my $FF=$_;
   if($FOUND{"$FF"} == 1){
-   print "Found: [ $FF ] in top file.\n";
+   $NFIELDC++;
   }elsif($FOUND{"$FF"} == 0){
    print "Error: [ $FF ] not found in top file.  This either means SMOG did not complete, or there was a problem reading the file.  All subsequent output will be meaninglyess.\n";
-   $FAILED++;
   }else{
    print "ERROR: Problem understanding .top file...\n";
-   $FAILED++;
-  };
+  }
+ }
+ if($NFIELDS == $NFIELDC){
+  $FAIL{'TOP FIELDS FOUND'}=0;
  }
 }
 
@@ -1644,12 +1645,12 @@ sub checkvalues
  print "$theta_gen_N $phi_gen_N $improper_gen_N\n";
  if($model eq "CA"){
   if($theta_gen_N == 0 || $phi_gen_N == 0 ){
-   print "couldnt generate something....\n";
+   print "ERROR: Unable to generate angles ($theta_gen_N), or dihedrals ($phi_gen_N)....\n";
    $FAILED++;
   }
  }elsif($model eq "AA"){
   if($theta_gen_N == 0 || $phi_gen_N == 0 ||  $improper_gen_N == 0){
-   print "couldnt generate something....\n";
+   print "ERROR: Unable to generate angles ($theta_gen_N), or dihedrals ($phi_gen_N)....\n";
    $FAILED++;
   }
  }else{
@@ -1763,12 +1764,6 @@ sub checkvalues
  }
  
 
- if($FAIL_ContactDist>0){
-  print "Contact distance consistency: FAILED\n";
-  $FAILED++;
- }else{
-  print "Contact distance consistency: PASSED\n";
- }
  if($rigid_fail >0){
   print "Rigid dihedrals do not have the correct strengths\n";
   $FAILED++;
@@ -1911,12 +1906,6 @@ sub checkvalues
  }
  
  
- if($FAIL_EXCLUSIONS > 0){
-  print "exclusion-pair matching: FAILED\n";
-  $FAILED++;
- }else{
-  print "exclusion-pair matching: PASSED\n";
- }
   my $NRD=$NCONTACTS+$bondtype6;
  if($NUMBER_OF_CONTACTS_SHADOW != $NRD){
   $FAILED++;
