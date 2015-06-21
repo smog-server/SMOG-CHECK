@@ -177,16 +177,13 @@ our $AMINO_PRESENT;
 our $LIGAND_PRESENT;
 our $ION_PRESENT;
 our @FIELDS;
-our @FAILLIST = ('MASS', 'CHARGE', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'ANGLE TYPES', 'ANGLE WEIGHTS', 'DUPLICATE BONDS', 'DUPLICATE ANGLES', 'ANGLE CONSISTENCY', 'IMPROPER WEIGHTS', 'CA DIHEDRAL WEIGHTS', 'doubledih', 'dih3_missing', 'W3', 'S3', 'A3', 'check13', 'phi', 'STACK', 'NONSTACK', 'LONGCONT', 'CONTACT', 'ContactDist', 'EXCLUSIONS', 'BOX');
+our @FAILLIST = ('MASS', 'CHARGE', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'ANGLE TYPES', 'ANGLE WEIGHTS', 'DUPLICATE BONDS', 'DUPLICATE ANGLES', 'ANGLE CONSISTENCY', 'IMPROPER WEIGHTS', 'CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','doubledih', 'W3', 'S3', 'A3', 'check13', 'phi', 'STACK', 'NONSTACK', 'LONGCONT', 'CONTACT', 'ContactDist', 'EXCLUSIONS', 'BOX');
 our %FAIL;
 
 
-our $FAIL_doubledih;
-our $FAIL_dih3_missing;
 our $FAIL_W3;
 our $FAIL_S3;
 our $FAIL_A3;
-our $FAIL_check13;
 our $FAIL_phi;
 our $FAIL_STACK;
 our $FAIL_NONSTACK;
@@ -623,7 +620,9 @@ sub readtop
  $ION_PRESENT=0;
  my @theta_gen;
  my @PAIRS;
- my %dihedral_array;
+ my %dihedral_array1;
+ my %dihedral_array2;
+ my %dihedral_array3;
  @FIELDS=("defaults","atomtypes","moleculetype","atoms","pairs","bonds","angles","dihedrals","system","molecules","exclusions");
  foreach(@FIELDS){
   $FOUND{$_}=0;
@@ -819,7 +818,7 @@ sub readtop
     $#bondWatom = -1;
     my @NbondWatom;
     $#NbondWatom = -1;
-    my $FAIL_doublebond=0;
+    my $doublebond=0;
     $bondtype6=0;
     my $Nbonds=0;
     my %bond_array;
@@ -863,7 +862,7 @@ sub readtop
        $Nbonds++;
       }else{
       ## bond has already been assigned.
-       $FAIL_doublebond++;
+       $doublebond++;
       }
      }elsif($A[2] ==6){
       $RECOGNIZEDBTYPES++;
@@ -884,7 +883,7 @@ sub readtop
      @A=split(/ /,$LINE);
     }
 
-    if($FAIL_doublebond ==0){
+    if($doublebond ==0){
      $FAIL{'DUPLICATE BONDS'}=0;
     }
 
@@ -946,7 +945,7 @@ sub readtop
    if($A[1] eq "angles"){
     $FOUND{'angles'}=1;
     $#A = -1;
-    my $FAIL_doubleangle=0;
+    my $doubleangle=0;
     my $Nangles=0;
     my (@angles1,@angles2); 
     $#angles1 =-1;
@@ -997,14 +996,14 @@ sub readtop
       $Nangles++;
      }else{
       ## bond has already been assigned.
-      $FAIL_doubleangle++;
+      $doubleangle++;
      }
      $LINE=<TOP>;
      last unless defined $LINE;
      $LINE =~ s/\s+$//;
      @A=split(/ /,$LINE);
     }
-    if($FAIL_doubleangle ==0){
+    if($doubleangle ==0){
      $FAIL{'DUPLICATE ANGLES'}=0;
     } 
     if($Nangles == $CORRECTAT && $Nangles > 0){
@@ -1182,9 +1181,11 @@ sub readtop
      $FAIL{'CA DIHEDRAL WEIGHTS'}=-1;
     }
     $DENERGY=0;
+    my $doubledih1=0;
+    my $doubledih2=0;
+    my $doubledih3=0;
     my $Nphi=0;
-    $FAIL_doubledih=0;
-    $FAIL_dih3_missing=0;
+    my $solitary3=0;
     $FAIL_W3=0;
     $FAIL_S3=0;
     $FAIL_A3=0;
@@ -1195,10 +1196,11 @@ sub readtop
     my $DANGLE_LAST;
     my $LAST_N=0;
     my $DIHSW=0;
+    my $accounted=0;
+    my $accounted1=0;
     $#A = -1;
     $#ED_T = -1;
     $#EDrig_T = -1;
-    $FAIL_check13=0;
     $LINE=<TOP>;
     $LINE =~ s/\s+$//;
     @A=split(/ /,$LINE);
@@ -1213,19 +1215,36 @@ sub readtop
      $Nphi++;
 
     # #check if dihedral has been seen already...
-       if(!exists $dihedral_array{$string}){
-        ## dihedral was not assigned.
-        $dihedral_array{$string}=1;
-	if(exists $A[7] and $A[7] == 3){
-         $FAIL_dih3_missing++;
-         print "somehow there is a type 3 dihedral w/o a type 1...\n";
- 	}
-       }elsif(!exists $A[7] or $A[7] != 3){
-        ## dihedral has already been assigned.
-        print "offending dihedral\n $LINE\n";
-        $FAIL_doubledih++;
-       }
 
+       # check duplicate type 3 
+       if(!exists $dihedral_array3{$string} and exists $A[7] and $A[7] == 3){
+        $dihedral_array3{$string}=1;
+        $accounted++;
+	if(!exists $dihedral_array3{$string}){
+         $solitary3++;
+         print "Type 3 dihedral appeared w/o a type 1...\n  $LINE\n";
+        }
+       }elsif(exists $dihedral_array3{$string} and exists $A[7] and $A[7] == 3){
+        $doubledih3++; 
+        print "Duplicate dihedral\n   $LINE\n";
+       }elsif(!exists $dihedral_array1{$string} and exists $A[7] and $A[7] == 1){
+	#check duplicate type 1 and 2
+        ## dihedral was not assigned.
+        $dihedral_array1{$string}=1;
+        $accounted++;
+        $accounted1++;
+       }elsif(exists $dihedral_array1{$string} and exists $A[7] and $A[7] == 1){
+        $doubledih1++;
+        print "Duplicate dihedral\n   $LINE\n";
+       }elsif(!exists $dihedral_array2{$string} and $A[4] == 2){
+        $dihedral_array2{$string}=1;
+        $accounted++;
+       }elsif(exists $dihedral_array2{$string} and $A[4] == 2){
+        $doubledih2++;
+        print "Duplicate dihedral\n   $LINE\n";
+       }else{
+        internal_error('DUPLICATE DIHEDRAL CHECKING')
+       }
 
      ##if dihedral is type 1, then save the information, so we can make sure the next is n=3
      if(exists $A[7]){
@@ -1234,11 +1253,11 @@ sub readtop
        $string_last=$string;
        $DANGLE_LAST=$A[5];
       }
-      if($LAST_N == 1 && $A[7] != 3){
-       $FAIL_check13++;
-       print "1-3 pairs not consistent.  Offending line:";
-       print "$LINE";
-      }
+#      if($LAST_N == 1 && $A[7] != 3){
+#       $FAIL_check13++;
+#       print "1-3 pairs not consistent.  Offending line:\n";
+#       print "$LINE\n";
+#      }
       $LAST_N=$A[7];
       if($A[7] == 3 && ($A[6] < $MINTHR*0.5*$LAST_W || $A[6] > $MAXTHR*0.5*$LAST_W)){
        $FAIL_W3++; 
@@ -1321,10 +1340,13 @@ sub readtop
      @A=split(/ /,$LINE);
     }
 
+
+    # All dihedrals read in.  Now do checking
+
     $FAIL_phi=0;
     # check to see if all the generated dihedrals (from this script) are present in the top file
     for(my $i=0;$i<$phi_gen_N;$i++){
-     if(!exists $dihedral_array{$phi_gen[$i]} ){
+     if(!exists $dihedral_array1{$phi_gen[$i]} and !exists $dihedral_array2{$phi_gen[$i]} ){
       $FAIL_phi++;
       print "Generated dihedral $phi_gen[$i] is not in the list of included dihedrals...\n";
 #      print "$FAIL_phi $i $phi_gen[$i] $dihedral_array{$phi_gen[$i]}\n";
@@ -1346,6 +1368,34 @@ sub readtop
     }else{
      print "$Nphi $DIHSW\n";
     }
+
+    if($Nphi == $accounted and $Nphi != 0){
+     $FAIL{'CLASSIFYING DIHEDRALS'}=0;
+    }else{
+     print "$Nphi $DIHSW\n";
+    }
+    if($doubledih1 == 0){
+     $FAIL{'DUPLICATE TYPE 1 DIHEDRALS'}=0;
+    }
+    if($doubledih2 == 0){
+     $FAIL{'DUPLICATE TYPE 2 DIHEDRALS'}=0;
+    }
+    if($doubledih3 == 0){
+     $FAIL{'DUPLICATE TYPE 3 DIHEDRALS'}=0;
+    }
+    if($solitary3 == 0){
+     $FAIL{'3-1 DIHEDRAL PAIRS'}=0;
+    }
+    my $matchingpairs=0;
+    foreach my $pair (keys %dihedral_array1){
+     if(exists $dihedral_array3{$pair}){
+      $matchingpairs++;
+     }
+    }
+    if($matchingpairs == $accounted1){
+     $FAIL{'1-3 DIHEDRAL PAIRS'}=0
+    }
+
    }
   } 
   
@@ -1695,18 +1745,6 @@ sub checkvalues
  }else{
   print "strength of rigid dihedrals: PASSED\n";
  }
- if($FAIL_doubledih >0){
-  print "Some dihedral were assigned more than once\n";
-  $FAILED++;
- }else{
-  print "duplicate dihedrals: PASSED\n";
- }
- if($FAIL_dih3_missing >0){
-  print "A type 3 dihedral was present without a type 1...\n";
-  $FAILED++;
- }else{
-  print "Type-3 dihedrals: PASSED\n";
- }
  if($FAIL_W3 > 0){
   print "energies of n=1 and n=3 dihedrals are not consistent: FAILED\n";
   $FAILED++;
@@ -1724,12 +1762,6 @@ sub checkvalues
   $FAILED++;
  }else{
   print "values of n=1 and n=3 dihedral angles are consistent: PASSED\n";
- }
- if($FAIL_check13 > 0){
-  print "n=1 and n=3 dihedrals don\'t appear in pairs: FAILED\n";
-  $FAILED++;
- }else{
-  print "n=1 and n=3 dihedrals appear in pairs: PASSED\n";
  }
  if($PBBfail >0){
   print "FAILED: $PBBfail protein backbone dihedrals dont have the same values...\n";
