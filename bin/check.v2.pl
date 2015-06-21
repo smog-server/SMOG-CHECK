@@ -147,6 +147,9 @@ while(<ION>){
 ## We will generate SMOG2 models and then check to see if the top files are correct for the default model
 # we are a bit lazy, and will just use global variables
 my $FAIL_SYSTEM=0;
+ 
+# FAILLIST is a list of all the tests.  If you want to supress a failed test (not recommended), then remove it from this list.
+our @FAILLIST = ('MASS', 'CHARGE', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'ANGLE TYPES', 'ANGLE WEIGHTS', 'DUPLICATE BONDS', 'DUPLICATE ANGLES', 'ANGLE CONSISTENCY', 'IMPROPER WEIGHTS', 'CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL CONSISTENCY','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'ContactDist', 'EXCLUSIONS', 'BOX DIMENSIONS');
 our $default;
 our $model;
 our $PDB;
@@ -177,18 +180,7 @@ our $AMINO_PRESENT;
 our $LIGAND_PRESENT;
 our $ION_PRESENT;
 our @FIELDS;
-our @FAILLIST = ('MASS', 'CHARGE', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'ANGLE TYPES', 'ANGLE WEIGHTS', 'DUPLICATE BONDS', 'DUPLICATE ANGLES', 'ANGLE CONSISTENCY', 'IMPROPER WEIGHTS', 'CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','doubledih', 'W3', 'S3', 'A3', 'check13', 'phi', 'STACK', 'NONSTACK', 'LONGCONT', 'CONTACT', 'ContactDist', 'EXCLUSIONS', 'BOX');
 our %FAIL;
-
-
-our $FAIL_W3;
-our $FAIL_S3;
-our $FAIL_A3;
-our $FAIL_phi;
-our $FAIL_STACK;
-our $FAIL_NONSTACK;
-our $FAIL_LONGCONT;
-our $FAIL_CONTACT;
 our $FAIL_ContactDist;
 our $FAIL_EXCLUSIONS;
 our $rep_s12;
@@ -493,7 +485,7 @@ sub checkgro
   print "Gro box size inconsistent\n";
   print "$BOUNDS[0], $XMAX, $XMIN,$BOUNDS[1],$YMAX,$YMIN,$BOUNDS[2],$ZMAX,$ZMIN\n";
  }else{
-  $FAIL{'BOX'}=0;
+  $FAIL{'BOX DIMENSIONS'}=0;
   print "Passed gro box size check\n";
  }
 
@@ -623,6 +615,11 @@ sub readtop
  my %dihedral_array1;
  my %dihedral_array2;
  my %dihedral_array3;
+ my %dihedral_array1_W;
+ my %dihedral_array3_W;
+ my %dihedral_array1_A;
+ my %dihedral_array3_A;
+
  @FIELDS=("defaults","atomtypes","moleculetype","atoms","pairs","bonds","angles","dihedrals","system","molecules","exclusions");
  foreach(@FIELDS){
   $FOUND{$_}=0;
@@ -1033,7 +1030,7 @@ sub readtop
     if($CONangles == $theta_gen_N){
      $FAIL{'ANGLE CONSISTENCY'}=0;
     }else{
-     $FAIL{'ANGLE CONSISTENCY'}=0;
+     $FAIL{'ANGLE CONSISTENCY'}=1;
     }
 
     $CONangles=0;
@@ -1048,7 +1045,7 @@ sub readtop
      if($CONangles == $Nangles){
      $FAIL{'ANGLE CONSISTENCY'}=0;
     }else{
-     $FAIL{'ANGLE CONSISTENCY'}=0;
+     $FAIL{'ANGLE CONSISTENCY'}=1;
     }
 
  
@@ -1186,9 +1183,7 @@ sub readtop
     my $doubledih3=0;
     my $Nphi=0;
     my $solitary3=0;
-    $FAIL_W3=0;
-    $FAIL_S3=0;
-    $FAIL_A3=0;
+    my $S3_match=0;
     my $string;
     my @phi;
     my $LAST_W;
@@ -1219,6 +1214,8 @@ sub readtop
        # check duplicate type 3 
        if(!exists $dihedral_array3{$string} and exists $A[7] and $A[7] == 3){
         $dihedral_array3{$string}=1;
+        $dihedral_array3_W{$string}=$A[6];
+        $dihedral_array3_A{$string}=$A[5];
         $accounted++;
 	if(!exists $dihedral_array3{$string}){
          $solitary3++;
@@ -1231,6 +1228,8 @@ sub readtop
 	#check duplicate type 1 and 2
         ## dihedral was not assigned.
         $dihedral_array1{$string}=1;
+        $dihedral_array1_W{$string}=$A[6];
+        $dihedral_array1_A{$string}=$A[5];
         $accounted++;
         $accounted1++;
        }elsif(exists $dihedral_array1{$string} and exists $A[7] and $A[7] == 1){
@@ -1253,20 +1252,9 @@ sub readtop
        $string_last=$string;
        $DANGLE_LAST=$A[5];
       }
-#      if($LAST_N == 1 && $A[7] != 3){
-#       $FAIL_check13++;
-#       print "1-3 pairs not consistent.  Offending line:\n";
-#       print "$LINE\n";
-#      }
       $LAST_N=$A[7];
-      if($A[7] == 3 && ($A[6] < $MINTHR*0.5*$LAST_W || $A[6] > $MAXTHR*0.5*$LAST_W)){
-       $FAIL_W3++; 
-      }
-      if($A[7] == 3 && ($string ne $string_last)){
-       $FAIL_S3++; 
-      }
-      if($A[7] == 3 && ( ($A[5] % 360) < $MINTHR*(3*$DANGLE_LAST % 360) || ($A[5] % 360) > $MAXTHR*(3*$DANGLE_LAST % 360)  )){
-       $FAIL_A3++; 
+      if($A[7] == 3 && ($string eq $string_last)){
+       $S3_match++; 
       }
       if($A[4] == 1 && $A[7] == 1 ){
        my $F;
@@ -1343,23 +1331,19 @@ sub readtop
 
     # All dihedrals read in.  Now do checking
 
-    $FAIL_phi=0;
+    my $gen_match=0;
     # check to see if all the generated dihedrals (from this script) are present in the top file
     for(my $i=0;$i<$phi_gen_N;$i++){
-     if(!exists $dihedral_array1{$phi_gen[$i]} and !exists $dihedral_array2{$phi_gen[$i]} ){
-      $FAIL_phi++;
+     if(exists $dihedral_array1{$phi_gen[$i]}  or exists $dihedral_array2{$phi_gen[$i]} ){
+      $gen_match++;
+     }else{
       print "Generated dihedral $phi_gen[$i] is not in the list of included dihedrals...\n";
-#      print "$FAIL_phi $i $phi_gen[$i] $dihedral_array{$phi_gen[$i]}\n";
      }
     }
-    # check to see if all top dihedrals are present in the generate list.
-    for(my $i=0;$i<$Nphi;$i++){
-     if(!exists $phi_gen_as{$phi[$i]}  && !exists $improper_gen_as{$phi[$i]} ){
-      $FAIL_phi++;
-      print "An included dihedral can not be found in the list of generated ones...";
-      print "$FAIL_phi, $i, $phi[$i], $phi_gen_as{$phi[$i]}\n"
-     }
+    if($gen_match==$phi_gen_N){
+     $FAIL{'DIHEDRAL CONSISTENCY'}=0;
     }
+
     if($CORIMP == 0){
      $FAIL{'IMPROPER WEIGHTS'}=0;
     } 
@@ -1387,15 +1371,40 @@ sub readtop
      $FAIL{'3-1 DIHEDRAL PAIRS'}=0;
     }
     my $matchingpairs=0;
+    my $matchingpairs_W=0;
+    my $matchingpairs_A=0;
+    my $tt1;
+    my $tt2;
     foreach my $pair (keys %dihedral_array1){
      if(exists $dihedral_array3{$pair}){
       $matchingpairs++;
+      if($dihedral_array3_W{$pair}  > $MINTHR*0.5*$dihedral_array1_W{$pair} and $dihedral_array3_W{$pair}  < $MAXTHR*0.5*$dihedral_array1_W{$pair}  ){
+       $matchingpairs_W++;
+      }else{
+       print "Relative weight between a N=1 and N=3 dihedral is not consistent: $pair, $dihedral_array1_W{$pair}, $dihedral_array3_W{$pair}\n"
+      }
+      my $angle1=$dihedral_array1_A{$pair};
+      my $angle3=$dihedral_array3_A{$pair};
+      if((($angle3 % 360.0) > $MINTHR*(3*$angle1 % 360.0) and ($angle3 % 360.0) < $MAXTHR*(3*$angle1 % 360.0)) or (($angle3 % 360.0) < ($MAXTHR-1) and (3*$angle1 % 360.0) < ($MAXTHR-1) )){
+       $matchingpairs_A++;
+      }else{
+       print "Relative angles between a N=1 and N=3 dihedral is not consistent: $pair,$angle1,$angle3\n";
+      }
      }
     }
     if($matchingpairs == $accounted1){
      $FAIL{'1-3 DIHEDRAL PAIRS'}=0
     }
-
+    if($S3_match == $accounted1){
+     $FAIL{'1-3 ORDERING OF DIHEDRALS'}=0
+    }
+    if($matchingpairs_W == $accounted1){
+     $FAIL{'1-3 DIHEDRAL RELATIVE WEIGHTS'}=0
+    }
+    print "$matchingpairs_A, $accounted1 $MINTHR $MAXTHR\n";
+    if($matchingpairs_A == $accounted1){
+     $FAIL{'1-3 DIHEDRAL ANGLE VALUES'}=0
+    }
    }
   } 
   
@@ -1407,10 +1416,10 @@ sub readtop
     $stackingE=0;
     $NonstackingE=0;
     $CONTENERGY=0;
-    $FAIL_STACK=0;
-    $FAIL_NONSTACK=0;
-    $FAIL_LONGCONT=0;
-    $FAIL_CONTACT=0;
+    my $FAIL_STACK=0;
+    my $FAIL_NONSTACK=0;
+    my $LONGCONT=0;
+    my $CONTACT_W_CA=0;
     $FAIL_ContactDist=0;
     $#A = -1;
     $LINE=<TOP>;
@@ -1453,8 +1462,9 @@ sub readtop
      # so long as the contacts are not with ligands, then we add the sum
      if($model eq "CA"){
       $CONTENERGY+=$W;
-      if($W < $MINTHR*$epsilonCAC || $W > $MAXTHR*$epsilonCAC){
-       $FAIL_CONTACT++;
+      if($W > $MINTHR*$epsilonCAC and $W < $MAXTHR*$epsilonCAC){
+       $CONTACT_W_CA++;
+      }else{
        print "Error in EpsilonC values\n";
        print "Value: Target\n";
        print "$W $epsilonCAC\n";
@@ -1462,11 +1472,12 @@ sub readtop
        print "$LINE\n";
       }
      }elsif($model eq "AA"){
-      if(int(($Cdist * $PRECISION))/($PRECISION*1.0) > $CONTD/10.0){
+      if(int(($Cdist * $PRECISION))/($PRECISION*1.0) < $CONTD/10.0){
+       $LONGCONT++;
+      }else{
        print "long contacts! distance $Cdist nm.\n";
        print "$LINE";
-       $FAIL_LONGCONT++;
-      }
+     }
       ## so long as the contacts are not with ligands, then we add the sum
       if($MOLTYPE[$A[0]] ne "LIGAND" and $MOLTYPE[$A[1]] ne "LIGAND"){
        $CONTENERGY+=($A[3]*$A[3])/(4*$A[4]);
@@ -1493,7 +1504,7 @@ sub readtop
       }
      }else{
       print "unrecognized model.  Quitting...\n";
-      die;
+      exit;
      }
      # truncate the epsilon, for comparison purpsoses later.
      $W=int(($W * $PRECISION))/($PRECISION*1.0);
@@ -1505,6 +1516,37 @@ sub readtop
      $LINE =~ s/\s+$//;
      @A=split(/ /,$LINE);
     }
+    if($model eq "AA"){
+     if($LONGCONT == $NCONTACTS){
+      $FAIL{'LONG CONTACTS'}=0;
+     }
+     if($NUCLEIC_PRESENT){
+      if($FAIL_NONSTACK == 0 and $NonstackingE != 0){
+       $FAIL{'NON-STACKING CONTACT WEIGHTS'}=0;	
+      }
+      if($FAIL_STACK == 0 and $stackingE != 0 ){
+       $FAIL{'STACKING CONTACT WEIGHTS'}=0;	
+      }
+     }else{
+       $FAIL{'NON-STACKING CONTACT WEIGHTS'}=-1;	
+      if($FAIL_STACK == 0 and $stackingE != 0 ){
+       $FAIL{'STACKING CONTACT WEIGHTS'}=0;	
+      }
+     } 
+     $FAIL{'CA CONTACT WEIGHTS'}=-1;	
+    }elsif($model eq "CA"){
+     if($NCONTACTS == $CONTACT_W_CA){
+       $FAIL{'CA CONTACT WEIGHTS'}=0;	
+     }
+     $FAIL{'LONG CONTACTS'}=-1;
+     $FAIL{'STACKING CONTACT WEIGHTS'}=-1;	
+     $FAIL{'NON-STACKING CONTACT WEIGHTS'}=-1;	
+    }else{
+     print "unrecognized model.  Quitting...\n";
+     exit;
+    }
+
+
    }
   } 
   if(exists $A[1]){ 
@@ -1721,47 +1763,17 @@ sub checkvalues
  }
  
 
- if($FAIL_CONTACT>0){
-  print "FAIL: some contacts were not the proper strength\n";
-  $FAILED++;
- }else{
-  print "contact strength: PASSED\n";
- }
  if($FAIL_ContactDist>0){
   print "Contact distance consistency: FAILED\n";
   $FAILED++;
  }else{
   print "Contact distance consistency: PASSED\n";
  }
- if($FAIL_phi >0){
-  print "Something funny with the dihedral angles... not consistent between script and top.\n";
-  $FAILED++;
- }else{
-  print "dihedral angles: PASSED\n";
- }
  if($rigid_fail >0){
   print "Rigid dihedrals do not have the correct strengths\n";
   $FAILED++;
  }else{
   print "strength of rigid dihedrals: PASSED\n";
- }
- if($FAIL_W3 > 0){
-  print "energies of n=1 and n=3 dihedrals are not consistent: FAILED\n";
-  $FAILED++;
- }else{
-  print "energies of n=1 and n=3 dihedrals: PASSED\n";
- }
- if($FAIL_S3 > 0){
-  print "ordering of n=1 and n=3 dihedrals is not consistent: FAILED\n";
-  $FAILED++;
- }else{
-  print "ordering of n=1 and n=3 dihedrals: PASSED\n";
- }
- if($FAIL_A3 > 0){
-  print "values of n=1 and n=3 dihedral angles are not consistent: FAILED\n";
-  $FAILED++;
- }else{
-  print "values of n=1 and n=3 dihedral angles are consistent: PASSED\n";
  }
  if($PBBfail >0){
   print "FAILED: $PBBfail protein backbone dihedrals dont have the same values...\n";
@@ -1788,13 +1800,6 @@ sub checkvalues
     print "NA sidechain dihedrals: PASSED\n";
  }
  
- if($FAIL_LONGCONT>0){
-  print "contacts were too long!!!  FAILED.\n";
-  $FAILED++;
- }else{
-  print "contact distances: PASSED\n";
- }
-
 
  if($model eq "AA"){
   if($NonstackingE !=0 && $stackingE !=0){
@@ -1805,18 +1810,6 @@ sub checkvalues
     $FAILED++;
    }else{
     print "ratio between stacking and non-stacking: PASSED\n";
-   }
-   if($FAIL_STACK>0 ){
-    print "stacking interactions: FAILED\n";
-    $FAILED++;
-   }else{
-    print "stacking interactions: PASSED\n";
-   }
-   if($FAIL_NONSTACK>0 ){
-    print "non-stacking interactions: FAILED\n";
-    $FAILED++;
-   }else{
-    print "non-stacking interactions: PASSED\n";
    }
   }
   if($LIGAND_PRESENT){
