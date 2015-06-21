@@ -1,6 +1,6 @@
 #!/usr/bin/perl 
-#use strict;
-#use warnings;
+use strict;
+use warnings;
 # This is the main script that runs SMOG2 and then checks to see if the generated files are correct.
 # This is intended to be a brute-force evaluation of everything that should appear. Since this is
 # a testing script, it is not designed to be efficient, but to be thorough, and foolproof...
@@ -56,7 +56,7 @@ our $FAILDIR="FAILED";
 
 sub internal_error
 {
- my $MESSAGE=@_;
+ my ($MESSAGE)=@_;
  chomp($MESSAGE);
   print "Internal error at $MESSAGE\n";
   print "Please report this to info\@smog-server.org\n";
@@ -177,36 +177,26 @@ our $AMINO_PRESENT;
 our $LIGAND_PRESENT;
 our $ION_PRESENT;
 our @FIELDS;
-our @FAILLIST = {'MASS', 'CHARGE', 'PARTICLE', 'C6', 'EXCL', 'BTYPE', 'GROTOP', 'BW', 'AT', 'AW', 'doublebond', 'doubleangle', 'angles', 'IMP', 'DIHS', 'doubledih', 'dih3_missing', 'W3', 'S3', 'A3', 'check13', 'phi', 'STACK', 'NONSTACK', 'LONGCONT', 'CONTACT', 'ContactDist', 'EXCLUSIONS', 'BOX'};
-# our $FAIL_MASS;
-# our $FAIL_CHARGE;
-# our $FAIL_PARTICLE;
-# our $FAIL_C6;
-# our $FAIL_EXCL;
-# our $FAIL_BTYPE;
-# our $FAIL_GROTOP; 
-# our $FAIL_BW; 
-# our $FAIL_AT; 
-# our $FAIL_AW; 
-# our $FAIL_doublebond; 
-# our $FAIL_doubleangle; 
-# our $FAIL_angles; 
-# our $FAIL_IMP; 
-# our $FAIL_DIHS; 
-# our $FAIL_doubledih;
-# our $FAIL_dih3_missing;
-# our $FAIL_W3;
-# our $FAIL_S3;
-# our $FAIL_A3;
-# our $FAIL_check13;
-# our $FAIL_phi;
-# our $FAIL_STACK;
-# our $FAIL_NONSTACK;
-# our $FAIL_LONGCONT;
-# our $FAIL_CONTACT;
-# our $FAIL_ContactDist;
-# our $FAIL_EXCLUSIONS;
-# our $FAIL_BOX;
+our @FAILLIST = ('MASS', 'CHARGE', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'ANGLE TYPES', 'ANGLE WEIGHTS', 'DUPLICATE BONDS', 'DUPLICATE ANGLES', 'angles', 'IMP', 'DIHS', 'doubledih', 'dih3_missing', 'W3', 'S3', 'A3', 'check13', 'phi', 'STACK', 'NONSTACK', 'LONGCONT', 'CONTACT', 'ContactDist', 'EXCLUSIONS', 'BOX');
+our %FAIL;
+
+
+our $FAIL_angles; 
+our $FAIL_IMP; 
+our $FAIL_DIHS; 
+our $FAIL_doubledih;
+our $FAIL_dih3_missing;
+our $FAIL_W3;
+our $FAIL_S3;
+our $FAIL_A3;
+our $FAIL_check13;
+our $FAIL_phi;
+our $FAIL_STACK;
+our $FAIL_NONSTACK;
+our $FAIL_LONGCONT;
+our $FAIL_CONTACT;
+our $FAIL_ContactDist;
+our $FAIL_EXCLUSIONS;
 our $rep_s12;
 our @ATOMNAME;
 our @GRODATA;
@@ -421,6 +411,12 @@ sub smogchecker
    }
  }
 
+# clean up the tracking for the next test
+ foreach my $item(@FAILLIST){
+  $FAIL{$item}=1;
+ }
+
+
  # CHECK THE OUTPUT
  &checkgro; 
  &checkndx;
@@ -503,7 +499,7 @@ sub checkgro
   print "Gro box size inconsistent\n";
   print "$BOUNDS[0], $XMAX, $XMIN,$BOUNDS[1],$YMAX,$YMIN,$BOUNDS[2],$ZMAX,$ZMIN\n";
  }else{
-  $FAIL_BOX=0;
+  $FAIL{'BOX'}=0;
   print "Passed gro box size check\n";
  }
 
@@ -635,6 +631,7 @@ sub readtop
  foreach(@FIELDS){
   $FOUND{$_}=0;
  }
+
  my %theta_gen_as;
  my %phi_gen_as;
  my @phi_gen;
@@ -670,30 +667,32 @@ sub readtop
   if(exists $A[1]){
    if($A[1] eq "atomtypes"){
     $FOUND{'atomtypes'}=1;
-    $FAIL_MASS=0;
-    $FAIL_CHARGE=0;
-    $FAIL_PARTICLE=0;
-    $FAIL_C6=0;
-    $FAIL_EXCL=0;
     $#A = -1;
     $LINE=<TOP>;
     $LINE =~ s/\s+$//;
     @A=split(/ /,$LINE);
+    my $numtypes=0;
+    my $mass1=0;
+    my $charge1=0;
+    my $particle1=0;
+    my $c61=0;
+    my $excl1=0;
     until($A[0] eq "["){
-     if($A[1] != 1){
-      $FAIL_MASS++;
+     $numtypes++;
+     if($A[1] == 1){
+      $mass1++;
      }
-     if($A[2] != 0){
-      $FAIL_CHARGE++;
+     if($A[2] == 0){
+      $charge1++;
      }
-     if($A[3] ne "A"){
-      $FAIL_PARTICLE++;
+     if($A[3] eq "A"){
+      $particle1++;
      }
-     if($A[4] != 0.0){
-      $FAIL_C6++;
+     if($A[4] == 0.0){
+      $c61++
      }
-     if($A[5] < $MINTHR*$rep_s12 || $A[5] > $MAXTHR*$rep_s12){
-      $FAIL_EXCL++;
+     if($A[5] > $MINTHR*$rep_s12 && $A[5] < $MAXTHR*$rep_s12){
+      $excl1++;
      }
      $#A = -1;
      $LINE=<TOP>;
@@ -701,6 +700,24 @@ sub readtop
      last unless defined $LINE;
      @A=split(/ /,$LINE);
     }
+    if($numtypes == $mass1 and $mass1 !=0){
+      $FAIL{'MASS'}=0;
+    }
+    if($numtypes == $charge1 and $charge1 !=0){
+      $FAIL{'CHARGE'}=0;
+    }
+    if($numtypes == $particle1 and $particle1 !=0){
+      $FAIL{'PARTICLE'}=0;
+    }
+    if($numtypes == $c61 and $c61 !=0){
+      $FAIL{'C6 VALUES'}=0;
+    }
+    if($numtypes == $excl1 and $excl1 !=0){
+      $FAIL{'C12 VALUES'}=0;
+    }
+
+
+
    }
   } 
   if(exists $A[1]){
@@ -723,9 +740,9 @@ sub readtop
   } 
   if(exists $A[1]){
    # read the atoms, and store information about them
+    my $FAIL_GROTOP=0;
    if($A[1] eq "atoms"){
     $FOUND{'atoms'}=1;
-    $FAIL_GROTOP=0;
     $NUMATOMS=0;
     $NUMATOMS_LIGAND=0;
     $#A = -1;
@@ -789,14 +806,15 @@ sub readtop
      last unless defined $LINE;
      @A=split(/ /,$LINE);
     }
+   if($FAIL_GROTOP ==0){
+    $FAIL{'GRO-TOP CONSISTENCY'}=0;
+   }
    }
   } 
   if(exists $A[1]){  
    # read the bonds.  Make sure they are not assigned twice.  Also, save the bonds, so we can generate all possible bond angles later.
    if($A[1] eq "bonds"){
     $FOUND{'bonds'}=1;
-    $FAIL_BTYPE=0;
-    $FAIL_BW=0;
     $#A = -1;
     my @bonds;
     $#bonds = -1;
@@ -804,12 +822,15 @@ sub readtop
     $#bondWatom = -1;
     my @NbondWatom;
     $#NbondWatom = -1;
-    $FAIL_doublebond=0;
+    my $FAIL_doublebond=0;
     $bondtype6=0;
     my $Nbonds=0;
     my %bond_array;
     undef %bond_array;
     my $string;
+    my $NBONDS=0;
+    my $RECOGNIZEDBTYPES=0;
+    my $CORRECTBONDWEIGHTS=0;
     for (my $I=1;$I<=$NUMATOMS;$I++){
        $NbondWatom[$I]=0;
     }
@@ -817,12 +838,15 @@ sub readtop
     $LINE =~ s/\s+$//;
     @A=split(/ /,$LINE);
     until($A[0] eq "["){
+     $NBONDS++;
      if($A[2] == 1){
-       if($A[4] != $bondEps){
-        print "bond has incorrect weight\n";
-        print "$LINE";
-        $FAIL_BW++; 
-       }				
+      $RECOGNIZEDBTYPES++;
+      if($A[4] != $bondEps){
+       print "bond has incorrect weight\n";
+       print "$LINE";
+      }else{
+       $CORRECTBONDWEIGHTS++;
+      }		
       if($A[0] < $A[1]){
        $string=sprintf("%i-%i", $A[0], $A[1]);
       }else{
@@ -845,22 +869,35 @@ sub readtop
        $FAIL_doublebond++;
       }
      }elsif($A[2] ==6){
+      $RECOGNIZEDBTYPES++;
       $bondtype6++;
        if($A[4] != $bondMG){
         print "BMG bond has incorrect weight\n";
         print "$LINE";
-        $FAIL_BW++; 
-       }	
+       }else{
+       $CORRECTBONDWEIGHTS++;
+      }		
      }else{
        print "unknown function type for bond\n";
        print "$LINE";
-       $FAIL_BTYPE++;
      }
      $LINE=<TOP>;
      last unless defined $LINE;
      $LINE =~ s/\s+$//;
      @A=split(/ /,$LINE);
     }
+
+    if($FAIL_doublebond ==0){
+     $FAIL{'DUPLICATE BONDS'}=0;
+    }
+
+    if($RECOGNIZEDBTYPES == $NBONDS && $NBONDS !=0){
+     $FAIL{'SUPPORTED BOND TYPES'}=0;
+    }
+    if($CORRECTBONDWEIGHTS == $NBONDS && $NBONDS !=0){
+     $FAIL{'BOND STRENGTHS'}=0;
+    }
+ 
     # generate the angles
     # generate all possible bond angles based on bonds
     undef %theta_gen_as;
@@ -910,11 +947,9 @@ sub readtop
   } 
   if(exists $A[1]){ 
    if($A[1] eq "angles"){
-    $FAIL_AW=0;
-    $FAIL_AT=0;
     $FOUND{'angles'}=1;
     $#A = -1;
-    $FAIL_doubleangle=0;
+    my $FAIL_doubleangle=0;
     my $Nangles=0;
     my (@angles1,@angles2); 
     $#angles1 =-1;
@@ -923,7 +958,8 @@ sub readtop
     $#angleWatom = -1;
     $#NangleWatom = -1;
     $Nangles=0;
-
+    my $CORRECTAT=0;
+    my $CORRECTAW=0;
     for (my $I=1;$I<=$NUMATOMS;$I++){
        $NangleWatom[$I]=0;
     }
@@ -934,11 +970,11 @@ sub readtop
     $LINE =~ s/\s+$//;
     @A=split(/ /,$LINE);
     until($A[0] eq "["){
-     if($A[3] != 1){
-      $FAIL_AT++;
+     if($A[3] == 1){
+      $CORRECTAT++;
      }
-     if($A[5] != $angleEps){
-      $FAIL_AW++;
+     if($A[5] == $angleEps){
+      $CORRECTAW++;
      }
      if($A[0] < $A[2]){
       $string=sprintf("%i-%i-%i", $A[0], $A[1], $A[2]);
@@ -971,10 +1007,21 @@ sub readtop
      $LINE =~ s/\s+$//;
      @A=split(/ /,$LINE);
     }
+    if($FAIL_doubleangle ==0){
+     $FAIL{'DUPLICATE ANGLES'}=0;
+    } 
+    if($Nangles == $CORRECTAT && $Nangles > 0){
+     $FAIL{'ANGLE TYPES'}=0;
+    }
+    if($Nangles == $CORRECTAW && $Nangles > 0){
+     $FAIL{'ANGLE WEIGHTS'}=0;
+    }
+
     ## cross-check the angles
     if($theta_gen_N != $Nangles){
      print "the number of generated angles is inconsistent with the number of angles in the top file\n";
      print "$theta_gen_N $Nangles\n";
+    $FAILED++;
     }
     $FAIL_angles=0;
     # check to see if all the generated angles (from this script) are present in the top file
@@ -1453,8 +1500,8 @@ sub readtop
   if($FOUND{"$FF"} == 1){
    print "Found: [ $FF ] in top file.\n";
   }elsif($FOUND{"$FF"} == 0){
-   print "Error: [ $FF ] not found in top file.  This means SMOG did not complete.\n";
-   $FAILED++; 
+   print "Error: [ $FF ] not found in top file.  This either means SMOG did not complete, or there was a problem reading the file.  All subsequent output will be meaninglyess.\n";
+   $FAILED++;
   }else{
    print "ERROR: Problem understanding .top file...\n";
    $FAILED++;
@@ -1488,12 +1535,6 @@ sub checkvalues
  }else{
   print "unrecognized model. Quitting...\n";
   die;
- }
- if($FAIL_EXCL > 0){
-  print "excluded volume: FAILED\n";
-  $FAILED++;
- }else{
-  print "excluded volume: PASSED\n";
  }
  ## check the energy per dihedral and where the dihedral is SC/BB NA/AMINO
  if($DISP_MAX == 0){
@@ -1587,44 +1628,19 @@ sub checkvalues
   }
  }
 
- if($FAIL_BOX==1){
-    $FAILED++;
-  print "Gro box size:FAILED\n";
- }elsif($FAIL_BOX==0){
-  print "Gro box size:PASSED \n";
- }else{
-  internal_error("BOX CHECK");
+
+ foreach my $TEST (@FAILLIST){
+  if($FAIL{$TEST}==1){
+   print "$TEST CHECK : FAILED\n";
+   $FAILED++;
+  }elsif($FAIL{$TEST}==0){
+   print "$TEST CHECK : PASSED\n";
+  }else{
+   internal_error("$TEST");
+  }
  }
- if($FAIL_GROTOP>0){
-  print "Consistency check between gro and top files: FAILED\n";
-  $FAILED++;
- }else{
-  print "Consistency check between gro and top files: PASSED\n";
- }
- if($FAIL_MASS>0){
-  print "Masses: FAILED\n";
-  $FAILED++;
- }else{
-  print "Masses: PASSED\n";
- }
- if($FAIL_CHARGE>0){
-  print "Chages: FAILED\n";
-  $FAILED++;
- }else{
-  print "Charges: PASSED\n";
- }
-  if($FAIL_PARTICLE>0){
-  print "Particle Types: FAILED\n";
-  $FAILED++;
- }else{
-  print "Particle Types: PASSED\n";
- }
-  if($FAIL_C6>0){
-  print "nonbonded C6: FAILED\n";
-  $FAILED++;
- }else{
-  print "nonbonded C6: PASSED\n";
- }
+ 
+
  if($FAIL_CONTACT>0){
   print "FAIL: some contacts were not the proper strength\n";
   $FAILED++;
@@ -1636,42 +1652,6 @@ sub checkvalues
   $FAILED++;
  }else{
   print "Contact distance consistency: PASSED\n";
- }
- if($FAIL_doublebond >0){
-  print "duplicate bonds: FAILED\n";
-  $FAILED++;
- }else{
-   print "duplicate bonds: PASSED\n";
- }
- if($FAIL_BTYPE >0){
-  print "Some bonds had incorrect type:FAILED\n";
-  $FAILED++;
- }else{
-   print "Bond types: PASSED\n";
- }
- if($FAIL_BW >0){
-  print "Some bonds had incorrect weights:FAILED\n";
-  $FAILED++;
- }else{
-   print "Bond weights: PASSED\n";
- }
- if($FAIL_doubleangle >0){
-  print "Some angles were assigned more than once\n";
-  $FAILED++;
- }else{
-  print "duplicate angles: PASSED\n";
- }
- if($FAIL_AT >0){
-  print "Some angles had incorrect type: FAILED\n";
-  $FAILED++;
- }else{
-  print "Angle types: PASSED\n";
- }
- if($FAIL_AW >0){
-  print "Some angles had incorrect weights: FAILED\n";
-  $FAILED++;
- }else{
-  print "Angle weights: PASSED\n";
  }
  if($FAIL_angles >0){
   print "Something funny with the bond angles. Inconsistency detected between script and top.\n";
