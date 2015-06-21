@@ -196,7 +196,6 @@ our $angleEps;
 our $ringEps;
 our $omegaEps;
 our $impEps;
-our $contacts;
 our $DENERGY;
 our @ED_T;
 our @EDrig_T;
@@ -282,7 +281,7 @@ while(<PARMS>){
   my $ARG=2;
   # energy distributions
   # map type
-  my $CONTTYPE=$A[$ARG];
+  $CONTTYPE=$A[$ARG];
   $ARG++;
   if($CONTTYPE =~ m/shadow/){
    $CONTD=$A[$ARG];
@@ -325,14 +324,18 @@ while(<PARMS>){
    $ARG++;
   $sigmaCA=$A[$ARG];
    $ARG++;
+  if(!exists $A[$ARG]){
+   print "Isufficient number of arguments given in settings file for smog-check.  Quitting.\n ";
+   exit;
+  }
  }
+
  $bondEps=20000;
  $bondMG=200;
  $angleEps=40;
  $ringEps=40;
  $omegaEps=10;
  $impEps=10;
- $contacts="shadow";
 
  &smogchecker;
 
@@ -576,16 +579,16 @@ sub checkndx
  `bin/top.clean.bash $PDB.ndx $PDB.ndx2`;
  `mv $PDB.ndx2 $PDB.ndx`;
  open(NDX,"$PDB.ndx") or die "no ndx file\n"; 
+ my $CHAIN;
  while(<NDX>){
   my $LINE=$_;        
   chomp($LINE);
   $LINE =~ s/\s+$//;
   my @A=split(/ /,$LINE);
-  my $CHAIN;
   if($A[0] eq "["){
    $CHAIN=$A[1];
   }else{
-   $CID[$LINE]=$CHAIN;
+   $CID[$LINE]=$CHAIN; 
   }
  }
 
@@ -1258,12 +1261,14 @@ sub readtop
       }
       if($A[4] == 1 && $A[7] == 1 ){
        my $F;
-       if(($A[6] > $MINTHR*$epsilonCAD && $A[6] < $MAXTHR*$epsilonCAD) && $model eq "CA"){
-        $DIHSW++;
-       }elsif(($A[6] < $MINTHR*$epsilonCAD || $A[6] > $MAXTHR*$epsilonCAD) && $model eq "CA"){
-        print "error in dihedral strength on line:";
-        print "$LINE\n";
-       }
+       if($model eq "CA"){
+        if(($A[6] > $MINTHR*$epsilonCAD && $A[6] < $MAXTHR*$epsilonCAD)){
+         $DIHSW++;
+        }elsif(($A[6] < $MINTHR*$epsilonCAD || $A[6] > $MAXTHR*$epsilonCAD)){
+         print "error in dihedral strength on line:";
+         print "$LINE\n";
+        }
+       } 
        if($MOLTYPE[$A[0]] ne "LIGAND" ){
         $DENERGY+=$A[6];
        }
