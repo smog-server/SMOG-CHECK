@@ -323,7 +323,6 @@ while(<PARMS>){
   $epsilonCAD=$A[$ARG];
    $ARG++;
   $sigmaCA=$A[$ARG];
-   $ARG++;
   if(!exists $A[$ARG]){
    print "Isufficient number of arguments given in settings file for smog-check.  Quitting.\n ";
    exit;
@@ -1477,10 +1476,11 @@ sub readtop
        print "$LINE\n";
       }
      }elsif($model eq "AA"){
-      if(int(($Cdist * $PRECISION))/($PRECISION*1.0) < $CONTD/10.0){
+      $Cdist = int(($Cdist * $PRECISION))/($PRECISION*1.0);
+      if($Cdist <= $CONTD/10.0){
        $LONGCONT++;
       }else{
-       print "long contacts! distance $Cdist nm.\n";
+       print "long contact! distance $Cdist nm.\n";
        print "$LINE";
      }
       ## so long as the contacts are not with ligands, then we add the sum
