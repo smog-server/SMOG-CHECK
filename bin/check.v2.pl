@@ -202,7 +202,7 @@ our @EDrig_T;
 our $DISP_MAX=0;
 our $CONTENERGY;
 our ($theta_gen_N,$phi_gen_N,$improper_gen_N);
-our ($NonstackingE,$stackingE);
+#our ($NonstackingE,$stackingE);
 our @XT;
 our @YT;
 our @ZT;
@@ -292,7 +292,7 @@ while(<PARMS>){
   }elsif($CONTTYPE =~ m/cutoff/){
    $CONTD=$A[$ARG];
    $ARG++;
-   $CONTR=0;
+   $CONTR=0.0;
    $BBRAD=0.0;
   }else{
    print "Contact scheme $CONTTYPE is not supported. This is a mistake in the test suite.  Quitting...\n";
@@ -324,7 +324,7 @@ while(<PARMS>){
    $ARG++;
   $sigmaCA=$A[$ARG];
   if(!exists $A[$ARG]){
-   print "Isufficient number of arguments given in settings file for smog-check.  Quitting.\n ";
+   print "Insufficient number of arguments given in settings file for smog-check.  Quitting.\n ";
    exit;
   }
  }
@@ -344,27 +344,24 @@ while(<PARMS>){
  # If any systems failed, output message
  if($FAIL_SYSTEM > 0){
   print "\n*************************************************************\n";
-  print "                     TESTS FAILED: CHECK MESSAGES ABOVE  !!!\n";
+  print "             TESTS FAILED: CHECK MESSAGES ABOVE  !!!\n";
   print "*************************************************************\n";
  
  }else{
   print "\n*************************************************************\n";
-  print "                     PASSED ALL TESTS  !!!\n";
+  print "                      PASSED ALL TESTS  !!!\n";
   print "*************************************************************\n";
  }
 
 sub smogchecker
 {
 
-
- ### Going to add if statements for any CA-only, or AA-only calculations
- 
  &preparesettings;
  
  # RUN SMOG2
  if($default eq "yes"){
   if($model eq "CA"){
-   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -t $BIFSIF_CA -CG -t_contacts $BIFSIF_AA &> $PDB.output`;
+   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -t $BIFSIF_CA -CG -t_contacts temp.cont.bifsif &> $PDB.output`;
   }elsif($model eq "AA"){
    `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -t $BIFSIF_AA  &> $PDB.output`;
   }else{
@@ -383,7 +380,13 @@ sub smogchecker
  }
 
  if($model eq "AA"){
-  `java -jar $SCM  -g $PDB.gro -t $PDB.top -ch $PDB.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD --distance`;
+  if($default eq "yes"){
+   `java -jar $SCM  -g $PDB.gro -t $PDB.top -ch $PDB.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD -bif $BIFSIF_AA/tmp.bif --distance &> $PDB.meta2.output`;
+  }elsif($default eq "no"){
+   `java -jar $SCM  -g $PDB.gro -t $PDB.top -ch $PDB.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD -bif temp.bifsif/tmp.bif --distance  &> $PDB.meta2.output`;
+  }else{
+   internal_error('SCM DEFAULT TESTING');
+  }
   my $CONTDIFF=`diff $PDB.contacts $PDB.contacts.SCM | wc -l`;
    if($CONTDIFF == 0){
     $FAIL{'SCM CONTACT COMPARISON'}=0;
@@ -391,7 +394,15 @@ sub smogchecker
  }elsif($model eq "CA"){
   # run AA model to get top
    `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.meta1.gro -o $PDB.meta1.top -n $PDB.meta1.ndx -s $PDB.meta1.contacts -t $BIFSIF_AA  &> $PDB.meta1.output`;
-  `java -jar $SCM   --coarse CA -g $PDB.meta1.gro -t $PDB.meta1.top -ch $PDB.meta1.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD --distance`;
+  if($default eq "yes"){
+   `java -jar $SCM   --coarse CA -g $PDB.meta1.gro -t $PDB.meta1.top -ch $PDB.meta1.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD -bif temp.cont.bifsif/tmp.cont.bif --distance  &> $PDB.meta3.output`;
+  }elsif($default eq "no"){
+   `java -jar $SCM   --coarse CA -g $PDB.meta1.gro -t $PDB.meta1.top -ch $PDB.meta1.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD -bif temp.cont.bifsif/tmp.cont.bif --distance  &> $PDB.meta3.output`;
+  }else{
+   internal_error('SCM CA DEFAULT TESTING');
+  }
+
+
   # run SCM to get map
   my $CONTDIFF=`diff $PDB.contacts $PDB.contacts.SCM | wc -l`;
     if($CONTDIFF == 0){
@@ -628,6 +639,8 @@ sub readtop
  my %improper_gen_as;
  my @improper_gen;
  my @A;
+ my $stackingE=0;
+ my $NonstackingE=0;
  while(<TOP>){
   my $LINE=$_;
   chomp($LINE);
@@ -1417,8 +1430,8 @@ sub readtop
    if($A[1] eq "pairs"){
     $FOUND{'pairs'}=1;
    # reset all the values because we can analyze multiple settings, and we want to make sure we always start at 0 and with arrays cleared.
-    $stackingE=0;
-    $NonstackingE=0;
+#    my $stackingE=0;
+#    my $NonstackingE=0;
     $CONTENERGY=0;
     my $FAIL_STACK=0;
     my $FAIL_NONSTACK=0;
@@ -1491,6 +1504,7 @@ sub readtop
        # if we haven't assigned a value to stacking interactions, then let's save it
        # if we have saved it, check to see that this value is the same as the previous ones.
        if($stackingE == 0 ){
+	print "ok $W ";
         $stackingE=$W;
        }elsif(abs($stackingE - $W) > 10.0/($PRECISION*1.0) ){
         $FAIL_STACK++;
@@ -1533,6 +1547,7 @@ sub readtop
       if($FAIL_NONSTACK == 0 and $NonstackingE != 0){
        $FAIL{'NON-STACKING CONTACT WEIGHTS'}=0;	
       }
+ 	print "$FAIL_STACK $stackingE\n";
       if($FAIL_STACK == 0 and $stackingE != 0 ){
        $FAIL{'STACKING CONTACT WEIGHTS'}=0;	
       }
@@ -1548,6 +1563,9 @@ sub readtop
        $FAIL{'CA CONTACT WEIGHTS'}=0;	
      }
      $FAIL{'LONG CONTACTS'}=-1;
+     $FAIL{'STACKING CONTACT WEIGHTS'}=-1;	
+     $FAIL{'NON-STACKING CONTACT WEIGHTS'}=-1;	
+    }elsif($model eq "AA" and !$NUCLEIC_PRESENT){
      $FAIL{'STACKING CONTACT WEIGHTS'}=-1;	
      $FAIL{'NON-STACKING CONTACT WEIGHTS'}=-1;	
     }else{
@@ -1793,21 +1811,29 @@ sub readtop
    my $CR=$NonstackingE/$stackingE;
    if($CR < $MAXTHR and  $CR > $MINTHR){
     $FAIL{'STACK-NONSTACK RATIO'}=0;
+   }else{
+    print "NonStacking-stacking ratio issue: \n  Expected: 1, Actual: $CR\n";
    }
   }else{
    $FAIL{'STACK-NONSTACK RATIO'}=-1;
   }
  
   if($AMINO_PRESENT){
-   if(($PBBvalue/$PSCvalue < $MAXTHR*$R_P_BB_SC )  and ($PBBvalue/$PSCvalue > $MINTHR*$R_P_BB_SC ) ){
+   my $ratio=$PBBvalue/$PSCvalue;
+   if($ratio < $MAXTHR*$R_P_BB_SC   and $ratio > $MINTHR*$R_P_BB_SC ){
     $FAIL{'PROTEIN BB/SC RATIO'}=0;
+   }else{
+    print "Protein BB-SC Ratio issue: \n  Expected: $R_P_BB_SC, Actual: $ratio\n";
    }
   }else{
     $FAIL{'PROTEIN BB/SC RATIO'}=-1;
   }
   if($NUCLEIC_PRESENT){
-   if(($NABBvalue/$NASCvalue < $MAXTHR*$R_N_SC_BB )  and ($NABBvalue/$NASCvalue > $MINTHR*$R_N_SC_BB ) ){
+   my $ratio=$NASCvalue/$NABBvalue;
+   if($ratio < $MAXTHR*$R_N_SC_BB   and $ratio > $MINTHR*$R_N_SC_BB ){
     $FAIL{'NUCLEIC SC/BB RATIO'}=0;
+   }else{
+    print "Nucleic SC-BB Ratio issue: \n  Expected: $R_N_SC_BB, Actual: $ratio\n";
    }
   }else{
     $FAIL{'NUCLEIC SC/BB RATIO'}=-1;
@@ -1966,6 +1992,8 @@ sub checkvalues
 sub summary
 {
 
+ print "\n\n              SUMMARY OF CHECKS            \n\n";
+
  foreach my $TEST (@FAILLIST){
   if($FAIL{$TEST}==1){
    print "$TEST CHECK : FAILED\n";
@@ -1991,17 +2019,22 @@ sub summary
    if(-e "$PDB.$_"){
     `mv $PDB.$_ $FAILDIR/$PDB.fail$TESTNUM.$_`;
    }
-   if(-e "$PDB.meta1.$_"){
-    `mv $PDB.meta1.$_ $FAILDIR/$PDB.fail$TESTNUM.meta1.$_`;
+   
+   for (my $m=1;$m<=4;$m++){
+    if(-e "$PDB.meta$m.$_"){
+     `mv $PDB.meta$m.$_ $FAILDIR/$PDB.fail$TESTNUM.meta$m.$_`;
+    }
    }
   }
+ 
 
-  if($default ne "yes"){
+  if(-d "temp.bifsif"){
    `mv temp.bifsif $FAILDIR/$PDB.fail$TESTNUM.bifsif`;
+  }
    if(-d "temp.cont.bifsif"){
     `mv temp.cont.bifsif $FAILDIR/$PDB.fail$TESTNUM.cont.bifsif`;
    }
-  } 
+   
   $NFAIL++;
   $FAIL_SYSTEM++;
  }else{
@@ -2012,9 +2045,19 @@ sub summary
    if(-e "$PDB.$_"){
     `rm $PDB.$_`;
    }
-   if(-e "$PDB.meta1.$_"){
-    `rm $PDB.meta1.$_`;
-   }
+   if(-d "temp.bifsif"){
+   `rm -r temp.bifsif `;
   }
+   if(-d "temp.cont.bifsif"){
+    `rm -r temp.cont.bifsif`;
+   }
+ 
+
+   for (my $m=1;$m<=4;$m++){
+    if(-e "$PDB.meta$m.$_"){
+     `rm $PDB.meta$m.$_`;
+    }
+   }
+  } 
  }
 }
