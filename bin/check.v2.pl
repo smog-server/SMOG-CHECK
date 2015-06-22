@@ -2020,7 +2020,7 @@ sub summary
 
  foreach my $TEST (@FAILLIST){
   if($FAIL{$TEST}==1){
-   print "$TEST CHECK : FAILED\n";
+   print "!!!!!!!!!!$TEST CHECK : FAILED!!!!!!!!!!\n";
    $FAILED++;
   }elsif($FAIL{$TEST}==0){
    print "$TEST CHECK : PASSED\n";
