@@ -233,7 +233,22 @@ while(<PARMS>){
   print "\n*************************************************************\n";
   print "                 STARTING TEST $TESTNUM ($PDB)\n";
   print "*************************************************************\n";
- 
+  undef  $CONTTYPE;
+  undef  $CONTD;
+  undef  $CONTR;
+  undef  $BBRAD;
+  undef  $R_CD;
+  undef  $R_P_BB_SC;
+  undef  $R_N_SC_BB;
+  undef  $PRO_DIH;
+  undef  $NA_DIH;
+  undef  $LIGAND_DIH;
+  undef  $sigma;
+  undef  $epsilon;
+  undef  $epsilonCAC;
+  undef  $epsilonCAD;
+  undef  $sigmaCA;
+
 ## These next few lines are currently obsolete, since we are only testing the SHADOW map
 ## they are left in for future extentions to cut-off maps
 
@@ -501,7 +516,6 @@ sub checkgro
   print "$BOUNDS[0], $XMAX, $XMIN,$BOUNDS[1],$YMAX,$YMIN,$BOUNDS[2],$ZMAX,$ZMIN\n";
  }else{
   $FAIL{'BOX DIMENSIONS'}=0;
-  print "Passed gro box size check\n";
  }
 
 }
@@ -812,7 +826,7 @@ sub readtop
      }else{
       print "there is an unrecognized residue name (This should never happen).\n";
       print "$A[0] $A[3]\n";
-      die;
+      internal_error("$A[0] $A[3]");
      }
      $NUMATOMS++;
      $#A = -1;
@@ -1371,15 +1385,18 @@ sub readtop
     if($CORIMP == 0){
      $FAIL{'IMPROPER WEIGHTS'}=0;
     } 
-    if($model eq "CA" && $Nphi/2 == $DIHSW){
-     $FAIL{'CA DIHEDRAL WEIGHTS'}=0;
-    }else{
-     print "$Nphi $DIHSW\n";
+    if($model eq "CA"){
+     if($Nphi/2 == $DIHSW){
+      $FAIL{'CA DIHEDRAL WEIGHTS'}=0;
+     }else{
+      print "ISSUE with CA dihedral weights\n";
+      print "$Nphi $DIHSW\n";
+     }
     }
-
     if($Nphi == $accounted and $Nphi != 0){
      $FAIL{'CLASSIFYING DIHEDRALS'}=0;
     }else{
+     print "ISSUE classifying dihedrals\n";
      print "$Nphi $DIHSW\n";
     }
     if($doubledih1 == 0){
@@ -1425,7 +1442,7 @@ sub readtop
     if($matchingpairs_W == $accounted1){
      $FAIL{'1-3 DIHEDRAL RELATIVE WEIGHTS'}=0
     }
-    print "$matchingpairs_A, $accounted1 $MINTHR $MAXTHR\n";
+    #print "$matchingpairs_A, $accounted1 $MINTHR $MAXTHR\n";
     if($matchingpairs_A == $accounted1){
      $FAIL{'1-3 DIHEDRAL ANGLE VALUES'}=0
     }
@@ -2003,7 +2020,7 @@ sub summary
 
  foreach my $TEST (@FAILLIST){
   if($FAIL{$TEST}==1){
-   print "$TEST CHECK : FAILED\n";
+   print "!!!!!!!!!!$TEST CHECK : FAILED!!!!!!!!!!\n";
    $FAILED++;
   }elsif($FAIL{$TEST}==0){
    print "$TEST CHECK : PASSED\n";
