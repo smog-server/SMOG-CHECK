@@ -312,7 +312,7 @@ while(<PARMS>){
    $CONTR=0.0;
    $BBRAD=0.0;
   }else{
-   print "Contact scheme $CONTTYPE is not supported. This is a mistake in the test suite.  Quitting...\n";
+   print "Contact scheme $CONTTYPE is not supported. Is there a typo in $PDB_DIR/$PDB.pdb?\n";
    exit;
   }
 
@@ -378,7 +378,7 @@ sub smogchecker
  # RUN SMOG2
  if($default eq "yes"){
   if($model eq "CA"){
-   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -t $BIFSIF_CA -CG -t_contacts temp.cont.bifsif &> $PDB.output`;
+   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -t $BIFSIF_CA -CG -t_contacts $BIFSIF_AA &> $PDB.output`;
   }elsif($model eq "AA"){
    `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -t $BIFSIF_AA  &> $PDB.output`;
   }else{
@@ -413,7 +413,7 @@ sub smogchecker
   # run AA model to get top
    `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.meta1.gro -o $PDB.meta1.top -n $PDB.meta1.ndx -s $PDB.meta1.contacts -t $BIFSIF_AA  &> $PDB.meta1.output`;
   if($default eq "yes"){
-   `java -jar $SCM   --coarse CA -g $PDB.meta1.gro -t $PDB.meta1.top -ch $PDB.meta1.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD -bif temp.cont.bifsif/tmp.cont.bif --distance  &> $PDB.meta3.output`;
+   `java -jar $SCM   --coarse CA -g $PDB.meta1.gro -t $PDB.meta1.top -ch $PDB.meta1.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD -bif $BIFSIF_AA/AA-whitford09.bif  --distance  &> $PDB.meta3.output`;
   }elsif($default eq "no"){
    `java -jar $SCM   --coarse CA -g $PDB.meta1.gro -t $PDB.meta1.top -ch $PDB.meta1.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD -bif temp.cont.bifsif/tmp.cont.bif --distance  &> $PDB.meta3.output`;
   }else{
@@ -585,8 +585,11 @@ sub preparesettings
   `cp $TEMPLATE_DIR_AA_STATIC/*.bif temp.cont.bifsif/tmp.cont.bif`;
   `cp $TEMPLATE_DIR_AA_STATIC/*.nb temp.cont.bifsif/tmp.cont.nb`;
   `cp $TEMPLATE_DIR_AA_STATIC/*.b temp.cont.bifsif/tmp.cont.b`;
-  `sed "s/CONTMAP/$CONTTYPE/g;s/CUTDIST/$CONTD/g;s/SCM_R/$CONTR/g" $TEMPLATE_DIR_AA_STATIC/*.sif > temp.cont.bifsif/tmp.cont.sif`;
-
+  if($CONTTYPE eq "shadow"){
+   `sed "s/CUTDIST/$CONTD/g;s/SCM_R/$CONTR/g;s/SCM_BR/$BBRAD/g" $TEMPLATE_DIR_AA_STATIC/*.shadow.sif > temp.cont.bifsif/tmp.cont.sif`;
+  }elsif($CONTTYPE eq "cutoff"){
+   `sed "s/CUTDIST/$CONTD/g" $TEMPLATE_DIR_AA_STATIC/*.cutoff.sif > temp.cont.bifsif/tmp.cont.sif`;
+  }
 
  } 
 
@@ -596,7 +599,11 @@ sub preparesettings
   my $PARM_P_SC=$PRO_DIH/$R_P_BB_SC;
   my $PARM_N_BB=$NA_DIH;
   my $PARM_N_SC=$NA_DIH*$R_N_SC_BB;
-  `sed "s/PARM_C_D/$R_CD/g;s/PARM_P_BB/$PARM_P_BB/g;s/PARM_P_SC/$PARM_P_SC/g;s/PARM_N_BB/$PARM_N_BB/g;s/PARM_N_SC/$PARM_N_SC/g;s/CONTMAP/$CONTTYPE/g;s/CUTDIST/$CONTD/g;s/SCM_R/$CONTR/g" $TEMPLATE_DIR_AA/*.sif > temp.bifsif/tmp.sif`;
+  if($CONTTYPE eq "shadow"){
+   `sed "s/PARM_C_D/$R_CD/g;s/PARM_P_BB/$PARM_P_BB/g;s/PARM_P_SC/$PARM_P_SC/g;s/PARM_N_BB/$PARM_N_BB/g;s/PARM_N_SC/$PARM_N_SC/g;s/CUTDIST/$CONTD/g;s/SCM_R/$CONTR/g;s/SCM_BR/$BBRAD/g" $TEMPLATE_DIR_AA/*.shadow.sif > temp.bifsif/tmp.sif`;
+  }elsif($CONTTYPE eq "cutoff"){
+   `sed "s/PARM_C_D/$R_CD/g;s/PARM_P_BB/$PARM_P_BB/g;s/PARM_P_SC/$PARM_P_SC/g;s/PARM_N_BB/$PARM_N_BB/g;s/PARM_N_SC/$PARM_N_SC/g;s/CUTDIST/$CONTD/g" $TEMPLATE_DIR_AA/*.cutoff.sif > temp.bifsif/tmp.sif`;
+  }
   `sed "s/PARM_C12/$rep_s12/g" $TEMPLATE_DIR_AA/*.nb > temp.bifsif/tmp.nb`;
   `cp $TEMPLATE_DIR_AA/*.bif temp.bifsif/tmp.bif`;
   `cp $TEMPLATE_DIR_AA/*.b temp.bifsif/tmp.b`;
