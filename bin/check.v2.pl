@@ -378,9 +378,11 @@ sub smogchecker
  # RUN SMOG2
  if($default eq "yes"){
   if($model eq "CA"){
-   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -t $BIFSIF_CA -CG -t_contacts $BIFSIF_AA &> $PDB.output`;
+   ##`$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -t $BIFSIF_CA -CG -t_contacts $BIFSIF_AA &> $PDB.output`;
+   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -CA &> $PDB.output`;
   }elsif($model eq "AA"){
-   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -t $BIFSIF_AA  &> $PDB.output`;
+   ##`$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -t $BIFSIF_AA &> $PDB.output`;
+   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -AA &> $PDB.output`;
   }else{
    print "unrecognized model.  Quitting..\n";
    exit;
@@ -1058,7 +1060,7 @@ sub readtop
      $FAIL{'ANGLE CONSISTENCY 1'}=0;
     }else{
      print "the number of generated angles is inconsistent with the number of angles in the top file\n";
-     print "$theta_gen_N $Nangles\n";
+     print "generated: $theta_gen_N, found: $Nangles\n";
      $FAIL{'ANGLE CONSISTENCY 1'}=1;
     }
     my $CONangles=0;
@@ -1358,6 +1360,7 @@ sub readtop
      }
      if($A[4] == 2 && exists $improper_gen_as{$string} ){
        $CORIMP++;
+	print "Improper found";
       if($impEps == $A[6]){
        $CORIMP--;
       }else{
