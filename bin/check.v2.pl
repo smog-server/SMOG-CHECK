@@ -1360,7 +1360,6 @@ sub readtop
      }
      if($A[4] == 2 && exists $improper_gen_as{$string} ){
        $CORIMP++;
-	print "Improper found";
       if($impEps == $A[6]){
        $CORIMP--;
       }else{
