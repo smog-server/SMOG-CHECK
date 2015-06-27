@@ -248,10 +248,6 @@
 				</bond>
 				<bond energyGroup="bb_a">
 					<atom>C</atom>
-					<atom>O</atom>
-				</bond>
-				<bond energyGroup="bb_a">
-					<atom>C</atom>
 					<atom>OXT</atom>
 				</bond>
 	<!--FUNCTIONAL GROUP-->
