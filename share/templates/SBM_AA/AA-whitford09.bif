@@ -1152,9 +1152,6 @@
 				</bond>
 	<!--FUNCTIONAL GROUP-->
 			</bonds>
-			<impropers>
-				<improper></improper>
-			</impropers>
 		</residue>
 
 		
@@ -1187,9 +1184,6 @@
 				</bond>
 	<!--FUNCTIONAL GROUP-->
 			</bonds>
-			<impropers>
-				<improper></improper>
-			</impropers>
 		</residue>		
 		
 
