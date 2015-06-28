@@ -17,4 +17,4 @@ do
 
 	done
 done
-echo done
+echo done cleaning up 

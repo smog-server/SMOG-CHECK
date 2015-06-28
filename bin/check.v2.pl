@@ -149,7 +149,7 @@ while(<ION>){
 my $FAIL_SYSTEM=0;
  
 # FAILLIST is a list of all the tests.  If you want to supress a failed test (not recommended), then remove it from this list.
-our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','TOP FIELDS FOUND','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'ANGLE TYPES', 'ANGLE WEIGHTS', 'DUPLICATE BONDS', 'DUPLICATE ANGLES', 'ANGLE CONSISTENCY 1','ANGLE CONSISTENCY 2','ANGLE CONSISTENCY 3', 'IMPROPER WEIGHTS', 'CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL CONSISTENCY 1','DIHEDRAL CONSISTENCY 2','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','SCM MAP GENERATED','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY');
+our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','TOP FIELDS FOUND','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'ANGLE TYPES', 'ANGLE WEIGHTS', 'DUPLICATE BONDS', 'DUPLICATE ANGLES', 'ANGLE CONSISTENCY 1','ANGLE CONSISTENCY 2','ANGLE CONSISTENCY 3', 'IMPROPER WEIGHTS', 'CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL CONSISTENCY 1','DIHEDRAL CONSISTENCY 2','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','SCM MAP GENERATED','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY');
 
 
 # a number of global variables.
@@ -657,7 +657,7 @@ sub readtop
  my %dihedral_array3_W;
  my %dihedral_array1_A;
  my %dihedral_array3_A;
-
+ my @resindex;
  @FIELDS=("defaults","atomtypes","moleculetype","atoms","pairs","bonds","angles","dihedrals","system","molecules","exclusions");
  foreach(@FIELDS){
   $FOUND{$_}=0;
@@ -678,7 +678,7 @@ sub readtop
   @A=split(/ /,$LINE);
   if(exists $A[1]){
    if($A[1] eq "defaults"){
-    $FOUND{'defaults'}=1;
+    $FOUND{'defaults'}++;
     $LINE=<TOP>;
     chomp($LINE);
     $LINE =~ s/\s+$//;
@@ -702,7 +702,7 @@ sub readtop
   }
   if(exists $A[1]){
    if($A[1] eq "atomtypes"){
-    $FOUND{'atomtypes'}=1;
+    $FOUND{'atomtypes'}++;
     $#A = -1;
     $LINE=<TOP>;
     $LINE =~ s/\s+$//;
@@ -759,7 +759,7 @@ sub readtop
   if(exists $A[1]){
    # check the excluded volume is consistent with the settings.
    if($A[1] eq "moleculetype"){
-    $FOUND{'moleculetype'}=1;
+    $FOUND{'moleculetype'}++;
     my $LINE=<TOP>;
     chomp($LINE); 
     $LINE =~ s/\s+$//;
@@ -780,7 +780,7 @@ sub readtop
    # read the atoms, and store information about them
     my $FAIL_GROTOP=0;
    if($A[1] eq "atoms"){
-    $FOUND{'atoms'}=1;
+    $FOUND{'atoms'}++;
     $NUMATOMS=0;
     $NUMATOMS_LIGAND=0;
     $#A = -1;
@@ -819,6 +819,7 @@ sub readtop
      if($A[3] ne $GRODATA[$NUMATOMS][1]){
       $FAIL_GROTOP++;
      }
+     $resindex[$A[0]]=$A[2];
     # nucleic acid, protein, ligand
      $MOLTYPE[$A[0]]=$TYPE{$A[3]};
      # see if there are any amino acids, na, or ligands in the system.
@@ -852,7 +853,7 @@ sub readtop
   if(exists $A[1]){  
    # read the bonds.  Make sure they are not assigned twice.  Also, save the bonds, so we can generate all possible bond angles later.
    if($A[1] eq "bonds"){
-    $FOUND{'bonds'}=1;
+    $FOUND{'bonds'}++;
     $#A = -1;
     my @bonds;
     $#bonds = -1;
@@ -985,7 +986,7 @@ sub readtop
   } 
   if(exists $A[1]){ 
    if($A[1] eq "angles"){
-    $FOUND{'angles'}=1;
+    $FOUND{'angles'}++;
     $#A = -1;
     my $doubleangle=0;
     my $Nangles=0;
@@ -1218,7 +1219,7 @@ sub readtop
   if(exists $A[1]){
    if($A[1] eq "dihedrals"){
     my $CORIMP=0;
-    $FOUND{'dihedrals'}=1;
+    $FOUND{'dihedrals'}++;
     if($model ne "CA" ){
      $FAIL{'CA DIHEDRAL WEIGHTS'}=-1;
     }
@@ -1384,7 +1385,7 @@ sub readtop
      if(exists $phi_gen_as{$phi[$i]} or exists $improper_gen_as{$phi[$i]} ){
       $CONdihedrals++;
      }else{
-      print "dihedral appearing in top, but was not generated by script: $phi[$i]\n";
+      print "dihedral appearing in top, but does not match a proper/improper generated by script: $phi[$i]\n";
      }
     }
      if($CONdihedrals == $Nphi){
@@ -1478,7 +1479,7 @@ sub readtop
   if(exists $A[1]){
    # check values for contact energy
    if($A[1] eq "pairs"){
-    $FOUND{'pairs'}=1;
+    $FOUND{'pairs'}++;
    # reset all the values because we can analyze multiple settings, and we want to make sure we always start at 0 and with arrays cleared.
 #    my $stackingE=0;
 #    my $NonstackingE=0;
@@ -1499,6 +1500,13 @@ sub readtop
      $PAIRS[$NCONTACTS][0]=$A[0];
      $PAIRS[$NCONTACTS][1]=$A[1];
      $NCONTACTS++;
+
+     if($CID[$A[0]] == $CID[$A[1]] && $MOLTYPE[$A[0]] eq "AMINO" &&  abs($resindex[$A[0]]-$resindex[$A[1]]) ==4 ){
+	$FAIL{'CONTACTS PROTEIN i-j=4'}=0;
+     }elsif($CID[$A[0]] == $CID[$A[1]] && $MOLTYPE[$A[0]] eq "NUCLEIC" &&  abs($resindex[$A[0]]-$resindex[$A[1]]) ==1 ){
+        $FAIL{'CONTACTS NUCLEIC i-j=1'}=0;
+     }
+
      # determine the epsilon of the contact
      if($A[4] == 0){
       print "\nERROR: A divide by zero was encountered during testing. This typically means the top file is incomplete\n";
@@ -1628,7 +1636,7 @@ sub readtop
   } 
   if(exists $A[1]){ 
    if($A[1] eq "exclusions"){
-    $FOUND{'exclusions'}=1;
+    $FOUND{'exclusions'}++;
     $#A = -1;
     $LINE=<TOP>;
     $LINE =~ s/\s+$//;
@@ -1657,7 +1665,7 @@ sub readtop
   }
   if(exists $A[1]){
    if($A[1] eq "system"){
-    $FOUND{'system'}=1;
+    $FOUND{'system'}++;
     $LINE=<TOP>;
     chomp($LINE);
     $LINE =~ s/\s+$//;
@@ -1672,7 +1680,7 @@ sub readtop
 
   if(exists $A[1]){
    if($A[1] eq "molecules"){
-    $FOUND{'molecules'}=1;
+    $FOUND{'molecules'}++;
     $LINE=<TOP>;
     chomp($LINE);
     $LINE =~ s/\s+$//;
@@ -1877,6 +1885,7 @@ sub readtop
    }
   }else{
     $FAIL{'PROTEIN BB/SC RATIO'}=-1;
+    $FAIL{'CONTACTS PROTEIN i-j=4'}=-1;
   }
   if($NUCLEIC_PRESENT){
    my $ratio=$NASCvalue/$NABBvalue;
@@ -1957,6 +1966,12 @@ sub readtop
    $FAIL{'CONTACT/DIHEDRAL RATIO'}=-1;
  } 
 
+ unless($NUCLEIC_PRESENT){
+  $FAIL{'CONTACTS NUCLEIC i-j=1'}=-1;
+ }
+ unless($AMINO_PRESENT){
+  $FAIL{'CONTACTS PROTEIN i-j=4'}=-1;
+ }
  my $NFIELDS=@FIELDS;
  my $NFIELDC=0;
  foreach(@FIELDS){
@@ -1966,7 +1981,7 @@ sub readtop
   }elsif($FOUND{"$FF"} == 0){
    print "Error: [ $FF ] not found in top file.  This either means SMOG did not complete, or there was a problem reading the file.  All subsequent output will be meaninglyess.\n";
   }else{
-   print "ERROR: Problem understanding .top file...\n";
+   print "ERROR: Serious problem understanding .top file.  A directive may be duplicated.\n";
   }
  }
  if($NFIELDS == $NFIELDC){
