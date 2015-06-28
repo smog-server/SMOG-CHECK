@@ -149,7 +149,7 @@ while(<ION>){
 my $FAIL_SYSTEM=0;
  
 # FAILLIST is a list of all the tests.  If you want to supress a failed test (not recommended), then remove it from this list.
-our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','TOP FIELDS FOUND','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'ANGLE TYPES', 'ANGLE WEIGHTS', 'DUPLICATE BONDS', 'DUPLICATE ANGLES', 'ANGLE CONSISTENCY', 'IMPROPER WEIGHTS', 'CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL CONSISTENCY','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','SCM MAP GENERATED','SCM CONTACT COMPARISON', 'NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY');
+our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','TOP FIELDS FOUND','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'ANGLE TYPES', 'ANGLE WEIGHTS', 'DUPLICATE BONDS', 'DUPLICATE ANGLES', 'ANGLE CONSISTENCY 1','ANGLE CONSISTENCY 2','ANGLE CONSISTENCY 3', 'IMPROPER WEIGHTS', 'CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL CONSISTENCY 1','DIHEDRAL CONSISTENCY 2','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','SCM MAP GENERATED','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY');
 
 
 # a number of global variables.
@@ -378,9 +378,11 @@ sub smogchecker
  # RUN SMOG2
  if($default eq "yes"){
   if($model eq "CA"){
-   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -t $BIFSIF_CA -CG -t_contacts $BIFSIF_AA &> $PDB.output`;
+   ##`$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -t $BIFSIF_CA -CG -t_contacts $BIFSIF_AA &> $PDB.output`;
+   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -CA &> $PDB.output`;
   }elsif($model eq "AA"){
-   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -t $BIFSIF_AA  &> $PDB.output`;
+   ##`$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -t $BIFSIF_AA &> $PDB.output`;
+   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -AA &> $PDB.output`;
   }else{
    print "unrecognized model.  Quitting..\n";
    exit;
@@ -655,7 +657,7 @@ sub readtop
  my %dihedral_array3_W;
  my %dihedral_array1_A;
  my %dihedral_array3_A;
-
+ my @resindex;
  @FIELDS=("defaults","atomtypes","moleculetype","atoms","pairs","bonds","angles","dihedrals","system","molecules","exclusions");
  foreach(@FIELDS){
   $FOUND{$_}=0;
@@ -817,6 +819,7 @@ sub readtop
      if($A[3] ne $GRODATA[$NUMATOMS][1]){
       $FAIL_GROTOP++;
      }
+     $resindex[$A[0]]=$A[2];
     # nucleic acid, protein, ligand
      $MOLTYPE[$A[0]]=$TYPE{$A[3]};
      # see if there are any amino acids, na, or ligands in the system.
@@ -1055,11 +1058,11 @@ sub readtop
 
     ## cross-check the angles
     if($theta_gen_N == $Nangles){
-     $FAIL{'ANGLE CONSISTENCY'}=0;
+     $FAIL{'ANGLE CONSISTENCY 1'}=0;
     }else{
      print "the number of generated angles is inconsistent with the number of angles in the top file\n";
-     print "$theta_gen_N $Nangles\n";
-     $FAIL{'ANGLE CONSISTENCY'}=1;
+     print "generated: $theta_gen_N, found: $Nangles\n";
+     $FAIL{'ANGLE CONSISTENCY 1'}=1;
     }
     my $CONangles=0;
     # check to see if all the generated angles (from this script) are present in the top file
@@ -1071,9 +1074,9 @@ sub readtop
      }
     }
     if($CONangles == $theta_gen_N){
-     $FAIL{'ANGLE CONSISTENCY'}=0;
+     $FAIL{'ANGLE CONSISTENCY 2'}=0;
     }else{
-     $FAIL{'ANGLE CONSISTENCY'}=1;
+     $FAIL{'ANGLE CONSISTENCY 2'}=1;
     }
 
     $CONangles=0;
@@ -1086,9 +1089,9 @@ sub readtop
      }
     }
      if($CONangles == $Nangles){
-     $FAIL{'ANGLE CONSISTENCY'}=0;
+     $FAIL{'ANGLE CONSISTENCY 3'}=0;
     }else{
-     $FAIL{'ANGLE CONSISTENCY'}=1;
+     $FAIL{'ANGLE CONSISTENCY 3'}=1;
     }
 
  
@@ -1376,6 +1379,23 @@ sub readtop
 
     # All dihedrals read in.  Now do checking
 
+    my $CONdihedrals=0;
+    # check to see if all top angles are present in the generate list.
+    for(my $i=0;$i<$Nphi;$i++){
+     if(exists $phi_gen_as{$phi[$i]} or exists $improper_gen_as{$phi[$i]} ){
+      $CONdihedrals++;
+     }else{
+      print "dihedral appearing in top, but was not generated by script: $phi[$i]\n";
+     }
+    }
+     if($CONdihedrals == $Nphi){
+     $FAIL{'DIHEDRAL CONSISTENCY 1'}=0;
+    }else{
+     $FAIL{'DIHEDRAL CONSISTENCY 1'}=1;
+    }
+
+
+
     my $gen_match=0;
     # check to see if all the generated dihedrals (from this script) are present in the top file
     for(my $i=0;$i<$phi_gen_N;$i++){
@@ -1386,7 +1406,7 @@ sub readtop
      }
     }
     if($gen_match==$phi_gen_N){
-     $FAIL{'DIHEDRAL CONSISTENCY'}=0;
+     $FAIL{'DIHEDRAL CONSISTENCY 2'}=0;
     }
 
     if($CORIMP == 0){
@@ -1480,6 +1500,13 @@ sub readtop
      $PAIRS[$NCONTACTS][0]=$A[0];
      $PAIRS[$NCONTACTS][1]=$A[1];
      $NCONTACTS++;
+
+     if($CID[$A[0]] == $CID[$A[1]] && $MOLTYPE[$A[0]] eq "AMINO" &&  abs($resindex[$A[0]]-$resindex[$A[1]]) ==4 ){
+	$FAIL{'CONTACTS PROTEIN i-j=4'}=0;
+     }elsif($CID[$A[0]] == $CID[$A[1]] && $MOLTYPE[$A[0]] eq "NUCLEIC" &&  abs($resindex[$A[0]]-$resindex[$A[1]]) ==1 ){
+        $FAIL{'CONTACTS NUCLEIC i-j=1'}=0;
+     }
+
      # determine the epsilon of the contact
      if($A[4] == 0){
       print "\nERROR: A divide by zero was encountered during testing. This typically means the top file is incomplete\n";
@@ -1858,6 +1885,7 @@ sub readtop
    }
   }else{
     $FAIL{'PROTEIN BB/SC RATIO'}=-1;
+    $FAIL{'CONTACTS PROTEIN i-j=4'}=-1;
   }
   if($NUCLEIC_PRESENT){
    my $ratio=$NASCvalue/$NABBvalue;
@@ -1938,6 +1966,12 @@ sub readtop
    $FAIL{'CONTACT/DIHEDRAL RATIO'}=-1;
  } 
 
+ unless($NUCLEIC_PRESENT){
+  $FAIL{'CONTACTS NUCLEIC i-j=1'}=-1;
+ }
+ unless($AMINO_PRESENT){
+  $FAIL{'CONTACTS PROTEIN i-j=4'}=-1;
+ }
  my $NFIELDS=@FIELDS;
  my $NFIELDC=0;
  foreach(@FIELDS){
