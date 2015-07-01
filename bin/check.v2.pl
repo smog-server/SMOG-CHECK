@@ -1,4 +1,3 @@
-#!/usr/bin/perl 
 use strict;
 use warnings;
 # This is the main script that runs SMOG2 and then checks to see if the generated files are correct.
@@ -400,9 +399,9 @@ sub smogchecker
 
  if($model eq "AA"){
   if($default eq "yes"){
-   `java -jar $SCM  -g $PDB.gro -t $PDB.top -ch $PDB.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD -bif $BIFSIF_AA/AA-whitford09.bif --distance &> $PDB.meta2.output`;
+   `java -jar $SCM  -g $PDB.gro -t $PDB.top -ch $PDB.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD -bif $BIFSIF_AA/AA-whitford09.bif &> $PDB.meta2.output`;
   }elsif($default eq "no"){
-   `java -jar $SCM  -g $PDB.gro -t $PDB.top -ch $PDB.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD -bif temp.bifsif/tmp.bif --distance  &> $PDB.meta2.output`;
+   `java -jar $SCM  -g $PDB.gro -t $PDB.top -ch $PDB.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD -bif temp.bifsif/tmp.bif  &> $PDB.meta2.output`;
   }else{
    internal_error('SCM DEFAULT TESTING');
   }
@@ -415,9 +414,9 @@ sub smogchecker
   # run AA model to get top
    `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.meta1.gro -o $PDB.meta1.top -n $PDB.meta1.ndx -s $PDB.meta1.contacts -t $BIFSIF_AA  &> $PDB.meta1.output`;
   if($default eq "yes"){
-   `java -jar $SCM   --coarse CA -g $PDB.meta1.gro -t $PDB.meta1.top -ch $PDB.meta1.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD -bif $BIFSIF_AA/AA-whitford09.bif  --distance  &> $PDB.meta3.output`;
+   `java -jar $SCM   --coarse CA -g $PDB.meta1.gro -t $PDB.meta1.top -ch $PDB.meta1.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD -bif $BIFSIF_AA/AA-whitford09.bif  &> $PDB.meta3.output`;
   }elsif($default eq "no"){
-   `java -jar $SCM   --coarse CA -g $PDB.meta1.gro -t $PDB.meta1.top -ch $PDB.meta1.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD -bif temp.cont.bifsif/tmp.cont.bif --distance  &> $PDB.meta3.output`;
+   `java -jar $SCM   --coarse CA -g $PDB.meta1.gro -t $PDB.meta1.top -ch $PDB.meta1.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD -bif temp.cont.bifsif/tmp.cont.bif  &> $PDB.meta3.output`;
   }else{
    internal_error('SCM CA DEFAULT TESTING');
   }
@@ -1552,12 +1551,12 @@ sub readtop
        print "$LINE\n";
       }
      }elsif($model eq "AA"){
-      $Cdist = int(($Cdist * $PRECISION))/($PRECISION*1.0);
+      $Cdist = int(($Cdist * $PRECISION)/10.0)/($PRECISION*10.0);
       if($Cdist <= $CONTD/10.0){
        $LONGCONT++;
       }else{
        print "long contact! distance $Cdist nm.\n";
-       print "$LINE";
+       print "$LINE\n";
      }
       ## so long as the contacts are not with ligands, then we add the sum
       if($MOLTYPE[$A[0]] ne "LIGAND" and $MOLTYPE[$A[1]] ne "LIGAND"){
