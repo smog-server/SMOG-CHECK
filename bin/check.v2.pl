@@ -1551,12 +1551,12 @@ sub readtop
        print "$LINE\n";
       }
      }elsif($model eq "AA"){
-      $Cdist = int(($Cdist * $PRECISION))/($PRECISION*1.0);
+      $Cdist = int(($Cdist * $PRECISION)/10.0)/($PRECISION*10.0);
       if($Cdist <= $CONTD/10.0){
        $LONGCONT++;
       }else{
        print "long contact! distance $Cdist nm.\n";
-       print "$LINE";
+       print "$LINE\n";
      }
       ## so long as the contacts are not with ligands, then we add the sum
       if($MOLTYPE[$A[0]] ne "LIGAND" and $MOLTYPE[$A[1]] ne "LIGAND"){
