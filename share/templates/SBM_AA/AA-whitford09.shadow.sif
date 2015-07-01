@@ -40,7 +40,7 @@
 
 
  	<!-- Global Contacts Settings -->
-	<contactGroup residueType="mixed" name="c" intraRelativeStrength="1" normalize="1"/>
+	<contactGroup intraRelativeStrength="1" normalize="1"/>
 
  	<!-- Contact/Dihedral Group ratio -->
        	<groupRatios contacts="PARM_C_D" dihedrals="1"/>
