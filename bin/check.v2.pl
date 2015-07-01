@@ -1528,14 +1528,21 @@ sub readtop
      if($model eq "AA"){
       $Cdist=(2*$A[4]/($A[3]))**(1.0/6.0);
       $CALCD=(($XT[$A[0]]-$XT[$A[1]])**2+($YT[$A[0]]-$YT[$A[1]])**2+($ZT[$A[0]]-$ZT[$A[1]])**2)**(0.5);
-      if(abs($Cdist-$CALCD) < 10.0/($PRECISION*1.0) ){
+      if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0) ){
        $ContactDist++;
+      }else{
+       print "A contact appears to be the wrong distance.  From the .gro file, we found r=$CALCD, and from the .top r=$Cdist.\n";
+       print "$LINE\n";
       }
+
      }elsif($model eq "CA"){
       $Cdist=(6.0*$A[4]/(5.0*$A[3]))**(1.0/2.0);
       $CALCD=(($XT[$A[0]]-$XT[$A[1]])**2+($YT[$A[0]]-$YT[$A[1]])**2+($ZT[$A[0]]-$ZT[$A[1]])**2)**(0.5);
-      if(abs($Cdist-$CALCD) < 10.0/($PRECISION*1.0)){
+      if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0)){
        $ContactDist++;
+      }else{
+       print "A contact appears to be the wrong distance.  From the .gro file, we found r=$CALCD, and from the .top r=$Cdist.\n";
+       print "$LINE\n";
       }
      }
      # so long as the contacts are not with ligands, then we add the sum
