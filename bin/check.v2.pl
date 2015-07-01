@@ -1,4 +1,3 @@
-#!/usr/bin/perl 
 use strict;
 use warnings;
 # This is the main script that runs SMOG2 and then checks to see if the generated files are correct.
