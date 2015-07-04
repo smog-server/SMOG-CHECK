@@ -286,7 +286,7 @@ while(<PARMS>){
   $NA_DIH=1.0;
   $LIGAND_DIH=1.0;
   $sigma=2.5;
-  $epsilon=0.01;
+  $epsilon=0.1;
   $epsilonCAC=1.0;
   $epsilonCAD=1.0;
   $sigmaCA=4.0;
@@ -345,9 +345,19 @@ while(<PARMS>){
   }
  }
 
- $bondEps=20000;
+ if($model =~ m/CA/){
+  $bondEps=20000;
+  $angleEps=40;
+ }elsif($model =~ m/AA/){
+  $bondEps=10000;
+  $angleEps=80;
+ }else{
+  print "Model name $model, not understood. Only CA and AA models are supported by the test script.  Quitting...\n";
+  exit;
+ }
+
+
  $bondMG=200;
- $angleEps=40;
  $ringEps=40;
  $omegaEps=10;
  $impEps=10;
@@ -388,7 +398,7 @@ sub smogchecker
   }
  }else{
   if($model eq "CA"){
-   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -t temp.bifsif/ -CG -t_contacts temp.cont.bifsif &> $PDB.output`;
+   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -tCG temp.bifsif/ -CG -t temp.cont.bifsif &> $PDB.output`;
   }elsif($model eq "AA"){
    `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -t temp.bifsif/  &> $PDB.output`;
   }else{
