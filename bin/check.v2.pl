@@ -4,6 +4,8 @@ use warnings;
 # This is intended to be a brute-force evaluation of everything that should appear. Since this is
 # a testing script, it is not designed to be efficient, but to be thorough, and foolproof...
 
+#assumes shell is bash
+
 
 print <<EOT;
 *****************************************************************************************
@@ -20,7 +22,7 @@ print <<EOT;
 *****************************************************************************************
 EOT
 
-
+&checkForModules;
  
 our $EXEC_NAME=$ENV{'smog_exec'};
 our $SMOGDIR=$ENV{'SMOG_PATH'};
@@ -63,6 +65,22 @@ sub internal_error
   exit;
 }
 
+sub checkForModules {
+	my $checkPackage; my $sum=0;
+	$checkPackage=`perl -e "use XML::Simple" 2>&1 | wc -l | awk '{print \$1}'`;
+	if($checkPackage > 0) { print "Perl module XML::Simple not installed!\n"; $sum++;}
+	$checkPackage=`perl -e "use XML::Validator::Schema" 2>&1 | wc -l | awk '{print \$1}'`;
+	if($checkPackage > 0) { print "Perl module XML::Validator::Schema not installed!\n"; $sum++;}
+	$checkPackage=`perl -e "use Exporter" 2>&1 | wc -l | awk '{print \$1}'`;
+	if($checkPackage > 0) { print "Perl module Exporter not installed!\n"; $sum++;}
+	$checkPackage=`perl -e "use String::Util" 2>&1 | wc -l | awk '{print \$1}'`;
+	if($checkPackage > 0) { print "Perl module String::Util not installed!\n"; $sum++;}
+	$checkPackage=`perl -e "use PDL" 2>&1 | wc -l | awk '{print \$1}'`;
+	if($checkPackage > 0) { print "Perl Data Language not installed!\n"; $sum++;}
+	$checkPackage=`which java1 | wc -l | awk '{print \$1}'`;
+	if($checkPackage < 1) { print "Java might not be installed. This package assumes Java 1.7 or greater is in the path as 'java'.\n"; $sum++;}
+	if($sum > 0) { print "Need above packages before smog-check (and smog2) can run. Some hints may be in the SMOG2 manual.\n"; exit(1); }
+}
 
 our @FILETYPES=("top","gro","ndx","settings","contacts","output","contacts.SCM");
 
@@ -398,7 +416,7 @@ sub smogchecker
   }
  }else{
   if($model eq "CA"){
-   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -tCG temp.bifsif/ -CG -t temp.cont.bifsif &> $PDB.output`;
+   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -tCG temp.bifsif/  -t temp.cont.bifsif &> $PDB.output`;
   }elsif($model eq "AA"){
    `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -t temp.bifsif/  &> $PDB.output`;
   }else{
