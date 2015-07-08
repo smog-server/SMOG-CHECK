@@ -82,7 +82,7 @@ sub checkForModules {
 	if($sum > 0) { print "Need above packages before smog-check (and smog2) can run. Some hints may be in the SMOG2 manual.\n"; exit(1); }
 }
 
-our @FILETYPES=("top","gro","ndx","settings","contacts","output","contacts.SCM");
+our @FILETYPES=("top","gro","ndx","settings","contacts","output","contacts.SCM", "contacts.CG");
 
 unless( -e $SCM){
  print "Can\'t find Shadow! Quitting!!\n";
@@ -434,6 +434,7 @@ sub smogchecker
    internal_error('SCM DEFAULT TESTING');
   }
 
+# check that the same contact map is generated
   my $CONTDIFF=`diff $PDB.contacts $PDB.contacts.SCM | wc -l`;
    if($CONTDIFF == 0){
     $FAIL{'SCM CONTACT COMPARISON'}=0;
@@ -442,19 +443,18 @@ sub smogchecker
   # run AA model to get top
    `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.meta1.gro -o $PDB.meta1.top -n $PDB.meta1.ndx -s $PDB.meta1.contacts -t $BIFSIF_AA  &> $PDB.meta1.output`;
   if($default eq "yes"){
-   `java -jar $SCM   --coarse CA -g $PDB.meta1.gro -t $PDB.meta1.top -ch $PDB.meta1.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD -bif $BIFSIF_AA/AA-whitford09.bif  &> $PDB.meta3.output`;
+   `java -jar $SCM -g $PDB.meta1.gro -t $PDB.meta1.top -ch $PDB.meta1.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD -bif $BIFSIF_AA/AA-whitford09.bif  &> $PDB.meta3.output`;
   }elsif($default eq "no"){
-   `java -jar $SCM   --coarse CA -g $PDB.meta1.gro -t $PDB.meta1.top -ch $PDB.meta1.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD -bif temp.cont.bifsif/tmp.cont.bif  &> $PDB.meta3.output`;
+   `java -jar $SCM -g $PDB.meta1.gro -t $PDB.meta1.top -ch $PDB.meta1.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD -bif temp.cont.bifsif/tmp.cont.bif  &> $PDB.meta3.output`;
   }else{
    internal_error('SCM CA DEFAULT TESTING');
   }
 
   # run SCM to get map
   my $CONTDIFF=`diff $PDB.contacts $PDB.contacts.SCM | wc -l`;
-    if($CONTDIFF == 0){
+   if($CONTDIFF == 0){
     $FAIL{'SCM CONTACT COMPARISON'}=0;
    }
-
  }
 
  if(-e "$PDB.contacts.SCM"){
@@ -2066,9 +2066,16 @@ sub checkvalues
   print "internal error: Quitting.  Please report to info\@smog-server.org\n";
  }
 
- if(open(CFILE,"$PDB.contacts")){
-  $FAIL{'OPEN CONTACT FILE'}=0;
+ if($model eq "AA"){
+  if(open(CFILE,"$PDB.contacts")){
+   $FAIL{'OPEN CONTACT FILE'}=0;
+  }
+ }elsif($model eq "CA"){
+  if(open(CFILE,"$PDB.contacts.CG")){
+   $FAIL{'OPEN CONTACT FILE'}=0;
+  }
  }
+
 
  my $NUMBER_OF_CONTACTS_SHADOW=0;
  while(<CFILE>){
