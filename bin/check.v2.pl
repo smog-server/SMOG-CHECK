@@ -77,7 +77,7 @@ sub checkForModules {
 	if($checkPackage > 0) { print "Perl module String::Util not installed!\n"; $sum++;}
 	$checkPackage=`perl -e "use PDL" 2>&1 | wc -l | awk '{print \$1}'`;
 	if($checkPackage > 0) { print "Perl Data Language not installed!\n"; $sum++;}
-	$checkPackage=`which java1 | wc -l | awk '{print \$1}'`;
+	$checkPackage=`which java | wc -l | awk '{print \$1}'`;
 	if($checkPackage < 1) { print "Java might not be installed. This package assumes Java 1.7 or greater is in the path as 'java'.\n"; $sum++;}
 	if($sum > 0) { print "Need above packages before smog-check (and smog2) can run. Some hints may be in the SMOG2 manual.\n"; exit(1); }
 }
