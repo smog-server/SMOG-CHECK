@@ -1527,46 +1527,48 @@ sub readtop
          print "Improper about CA atom not found: expected dihedral formed by atoms $string\n";
         }
 
-        if(exists $revData{"$I-OG1"} && exists $revData{"$I-CG2"}){
-         $impSCpossible++;
-         my $string;
-         if($revData{"$I-CA"} < $revData{"$I-CG2"}){
-          $string=sprintf("%i-%i-%i-%i",$revData{"$I-CA"} ,$revData{"$I-CB"} ,$revData{"$I-OG1"} ,$revData{"$I-CG2"});
-         }else{
-          $string=sprintf("%i-%i-%i-%i",$revData{"$I-CG1"} ,$revData{"$I-OG1"} ,$revData{"$I-CB"} ,$revData{"$I-CA"});
+        if($GRODATA[$revData{"$I-CA"}][1] ne "TYR" && $GRODATA[$revData{"$I-CA"}][1] ne "PHE"){
+         if(exists $revData{"$I-OG1"} && exists $revData{"$I-CG2"}){
+          $impSCpossible++;
+          my $string;
+          if($revData{"$I-CA"} < $revData{"$I-CG2"}){
+           $string=sprintf("%i-%i-%i-%i",$revData{"$I-CA"} ,$revData{"$I-CB"} ,$revData{"$I-OG1"} ,$revData{"$I-CG2"});
+          }else{
+           $string=sprintf("%i-%i-%i-%i",$revData{"$I-CG1"} ,$revData{"$I-OG1"} ,$revData{"$I-CB"} ,$revData{"$I-CA"});
+          }
+          if($dihedral_array2{$string}){
+           $impSCfound++;
+          }else{
+           print "Sidechain Improper not found: expected dihedral formed by atoms $string\n";
+          }
          }
-         if($dihedral_array2{$string}){
-          $impSCfound++;
-         }else{
-          print "Sidechain Improper not found: expected dihedral formed by atoms $string\n";
+         if(exists $revData{"$I-CG1"} && exists $revData{"$I-CG2"}){
+          $impSCpossible++;
+          my $string;
+          if($revData{"$I-CA"} < $revData{"$I-CG2"}){
+           $string=sprintf("%i-%i-%i-%i",$revData{"$I-CA"} ,$revData{"$I-CB"} ,$revData{"$I-CG1"} ,$revData{"$I-CG2"});
+          }else{
+           $string=sprintf("%i-%i-%i-%i",$revData{"$I-CG1"} ,$revData{"$I-CG1"} ,$revData{"$I-CB"} ,$revData{"$I-CA"});
+          }
+          if($dihedral_array2{$string}){
+           $impSCfound++;
+          }else{
+           print "Sidechain Improper not found: expected dihedral formed by atoms $string\n";
+          }
          }
-        }
-        if(exists $revData{"$I-CG1"} && exists $revData{"$I-CG2"}){
-         $impSCpossible++;
-         my $string;
-         if($revData{"$I-CA"} < $revData{"$I-CG2"}){
-          $string=sprintf("%i-%i-%i-%i",$revData{"$I-CA"} ,$revData{"$I-CB"} ,$revData{"$I-CG1"} ,$revData{"$I-CG2"});
-         }else{
-          $string=sprintf("%i-%i-%i-%i",$revData{"$I-CG1"} ,$revData{"$I-CG1"} ,$revData{"$I-CB"} ,$revData{"$I-CA"});
-         }
-         if($dihedral_array2{$string}){
-          $impSCfound++;
-         }else{
-          print "Sidechain Improper not found: expected dihedral formed by atoms $string\n";
-         }
-        }
-        if(exists $revData{"$I-CG"} && exists $revData{"$I-CD1"} && exists $revData{"$I-CD2"}){
-         $impSCpossible++;
-         my $string;
-         if($revData{"$I-CB"} < $revData{"$I-CD2"}){
-          $string=sprintf("%i-%i-%i-%i",$revData{"$I-CB"} ,$revData{"$I-CG"} ,$revData{"$I-CD1"} ,$revData{"$I-CD2"});
-         }else{
-          $string=sprintf("%i-%i-%i-%i",$revData{"$I-CD2"} ,$revData{"$I-CD1"} ,$revData{"$I-CG"} ,$revData{"$I-CB"});
-         }
-         if($dihedral_array2{$string}){
-          $impSCfound++;
-         }else{
-          print "Sidechain Improper not found: expected dihedral formed by atoms $string\n";
+         if(exists $revData{"$I-CG"} && exists $revData{"$I-CD1"} && exists $revData{"$I-CD2"}){
+          $impSCpossible++;
+          my $string;
+          if($revData{"$I-CB"} < $revData{"$I-CD2"}){
+           $string=sprintf("%i-%i-%i-%i",$revData{"$I-CB"} ,$revData{"$I-CG"} ,$revData{"$I-CD1"} ,$revData{"$I-CD2"});
+          }else{
+           $string=sprintf("%i-%i-%i-%i",$revData{"$I-CD2"} ,$revData{"$I-CD1"} ,$revData{"$I-CG"} ,$revData{"$I-CB"});
+          }
+          if($dihedral_array2{$string}){
+           $impSCfound++;
+          }else{
+           print "Sidechain Improper not found: expected dihedral formed by atoms $string\n";
+          }
          }
         }
        }
