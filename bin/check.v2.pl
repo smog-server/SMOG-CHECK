@@ -1527,7 +1527,7 @@ sub readtop
          print "Improper about CA atom not found: expected dihedral formed by atoms $string\n";
         }
 
-        if($GRODATA[$revData{"$I-CA"}][1] ne "TYR" && $GRODATA[$revData{"$I-CA"}][1] ne "PHE"){
+        if($GRODATA[$revData{"$I-CA"}][1] ne "TYR" && $GRODATA[$revData{"$I-CA"}][1] ne "PHE" && $GRODATA[$revData{"$I-CA"}][1] ne "TRP"){
          if(exists $revData{"$I-OG1"} && exists $revData{"$I-CG2"}){
           $impSCpossible++;
           my $string;
@@ -1592,15 +1592,18 @@ sub readtop
      }
      if($impCAfound == $impCApossible && $impCApossible != 0){
       $FAIL{'CA IMPROPERS EXIST'}=0;
-	print "Only found $impCAfound improper dihedrals about CA atoms, out of an expected $impCApossible\n";
+     }else{
+      print "Only found $impCAfound improper dihedrals about CA atoms, out of an expected $impCApossible\n";
      }
      if($impOMEfound == $impOMEpossible && $impOMEpossible != 0){
-	print "Only found $impOMEfound improper omega dihedrals, out of an expected $impOMEpossible\n";
       $FAIL{'OMEGA IMPROPERS EXIST'}=0;
+     }else{
+	print "Only found $impOMEfound improper omega dihedrals, out of an expected $impOMEpossible\n";
      }
      if($impSCfound == $impSCpossible && $impSCpossible != 0){
-	print "Only found $impSCfound sidechain improper dihedrals, out of an expected $impSCpossible\n";
       $FAIL{'SIDECHAIN IMPROPERS EXIST'}=0;
+     }else{
+	print "Only found $impSCfound sidechain improper dihedrals, out of an expected $impSCpossible\n";
      }
     }else{
      $FAIL{'CA IMPROPERS EXIST'}=-1;
