@@ -166,7 +166,7 @@ while(<ION>){
 my $FAIL_SYSTEM=0;
  
 # FAILLIST is a list of all the tests.  If you want to supress a failed test (not recommended), then remove it from this list.
-our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','TOP FIELDS FOUND','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'ANGLE TYPES', 'ANGLE WEIGHTS', 'DUPLICATE BONDS', 'DUPLICATE ANGLES', 'ANGLE CONSISTENCY 1','ANGLE CONSISTENCY 2','ANGLE CONSISTENCY 3', 'IMPROPER WEIGHTS', 'CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL CONSISTENCY 1','DIHEDRAL CONSISTENCY 2','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM MAP GENERATED','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY');
+our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','TOP FIELDS FOUND','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'ANGLE TYPES', 'ANGLE WEIGHTS', 'DUPLICATE BONDS', 'DUPLICATE ANGLES', 'ANGLE CONSISTENCY 1','ANGLE CONSISTENCY 2','ANGLE CONSISTENCY 3', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL CONSISTENCY 1','DIHEDRAL CONSISTENCY 2','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM MAP GENERATED','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY');
 
 
 # a number of global variables.
@@ -546,7 +546,6 @@ sub checkgro
  }else{
   $FAIL{'BOX DIMENSIONS'}=0;
  }
-
 }
 
 sub preparesettings
@@ -684,6 +683,8 @@ sub readtop
  my %dihedral_array3_W;
  my %dihedral_array1_A;
  my %dihedral_array3_A;
+ my $finalres;
+ my %revData;
  my @resindex;
  @FIELDS=("defaults","atomtypes","moleculetype","atoms","pairs","bonds","angles","dihedrals","system","molecules","exclusions");
  foreach(@FIELDS){
@@ -847,6 +848,9 @@ sub readtop
       $FAIL_GROTOP++;
      }
      $resindex[$A[0]]=$A[2];
+     $finalres=$A[2];
+     my $label=sprintf("%i-%s", $A[2], $A[4]);
+     $revData{$label}=$A[0];
     # nucleic acid, protein, ligand
      $MOLTYPE[$A[0]]=$TYPE{$A[3]};
      # see if there are any amino acids, na, or ligands in the system.
@@ -1421,8 +1425,6 @@ sub readtop
      $FAIL{'DIHEDRAL CONSISTENCY 1'}=1;
     }
 
-
-
     my $gen_match=0;
     # check to see if all the generated dihedrals (from this script) are present in the top file
     for(my $i=0;$i<$phi_gen_N;$i++){
@@ -1499,6 +1501,114 @@ sub readtop
     #print "$matchingpairs_A, $accounted1 $MINTHR $MAXTHR\n";
     if($matchingpairs_A == $accounted1){
      $FAIL{'1-3 DIHEDRAL ANGLE VALUES'}=0
+    }
+    # check that all impropers are assigned about all CA atoms
+    if($model eq "AA" && $AMINO_PRESENT){
+     my $impCAfound=0;
+     my $impCApossible=0;
+     my $impOMEfound=0;
+     my $impOMEpossible=0;
+     my $impSCfound=0;
+     my $impSCpossible=0;
+     for(my $I=1;$I<=$finalres;$I++){
+      if(exists $revData{"$I-CA"}){
+       #check improper about CA  (CB-CA-C-N)
+       if(exists $revData{"$I-CB"}){
+        $impCApossible++;
+        my $string;
+        if($revData{"$I-CB"} < $revData{"$I-N"}){
+         $string=sprintf("%i-%i-%i-%i",$revData{"$I-CB"} ,$revData{"$I-CA"} ,$revData{"$I-C"} ,$revData{"$I-N"});
+        }else{
+         $string=sprintf("%i-%i-%i-%i",$revData{"$I-N"} ,$revData{"$I-C"} ,$revData{"$I-CA"} ,$revData{"$I-CB"});
+        }
+        if($dihedral_array2{$string}){
+         $impCAfound++;
+        }else{
+         print "Improper about CA atom not found: expected dihedral formed by atoms $string\n";
+        }
+        # check for expected side-chain impropers
+        if($GRODATA[$revData{"$I-CA"}][1] ne "TYR" && $GRODATA[$revData{"$I-CA"}][1] ne "PHE" && $GRODATA[$revData{"$I-CA"}][1] ne "TRP"){
+         if(exists $revData{"$I-OG1"} && exists $revData{"$I-CG2"}){
+          $impSCpossible++;
+          my $string;
+          if($revData{"$I-CA"} < $revData{"$I-CG2"}){
+           $string=sprintf("%i-%i-%i-%i",$revData{"$I-CA"} ,$revData{"$I-CB"} ,$revData{"$I-OG1"} ,$revData{"$I-CG2"});
+          }else{
+           $string=sprintf("%i-%i-%i-%i",$revData{"$I-CG1"} ,$revData{"$I-OG1"} ,$revData{"$I-CB"} ,$revData{"$I-CA"});
+          }
+          if($dihedral_array2{$string}){
+           $impSCfound++;
+          }else{
+           print "Sidechain Improper not found: expected dihedral formed by atoms $string\n";
+          }
+         }
+         if(exists $revData{"$I-CG1"} && exists $revData{"$I-CG2"}){
+          $impSCpossible++;
+          my $string;
+          if($revData{"$I-CA"} < $revData{"$I-CG2"}){
+           $string=sprintf("%i-%i-%i-%i",$revData{"$I-CA"} ,$revData{"$I-CB"} ,$revData{"$I-CG1"} ,$revData{"$I-CG2"});
+          }else{
+           $string=sprintf("%i-%i-%i-%i",$revData{"$I-CG1"} ,$revData{"$I-CG1"} ,$revData{"$I-CB"} ,$revData{"$I-CA"});
+          }
+          if($dihedral_array2{$string}){
+           $impSCfound++;
+          }else{
+           print "Sidechain Improper not found: expected dihedral formed by atoms $string\n";
+          }
+         }
+         if(exists $revData{"$I-CG"} && exists $revData{"$I-CD1"} && exists $revData{"$I-CD2"}){
+          $impSCpossible++;
+          my $string;
+          if($revData{"$I-CB"} < $revData{"$I-CD2"}){
+           $string=sprintf("%i-%i-%i-%i",$revData{"$I-CB"} ,$revData{"$I-CG"} ,$revData{"$I-CD1"} ,$revData{"$I-CD2"});
+          }else{
+           $string=sprintf("%i-%i-%i-%i",$revData{"$I-CD2"} ,$revData{"$I-CD1"} ,$revData{"$I-CG"} ,$revData{"$I-CB"});
+          }
+          if($dihedral_array2{$string}){
+           $impSCfound++;
+          }else{
+           print "Sidechain Improper not found: expected dihedral formed by atoms $string\n";
+          }
+         }
+        }
+       }
+       my $nextres=$I+1;
+       if(exists $revData{"$nextres-N"} && $CID[$revData{"$nextres-N"}] == $CID[$revData{"$I-CA"}]){
+        $impOMEpossible++;
+        #they are adjacent, and in the same chain, check improper about omega (O-CA-C-N+)
+	my $string;
+        if($revData{"$I-O"} < $revData{"$nextres-N"}){
+         $string=sprintf("%i-%i-%i-%i",$revData{"$I-O"} ,$revData{"$I-CA"} ,$revData{"$I-C"} ,$revData{"$nextres-N"});
+        }else{
+         $string=sprintf("%i-%i-%i-%i",$revData{"$nextres-N"} ,$revData{"$I-C"} ,$revData{"$I-CA"} ,$revData{"$I-O"});
+        }
+        if($dihedral_array2{$string}){
+         $impOMEfound++;
+        }else{
+         print "Improper about peptide bond not found: expected dihedral formed by atoms $string\n";
+        }
+       }
+      }
+     }
+     if($impCAfound == $impCApossible && $impCApossible != 0){
+      $FAIL{'CA IMPROPERS EXIST'}=0;
+     }else{
+      print "Only found $impCAfound improper dihedrals about CA atoms, out of an expected $impCApossible\n";
+     }
+     if($impOMEfound == $impOMEpossible && $impOMEpossible != 0){
+      $FAIL{'OMEGA IMPROPERS EXIST'}=0;
+     }else{
+	print "Only found $impOMEfound improper omega dihedrals, out of an expected $impOMEpossible\n";
+     }
+     if($impSCfound == $impSCpossible && $impSCpossible != 0){
+      $FAIL{'SIDECHAIN IMPROPERS EXIST'}=0;
+     }else{
+	print "Only found $impSCfound sidechain improper dihedrals, out of an expected $impSCpossible\n";
+     }
+    }else{
+     $FAIL{'CA IMPROPERS EXIST'}=-1;
+     $FAIL{'OMEGA IMPROPERS EXIST'}=-1;
+     $FAIL{'SIDECHAIN IMPROPERS EXIST'}=-1;
     }
    }
   } 
