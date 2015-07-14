@@ -6444,6 +6444,11 @@
 					<atom>C2</atom>
 					<atom>N1</atom>
 				</bond>
+				<bond energyGroup="pr_n">
+					<atom>O2</atom>
+					<atom>C2</atom>
+				</bond>
+
 			</bonds>
 			<impropers>
 				<improper>
@@ -6559,6 +6564,11 @@
 					<atom>C2</atom>
 					<atom>N1</atom>
 				</bond>
+				<bond energyGroup="pr_n">
+					<atom>O2</atom>
+					<atom>C2</atom>
+				</bond>
+
 			</bonds>
 			<impropers>
 				<improper>
@@ -6694,6 +6704,11 @@
 					<atom>C2</atom>
 					<atom>N1</atom>
 				</bond>
+				<bond energyGroup="pr_n">
+					<atom>O2</atom>
+					<atom>C2</atom>
+				</bond>
+
 			</bonds>
 			<impropers>
 				<improper>
@@ -6869,6 +6884,11 @@
 					<atom>C2</atom>
 					<atom>N1</atom>
 				</bond>
+				<bond energyGroup="pr_n">
+					<atom>O2</atom>
+					<atom>C2</atom>
+				</bond>
+
 			</bonds>
 			<impropers>
 				<improper>
@@ -6994,6 +7014,11 @@
 					<atom>C2</atom>
 					<atom>N1</atom>
 				</bond>
+				<bond energyGroup="pr_n">
+					<atom>O2</atom>
+					<atom>C2</atom>
+				</bond>
+
 			</bonds>
 			<impropers>
 				<improper>
@@ -7104,6 +7129,11 @@
 					<atom>C2</atom>
 					<atom>N1</atom>
 				</bond>
+				<bond energyGroup="pr_n">
+					<atom>O2</atom>
+					<atom>C2</atom>
+				</bond>
+
 			</bonds>
 			<impropers>
 				<improper>
@@ -7234,6 +7264,11 @@
 					<atom>C2</atom>
 					<atom>N1</atom>
 				</bond>
+				<bond energyGroup="pr_n">
+					<atom>O2</atom>
+					<atom>C2</atom>
+				</bond>
+
 			</bonds>
 			<impropers>
 				<improper>
@@ -7404,6 +7439,11 @@
 					<atom>C2</atom>
 					<atom>N1</atom>
 				</bond>
+				<bond energyGroup="pr_n">
+					<atom>O2</atom>
+					<atom>C2</atom>
+				</bond>
+
 			</bonds>
 			<impropers>
 				<improper>
