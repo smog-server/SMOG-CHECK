@@ -755,7 +755,7 @@ sub readtop
       print "ERROR: atomtype name $T appears more than once.\n";
      }
 
-     if($A[0] =~ m/^[a-zA-Z0-9_]+$/){
+     if($A[0] =~ /^[a-zA-Z0-9_]+$/){
       $acceptablenames++;
      }else{
       my $T=$A[0];
