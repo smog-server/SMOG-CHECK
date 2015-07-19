@@ -165,8 +165,9 @@ while(<ION>){
 # we are a bit lazy, and will just use global variables
 my $FAIL_SYSTEM=0;
  
-# FAILLIST is a list of all the tests.  If you want to supress a failed test (not recommended), then remove it from this list.
-our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','TOP FIELDS FOUND','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'ANGLE TYPES', 'ANGLE WEIGHTS', 'DUPLICATE BONDS', 'DUPLICATE ANGLES', 'ANGLE CONSISTENCY 1','ANGLE CONSISTENCY 2','ANGLE CONSISTENCY 3', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL CONSISTENCY 1','DIHEDRAL CONSISTENCY 2','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM MAP GENERATED','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY');
+# FAILLIST is a list of all the tests.
+# If you are developing and testing your own forcefield, which may not need to conform to certain checks, then you may want to disable some tests by  removing the test name from this list. However, do so at your own risk.
+our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','ONLY 1 ATOMTYPE','TOP FIELDS FOUND','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'ANGLE TYPES', 'ANGLE WEIGHTS', 'DUPLICATE BONDS', 'DUPLICATE ANGLES', 'ANGLE CONSISTENCY 1','ANGLE CONSISTENCY 2','ANGLE CONSISTENCY 3', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL CONSISTENCY 1','DIHEDRAL CONSISTENCY 2','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM MAP GENERATED','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY');
 
 
 # a number of global variables.
@@ -735,14 +736,31 @@ sub readtop
     $LINE=<TOP>;
     $LINE =~ s/\s+$//;
     @A=split(/ /,$LINE);
+    my %seen;
     my $numtypes=0;
     my $mass1=0;
+    my $typesunique=0;
+    my $acceptablenames=0;
     my $charge1=0;
     my $particle1=0;
     my $c61=0;
     my $excl1=0;
     until($A[0] eq "["){
      $numtypes++;
+     if(!exists $seen{$A[0]}){
+      $seen{$A[0]}=1;
+      $typesunique++;
+     }else{
+      my $T=$A[0];
+      print "ERROR: atomtype name $T appears more than once.\n";
+     }
+
+     if($A[0] =~ /^[a-zA-Z0-9_]+$/){
+      $acceptablenames++;
+     }else{
+      my $T=$A[0];
+      print "ERROR: Only letters, numbers and _ can appear as atomtype names. atomtype \"$T\" found.";
+     }
      if($A[1] == 1){
       $mass1++;
      }
@@ -765,23 +783,29 @@ sub readtop
      @A=split(/ /,$LINE);
     }
     if($numtypes == $mass1 and $mass1 !=0){
-      $FAIL{'MASS'}=0;
+     $FAIL{'MASS'}=0;
     }
     if($numtypes == $charge1 and $charge1 !=0){
-      $FAIL{'CHARGE'}=0;
+     $FAIL{'CHARGE'}=0;
     }
     if($numtypes == $particle1 and $particle1 !=0){
-      $FAIL{'PARTICLE'}=0;
+     $FAIL{'PARTICLE'}=0;
     }
     if($numtypes == $c61 and $c61 !=0){
-      $FAIL{'C6 VALUES'}=0;
+     $FAIL{'C6 VALUES'}=0;
     }
     if($numtypes == $excl1 and $excl1 !=0){
-      $FAIL{'C12 VALUES'}=0;
+     $FAIL{'C12 VALUES'}=0;
     }
-
-
-
+    if($numtypes == $typesunique and $typesunique !=0){
+     $FAIL{'ATOMTYPES UNIQUE'}=0;
+    }
+    if($numtypes ==1){
+     $FAIL{'ONLY 1 ATOMTYPE'}=0;
+    }
+    if($numtypes == $acceptablenames and $acceptablenames !=0){
+     $FAIL{'ALPHANUMERIC ATOMTYPES'}=0;
+    }
    }
   } 
   if(exists $A[1]){
