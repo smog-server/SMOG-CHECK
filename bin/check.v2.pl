@@ -67,15 +67,17 @@ sub internal_error
 
 sub checkForModules {
 	my $checkPackage; my $sum=0;
-	$checkPackage=`perl -e "use XML::Simple" 2>&1 | wc -l | awk '{print \$1}'`;
+	$checkPackage=`echo \$perl4smog | wc | awk '{print \$3}'`;
+	if($checkPackage < 2) { print "Path perl4smog not set, maybe you need to edit the configure.smog2 script and run it with \"source configure.smog2\"\n"; $sum++;}
+	$checkPackage=`\$perl4smog -e "use XML::Simple" 2>&1 | wc -l | awk '{print \$1}'`;
 	if($checkPackage > 0) { print "Perl module XML::Simple not installed!\n"; $sum++;}
-	$checkPackage=`perl -e "use XML::Validator::Schema" 2>&1 | wc -l | awk '{print \$1}'`;
+	$checkPackage=`\$perl4smog -e "use XML::Validator::Schema" 2>&1 | wc -l | awk '{print \$1}'`;
 	if($checkPackage > 0) { print "Perl module XML::Validator::Schema not installed!\n"; $sum++;}
-	$checkPackage=`perl -e "use Exporter" 2>&1 | wc -l | awk '{print \$1}'`;
+	$checkPackage=`\$perl4smog -e "use Exporter" 2>&1 | wc -l | awk '{print \$1}'`;
 	if($checkPackage > 0) { print "Perl module Exporter not installed!\n"; $sum++;}
-	$checkPackage=`perl -e "use String::Util" 2>&1 | wc -l | awk '{print \$1}'`;
+	$checkPackage=`\$perl4smog -e "use String::Util" 2>&1 | wc -l | awk '{print \$1}'`;
 	if($checkPackage > 0) { print "Perl module String::Util not installed!\n"; $sum++;}
-	$checkPackage=`perl -e "use PDL" 2>&1 | wc -l | awk '{print \$1}'`;
+	$checkPackage=`\$perl4smog -e "use PDL" 2>&1 | wc -l | awk '{print \$1}'`;
 	if($checkPackage > 0) { print "Perl Data Language not installed!\n"; $sum++;}
 	$checkPackage=`which java | wc -l | awk '{print \$1}'`;
 	if($checkPackage < 1) { print "Java might not be installed. This package assumes Java 1.7 or greater is in the path as 'java'.\n"; $sum++;}
