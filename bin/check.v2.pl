@@ -1551,7 +1551,7 @@ sub readtop
          print "Improper about CA atom not found: expected dihedral formed by atoms $string\n";
         }
         # check for expected side-chain impropers
-        if($GRODATA[$revData{"$I-CA"}][1] ne "TYR" && $GRODATA[$revData{"$I-CA"}][1] ne "PHE" && $GRODATA[$revData{"$I-CA"}][1] ne "TRP"){
+        if($GRODATA[$revData{"$I-CA"}][1] !~  m/^TYR|^PHE|^TRP/){
          if(exists $revData{"$I-OG1"} && exists $revData{"$I-CG2"}){
           $impSCpossible++;
           my $string;
