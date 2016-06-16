@@ -13,7 +13,8 @@ do
 for graining in AA CA
 do
 
-echo Testing $pdb with a $graining graining
+if [ -e $dir/share/benchmarks/$pdb.$graining.pdb ]
+then
 
 if [ -d testing ]
 then
@@ -21,11 +22,10 @@ rm -r testing
 fi
 mkdir testing
 
-if [ -e $dir/share/benchmarks/$pdb.$graining.pdb ]
-then
-$perl4smog $SMOG_PATH/src/smogv2 -i $dir/share/benchmarks/$pdb.$graining.pdb -$graining -dname testing/$pdb.$graining  &> /dev/null
+echo Testing $pdb with a $graining graining
 
-perl bin/quick_check.pl share/benchmarks/$pdb.$graining.top testing/$pdb.$graining.top > testing/$pdb.$graining.test
+$perl4smog $SMOG_PATH/src/smogv2 -i $dir/share/benchmarks/$pdb.$graining.pdb -$graining -dname testing/$pdb.$graining  &> testing/smog2.output
+$perl4smog bin/quick_check.pl share/benchmarks/$pdb.$graining.top testing/$pdb.$graining.top > testing/$pdb.$graining.test
 
 a=$(grep ERROR testing/$pdb.$graining.test | wc -l | awk '{print $1}')
 
@@ -37,7 +37,9 @@ else
 echo Congratulations there are no errors for $pdb.$graining.
 fi
 fi
+
 done
 done
 rm -r testing
-echo ************ No errors found ************
+echo "************ No errors found ************"
+
