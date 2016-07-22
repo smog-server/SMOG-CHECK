@@ -379,9 +379,9 @@ while(<PARMS>){
 
 
  $bondMG=200;
- $ringEps=80;
- $omegaEps=20;
- $impEps=20;
+ $ringEps=40;
+ $omegaEps=10;
+ $impEps=10;
 
  &smogchecker;
 
