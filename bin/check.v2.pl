@@ -11,9 +11,9 @@ print <<EOT;
 *****************************************************************************************
                                        smog-check                                   
 
-       smog-check is part of the SMOG v2 distribution, available at smog-server.org     
+       smog-check is part of the SMOG 2 distribution, available at smog-server.org     
 
-       This tool will check your installation of SMOG v2, to ensure that a range of
+       This tool will check your installation of SMOG 2, to ensure that a number of
                          models are being constructed properly.
 
                        See the SMOG manual for usage guidelines.
@@ -59,8 +59,17 @@ sub internal_error
 {
  my ($MESSAGE)=@_;
  chomp($MESSAGE);
-  print "Internal error at $MESSAGE\n";
+  print "\n\nInternal error at $MESSAGE\n\n";
   print "Please report this to info\@smog-server.org\n";
+  print "Quitting.\n";
+  exit;
+}
+
+sub smogcheck_error
+{
+ my ($MESSAGE)=@_;
+ chomp($MESSAGE);
+  print "\n\nERROR: SMOG-CHECK FAILED: $MESSAGE\n\n";
   print "Quitting.\n";
   exit;
 }
@@ -283,8 +292,7 @@ while(<PARMS>){
  }elsif($model =~ m/AA/){
   print "Testing AA model\n";
  }else{
-  print "Model name $model, not understood. Only CA and AA models are supported by the test script.  Quitting...\n";
-  exit;
+  smogcheck_error("Model name $model, not understood. Only CA and AA models are supported by the test script.");
  }
 # clean up the tracking for the next test
  foreach my $item(@FAILLIST){
@@ -373,8 +381,7 @@ while(<PARMS>){
   $bondEps=10000;
   $angleEps=80;
  }else{
-  print "Model name $model, not understood. Only CA and AA models are supported by the test script.  Quitting...\n";
-  exit;
+  smogcheck_error("Model name $model, not understood. Only CA and AA models are supported by the test script.");
  }
 
 
@@ -479,7 +486,7 @@ sub checkgro
  if(open(GRO,"$PDB.gro")){
   $FAIL{'OPEN GRO'}=0;
  }else{
-  print "ERROR: $PDB.gro can not be opened. This means SMOG died unexpectedly.\n";
+  smogcheck_error("ERROR: $PDB.gro can not be opened. This means SMOG died unexpectedly.");
   return;
  }
  my $LINE=<GRO>; # header comment
@@ -645,14 +652,36 @@ sub preparesettings
 sub checkndx
 {
 
- `bin/top.clean.bash $PDB.ndx $PDB.ndx2`;
+ open(NDX,"$PDB.ndx") or die " $PDB.ndx can not be opened...\n";
+ open(NDX2,">$PDB.ndx2") or die " $PDB.ndx2 can not be opened...\n";
+ while(<NDX>){
+  my $LINE=$_;
+  chomp($LINE);
+  $LINE =~ s/^\s+|^\t+//g;
+  if($LINE =~ m/^;/){
+   next;
+  }
+  $LINE =~ s/;.*$//g;
+  $LINE =~ s/\t/ /g;
+  $LINE =~ s/\s+$//g;
+  $LINE =~ s/\s+/ /g;
+  if($LINE eq ""){
+   next;
+  }
+  print NDX2 "$LINE\n";
+ }
+ close(NDX);
+ close(NDX2);
  `mv $PDB.ndx2 $PDB.ndx`;
  open(NDX,"$PDB.ndx") or die "no ndx file\n"; 
  my $CHAIN;
  while(<NDX>){
   my $LINE=$_;        
   chomp($LINE);
-  $LINE =~ s/\s+$//;
+  $LINE =~ s/;.*$//g;
+  $LINE =~ s/\t/ /g;
+  $LINE =~ s/^\s+|\s+$//g;
+  $LINE =~ s/\s+/ /g;
   my @A=split(/ /,$LINE);
   if($A[0] eq "["){
    $CHAIN=$A[1];
@@ -667,11 +696,31 @@ sub readtop
 {
 
  my %FOUND;
- `bin/top.clean.bash $PDB.top $PDB.top2`;
- `mv $PDB.top2 $PDB.top`;
  $DIH_MIN=100000000;
  $DIH_MAX=-100000000;
  $NCONTACTS=0;
+ # clean up top file for easy parsing later
+ open(TOP,"$PDB.top") or die " $PDB.top can not be opened...\n";
+ open(TOP2,">$PDB.top2") or die " $PDB.top can not be opened...\n";
+ while(<TOP>){
+  my $LINE=$_;
+  chomp($LINE);
+  $LINE =~ s/^\s+|^\t+//g;
+  if($LINE =~ m/^;/){
+   next;
+  }
+  $LINE =~ s/;.*$//g;
+  $LINE =~ s/\t/ /g;
+  $LINE =~ s/\s+$//g;
+  $LINE =~ s/\s+/ /g;
+  if($LINE eq ""){
+   next;
+  }
+  print TOP2 "$LINE\n";
+ }
+ close(TOP);
+ close(TOP2);
+ `mv $PDB.top2 $PDB.top`;
  open(TOP,"$PDB.top") or die " $PDB.top can not be opened...\n";
  $NUCLEIC_PRESENT=0;
  $AMINO_PRESENT=0;
@@ -705,14 +754,12 @@ sub readtop
  while(<TOP>){
   my $LINE=$_;
   chomp($LINE);
-  $LINE =~ s/\s+$//;
   @A=split(/ /,$LINE);
   if(exists $A[1]){
    if($A[1] eq "defaults"){
     $FOUND{'defaults'}++;
     $LINE=<TOP>;
     chomp($LINE);
-    $LINE =~ s/\s+$//;
     @A=split(/ /,$LINE);
     if($A[0] == 1){
      $FAIL{'DEFAULTS, nbfunc'}=0; 
@@ -736,7 +783,7 @@ sub readtop
     $FOUND{'atomtypes'}++;
     $#A = -1;
     $LINE=<TOP>;
-    $LINE =~ s/\s+$//;
+    chomp($LINE);
     @A=split(/ /,$LINE);
     my %seen;
     my $numtypes=0;
@@ -754,14 +801,13 @@ sub readtop
       $typesunique++;
      }else{
       my $T=$A[0];
-      print "ERROR: atomtype name $T appears more than once.\n";
+      smogcheck_error("atomtype name $T appears more than once.");
      }
-
      if($A[0] =~ /^[a-zA-Z0-9_]+$/){
       $acceptablenames++;
      }else{
       my $T=$A[0];
-      print "ERROR: Only letters, numbers and _ can appear as atomtype names. atomtype \"$T\" found.";
+      smogcheck_error("Only letters, numbers and _ can appear in atomtype names. atomtype $T found.");
      }
      if($A[1] == 1){
       $mass1++;
@@ -780,7 +826,6 @@ sub readtop
      }
      $#A = -1;
      $LINE=<TOP>;
-     $LINE =~ s/\s+$//;
      last unless defined $LINE;
      @A=split(/ /,$LINE);
     }
@@ -816,7 +861,6 @@ sub readtop
     $FOUND{'moleculetype'}++;
     my $LINE=<TOP>;
     chomp($LINE); 
-    $LINE =~ s/\s+$//;
     @A=split(/ /,$LINE);
     if($A[0] eq "Macromolecule"){
      $FAIL{'moleculetype=Macromolecule'}=0;
@@ -839,7 +883,6 @@ sub readtop
     $NUMATOMS_LIGAND=0;
     $#A = -1;
     $LINE=<TOP>;
-    $LINE =~ s/\s+$//;
     @A=split(/ /,$LINE);
     until($A[0] eq "["){
     # store information about each atom
@@ -898,7 +941,6 @@ sub readtop
      $NUMATOMS++;
      $#A = -1;
      $LINE=<TOP>;
-     $LINE =~ s/\s+$//;
      last unless defined $LINE;
      @A=split(/ /,$LINE);
     }
@@ -931,7 +973,6 @@ sub readtop
        $NbondWatom[$I]=0;
     }
     $LINE=<TOP>;
-    $LINE =~ s/\s+$//;
     @A=split(/ /,$LINE);
     until($A[0] eq "["){
      $NBONDS++;
@@ -979,7 +1020,6 @@ sub readtop
      }
      $LINE=<TOP>;
      last unless defined $LINE;
-     $LINE =~ s/\s+$//;
      @A=split(/ /,$LINE);
     }
 
@@ -1063,7 +1103,6 @@ sub readtop
     my %angle_array;
     my $string;
     $LINE=<TOP>;
-    $LINE =~ s/\s+$//;
     @A=split(/ /,$LINE);
     until($A[0] eq "["){
      if($A[3] == 1){
@@ -1100,7 +1139,6 @@ sub readtop
      }
      $LINE=<TOP>;
      last unless defined $LINE;
-     $LINE =~ s/\s+$//;
      @A=split(/ /,$LINE);
     }
     if($doubleangle ==0){
@@ -1300,7 +1338,6 @@ sub readtop
     $#ED_T = -1;
     $#EDrig_T = -1;
     $LINE=<TOP>;
-    $LINE =~ s/\s+$//;
     @A=split(/ /,$LINE);
     until($A[0] eq "["){
      if($A[0] < $A[3]){
@@ -1429,7 +1466,6 @@ sub readtop
      $#A = -1;
      $LINE=<TOP>;
      last unless defined $LINE;
-     $LINE =~ s/\s+$//;
      @A=split(/ /,$LINE);
     }
 
@@ -1655,7 +1691,6 @@ sub readtop
     my $NOTSHORTSEQ=0;
     $#A = -1;
     $LINE=<TOP>;
-    $LINE =~ s/\s+$//;
     @A=split(/ /,$LINE);
     my $W;
     my $Cdist;
@@ -1765,7 +1800,6 @@ sub readtop
      $#A = -1;
      $LINE=<TOP>;
      last unless defined $LINE;
-     $LINE =~ s/\s+$//;
      @A=split(/ /,$LINE);
     }
 
@@ -1817,7 +1851,6 @@ sub readtop
     $FOUND{'exclusions'}++;
     $#A = -1;
     $LINE=<TOP>;
-    $LINE =~ s/\s+$//;
     @A=split(/ /,$LINE);
     my $NEXCL=0;
     my $NEXCLUSIONS=0;
@@ -1833,7 +1866,6 @@ sub readtop
      $#A = -1;
      $LINE=<TOP>;
      last unless defined $LINE;
-     $LINE =~ s/\s+$//;
      @A=split(/ /,$LINE);
     }
     if($NEXCL == $NCONTACTS){
@@ -1846,7 +1878,6 @@ sub readtop
     $FOUND{'system'}++;
     $LINE=<TOP>;
     chomp($LINE);
-    $LINE =~ s/\s+$//;
     @A=split(/ /,$LINE);
     if($A[0] eq "Macromolecule"){
      $FAIL{'NAME'}=0;
@@ -1861,7 +1892,6 @@ sub readtop
     $FOUND{'molecules'}++;
     $LINE=<TOP>;
     chomp($LINE);
-    $LINE =~ s/\s+$//;
     @A=split(/ /,$LINE);
     if($A[0] eq "Macromolecule"){
      $FAIL{'NAME'}=0;
@@ -2159,7 +2189,7 @@ sub readtop
   }elsif($FOUND{"$FF"} == 0){
    print "Error: [ $FF ] not found in top file.  This either means SMOG did not complete, or there was a problem reading the file.  All subsequent output will be meaninglyess.\n";
   }else{
-   print "ERROR: Serious problem understanding .top file.  A directive may be duplicated.\n";
+   smogcheck_error("Serious problem understanding .top file.  A directive may be duplicated.");
   }
  }
  if($NFIELDS == $NFIELDC){
@@ -2184,17 +2214,17 @@ sub checkvalues
   if($theta_gen_N > 0 and $phi_gen_N > 0 ){
    $FAIL{'GENERATION OF ANGLES/DIHEDRALS'}=0;
   }else{
-   print "ERROR: Unable to generate angles ($theta_gen_N), or dihedrals ($phi_gen_N)...\n";
+   smogcheck_error("Unable to generate angles ($theta_gen_N), or dihedrals ($phi_gen_N)...");
   }
  }elsif($model eq "AA"){
   if($theta_gen_N > 0 and $phi_gen_N > 0 and $improper_gen_N > 0){
    $FAIL{'GENERATION OF ANGLES/DIHEDRALS'}=0;
 
   }else{
-    print "ERROR: Unable to generate angles ($theta_gen_N), dihedrals ($phi_gen_N), or impropers ($improper_gen_N)...\n";
+    smogcheck_error("ERROR: Unable to generate angles ($theta_gen_N), dihedrals ($phi_gen_N), or impropers ($improper_gen_N)...");
   }
  }else{
-  print "unrecognized model. Quitting...\n";
+  smogcheck_error("unrecognized model. Quitting...");
   die;
  }
  ## check the energy per dihedral and where the dihedral is SC/BB NA/AMINO
