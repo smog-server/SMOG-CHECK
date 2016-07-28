@@ -6,6 +6,9 @@ SMOG v2 is generating CA and AA .top files that are
 consistent with the default settings. They also check 
 to see if the models can be adjusted properly.
 
+SMOG-CHECK is free software, distributed under the GNU
+General Public License. See COPYING.
+
             Paul Whitford, Jeffrey Noel
 
 ########################################################
