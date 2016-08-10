@@ -1,10 +1,13 @@
 ########################################################
 
-README for the SMOG v2 smog-check. These are very simple 
+README for the SMOG 2 smog-check. These are very simple 
 scripts that will test to see if your installation of 
 SMOG v2 is generating CA and AA .top files that are 
 consistent with the default settings. They also check 
 to see if the models can be adjusted properly.
+
+SMOG-CHECK is free software, distributed under the GNU
+General Public License. See COPYING.
 
             Paul Whitford, Jeffrey Noel
 
