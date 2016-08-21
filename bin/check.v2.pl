@@ -471,14 +471,19 @@ sub smogchecker
   $FAIL{'SCM MAP GENERATED'}=0;
  }
 
-
- # CHECK THE OUTPUT
- &checkgro; 
- &checkndx;
- &readtop;
- &checkvalues;
- &summary; 
-
+ my $FATAL=`grep 'FATAL ERROR' $PDB.output | wc -l | awk '{print \$1}'`;
+ if($FATAL == 0){
+  print "SMOG 2 completed without a fatal error.\n\n";
+  # CHECK THE OUTPUT
+  &checkgro; 
+  &checkndx;
+  &readtop;
+  &checkvalues;
+  &summary; 
+ }else{
+  print "\nERROR: SMOG 2 encountered a fatal error when trying to process this PDB file.\n";
+  $FAIL_SYSTEM++;
+ }
 }
 
 sub checkgro
@@ -2187,7 +2192,7 @@ sub readtop
   if($FOUND{"$FF"} == 1){
    $NFIELDC++;
   }elsif($FOUND{"$FF"} == 0){
-   print "Error: [ $FF ] not found in top file.  This either means SMOG did not complete, or there was a problem reading the file.  All subsequent output will be meaninglyess.\n";
+   print "Error: [ $FF ] not found in top file.  This either means SMOG did not complete, or there was a problem reading the file.  All subsequent output will be meaningless.\n";
   }else{
    smogcheck_error("Serious problem understanding .top file.  A directive may be duplicated.");
   }
