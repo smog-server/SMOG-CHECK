@@ -41,13 +41,14 @@ if(EXACT_MATCH > 0) {
 			foreach $k (0 .. scalar @{$check_top[$i][$j]}-1) {
 				#print $check_top[$i][$j][$k]," ";
 				if($check_top[$i][$j][$k] ne $template_top[$i][$j][$k]) {
-					&complain($i,$j,$k,$template_top[$i][$j][$k],$template_top[$i][$j][$k]);
+					&complain($i,$j,$k,$template_top[$i][$j][$k],$check_top[$i][$j][$k]);
 				}
 			}
 			#print "\n";
 		}
 	}
 } else { #allow $differenceThreshold variation in integers and floats
+
 	foreach $i (0 .. $#list) {
 		foreach $j (0 .. scalar @{$template_top[$i]}-1) {
 			foreach $k (0 .. scalar @{$template_top[$i][$j]}-1) {
@@ -57,16 +58,18 @@ if(EXACT_MATCH > 0) {
 # 							 &complain($i,$j,$k,$check_top[$i][$j][$k],$template_top[$i][$j][$k]);
 # 						 }
 					if($check_top[$i][$j][$k] ne $template_top[$i][$j][$k]) {
-						&complain($i,$j,$k,$check_top[$i][$j][$k],$template_top[$i][$j][$k]);
+						&complain($i,$j,$k,$template_top[$i][$j][$k],$check_top[$i][$j][$k]);
 					}
-				} elsif(&whatAmI($check_top[$i][$j][$k]) == 2) { #float, within differenceThreshold
-					if($template_top[$i][$j][$k]*(1+$differenceThreshold) < $template_top[$i][$j][$k] ||
-					 	$template_top[$i][$j][$k]*(1-$differenceThreshold) > $template_top[$i][$j][$k]) {
-							 &complain($i,$j,$k,$template_top[$i][$j][$k],$template_top[$i][$j][$k]);
+				} elsif(&whatAmI($template_top[$i][$j][$k]) == 2) { #float, within differenceThreshold
+#!/				print "I am not integer\n",$template_top[$i][$j][$k],$check_top[$i][$j][$k];
+				
+					if($check_top[$i][$j][$k]*(1+$differenceThreshold) < $template_top[$i][$j][$k] ||
+					 	$check_top[$i][$j][$k]*(1-$differenceThreshold) > $template_top[$i][$j][$k]) {
+							 &complain($i,$j,$k,$template_top[$i][$j][$k],$check_top[$i][$j][$k]);
 					 }
 				} else { #string, must be exact
-					if($template_top[$i][$j][$k] ne $template_top[$i][$j][$k]) {
-						&complain($i,$j,$k,$template_top[$i][$j][$k],$template_top[$i][$j][$k]);
+					if($check_top[$i][$j][$k] ne $template_top[$i][$j][$k]) {
+						&complain($i,$j,$k,$template_top[$i][$j][$k],$check_top[$i][$j][$k]);
 					}
 				}
 			}
@@ -75,8 +78,7 @@ if(EXACT_MATCH > 0) {
 }
 sub complain {
 	print "ERROR.\n";
-	print "\nDifference at:\n";
-	print "Directive: ",$list[$_[0]],"\n";
+	print "\nDifference at: Directive [ ",$list[$_[0]]," ]\n";
 	print "Line: ",($_[1]+1)," Token: ",($_[2]+1)," \n";
 	print "Should be: ",$_[3],"\n";
 	print "But is instead: ",$_[4],"\n";
@@ -118,7 +120,7 @@ sub readtop {
 				@tokens=split(' ',$LINE);
 			}
 			print "\t",scalar @{ $contents[$keywordIndex] }," entries.\n";
-		} else {  die "ERROR. Unknown directive: ",$LINE," If correct please add to \@list in the code." }
+		} else {  die "ERROR. Unknown directive: ",$LINE," If correct please add to \@list in the code.";exit(1) }
 	}
 	close(TOP);		
 }

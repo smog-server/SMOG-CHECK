@@ -10,7 +10,7 @@ echo "Using the executables found in $SMOG_PATH"
 
 for pdb in 1AKEapo_v2 1ypa.2chains 2GIS_noSAM_v2
 do
-for graining in AA CA
+for graining in AA CA AAgauss
 do
 
 if [ -e $dir/share/benchmarks/$pdb.$graining.pdb ]
@@ -24,14 +24,30 @@ mkdir testing
 
 echo Testing $pdb with a $graining graining
 
-$perl4smog $SMOG_PATH/src/smogv2 -i $dir/share/benchmarks/$pdb.$graining.pdb -$graining -dname testing/$pdb.$graining  &> testing/smog2.output
-$perl4smog bin/quick_check.pl share/benchmarks/$pdb.$graining.top testing/$pdb.$graining.top > testing/$pdb.$graining.test
+if [ $graining == "AA" ]
+then
+	grainingText="AA"
+elif [ $graining == "CA" ]
+then
+	grainingText="CA"
+elif [ $graining == "AAgauss" ]
+then
+	grainingText="t $SMOG_PATH/templates/SBM_AA+gaussian"
+fi
+
+$perl4smog $SMOG_PATH/src/smogv2 -i $dir/share/benchmarks/$pdb.$graining.pdb -$grainingText -dname testing/$pdb.$graining  &> testing/smog2.output
+$perl4smog bin/quick_check.pl share/benchmarks/$pdb.$graining.top testing/$pdb.$graining.top &> testing/$pdb.$graining.test
 
 a=$(grep ERROR testing/$pdb.$graining.test | wc -l | awk '{print $1}')
+b=$(grep "Your Structure-based Model is ready" testing/smog2.output | wc -l | awk '{print $1}')
 
 if [ $a -gt 0 ]
 then
 echo There are errors. Check testing/$pdb.$graining.test for details.
+exit
+elif [ $b -eq 0 ]
+then
+echo SMOG2 did not finish running. Check testing/smog.output for details.
 exit
 else
 echo Congratulations there are no errors for $pdb.$graining.
@@ -40,6 +56,7 @@ fi
 
 done
 done
+exit
 rm -r testing
 echo "************ No errors found ************"
 
