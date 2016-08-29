@@ -183,6 +183,7 @@ our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-
 
 # a number of global variables.
 our $default;
+our $gaussian;
 our $model;
 our $PDB;
 our $CONTTYPE;
@@ -278,14 +279,19 @@ while(<PARMS>){
   undef  $epsilonCAD;
   undef  $sigmaCA;
 
-## These next few lines are currently obsolete, since we are only testing the SHADOW map
-## they are left in for future extentions to cut-off maps
 
  $model=$A[1];
- if($A[2] =~ m/default/){
+ if($A[2] =~ m/^default$/){
   $default="yes";
- }else{
+  $gaussian="no";
+ }elsif($A[2] =~ m/^default-gauss$/){
+  $default="yes";
+  $gaussian="yes";
+ }elsif($A[2] =~ m/^shadow-gauss$/ || $A[2] =~ m/^cutoff-gauss$/){
   $default="no";
+  $gaussian="yes";
+ }else{
+  smogcheck_error("Unknown contact option: \"$A[2]\"");
  }
  if($model =~ m/CA/){
   print "Testing CA model\n";
@@ -326,19 +332,32 @@ while(<PARMS>){
   # map type
   $CONTTYPE=$A[$ARG];
   $ARG++;
-  if($CONTTYPE =~ m/shadow/){
-  print "Will generate and use a shadow map\n";
+  if($CONTTYPE =~ m/^shadow$/){
+   print "Will generate and use a shadow map\n";
    $CONTD=$A[$ARG];
    $ARG++;
    $CONTR=$A[$ARG];
    $ARG++;
    $BBRAD=0.5;
-  }elsif($CONTTYPE =~ m/cutoff/){
-  print "Will generate and use a cutoff map\n";
+  }elsif($CONTTYPE =~ m/^cutoff$/){
+   print "Will generate and use a cutoff map\n";
    $CONTD=$A[$ARG];
    $ARG++;
    $CONTR=0.0;
    $BBRAD=0.0;
+  }elsif($CONTTYPE =~ m/^cutoff-gauss$/){
+   print "Will generate and use a cutoff map and gaussian contacts\n";
+   $CONTD=$A[$ARG];
+   $ARG++;
+   $CONTR=0.0;
+   $BBRAD=0.0;
+  }elsif($CONTTYPE =~ m/^shadow-gauss$/){
+   print "Will generate and use a shadow map and gaussian contacts\n";
+   $CONTD=$A[$ARG];
+   $ARG++;
+   $CONTR=$A[$ARG];
+   $ARG++;
+   $BBRAD=0.5;
   }else{
    print "Contact scheme $CONTTYPE is not supported. Is there a typo in $PDB_DIR/$PDB.pdb?\n";
    exit;
@@ -414,12 +433,14 @@ sub smogchecker
  
  # RUN SMOG2
  if($default eq "yes"){
-  if($model eq "CA"){
-   ##`$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -t $BIFSIF_CA -CG -t_contacts $BIFSIF_AA &> $PDB.output`;
+  if($model eq "CA" && $gaussian eq "no"){
    `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -CA &> $PDB.output`;
-  }elsif($model eq "AA"){
-   ##`$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -t $BIFSIF_AA &> $PDB.output`;
+  }elsif($model eq "CA" && $gaussian eq "yes"){
+   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -CAgaussian &> $PDB.output`;
+  }elsif($model eq "AA" &&  $gaussian eq "no"){
    `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -AA &> $PDB.output`;
+  }elsif($model eq "AA" &&  $gaussian eq "yes"){
+   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -AAgaussian &> $PDB.output`;
   }else{
    print "unrecognized model.  Quitting..\n";
    exit;
@@ -594,7 +615,7 @@ sub preparesettings
  printf READSET ("epsilonCAD %s\n", $epsilonCAD);
  printf READSET ("sigmaCA %s\n", $sigmaCA);
  close(READSET);
-
+#GAUSS ADD
  if($model eq "CA"){
   $sigmaCA=$sigmaCA/10.0;
   $rep_s12=$sigmaCA**12;
@@ -613,6 +634,8 @@ sub preparesettings
   if(-d "temp.cont.bifsif"){
   `rm -r temp.cont.bifsif`;
  }
+
+#GAUSS ADD
  if($model eq "CA" && $default ne "yes"){
   `mkdir temp.bifsif temp.cont.bifsif`;
   my $PARM_P_BB=$PRO_DIH;
@@ -636,6 +659,7 @@ sub preparesettings
 
  } 
 
+#GAUSS ADD
  if($model eq "AA" && $default ne "yes"){
   `mkdir temp.bifsif`;
   my $PARM_P_BB=$PRO_DIH;
@@ -890,7 +914,6 @@ sub readtop
     $LINE=<TOP>;
     @A=split(/ /,$LINE);
     until($A[0] eq "["){
-    # store information about each atom
     # atom name
      $ATOMNAME[$A[0]]=$A[4];
      for(my $J=0;$J<5;$J++){
@@ -1685,8 +1708,7 @@ sub readtop
    if($A[1] eq "pairs"){
     $FOUND{'pairs'}++;
    # reset all the values because we can analyze multiple settings, and we want to make sure we always start at 0 and with arrays cleared.
-#    my $stackingE=0;
-#    my $NonstackingE=0;
+#GAUSS ADD
     $CONTENERGY=0;
     my $FAIL_STACK=0;
     my $FAIL_NONSTACK=0;
@@ -1798,7 +1820,7 @@ sub readtop
       print "unrecognized model.  Quitting...\n";
       exit;
      }
-     # truncate the epsilon, for comparison purpsoses later.
+     # truncate the epsilon, for comparison purposes later.
      $W=int(($W * $PRECISION))/($PRECISION*1.0);
      # check to see if the contact is nucleic acids, adjacent residues and not backbone atoms.  These should be rescaled by a factor of 1/3
      # read the next line
@@ -1847,8 +1869,6 @@ sub readtop
      print "unrecognized model.  Quitting...\n";
      exit;
     }
-
-
    }
   } 
   if(exists $A[1]){ 
