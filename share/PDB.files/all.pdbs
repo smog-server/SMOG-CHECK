@@ -1,5 +1,6 @@
-DNA.terminal AA default-gauss 
-DNA.terminal AA shadow-gauss 5.0 1.4 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0
+DNA.terminal AA default-gaussian 
+1AKEapo_v2 AA default-gaussian 
+1AKEapo_v2 CA default-gaussian 
 DNA.terminal AA default
 DNA.terminal AA cutoff 5.0 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0
 DNA.terminal AA shadow 5.0 1.4 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0
