@@ -178,7 +178,7 @@ my $FAIL_SYSTEM=0;
  
 # FAILLIST is a list of all the tests.
 # If you are developing and testing your own forcefield, which may not need to conform to certain checks, then you may want to disable some tests by  removing the test name from this list. However, do so at your own risk.
-our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','ONLY 1 ATOMTYPE','TOP FIELDS FOUND','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'ANGLE TYPES', 'ANGLE WEIGHTS', 'DUPLICATE BONDS', 'DUPLICATE ANGLES', 'ANGLE CONSISTENCY 1','ANGLE CONSISTENCY 2','ANGLE CONSISTENCY 3', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL CONSISTENCY 1','DIHEDRAL CONSISTENCY 2','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM MAP GENERATED','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY');
+our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','ONLY 1 ATOMTYPE','TOP FIELDS FOUND','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'ANGLE TYPES', 'ANGLE WEIGHTS', 'DUPLICATE BONDS', 'DUPLICATE ANGLES', 'ANGLE CONSISTENCY 1','ANGLE CONSISTENCY 2','ANGLE CONSISTENCY 3', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL CONSISTENCY 1','DIHEDRAL CONSISTENCY 2','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM MAP GENERATED','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY');
 
 
 # a number of global variables.
@@ -284,10 +284,10 @@ while(<PARMS>){
  if($A[2] =~ m/^default$/){
   $default="yes";
   $gaussian="no";
- }elsif($A[2] =~ m/^default-gauss$/){
+ }elsif($A[2] =~ m/^default-gaussian$/){
   $default="yes";
   $gaussian="yes";
- }elsif($A[2] =~ m/^shadow-gauss$/ || $A[2] =~ m/^cutoff-gauss$/){
+ }elsif($A[2] =~ m/^shadow-gaussian$/ || $A[2] =~ m/^cutoff-gaussian$/){
   $default="no";
   $gaussian="yes";
  }else{
@@ -345,13 +345,13 @@ while(<PARMS>){
    $ARG++;
    $CONTR=0.0;
    $BBRAD=0.0;
-  }elsif($CONTTYPE =~ m/^cutoff-gauss$/){
+  }elsif($CONTTYPE =~ m/^cutoff-gaussian$/){
    print "Will generate and use a cutoff map and gaussian contacts\n";
    $CONTD=$A[$ARG];
    $ARG++;
    $CONTR=0.0;
    $BBRAD=0.0;
-  }elsif($CONTTYPE =~ m/^shadow-gauss$/){
+  }elsif($CONTTYPE =~ m/^shadow-gaussian$/){
    print "Will generate and use a shadow map and gaussian contacts\n";
    $CONTD=$A[$ARG];
    $ARG++;
@@ -403,14 +403,12 @@ while(<PARMS>){
   smogcheck_error("Model name $model, not understood. Only CA and AA models are supported by the test script.");
  }
 
-
  $bondMG=200;
  $ringEps=40;
  $omegaEps=10;
  $impEps=10;
 
  &smogchecker;
-
 
 }
 
@@ -615,7 +613,6 @@ sub preparesettings
  printf READSET ("epsilonCAD %s\n", $epsilonCAD);
  printf READSET ("sigmaCA %s\n", $sigmaCA);
  close(READSET);
-#GAUSS ADD
  if($model eq "CA"){
   $sigmaCA=$sigmaCA/10.0;
   $rep_s12=$sigmaCA**12;
@@ -1708,13 +1705,13 @@ sub readtop
    if($A[1] eq "pairs"){
     $FOUND{'pairs'}++;
    # reset all the values because we can analyze multiple settings, and we want to make sure we always start at 0 and with arrays cleared.
-#GAUSS ADD
     $CONTENERGY=0;
     my $FAIL_STACK=0;
     my $FAIL_NONSTACK=0;
     my $LONGCONT=0;
     my $CONTACT_W_CA=0;
     my $ContactDist=0;
+    my $GaussianContactWidth=0;
     my $NOTSHORTSEQ=0;
     $#A = -1;
     $LINE=<TOP>;
@@ -1743,15 +1740,33 @@ sub readtop
       $FAILED++; 
       last;
      }
-     if($model eq "CA"){
+     # the order of these if statements is important.
+     if($gaussian eq "yes"){
+      $W=$A[3];
+      $Cdist=$A[4];
+      $CALCD=(($XT[$A[0]]-$XT[$A[1]])**2+($YT[$A[0]]-$YT[$A[1]])**2+($ZT[$A[0]]-$ZT[$A[1]])**2)**(0.5);
+      if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0) ){
+       $ContactDist++;
+      }else{
+       print "A contact appears to be the wrong distance.  From the .gro file, we found r=$CALCD, and from the .top r=$Cdist.\n";
+       print "$LINE\n";
+      }
+      # check width of gaussian
+      my $sigmagaussian=$A[5];
+      my $sigmagaussianCALC=-1;
+      if($model eq "CA"){
+       $sigmagaussianCALC=0.05;
+      }elsif($model eq "AA"){
+       $sigmagaussianCALC=$A[4]/sqrt(50.0*log(2.0));
+      }
+      if(abs($sigmagaussian-$sigmagaussianCALC) < 100.0/($PRECISION*1.0) ){
+       $GaussianContactWidth++;
+      }else{
+       print "A gaussian contact appears to have the wrong width.  From the .top file, we found sigma=$sigmagaussian, but based on the native distance, we expect sigma=$sigmagaussianCALC.\n";
+       print "$LINE\n";
+      }
+     }elsif($model eq "CA"){
       $W=5.0**5.0/6.0**6.0*($A[3]**6.0)/($A[4]**5.0);
-     }elsif($model eq "AA"){
-      $W=($A[3]*$A[3])/(4*$A[4]);
-     }else{
-      print "unrecognized model.  Quitting...\n";
-      exit;
-     }
-     if($model eq "AA"){
       $Cdist=(2*$A[4]/($A[3]))**(1.0/6.0);
       $CALCD=(($XT[$A[0]]-$XT[$A[1]])**2+($YT[$A[0]]-$YT[$A[1]])**2+($ZT[$A[0]]-$ZT[$A[1]])**2)**(0.5);
       if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0) ){
@@ -1760,8 +1775,8 @@ sub readtop
        print "A contact appears to be the wrong distance.  From the .gro file, we found r=$CALCD, and from the .top r=$Cdist.\n";
        print "$LINE\n";
       }
-
-     }elsif($model eq "CA"){
+     }elsif($model eq "AA"){
+      $W=($A[3]*$A[3])/(4*$A[4]);
       $Cdist=(6.0*$A[4]/(5.0*$A[3]))**(1.0/2.0);
       $CALCD=(($XT[$A[0]]-$XT[$A[1]])**2+($YT[$A[0]]-$YT[$A[1]])**2+($ZT[$A[0]]-$ZT[$A[1]])**2)**(0.5);
       if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0)){
@@ -1770,6 +1785,9 @@ sub readtop
        print "A contact appears to be the wrong distance.  From the .gro file, we found r=$CALCD, and from the .top r=$Cdist.\n";
        print "$LINE\n";
       }
+     }else{
+      print "unrecognized model.  Quitting...\n";
+      exit;
      }
      # so long as the contacts are not with ligands, then we add the sum
      if($model eq "CA"){
@@ -1793,7 +1811,7 @@ sub readtop
      }
       ## so long as the contacts are not with ligands, then we add the sum
       if($MOLTYPE[$A[0]] ne "LIGAND" and $MOLTYPE[$A[1]] ne "LIGAND"){
-       $CONTENERGY+=($A[3]*$A[3])/(4*$A[4]);
+       $CONTENERGY+=$W;
       }
       if($MOLTYPE[$A[0]] eq "NUCLEIC" and $MOLTYPE[$A[1]] eq "NUCLEIC" and $ATOMTYPE[$A[0]] ne "BACKBONE" and  $ATOMTYPE[$A[1]] ne "BACKBONE" and $ATOMNAME[$A[0]] ne "C1\*" and $ATOMNAME[$A[1]] ne "C1\*" and abs($RESNUM[$A[0]]-$RESNUM[$A[1]]) == 1 and $CID[$A[0]] == $CID[$A[1]]){
        # if we haven't assigned a value to stacking interactions, then let's save it
@@ -1829,12 +1847,18 @@ sub readtop
      last unless defined $LINE;
      @A=split(/ /,$LINE);
     }
-
     if($NOTSHORTSEQ == $NCONTACTS){
      $FAIL{'CONTACTS PROTEIN i-j!<4'}=0;
     }
     if($ContactDist == $NCONTACTS){
      $FAIL{'CONTACT DISTANCES'}=0;
+    }
+    if($gaussian eq "yes"){
+     if($GaussianContactWidth == $NCONTACTS){
+      $FAIL{'GAUSSIAN CONTACT WIDTHS'}=0;
+     }
+    }else{
+      $FAIL{'GAUSSIAN CONTACT WIDTHS'}=-1;
     }
     if($model eq "AA"){
      if($LONGCONT == $NCONTACTS){
