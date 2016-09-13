@@ -1785,7 +1785,7 @@ sub readtop
       }
      }elsif($model eq "AA"){
       $W=($A[3]*$A[3])/(4*$A[4]);
-      $Cdist=(6.0*$A[4]/(5.0*$A[3]))**(1.0/2.0);
+      $Cdist=(2.0*$A[4]/($A[3]))**(1.0/6.0);
       $CALCD=(($XT[$A[0]]-$XT[$A[1]])**2+($YT[$A[0]]-$YT[$A[1]])**2+($ZT[$A[0]]-$ZT[$A[1]])**2)**(0.5);
       if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0)){
        $ContactDist++;
