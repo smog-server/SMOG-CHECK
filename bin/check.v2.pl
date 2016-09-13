@@ -287,6 +287,12 @@ while(<PARMS>){
  }elsif($A[2] =~ m/^default-gaussian$/){
   $default="yes";
   $gaussian="yes";
+ }elsif($A[2] =~ m/^cutoff$/){
+  $default="no";
+  $gaussian="no";
+ }elsif($A[2] =~ m/^shadow$/){
+  $default="no";
+  $gaussian="no";
  }elsif($A[2] =~ m/^shadow-gaussian$/ || $A[2] =~ m/^cutoff-gaussian$/){
   $default="no";
   $gaussian="yes";
