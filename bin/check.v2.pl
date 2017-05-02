@@ -243,7 +243,6 @@ chomp($SETTINGS_FILE);
 open(PARMS,"$SETTINGS_FILE") or die "The settings file is missing...\n";
 my $TESTNUM=0;
 ## Run tests for each pdb
-my $NFAIL=0;
 while(<PARMS>){
  my $LINE=$_;
  chomp($LINE);
@@ -504,11 +503,11 @@ sub smogchecker
   &checkndx;
   &readtop;
   &checkvalues;
-  &summary; 
  }else{
-  print "\nERROR: SMOG 2 encountered a fatal error when trying to process this PDB file.\n";
+  print "\nERROR: SMOG 2 encountered a FATAL ERROR when trying to process this PDB file. Since SMOG 2 failed to run, you are likely to see a long list of errors in the next few lines.\n";
   $FAIL_SYSTEM++;
  }
+ &summary; 
 }
 
 sub checkgro
@@ -2383,7 +2382,6 @@ sub summary
     `mv temp.cont.bifsif $FAILDIR/$PDB.fail$TESTNUM.cont.bifsif`;
    }
    
-  $NFAIL++;
   $FAIL_SYSTEM++;
  }else{
   print "\n*************************************************************\n";
