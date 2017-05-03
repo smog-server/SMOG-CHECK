@@ -504,10 +504,10 @@ sub smogchecker
   &readtop;
   &checkvalues;
  }else{
-  print "\nERROR: SMOG 2 encountered a FATAL ERROR when trying to process this PDB file. Since SMOG 2 failed to run, you are likely to see a long list of errors in the next few lines.\n";
+  print "\nERROR: SMOG 2 encountered a FATAL ERROR when trying to process this PDB file.\n";
   $FAIL_SYSTEM++;
  }
- &summary; 
+ &summary($FATAL); 
 }
 
 sub checkgro
@@ -2338,24 +2338,29 @@ sub checkvalues
 
 sub summary
 {
+ my ($FATAL)=@_;
 
- print "\n\n              SUMMARY OF CHECKS            \n\n";
 
- foreach my $TEST (@FAILLIST){
-  if($FAIL{$TEST}==1){
-   print "!!!!!!!!!!$TEST CHECK : FAILED!!!!!!!!!!\n";
-   $FAILED++;
-  }elsif($FAIL{$TEST}==0){
-   print "$TEST CHECK : PASSED\n";
-  }elsif($FAIL{$TEST}==-1){
-   print "$TEST CHECK : N/A\n";
-  }else{
-   internal_error("$TEST");
+ if($FATAL==0){
+  print "\n\n              SUMMARY OF CHECKS            \n\n";
+ 
+  foreach my $TEST (@FAILLIST){
+   if($FAIL{$TEST}==1){
+    print "!!!!!!!!!!$TEST CHECK : FAILED!!!!!!!!!!\n";
+    $FAILED++;
+   }elsif($FAIL{$TEST}==0){
+    print "$TEST CHECK : PASSED\n";
+   }elsif($FAIL{$TEST}==-1){
+    print "$TEST CHECK : N/A\n";
+   }else{
+    internal_error("$TEST");
+   }
   }
+ }else{
+  $FAILED="ALL";
  }
 
-
- if($FAILED > 0){
+ if($FAILED eq "ALL" || $FAILED > 0){
   print "\n*************************************************************\n";
   print "               $FAILED CHECKS FAILED FOR TEST $TESTNUM ($PDB)!!!\n";
   print  "*************************************************************\n";
