@@ -69,7 +69,7 @@ sub smogcheck_error
 {
  my ($MESSAGE)=@_;
  chomp($MESSAGE);
-  print "\n\nERROR: SMOG-CHECK FAILED: $MESSAGE\n\n";
+  print "\n\nERROR: SMOG-CHECK CRASH: $MESSAGE\n\n";
   print "Quitting.\n";
   exit;
 }
@@ -96,8 +96,7 @@ sub checkForModules {
 our @FILETYPES=("top","gro","ndx","settings","contacts","output","contacts.SCM", "contacts.CG");
 
 unless( -e $SCM){
- print "Can\'t find Shadow! Quitting!!\n";
- exit;
+ smogcheck_error("Can\'t find Shadow!");
 }
 our %BBTYPE;
 ## read in the backbone atom types.  Remember, CA and C1* can be involved in sidechain dihedrals
@@ -284,15 +283,19 @@ while(<PARMS>){
   $default="yes";
   $gaussian="no";
  }elsif($A[2] =~ m/^default-gaussian$/){
+  print "Will use gaussian contacts\n";
   $default="yes";
   $gaussian="yes";
  }elsif($A[2] =~ m/^cutoff$/){
+  print "Will use cutoff contacts\n";
   $default="no";
   $gaussian="no";
  }elsif($A[2] =~ m/^shadow$/){
+  print "Will use shadow contacts\n";
   $default="no";
   $gaussian="no";
  }elsif($A[2] =~ m/^shadow-gaussian$/ || $A[2] =~ m/^cutoff-gaussian$/){
+  print "Will use gaussian contacts\n";
   $default="no";
   $gaussian="yes";
  }else{
@@ -364,8 +367,7 @@ while(<PARMS>){
    $ARG++;
    $BBRAD=0.5;
   }else{
-   print "Contact scheme $CONTTYPE is not supported. Is there a typo in $PDB_DIR/$PDB.pdb?\n";
-   exit;
+   smogcheck_error("Contact scheme $CONTTYPE is not supported. Is there a typo in $PDB_DIR/$PDB.pdb?");
   }
 
    #if shadow, read length and size
@@ -393,8 +395,7 @@ while(<PARMS>){
    $ARG++;
   $sigmaCA=$A[$ARG];
   if(!exists $A[$ARG]){
-   print "Insufficient number of arguments given in settings file for smog-check.  Quitting.\n ";
-   exit;
+   smogcheck_error("Insufficient number of arguments given in settings file for smog-check.");
   }
  }
 
@@ -445,8 +446,7 @@ sub smogchecker
   }elsif($model eq "AA" &&  $gaussian eq "yes"){
    `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -AAgaussian &> $PDB.output`;
   }else{
-   print "unrecognized model.  Quitting..\n";
-   exit;
+   smogcheck_error("unrecognized model.");
   }
  }else{
   if($model eq "CA"){
@@ -454,8 +454,7 @@ sub smogchecker
   }elsif($model eq "AA"){
    `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -t temp.bifsif/  &> $PDB.output`;
   }else{
-   print "unrecognized model.  Quitting..\n";
-   exit;
+   smogcheck_error("unrecognized model.");
   }
  }
 
@@ -515,7 +514,7 @@ sub checkgro
  if(open(GRO,"$PDB.gro")){
   $FAIL{'OPEN GRO'}=0;
  }else{
-  smogcheck_error("ERROR: $PDB.gro can not be opened. This means SMOG died unexpectedly.");
+  smogcheck_error("$PDB.gro can not be opened. This means SMOG died unexpectedly.");
   return;
  }
  my $LINE=<GRO>; # header comment
@@ -627,7 +626,7 @@ sub preparesettings
   $rep_s12=$sigma**12*$epsilon;
   $sigma=$sigma*10;
  }else{
-  print "unknown model type.  Quitting...\n";
+  smogcheck_error("unknown model type.");
  }
 
  if(-d "temp.bifsif"){
@@ -1799,8 +1798,7 @@ sub readtop
        print "$LINE\n";
       }
      }else{
-      print "unrecognized model.  Quitting...\n";
-      exit;
+      smogcheck_error("unrecognized model.");
      }
      # so long as the contacts are not with ligands, then we add the sum
      if($model eq "CA"){
@@ -1830,7 +1828,7 @@ sub readtop
        # if we haven't assigned a value to stacking interactions, then let's save it
        # if we have saved it, check to see that this value is the same as the previous ones.
        if($stackingE == 0 ){
-	print "stacking weight found: $W ";
+#	print "stacking weight found: $W ";
         $stackingE=$W;
        }elsif(abs($stackingE - $W) > 10.0/($PRECISION*1.0) ){
         $FAIL_STACK++;
@@ -1848,8 +1846,7 @@ sub readtop
        }
       }
      }else{
-      print "unrecognized model.  Quitting...\n";
-      exit;
+      smogcheck_error("unrecognized model.");
      }
      # truncate the epsilon, for comparison purposes later.
      $W=int(($W * $PRECISION))/($PRECISION*1.0);
@@ -1886,7 +1883,6 @@ sub readtop
       if($FAIL_NONSTACK == 0 and $NonstackingE != 0){
        $FAIL{'NON-STACKING CONTACT WEIGHTS'}=0;	
       }
- 	print "$FAIL_STACK $stackingE\n";
       if($FAIL_STACK == 0 and $stackingE != 0 ){
        $FAIL{'STACKING CONTACT WEIGHTS'}=0;	
       }
@@ -1908,8 +1904,7 @@ sub readtop
      $FAIL{'STACKING CONTACT WEIGHTS'}=-1;	
      $FAIL{'NON-STACKING CONTACT WEIGHTS'}=-1;	
     }else{
-     print "unrecognized model.  Quitting...\n";
-     exit;
+     smogcheck_error("unrecognized model.");
     }
    }
   } 
@@ -2214,11 +2209,12 @@ sub readtop
   my $D_R=$DIH_MAX/ $DIH_MIN;
   if($D_R > $MAXTHR*4*$R_P_BB_SC  ){
    print "WARNING!!!: range of dihedrals is large\n";
-  }else{
-   print "range of dihedrals: PASSED\n";
   }
+   #else{
+   #print "range of dihedrals: PASSED\n";
+  #}
 
-  print "ENERGIES: Contact=$CONTENERGY; Dihedral=$DENERGY\n";
+  #print "ENERGIES: Contact=$CONTENERGY; Dihedral=$DENERGY\n";
   my $CD_ratio;
   if($DENERGY > 0){
    $CD_ratio=$CONTENERGY/$DENERGY;
@@ -2269,14 +2265,14 @@ sub checkvalues
 {
 
  ## DONE READING IN THE FILE.  TIME TO CHECK AND SEE IF ALL THE RATIOS ARE CORRECT
- print "number of atoms = $NUMATOMS\n";
- print "number of atoms(excluding ligands) = $NUMATOMS_LIGAND\n";
- print "Dihedral energy = $DENERGY\n";
- print "Contact energy = $CONTENERGY\n";
- print "max dihedral = $DIH_MAX\n";
- print "min dihedral = $DIH_MIN\n";
- print "generated angles, dihedrals, impropers\n";
- print "$theta_gen_N $phi_gen_N $improper_gen_N\n";
+# print "number of atoms = $NUMATOMS\n";
+# print "number of atoms(excluding ligands) = $NUMATOMS_LIGAND\n";
+# print "Dihedral energy = $DENERGY\n";
+# print "Contact energy = $CONTENERGY\n";
+# print "max dihedral = $DIH_MAX\n";
+# print "min dihedral = $DIH_MIN\n";
+# print "generated angles, dihedrals, impropers\n";
+# print "$theta_gen_N $phi_gen_N $improper_gen_N\n";
  if($model eq "CA"){
   if($theta_gen_N > 0 and $phi_gen_N > 0 ){
    $FAIL{'GENERATION OF ANGLES/DIHEDRALS'}=0;
@@ -2288,7 +2284,7 @@ sub checkvalues
    $FAIL{'GENERATION OF ANGLES/DIHEDRALS'}=0;
 
   }else{
-    smogcheck_error("ERROR: Unable to generate angles ($theta_gen_N), dihedrals ($phi_gen_N), or impropers ($improper_gen_N)...");
+    smogcheck_error("Unable to generate angles ($theta_gen_N), dihedrals ($phi_gen_N), or impropers ($improper_gen_N)...");
   }
  }else{
   smogcheck_error("unrecognized model. Quitting...");
@@ -2296,7 +2292,7 @@ sub checkvalues
  }
  ## check the energy per dihedral and where the dihedral is SC/BB NA/AMINO
  if($DISP_MAX == 0){
-  print "internal error: Quitting.  Please report to info\@smog-server.org\n";
+  internal_error("DISP_MAX");
  }
 
  if($model eq "AA"){
@@ -2325,7 +2321,7 @@ sub checkvalues
  }
  my $E_TOTAL=$DENERGY+$CONTENERGY;
  my $CTHRESH=$NUMATOMS*10.0/$PRECISION;
- print "number of non-ligand atoms $NUMATOMS_LIGAND total E $E_TOTAL\n";
+# print "number of non-ligand atoms $NUMATOMS_LIGAND total E $E_TOTAL\n";
  if($model eq "AA"){ 
   if(abs($NUMATOMS_LIGAND-$E_TOTAL) < $CTHRESH){
    $FAIL{'TOTAL ENERGY'}=0;
@@ -2339,32 +2335,34 @@ sub checkvalues
 sub summary
 {
  my ($FATAL)=@_;
-
+ my $printbuffer="";
 
  if($FATAL==0){
-  print "\n\n              SUMMARY OF CHECKS            \n\n";
+  $printbuffer .= sprintf ("\n     SUMMARY OF FAILED TESTS:\n");
  
   foreach my $TEST (@FAILLIST){
    if($FAIL{$TEST}==1){
-    print "!!!!!!!!!!$TEST CHECK : FAILED!!!!!!!!!!\n";
+    $printbuffer .= sprintf ("        %s CHECK\n",$TEST);
     $FAILED++;
    }elsif($FAIL{$TEST}==0){
-    print "$TEST CHECK : PASSED\n";
+   # $printbuffer .= sprintf("%s CHECK : PASSED\n", $TEST);
    }elsif($FAIL{$TEST}==-1){
-    print "$TEST CHECK : N/A\n";
+   # $printbuffer .= sprintf("%s CHECK : N/A\n",$TEST);
    }else{
     internal_error("$TEST");
    }
   }
+
  }else{
   $FAILED="ALL";
  }
 
  if($FAILED eq "ALL" || $FAILED > 0){
   print "\n*************************************************************\n";
-  print "               $FAILED CHECKS FAILED FOR TEST $TESTNUM ($PDB)!!!\n";
+  print "     $FAILED CHECKS FAILED FOR TEST $TESTNUM ($PDB)!!!\n";
+  print $printbuffer;
+  print "Note: Will save files with names FAILED/$PDB.fail$TESTNUM.X\n";
   print  "*************************************************************\n";
-  print "saving files with names $PDB.fail$TESTNUM.X\n";
   `cp share/PDB.files/$PDB.pdb $FAILDIR/$PDB.fail$TESTNUM.pdb`;
 
   foreach(@FILETYPES){
