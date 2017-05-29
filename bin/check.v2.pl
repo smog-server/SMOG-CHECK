@@ -2336,7 +2336,9 @@ sub summary
 {
  my ($FATAL)=@_;
  my $printbuffer="";
-
+ my $NFAILED=0;
+ my $NPASSED=0;
+ my $NNA=0;
  if($FATAL==0){
   $printbuffer .= sprintf ("\n     SUMMARY OF FAILED TESTS:\n");
  
@@ -2344,9 +2346,12 @@ sub summary
    if($FAIL{$TEST}==1){
     $printbuffer .= sprintf ("        %s CHECK\n",$TEST);
     $FAILED++;
+    $NFAILED++;
    }elsif($FAIL{$TEST}==0){
    # $printbuffer .= sprintf("%s CHECK : PASSED\n", $TEST);
+    $NPASSED++;
    }elsif($FAIL{$TEST}==-1){
+    $NNA++;
    # $printbuffer .= sprintf("%s CHECK : N/A\n",$TEST);
    }else{
     internal_error("$TEST");
@@ -2356,7 +2361,7 @@ sub summary
  }else{
   $FAILED="ALL";
  }
-
+ print "passed/failed/NA : $NPASSED/$NFAILED/$NNA\n";
  if($FAILED eq "ALL" || $FAILED > 0){
   print "\n*************************************************************\n";
   print "     $FAILED CHECKS FAILED FOR TEST $TESTNUM ($PDB)!!!\n";
