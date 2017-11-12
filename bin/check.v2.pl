@@ -496,7 +496,7 @@ sub smogchecker
 
  my $FATAL=`grep 'FATAL ERROR' $PDB.output | wc -l | awk '{print \$1}'`;
  if($FATAL == 0){
-  print "SMOG 2 completed without a fatal error.\n\n";
+  print "SMOG 2 successfully completed.\n\n";
   # CHECK THE OUTPUT
   &checkgro; 
   &checkndx;
@@ -2361,7 +2361,13 @@ sub summary
  }else{
   $FAILED="ALL";
  }
- print "passed/failed/NA : $NPASSED/$NFAILED/$NNA\n";
+ print "test results\n";
+ print "\t passed : $NPASSED\n";
+ if($NFAILED != 0){
+  
+ print "\t failed : $NFAILED\n";
+ }
+ print "\t N/A    : $NNA\n";
  if($FAILED eq "ALL" || $FAILED > 0){
   print "\n*************************************************************\n";
   print "     $FAILED CHECKS FAILED FOR TEST $TESTNUM ($PDB)!!!\n";
