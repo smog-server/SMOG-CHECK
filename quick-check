@@ -1,4 +1,14 @@
 #!/bin/bash
+export smog_exec=`which smog2`
+
+export perl4smog=`tail -n 1 $smog_exec| awk '{print $1}'`
+
+export SMOG_PATH=`tail -n 1 $smog_exec| awk '{print $2}' | sed "s/src\/smogv2$//g"`
+
+echo executable to be tested: $smog_exec
+echo perl to be used: $perl4smog
+echo smog path: $SMOG_PATH
+
 dir=$(pwd)
 count=0
 if [ -z "$SMOG_PATH" ]; then
@@ -32,10 +42,10 @@ then
 	grainingText="CA"
 elif [ $graining == "AAgauss" ]
 then
-	grainingText="t $SMOG_PATH/templates/SBM_AA+gaussian"
+	grainingText="t $SMOG_PATH/share/templates/SBM_AA+gaussian"
 fi
 
-$perl4smog $SMOG_PATH/src/smogv2 -i $dir/share/benchmarks/$pdb.$graining.pdb -$grainingText -dname testing/$pdb.$graining  &> testing/smog2.output
+$perl4smog $smog_exec -i $dir/share/benchmarks/$pdb.$graining.pdb -$grainingText -dname testing/$pdb.$graining  &> testing/smog2.output
 $perl4smog bin/quick_check.pl share/benchmarks/$pdb.$graining.top testing/$pdb.$graining.top &> testing/$pdb.$graining.test
 
 a=$(grep ERROR testing/$pdb.$graining.test | wc -l | awk '{print $1}')
