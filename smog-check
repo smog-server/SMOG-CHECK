@@ -1,5 +1,12 @@
 #!/bin/bash
 
+echo Detecting configured version of SMOG2
+export smog_exec=`which smog2`
+
+export perl4smog=`tail -n 1 $smog_exec| awk '{print $1}'`
+
+export SMOG_PATH=`tail -n 1 $smog_exec| awk '{print $2}' | sed "s/src\/smogv2$//g"`
+
 echo "Using the files found in $SMOG_PATH"
 echo "This is set when running configure.smog2"
 export BIFSIF_AA_DEFAULT=$SMOG_PATH/SBM_AA
