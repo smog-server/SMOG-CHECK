@@ -51,9 +51,8 @@ our $PDB_DIR="share/PDB.files";
 print "environment variables read\n";
 print "EXEC_NAME $EXEC_NAME\n";
 
-## this is the all-atom smog check with shadow.
+# where should data from failed tests be written
 our $FAILDIR="FAILED";
-
 
 sub internal_error
 {
@@ -73,6 +72,15 @@ sub smogcheck_error
   print "Quitting.\n";
   exit;
 }
+
+sub failed_message
+{
+ my ($MESSAGE)=@_;
+ chomp($MESSAGE);
+ $MESSAGE=sprintf ("FAILED TEST: %s\n\n", $MESSAGE);
+ return $MESSAGE;
+}
+
 
 sub checkForModules {
 	my $checkPackage; my $sum=0;
@@ -236,6 +244,7 @@ our @XT;
 our @YT;
 our @ZT;
 our $bondtype6;
+our $fail_log;
 
 my $SETTINGS_FILE=<STDIN>;
 chomp($SETTINGS_FILE);
@@ -244,6 +253,7 @@ my $TESTNUM=0;
 ## Run tests for each pdb
 while(<PARMS>){
  my $LINE=$_;
+ $fail_log="";
  chomp($LINE);
  $LINE =~ s/\s+$//;
  $FAILED=0;
@@ -254,7 +264,7 @@ while(<PARMS>){
  $PDB=$A[0];
  $TESTNUM++;
  unless(-e "$PDB_DIR/$PDB.pdb"){
-  print "Unable to find PDB file $PDB_DIR/$PDB.pdb for testing.  Skipping this test\n";
+  print "Unable to find PDB file $PDB_DIR/$PDB.pdb for testing.  Skipping this test\n\n";
   $FAIL_SYSTEM++;
   next;
  }
@@ -314,7 +324,7 @@ while(<PARMS>){
  }
 
  if($default eq "yes"){
-  print "checking default parameters\n";
+  print "Checking default parameters\n";
   # energy distributions
 
   ## Settings relevant for the default model
@@ -334,7 +344,7 @@ while(<PARMS>){
   $epsilonCAD=1.0;
   $sigmaCA=4.0;
  }else{
-  print "checking non-default parameters for SMOG models\n";
+  print "Checking non-default parameters for SMOG models\n";
   my $ARG=2;
   # energy distributions
   # map type
@@ -503,7 +513,7 @@ sub smogchecker
   &readtop;
   &checkvalues;
  }else{
-  print "\nERROR: SMOG 2 encountered a FATAL ERROR when trying to process this PDB file.\n";
+  $fail_log .= failed_message("SMOG 2 encountered a FATAL ERROR when trying to process this PDB file.");
   $FAIL_SYSTEM++;
  }
  &summary($FATAL); 
@@ -579,8 +589,7 @@ sub checkgro
  $DY=int(($DY * $PRECISION/10.0))/($PRECISION*0.1);
  $DZ=int(($DZ * $PRECISION/10.0))/($PRECISION*0.1);
  if(abs($BOUNDS[0]-$DX) > $TOLERANCE || abs($BOUNDS[1] - $DY) > $TOLERANCE || abs($BOUNDS[2] - $DZ) > $TOLERANCE ){
-  print "Gro box size inconsistent\n";
-  print "$BOUNDS[0], $XMAX, $XMIN,$BOUNDS[1],$YMAX,$YMIN,$BOUNDS[2],$ZMAX,$ZMIN\n";
+  $fail_log .= failed_message("Gro box size inconsistent\n\t$BOUNDS[0], $XMAX, $XMIN,$BOUNDS[1],$YMAX,$YMIN,$BOUNDS[2],$ZMAX,$ZMIN");
  }else{
   $FAIL{'BOX DIMENSIONS'}=0;
  }
@@ -794,17 +803,17 @@ sub readtop
     if($A[0] == 1){
      $FAIL{'DEFAULTS, nbfunc'}=0; 
     }else{
-     print "default nbfunc is not correctly set.\n";
+     $fail_log .= failed_message("default nbfunc is not correctly set.");
     }
     if($A[1] == 1){
      $FAIL{'DEFAULTS, comb-rule'}=0; 
     }else{
-     print "default comb-rule is not correctly set.\n";
+     $fail_log .= failed_message("default comb-rule is not correctly set.");
     }
     if($A[2] eq "no"){
      $FAIL{'DEFAULTS, gen-pairs'}=0; 
     }else{
-     print "default gen-pairs is not correctly set.\n";
+     $fail_log .= failed_message("default gen-pairs is not correctly set.");
     }
    }
   }
@@ -895,12 +904,12 @@ sub readtop
     if($A[0] eq "Macromolecule"){
      $FAIL{'moleculetype=Macromolecule'}=0;
     }else{
-     print "default molecule name is off.\n";
+     $fail_log .= failed_message("default molecule name is different than expected");
     }
     if($A[1] == 3){
      $FAIL{'nrexcl=3'}=0;
     }else{
-     print "nrexcl is not set to 3.\n";
+     $fail_log .=failed_message("nrexcl is not set to 3.");
     }
    }
   } 
@@ -963,7 +972,7 @@ sub readtop
      }elsif($MOLTYPE[$A[0]] eq "ION"){
       $ION_PRESENT=1;
      }else{
-      print "there is an unrecognized residue name (This should never happen).\n";
+      print "there is an unrecognized residue name.\n";
       print "$A[0] $A[3]\n";
       internal_error("$A[0] $A[3]");
      }
@@ -1008,8 +1017,7 @@ sub readtop
      if($A[2] == 1){
       $RECOGNIZEDBTYPES++;
       if($A[4] != $bondEps){
-       print "bond has incorrect weight\n";
-       print "$LINE";
+       $fail_log .= failed_message("bond has incorrect weight\n\t$LINE");
       }else{
        $CORRECTBONDWEIGHTS++;
       }		
@@ -1038,14 +1046,12 @@ sub readtop
       $RECOGNIZEDBTYPES++;
       $bondtype6++;
        if($A[4] != $bondMG){
-        print "BMG bond has incorrect weight\n";
-        print "$LINE";
+        $fail_log .= failed_message("BMG bond has incorrect weight\n\t$LINE");
        }else{
        $CORRECTBONDWEIGHTS++;
       }		
      }else{
-       print "unknown function type for bond\n";
-       print "$LINE";
+      $fail_log .= failed_message("unknown function type for bond\n\t$LINE");
      }
      $LINE=<TOP>;
      last unless defined $LINE;
@@ -1184,8 +1190,7 @@ sub readtop
     if($theta_gen_N == $Nangles){
      $FAIL{'ANGLE CONSISTENCY 1'}=0;
     }else{
-     print "the number of generated angles is inconsistent with the number of angles in the top file\n";
-     print "generated: $theta_gen_N, found: $Nangles\n";
+     $fail_log .= failed_message("The number of generated angles is inconsistent with the number of angles in the top file\n\tgenerated: $theta_gen_N, found: $Nangles");
      $FAIL{'ANGLE CONSISTENCY 1'}=1;
     }
     my $CONangles=0;
@@ -1194,7 +1199,7 @@ sub readtop
      if(exists $angle_array{$theta_gen[$i]} ){
        $CONangles++;
       }else{
-       print "angle generated, but not in top: $theta_gen[$i]\n";
+       $fail_log .= failed_message("angle generated, but not in top: $theta_gen[$i]");
      }
     }
     if($CONangles == $theta_gen_N){
@@ -1209,7 +1214,7 @@ sub readtop
      if(exists $theta_gen_as{$angles1[$i]}){
       $CONangles++;
      }else{
-      print "angle in top, but not generated: $angles1[$i]\n";
+      $fail_log .= failed_message("angle in top, but not generated: $angles1[$i]");
      }
     }
      if($CONangles == $Nangles){
@@ -1388,11 +1393,11 @@ sub readtop
         $accounted++;
 	if(!exists $dihedral_array3{$string}){
          $solitary3++;
-         print "Type 3 dihedral appeared w/o a type 1...\n  $LINE\n";
+         $fail_log .= failed_message("Type 3 dihedral appeared w/o a type 1...\n\t$LINE");
         }
        }elsif(exists $dihedral_array3{$string} and exists $A[7] and $A[7] == 3){
         $doubledih3++; 
-        print "Duplicate dihedral\n   $LINE\n";
+        $fail_log .= failed_message("Duplicate dihedral\n\t$LINE");
        }elsif(!exists $dihedral_array1{$string} and exists $A[7] and $A[7] == 1){
 	#check duplicate type 1 and 2
         ## dihedral was not assigned.
@@ -1403,13 +1408,13 @@ sub readtop
         $accounted1++;
        }elsif(exists $dihedral_array1{$string} and exists $A[7] and $A[7] == 1){
         $doubledih1++;
-        print "Duplicate dihedral\n   $LINE\n";
+        $fail_log .= failed_message("Duplicate dihedral\n\t$LINE");
        }elsif(!exists $dihedral_array2{$string} and $A[4] == 2){
         $dihedral_array2{$string}=1;
         $accounted++;
        }elsif(exists $dihedral_array2{$string} and $A[4] == 2){
         $doubledih2++;
-        print "Duplicate dihedral\n   $LINE\n";
+        $fail_log .= failed_message("Duplicate dihedral\n\t$LINE");
        }else{
         internal_error('DUPLICATE DIHEDRAL CHECKING')
        }
@@ -1431,8 +1436,7 @@ sub readtop
         if(($A[6] > $MINTHR*$epsilonCAD && $A[6] < $MAXTHR*$epsilonCAD)){
          $DIHSW++;
         }elsif(($A[6] < $MINTHR*$epsilonCAD || $A[6] > $MAXTHR*$epsilonCAD)){
-         print "error in dihedral strength on line:";
-         print "$LINE\n";
+         $fail_log .= failed_message("error in dihedral strength on line:$LINE\n");
         }
        } 
        if($MOLTYPE[$A[0]] ne "LIGAND" ){
@@ -1487,8 +1491,7 @@ sub readtop
       if($impEps == $A[6]){
        $CORIMP--;
       }else{
-       print "improper dihedral has wrong weight\n";
-       print "$LINE";
+       $fail_log .= failed_message("improper dihedral has wrong weight\n\t$LINE");
       }
      }
 
@@ -1507,7 +1510,7 @@ sub readtop
      if(exists $phi_gen_as{$phi[$i]} or exists $improper_gen_as{$phi[$i]} ){
       $CONdihedrals++;
      }else{
-      print "dihedral appearing in top, but does not match a proper/improper generated by script: $phi[$i]\n";
+      $fail_log .= failed_message("dihedral appearing in top, but does not match a proper/improper generated by script: $phi[$i]");
      }
     }
      if($CONdihedrals == $Nphi){
@@ -1522,7 +1525,7 @@ sub readtop
      if(exists $dihedral_array1{$phi_gen[$i]}  or exists $dihedral_array2{$phi_gen[$i]} ){
       $gen_match++;
      }else{
-      print "Generated dihedral $phi_gen[$i] is not in the list of included dihedrals...\n";
+      $fail_log .= failed_message("Generated dihedral $phi_gen[$i] is not in the list of included dihedrals...");
      }
     }
     if($gen_match==$phi_gen_N){
@@ -1536,15 +1539,13 @@ sub readtop
      if($Nphi/2 == $DIHSW){
       $FAIL{'CA DIHEDRAL WEIGHTS'}=0;
      }else{
-      print "ISSUE with CA dihedral weights\n";
-      print "$Nphi $DIHSW\n";
+      $fail_log .= failed_message("ISSUE with CA dihedral weights\n\t$Nphi $DIHSW");
      }
     }
     if($Nphi == $accounted and $Nphi != 0){
      $FAIL{'CLASSIFYING DIHEDRALS'}=0;
     }else{
-     print "ISSUE classifying dihedrals\n";
-     print "$Nphi $DIHSW\n";
+     $fail_log .= failed_message("ISSUE classifying dihedrals\n\t$Nphi $DIHSW");
     }
     if($doubledih1 == 0){
      $FAIL{'DUPLICATE TYPE 1 DIHEDRALS'}=0;
@@ -1569,14 +1570,14 @@ sub readtop
       if($dihedral_array3_W{$pair}  > $MINTHR*0.5*$dihedral_array1_W{$pair} and $dihedral_array3_W{$pair}  < $MAXTHR*0.5*$dihedral_array1_W{$pair}  ){
        $matchingpairs_W++;
       }else{
-       print "Relative weight between a N=1 and N=3 dihedral is not consistent: $pair, $dihedral_array1_W{$pair}, $dihedral_array3_W{$pair}\n"
+       $fail_log .= failed_message("Relative weight between a N=1 and N=3 dihedral is not consistent: $pair, $dihedral_array1_W{$pair}, $dihedral_array3_W{$pair}");
       }
       my $angle1=$dihedral_array1_A{$pair};
       my $angle3=$dihedral_array3_A{$pair};
       if((($angle3 % 360.0) > $MINTHR*(3*$angle1 % 360.0) and ($angle3 % 360.0) < $MAXTHR*(3*$angle1 % 360.0)) or (($angle3 % 360.0) < ($MAXTHR-1) and (3*$angle1 % 360.0) < ($MAXTHR-1) )){
        $matchingpairs_A++;
       }else{
-       print "Relative angles between a N=1 and N=3 dihedral is not consistent: $pair,$angle1,$angle3\n";
+       $fail_log .= failed_message("Relative angles between a N=1 and N=3 dihedral is not consistent: $pair,$angle1,$angle3");
       }
      }
     }
@@ -1589,7 +1590,6 @@ sub readtop
     if($matchingpairs_W == $accounted1){
      $FAIL{'1-3 DIHEDRAL RELATIVE WEIGHTS'}=0
     }
-    #print "$matchingpairs_A, $accounted1 $MINTHR $MAXTHR\n";
     if($matchingpairs_A == $accounted1){
      $FAIL{'1-3 DIHEDRAL ANGLE VALUES'}=0
     }
@@ -1615,7 +1615,7 @@ sub readtop
         if($dihedral_array2{$string}){
          $impCAfound++;
         }else{
-         print "Improper about CA atom not found: expected dihedral formed by atoms $string\n";
+         $fail_log .= failed_message("Improper about CA atom not found: expected dihedral formed by atoms $string");
         }
         # check for expected side-chain impropers
         if($GRODATA[$revData{"$I-CA"}][1] !~  m/^TYR|^PHE|^TRP/){
@@ -1630,7 +1630,7 @@ sub readtop
           if($dihedral_array2{$string}){
            $impSCfound++;
           }else{
-           print "Sidechain Improper not found: expected dihedral formed by atoms $string\n";
+           $fail_log .= failed_message("Sidechain Improper not found: expected dihedral formed by atoms $string");
           }
          }
          if(exists $revData{"$I-CG1"} && exists $revData{"$I-CG2"}){
@@ -1644,7 +1644,7 @@ sub readtop
           if($dihedral_array2{$string}){
            $impSCfound++;
           }else{
-           print "Sidechain Improper not found: expected dihedral formed by atoms $string\n";
+           $fail_log .= failed_message("Sidechain Improper not found: expected dihedral formed by atoms $string");
           }
          }
          if(exists $revData{"$I-CG"} && exists $revData{"$I-CD1"} && exists $revData{"$I-CD2"}){
@@ -1658,7 +1658,7 @@ sub readtop
           if($dihedral_array2{$string}){
            $impSCfound++;
           }else{
-           print "Sidechain Improper not found: expected dihedral formed by atoms $string\n";
+           $fail_log .= failed_message("Sidechain Improper not found: expected dihedral formed by atoms $string");
           }
          }
         }
@@ -1676,7 +1676,7 @@ sub readtop
         if($dihedral_array2{$string}){
          $impOMEfound++;
         }else{
-         print "Improper about peptide bond not found: expected dihedral formed by atoms $string\n";
+         $fail_log .= failed_message("Improper about peptide bond not found: expected dihedral formed by atoms $string");
         }
        }
       }
@@ -1684,17 +1684,17 @@ sub readtop
      if($impCAfound == $impCApossible && $impCApossible != 0){
       $FAIL{'CA IMPROPERS EXIST'}=0;
      }else{
-      print "Only found $impCAfound improper dihedrals about CA atoms, out of an expected $impCApossible\n";
+      $fail_log .= failed_message("Only found $impCAfound improper dihedrals about CA atoms, out of an expected $impCApossible");
      }
      if($impOMEfound == $impOMEpossible && $impOMEpossible != 0){
       $FAIL{'OMEGA IMPROPERS EXIST'}=0;
      }else{
-	print "Only found $impOMEfound improper omega dihedrals, out of an expected $impOMEpossible\n";
+      $fail_log .= failed_message("Only found $impOMEfound improper omega dihedrals, out of an expected $impOMEpossible");
      }
      if($impSCfound == $impSCpossible && $impSCpossible != 0){
       $FAIL{'SIDECHAIN IMPROPERS EXIST'}=0;
      }else{
-	print "Only found $impSCfound sidechain improper dihedrals, out of an expected $impSCpossible\n";
+      $fail_log .= failed_message("Only found $impSCfound sidechain improper dihedrals, out of an expected $impSCpossible");
      }
     }else{
      $FAIL{'CA IMPROPERS EXIST'}=-1;
@@ -1742,7 +1742,7 @@ sub readtop
 
      # determine the epsilon of the contact
      if($A[4] == 0){
-      print "\nERROR: A divide by zero was encountered during testing. This typically means the top file is incomplete\n";
+      $fail_log .= failed_message("A divide by zero was encountered during testing. This typically means the top file is incomplete");
       $FAILED++; 
       last;
      }
@@ -1754,8 +1754,7 @@ sub readtop
       if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0) ){
        $ContactDist++;
       }else{
-       print "A contact appears to be the wrong distance.  From the .gro file, we found r=$CALCD, and from the .top r=$Cdist.\n";
-       print "$LINE\n";
+       $fail_log .= failed_message("A contact appears to be the wrong distance.  From the .gro file, we found r=$CALCD, and from the .top r=$Cdist.\n\t$LINE");
       }
       # check width of gaussian
       my $sigmagaussian=$A[5];
@@ -1768,14 +1767,12 @@ sub readtop
       if(abs($sigmagaussian-$sigmagaussianCALC) < 100.0/($PRECISION*1.0) ){
        $GaussianContactWidth++;
       }else{
-       print "A gaussian contact appears to have the wrong width.  From the .top file, we found sigma=$sigmagaussian, but based on the native distance, we expect sigma=$sigmagaussianCALC.\n";
-       print "$LINE\n";
+       $fail_log .= failed_message("A gaussian contact appears to have the wrong width.  From the .top file, we found sigma=$sigmagaussian, but based on the native distance, we expect sigma=$sigmagaussianCALC.\n\t$LINE");
       }
       if(abs($rep_s12-$A[6]) < 100.0/($PRECISION*1.0) ){
        $GaussianEXVOL++;
       }else{
-       print "A gaussian contact appears to have the wrong excluded volume.  From the .top file, we found a=$A[6], but expect a=$rep_s12.\n";
-       print "$LINE\n";
+       $fail_log .= failed_message("A gaussian contact appears to have the wrong excluded volume.  From the .top file, we found a=$A[6], but expect a=$rep_s12.\n\t$LINE");
       }
      }elsif($model eq "CA"){
       $W=5.0**5.0/6.0**6.0*($A[3]**6.0)/($A[4]**5.0);
@@ -1784,8 +1781,7 @@ sub readtop
       if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0) ){
        $ContactDist++;
       }else{
-       print "A contact appears to be the wrong distance.  From the .gro file, we found r=$CALCD, and from the .top r=$Cdist.\n";
-       print "$LINE\n";
+       $fail_log .= failed_message("A contact appears to be the wrong distance.  From the .gro file, we found r=$CALCD, and from the .top r=$Cdist.\n\t$LINE");
       }
      }elsif($model eq "AA"){
       $W=($A[3]*$A[3])/(4*$A[4]);
@@ -1794,8 +1790,7 @@ sub readtop
       if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0)){
        $ContactDist++;
       }else{
-       print "A contact appears to be the wrong distance.  From the .gro file, we found r=$CALCD, and from the .top r=$Cdist.\n";
-       print "$LINE\n";
+       $fail_log .= failed_message("A contact appears to be the wrong distance.  From the .gro file, we found r=$CALCD, and from the .top r=$Cdist.\n\t$LINE");
       }
      }else{
       smogcheck_error("unrecognized model.");
@@ -1806,19 +1801,14 @@ sub readtop
       if($W > $MINTHR*$epsilonCAC and $W < $MAXTHR*$epsilonCAC){
        $CONTACT_W_CA++;
       }else{
-       print "Error in EpsilonC values\n";
-       print "Value: Target\n";
-       print "$W $epsilonCAC\n";
-       print "line:\n";
-       print "$LINE\n";
+       $fail_log .= failed_message("EpsilonC values\n\tValue: Target\n\t$W $epsilonCAC\n\tline:\n\t$LINE");
       }
      }elsif($model eq "AA"){
       $Cdist = int(($Cdist * $PRECISION)/10.0)/($PRECISION*10.0);
       if($Cdist <= $CONTD/10.0){
        $LONGCONT++;
       }else{
-       print "long contact! distance $Cdist nm.\n";
-       print "$LINE\n";
+       $fail_log .= failed_message("long contact. distance $Cdist nm.\n\t$LINE");
      }
       ## so long as the contacts are not with ligands, then we add the sum
       if($MOLTYPE[$A[0]] ne "LIGAND" and $MOLTYPE[$A[1]] ne "LIGAND"){
@@ -1828,11 +1818,10 @@ sub readtop
        # if we haven't assigned a value to stacking interactions, then let's save it
        # if we have saved it, check to see that this value is the same as the previous ones.
        if($stackingE == 0 ){
-#	print "stacking weight found: $W ";
         $stackingE=$W;
        }elsif(abs($stackingE - $W) > 10.0/($PRECISION*1.0) ){
         $FAIL_STACK++;
-        print "error in stacking energies: $stackingE  $W $A[0] $A[1] \n";
+        $fail_log .= failed_message("stacking energies: $stackingE  $W $A[0] $A[1]");
         }
       }else{
       # it is not a stacking contact.  Do the same checks for non-stacking interactions
@@ -1840,9 +1829,7 @@ sub readtop
         $NonstackingE=$W;
        }elsif(abs($NonstackingE - $W) > 10.0/($PRECISION*1.0) ){
         $FAIL_NONSTACK++;
-        print "error in non-stacking contacts: $NonstackingE $W\n";
-        print "line:\n";
-        print "$LINE\n";
+        $fail_log .= failed_message("non-stacking contacts: $NonstackingE $W\n\tline:\n\t$LINE");
        }
       }
      }else{
@@ -1919,9 +1906,7 @@ sub readtop
     until($A[0] eq "["){
      if($PAIRS[$NEXCL][0] != $A[0] || $PAIRS[$NEXCL][1] != $A[1]){
       $NEXCLUSIONS++;
-      print "FAIL: mis-match between pairs and exclusions (pair $NEXCL)\n";
-      print "pair: $PAIRS[$NEXCL][0] $PAIRS[$NEXCL][1]\n";
-      print "excl: $A[0] $A[1]\n";
+      $fail_log .= failed_message("mis-match between pairs and exclusions (pair $NEXCL)\n\tpair: $PAIRS[$NEXCL][0] $PAIRS[$NEXCL][1]\n\texcl: $A[0] $A[1]");
      }
      $NEXCL++;
      # read the next line
@@ -1944,7 +1929,7 @@ sub readtop
     if($A[0] eq "Macromolecule"){
      $FAIL{'NAME'}=0;
     }else{
-     print "Default system name is ($A[0]) non-standard\n";
+     $fail_log .= failed_message("Default system name is ($A[0]) non-standard");
     }
    }
   }
@@ -1960,7 +1945,7 @@ sub readtop
      if($A[1] == 1){
       $FAIL{'1 MOLECULE'}=0;
      }else{
-      print "wrong number of molecules...\n";
+      $fail_log .= failed_message("wrong number of molecules");
      }
     }
    }
@@ -1998,20 +1983,14 @@ sub readtop
     if( ($ATOMNAME[$i] eq "C"  && $ATOMNAME[$i+$j] eq "N") || (  $ATOMNAME[$i] eq "N"  && $ATOMNAME[$i+$j] eq "C"   )){
      $NRIGID++;
      if( abs($EDrig_T[$i][$j]-$omegaEps) > $TOLERANCE ){
-      print "weird omega rigid...\n";
-      print "$i $j $EDrig_T[$i][$j]\n";
-      print "$ATOMNAME[$i] $ATOMNAME[$i+$j]\n"; 
-      print "$RESNUM[$i] $RESNUM[$i+$j]\n\n";
+      $fail_log .= failed_message("weird omega rigid...\n\t$i $j $EDrig_T[$i][$j]\n\t$ATOMNAME[$i] $ATOMNAME[$i+$j]\n\t$RESNUM[$i] $RESNUM[$i+$j]");
      }else{
      $NRIGIDC++;
      }
     }else{
      $NOMEGA++;
      if(abs($EDrig_T[$i][$j]-$ringEps) > $TOLERANCE ){
-      print "weird ring dihedral...\n";
-      print "$i $j $EDrig_T[$i][$j]\n";
-      print "$ATOMNAME[$i] $ATOMNAME[$i+$j]\n";
-      print "$RESNUM[$i] $RESNUM[$i+$j]\n\n";
+      $fail_log .= failed_message("weird ring dihedral...\n\t$i $j $EDrig_T[$i][$j]\n\t$ATOMNAME[$i] $ATOMNAME[$i+$j]\n\t$RESNUM[$i] $RESNUM[$i+$j]");
      }else{
      $NOMEGAC++;
      }
@@ -2025,9 +2004,7 @@ sub readtop
       $NPBB++;
 #      $DIH_TYPE[$i][$j]="AMINOBB";
       if($PBBvalue !=$ED_T[$i][$j] && $PBBvalue !=0){
-       print "protein backbone dihedral $i $j failed\n";
-       print "$PBBvalue is before\n";
-       print "$ED_T[$i][$j] is the bad one...\n";
+       $fail_log .= failed_message("protein backbone dihedral $i $j\n\t$PBBvalue is before\n\t$ED_T[$i][$j] is the bad one...");
       }else{
        $NPBBC++;
       }
@@ -2036,9 +2013,7 @@ sub readtop
       $NPSC++;
 #      $DIH_TYPE[$i][$j]="AMINOSC";
       if($PSCvalue !=$ED_T[$i][$j] && $PSCvalue !=0){
-       print "protein sidechain dihedral $i $j failed\n";
-       print "$PSCvalue is before\n";
-       print "$ED_T[$i][$j] is the bad one...\n";
+       $fail_log .= failed_message("protein sidechain dihedral $i $j\n\t$PSCvalue is before\n\t$ED_T[$i][$j] is the bad one...");
       }else{
        $NPSCC++;
       }
@@ -2049,9 +2024,7 @@ sub readtop
 #      $DIH_TYPE[$i][$j]="NUCLEICBB";
       $NNBB++;     
       if($NABBvalue !=$ED_T[$i][$j] && $NABBvalue != 0 ){
-       print "nucleic backbone dihedral $i $j failed\n";
-       print "$NABBvalue is before\n";
-       print "$ED_T[$i][$j] is the bad one...\n";
+       $fail_log .= failed_message("nucleic backbone dihedral $i $j\n\t$NABBvalue is before\n\t$ED_T[$i][$j] is the bad one...");
       }else{
        $NNBBC++;     
       }
@@ -2060,9 +2033,7 @@ sub readtop
       $NNSC++;     
 #      $DIH_TYPE[$i][$j]="NUCLEICSC";
       if($NASCvalue !=$ED_T[$i][$j] && $NASCvalue !=0){
-       print "nucleic sidechain dihedral $i $j failed\n";
-       print "$NASCvalue is before\n";
-       print "$ED_T[$i][$j] is the bad one...\n";
+       $fail_log .= failed_message("nucleic sidechain dihedral $i $j\n\t$NASCvalue is before\n\t$ED_T[$i][$j] is the bad one...");
       }else{
        $NNSCC++;     
       }
@@ -2072,9 +2043,7 @@ sub readtop
 #     $DIH_TYPE[$i][$j]="LIGAND";
      $NLIG++;
      if($LIGdvalue !=$ED_T[$i][$j] && $LIGdvalue != 0 ){
-      print "backbone atom $i $j failed\n";
-      print "$LIGdvalue is before\n";
-      print "$ED_T[$i][$j] is the bad one...\n";
+      $fail_log .= failed_message("backbone atom $i $j\n\t$LIGdvalue is before\n\t$ED_T[$i][$j] is the bad one...");
      }else{
       $NLIGC++;
      }
@@ -2140,7 +2109,7 @@ sub readtop
    if($CR < $MAXTHR and  $CR > $MINTHR){
     $FAIL{'STACK-NONSTACK RATIO'}=0;
    }else{
-    print "NonStacking-stacking ratio issue: \n  Expected: 1, Actual: $CR\n";
+    $fail_log .= failed_message("NonStacking-stacking ratio issue: \n  Expected: 1, Actual: $CR");
    }
   }else{
    $FAIL{'STACK-NONSTACK RATIO'}=-1;
@@ -2151,7 +2120,7 @@ sub readtop
    if($ratio < $MAXTHR*$R_P_BB_SC   and $ratio > $MINTHR*$R_P_BB_SC ){
     $FAIL{'PROTEIN BB/SC RATIO'}=0;
    }else{
-    print "Protein BB-SC Ratio issue: \n  Expected: $R_P_BB_SC, Actual: $ratio\n";
+    $fail_log .= failed_message("Protein BB-SC Ratio issue: \n  Expected: $R_P_BB_SC, Actual: $ratio");
    }
   }else{
     $FAIL{'PROTEIN BB/SC RATIO'}=-1;
@@ -2162,44 +2131,41 @@ sub readtop
    if($ratio < $MAXTHR*$R_N_SC_BB   and $ratio > $MINTHR*$R_N_SC_BB ){
     $FAIL{'NUCLEIC SC/BB RATIO'}=0;
    }else{
-    print "Nucleic SC-BB Ratio issue: \n  Expected: $R_N_SC_BB, Actual: $ratio\n";
+    $fail_log .= failed_message("Nucleic SC-BB Ratio issue:\n\tExpected: $R_N_SC_BB, Actual: $ratio");
    }
   }else{
     $FAIL{'NUCLEIC SC/BB RATIO'}=-1;
   }
 
   if($AMINO_PRESENT && $NUCLEIC_PRESENT){
-   print "BB dihedral values protein: $PBBvalue nucleic acid: $NABBvalue\n";
    my $RR=$PBBvalue/$NABBvalue;
    my $RR_TARGET=$PRO_DIH/$NA_DIH;
-   print "Target ratio: $RR_TARGET\n";
-   print "Actual ratio: $RR\n";
    if($RR < $MAXTHR*$RR_TARGET and $RR > $MINTHR*$RR_TARGET){
     $FAIL{'AMINO/NUCLEIC DIHEDRAL RATIO'}=0;
+   }else{
+    $fail_log .= failed_message("FAIL: BB dihedral values protein: $PBBvalue nucleic acid: $NABBvalue\n\tTarget ratio: $RR_TARGET\n\tActual ratio: $RR");
    }
   }else{
     $FAIL{'AMINO/NUCLEIC DIHEDRAL RATIO'}=-1;
   }
   if($AMINO_PRESENT && $LIGAND_PRESENT){
-   print "protein: $PBBvalue Ligand: $LIGdvalue\n";
    my $RR=$PBBvalue/$LIGdvalue;
    my $RR_TARGET=$PRO_DIH/$LIGAND_DIH;
-   print "Target ratio: $RR_TARGET\n";
-   print "Actual ratio: $RR\n";
    if($RR < $MAXTHR*$RR_TARGET and $RR > $MINTHR*$RR_TARGET){
     $FAIL{'AMINO/LIGAND DIHEDRAL RATIO'}=0;
+   }else{
+    $fail_log .= failed_message("protein: $PBBvalue Ligand: $LIGdvalue\n\tTarget ratio: $RR_TARGET\n\tActual ratio: $RR");
    }
   }else{
     $FAIL{'AMINO/LIGAND DIHEDRAL RATIO'}=-1;
   }
   if($LIGAND_PRESENT && $NUCLEIC_PRESENT){
-   print "ligand: $LIGdvalue nucleic acid: $NABBvalue\n";
    my $RR=$LIGdvalue/$NABBvalue;
    my $RR_TARGET=$LIGAND_DIH/$NA_DIH;
-   print "Target ratio: $RR_TARGET\n";
-   print "Actual ratio: $RR\n";
    if($RR < $MAXTHR*$RR_TARGET and $RR > $MINTHR*$RR_TARGET){
     $FAIL{'NUCLEIC/LIGAND DIHEDRAL RATIO'}=0;
+   }else{
+    $fail_log .= failed_message("ligand: $LIGdvalue nucleic acid: $NABBvalue\n\tTarget ratio: $RR_TARGET\n\tActual ratio: $RR");
    }
   }else{
     $FAIL{'NUCLEIC/LIGAND DIHEDRAL RATIO'}=-1;
@@ -2210,11 +2176,6 @@ sub readtop
   if($D_R > $MAXTHR*4*$R_P_BB_SC  ){
    print "WARNING!!!: range of dihedrals is large\n";
   }
-   #else{
-   #print "range of dihedrals: PASSED\n";
-  #}
-
-  #print "ENERGIES: Contact=$CONTENERGY; Dihedral=$DENERGY\n";
   my $CD_ratio;
   if($DENERGY > 0){
    $CD_ratio=$CONTENERGY/$DENERGY;
@@ -2250,7 +2211,7 @@ sub readtop
   if($FOUND{"$FF"} == 1){
    $NFIELDC++;
   }elsif($FOUND{"$FF"} == 0){
-   print "Error: [ $FF ] not found in top file.  This either means SMOG did not complete, or there was a problem reading the file.  All subsequent output will be meaningless.\n";
+   $fail_log .= failed_message("Directive [ $FF ] not found in top file.  This either means SMOG did not complete, or there was a problem reading the file.  All subsequent output will be meaningless.");
   }else{
    smogcheck_error("Serious problem understanding .top file.  A directive may be duplicated.");
   }
@@ -2315,13 +2276,10 @@ sub checkvalues
   $FAIL{'NCONTACTS'}=0;
 
  }else{
-  print "Same number of contacts not found in contact file and top file!!!! FAIL\n";
-  printf ("%i contacts were found in the contact file.\n", $NUMBER_OF_CONTACTS_SHADOW);
-  printf ("%i contacts were found in the top file.\n", $NRD);
+  $fail_log .= failed_message("FAIL: Same number of contacts not found in contact file and top file!!!! FAIL\n\t$NUMBER_OF_CONTACTS_SHADOW contacts were found in the contact file.\n\t$NRD contacts were found in the top file.");
  }
  my $E_TOTAL=$DENERGY+$CONTENERGY;
  my $CTHRESH=$NUMATOMS*10.0/$PRECISION;
-# print "number of non-ligand atoms $NUMATOMS_LIGAND total E $E_TOTAL\n";
  if($model eq "AA"){ 
   if(abs($NUMATOMS_LIGAND-$E_TOTAL) < $CTHRESH){
    $FAIL{'TOTAL ENERGY'}=0;
@@ -2340,24 +2298,20 @@ sub summary
  my $NPASSED=0;
  my $NNA=0;
  if($FATAL==0){
-  $printbuffer .= sprintf ("\n     SUMMARY OF FAILED TESTS:\n");
- 
+  $printbuffer .= sprintf ("\n     LIST OF FAILED TESTS:\n");
   foreach my $TEST (@FAILLIST){
    if($FAIL{$TEST}==1){
     $printbuffer .= sprintf ("        %s CHECK\n",$TEST);
     $FAILED++;
     $NFAILED++;
    }elsif($FAIL{$TEST}==0){
-   # $printbuffer .= sprintf("%s CHECK : PASSED\n", $TEST);
     $NPASSED++;
    }elsif($FAIL{$TEST}==-1){
     $NNA++;
-   # $printbuffer .= sprintf("%s CHECK : N/A\n",$TEST);
    }else{
     internal_error("$TEST");
    }
   }
-
  }else{
   $FAILED="ALL";
  }
@@ -2375,7 +2329,9 @@ sub summary
   print "Note: Will save files with names FAILED/$PDB.fail$TESTNUM.X\n";
   print  "*************************************************************\n";
   `cp share/PDB.files/$PDB.pdb $FAILDIR/$PDB.fail$TESTNUM.pdb`;
-
+  open(FAILLOG,">$FAILDIR/$PDB.fail$TESTNUM.log") or smogcheck_error("unable to open log file for writing");
+  print FAILLOG "$fail_log";
+  close(FAILLOG);
   foreach(@FILETYPES){
    if(-e "$PDB.$_"){
     `mv $PDB.$_ $FAILDIR/$PDB.fail$TESTNUM.$_`;
