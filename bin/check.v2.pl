@@ -2240,7 +2240,7 @@ sub checkvalues
 
  ## DONE READING IN THE FILE.  TIME TO CHECK AND SEE IF ALL THE RATIOS ARE CORRECT
 # print "number of atoms = $NUMATOMS\n";
-# print "number of atoms(excluding ligands) = $NUMATOMS_LIGAND\n";
+# print "number of atoms(excluding ligands and ions) = $NUMATOMS_LIGAND\n";
 # print "Dihedral energy = $DENERGY\n";
 # print "Contact energy = $CONTENERGY\n";
 # print "max dihedral = $DIH_MAX\n";
@@ -2289,13 +2289,15 @@ sub checkvalues
   $FAIL{'NCONTACTS'}=0;
 
  }else{
-  $fail_log .= failed_message("FAIL: Same number of contacts not found in contact file and top file!!!! FAIL\n\t$NUMBER_OF_CONTACTS_SHADOW contacts were found in the contact file.\n\t$NRD contacts were found in the top file.");
+  $fail_log .= failed_message("Same number of contacts not found in contact file and top file!!!! FAIL\n\t$NUMBER_OF_CONTACTS_SHADOW contacts were found in the contact file.\n\t$NRD contacts were found in the top file.");
  }
  my $E_TOTAL=$DENERGY+$CONTENERGY;
  my $CTHRESH=$NUMATOMS*10.0/$PRECISION;
  if($model eq "AA"){ 
   if(abs($NUMATOMS_LIGAND-$E_TOTAL) < $CTHRESH){
    $FAIL{'TOTAL ENERGY'}=0;
+  }else{
+   $fail_log .= failed_message("Inconsistent total energy: Expected $NUMATOMS_LIGAND, found $E_TOTAL");
   }
  }else{
    $FAIL{'TOTAL ENERGY'}=-1;
