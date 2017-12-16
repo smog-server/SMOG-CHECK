@@ -1047,10 +1047,10 @@ sub readtop
      }elsif($A[2] == 6){
       $RECOGNIZEDBTYPES++;
       $bondtype6++;
-      if($ATOMNAME[$A[0]] eq "BMG" or $ATOMNAME[$A[0]] eq "BMG"){
+      if($ATOMNAME[$A[0]] eq "BMG" or $ATOMNAME[$A[1]] eq "BMG"){
        $type6count++; 
       }else{
-       $fail_log .= failed_message("type 6 bond between non-BMG atoms: $ATOMNAME[$A[0]] $A[0], and $ATOMNAME[$A[1]], $A[1].");
+       $fail_log .= failed_message("type 6 bond between non-BMG atoms: $ATOMNAME[$A[0]] $A[0], and $ATOMNAME[$A[1]] $A[1].");
       } 
        if($A[4] != $bondMG){
         $fail_log .= failed_message("BMG bond has incorrect weight\n\t$LINE");
@@ -2193,6 +2193,8 @@ sub readtop
    $FAIL{'NONZERO DIHEDRAL ENERGY'}=0;
    if($MAXTHR*$R_CD > $CD_ratio and $MINTHR*$R_CD < $CD_ratio){
    $FAIL{'CONTACT/DIHEDRAL RATIO'}=0;
+   }else{
+    $fail_log .=failed_message("Contact/Dihedral ratio is off. Expected $R_CD, found $CD_ratio.");
    }
   }
  }else{

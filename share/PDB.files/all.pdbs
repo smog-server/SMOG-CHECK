@@ -1,4 +1,5 @@
 DNA.terminal AA default-gaussian 
+DNA.terminal.BMG AA default 
 1AKEapo_v2 AA default-gaussian 
 1AKEapo_v2 CA default-gaussian 
 DNA.terminal AA default
