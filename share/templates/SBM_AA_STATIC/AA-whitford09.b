@@ -6,10 +6,6 @@
 	<bType>*</bType>
 	<bType>*</bType>
         </bond>
-	<bond func="bond_harmonic_6(?,200)">
-	<bType>*</bType>
-    	<bType>MG</bType>
-        </bond>
 </bonds>
 
 <!-- ANGLES -->
