@@ -33,9 +33,17 @@ For the less comprehensive check, issue the command:
 
 ./quick-check
 
-For the comprehensive check (may take ~30 minutes): 
+For the comprehensive check (may take over an hour): 
 
 ./smog-check 
+
+If you would like to only perform a specific test, you
+can indicate which test with
+
+./smog-check N
+
+where N is the test you would like to repeat.  This can 
+be useful when debugging SMOG 2.
 
 These scripts have been tested on Linux and OSX 
 platforms. 
