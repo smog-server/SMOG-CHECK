@@ -303,7 +303,7 @@ our @ZT;
 our $bondtype6;
 our $type6count;
 our $fail_log;
-
+my $NUMTESTED=0;
 my $SETTINGS_FILE=<STDIN>;
 chomp($SETTINGS_FILE);
 open(PARMS,"$SETTINGS_FILE") or die "The settings file is missing...\n";
@@ -324,6 +324,7 @@ while(<PARMS>){
  if($RETEST>0 and $RETEST != $TESTNUM){
   next;
  }
+ $NUMTESTED++;
  unless(-e "$PDB_DIR/$PDB.pdb"){
   print "Unable to find PDB file $PDB_DIR/$PDB.pdb for testing.  Skipping this test\n\n";
   $FAIL_SYSTEM++;
@@ -495,6 +496,10 @@ while(<PARMS>){
   print "             TESTS FAILED: CHECK MESSAGES ABOVE  !!!\n";
   print "*************************************************************\n";
  
+ }elsif($NUMTESTED == 0){
+  print "\n*************************************************************\n";
+  print "                      NO TESTS PERFORMED !!!\n";
+  print "*************************************************************\n";
  }elsif($RETEST < 0){
   print "\n*************************************************************\n";
   print "                      PASSED ALL TESTS  !!!\n";
