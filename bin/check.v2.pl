@@ -3,10 +3,6 @@ use warnings;
 # This is the main script that runs SMOG2 and then checks to see if the generated files are correct.
 # This is intended to be a brute-force evaluation of everything that should appear. Since this is
 # a testing script, it is not designed to be efficient, but to be thorough, and foolproof...
-
-#assumes shell is bash
-
-
 print <<EOT;
 *****************************************************************************************
                                        smog-check                                   
@@ -21,6 +17,27 @@ print <<EOT;
             For questions regarding this script, contact info\@smog-server.org              
 *****************************************************************************************
 EOT
+
+
+# check if we are simply rerunning a single test, or performing all
+my $RETEST=$#ARGV;
+if($RETEST == 0){
+	if($ARGV[0] =~ /^\d+$/){
+		# is an integer
+		$RETEST=$ARGV[0];
+		print "\nWill only run test $ARGV[0].\n\n";
+	}else{
+		# is not an integer.  flag error
+		smogcheck_error("argument to smog-check must be an integer. Found \"$ARGV[0]\"");
+	}
+
+}elsif($RETEST== -1){
+	print "\nWill run all tests (default).\n\n";
+}else{
+	smogcheck_error("Too many arguments passed to smog-check");
+}
+
+# rerun rend
 
 &checkForModules;
  
@@ -38,6 +55,22 @@ our $BIFSIF_CA=$ENV{'BIFSIF_CA_DEFAULT'};
 our $TEMPLATE_DIR_AA=$ENV{'BIFSIF_AA_TESTING'};
 our $TEMPLATE_DIR_AA_STATIC=$ENV{'BIFSIF_STATIC_TESTING'};
 our $TEMPLATE_DIR_CA=$ENV{'BIFSIF_CA_TESTING'};
+
+my %supported_directives = ( 'defaults' => '0',
+        'atomtypes' => '1',
+        'moleculetype' => '0',
+        'nonbond_params' => '0',
+        'atoms' => '1',
+        'bonds' => '1',
+        'angles' => '1',
+        'dihedrals' => '1',
+        'pairs' => '1',
+        'exclusions' => '1',
+        'system' => '1',
+        'molecules' => '1',
+        'position_restraints' => '1'
+        );
+
 
 unless(-d $BIFSIF_AA && -d $BIFSIF_CA && -d $TEMPLATE_DIR_AA && -d $TEMPLATE_DIR_AA_STATIC && -d $TEMPLATE_DIR_CA ){
  print "Can\'t find the template directories. Something is wrong with the configurations of this script.\n";
@@ -80,6 +113,30 @@ sub failed_message
  $MESSAGE=sprintf ("FAILED TEST: %s\n\n", $MESSAGE);
  return $MESSAGE;
 }
+
+sub hascontent
+{
+	my ($LINE) = @_;
+	my $comment;
+	if($LINE =~ m/(;.*)/){
+		$comment=$1;
+	}else{
+		$comment="";
+	}
+	# remove comments
+	$LINE =~ s/;.*$//g; 
+	# remove spaces and tabs
+	$LINE =~ s/\s|\t//g;
+	if( $LINE =~ m/[#!\^\$]/ ){
+		smogcheck_error("Special characters not recognized in .top file\n  Offending line: $LINE\n");
+	}
+	if($LINE eq ""){
+		return 0;
+	}else{
+		return 1;
+	}
+}
+
 
 
 sub checkForModules {
@@ -264,6 +321,9 @@ while(<PARMS>){
  my @A=split(/ /,$LINE);
  $PDB=$A[0];
  $TESTNUM++;
+ if($RETEST>0 and $RETEST != $TESTNUM){
+  next;
+ }
  unless(-e "$PDB_DIR/$PDB.pdb"){
   print "Unable to find PDB file $PDB_DIR/$PDB.pdb for testing.  Skipping this test\n\n";
   $FAIL_SYSTEM++;
@@ -435,7 +495,7 @@ while(<PARMS>){
   print "             TESTS FAILED: CHECK MESSAGES ABOVE  !!!\n";
   print "*************************************************************\n";
  
- }else{
+ }elsif($RETEST < 0){
   print "\n*************************************************************\n";
   print "                      PASSED ALL TESTS  !!!\n";
   print "*************************************************************\n";

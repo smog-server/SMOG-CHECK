@@ -1,5 +1,7 @@
 #!/bin/bash
 
+rerun=$1
+
 echo Detecting configured version of SMOG2
 export smog_exec=`which smog2`
 
@@ -19,4 +21,4 @@ export PRECISION=10000
 
 bin/cleanup.bash
 mkdir FAILED
-echo share/PDB.files/all.pdbs | $perl4smog bin/check.v2.pl
+echo share/PDB.files/all.pdbs | $perl4smog bin/check.v2.pl $rerun
