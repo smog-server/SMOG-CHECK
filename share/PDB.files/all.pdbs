@@ -1,4 +1,4 @@
-DNA.terminal AA default-gaussian 
+DNA.terminal AA	default-gaussian 
 DNA.terminal.BMG AA default 
 1AKEapo_v2 AA default-gaussian 
 1AKEapo_v2 CA default-gaussian 
@@ -39,4 +39,10 @@ terminaltest CA shadow 5.0 1.4 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0
 3PTA AA default
 3PTA AA cutoff 5.0 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0
 3PTA AA shadow 5.0 1.4 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0
+tRNA AA default
+tRNA CA default
+tRNA AA cutoff 5.0 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0
+tRNA AA shadow 5.0 1.4 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0
+tRNA CA cutoff 5.0 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0
+tRNA CA shadow 5.0 1.4 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0
 full.pre AA default

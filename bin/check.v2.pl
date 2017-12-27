@@ -311,13 +311,12 @@ my $TESTNUM=0;
 ## Run tests for each pdb
 while(<PARMS>){
  my $LINE=$_;
+ chomp($LINE);
+ $LINE =~ s/\s+/ /g;
+ $LINE =~ s/\s+$//;
+ $LINE =~ s/^\s+//;
  $fail_log="";
- chomp($LINE);
- $LINE =~ s/\s+$//;
  $FAILED=0;
- $LINE=$_;
- chomp($LINE);
- $LINE =~ s/\s+$//;
  my @A=split(/ /,$LINE);
  $PDB=$A[0];
  $TESTNUM++;
@@ -651,11 +650,14 @@ sub checkgro
  my $DX=$XMAX-$XMIN+2;
  my $DY=$YMAX-$YMIN+2;
  my $DZ=$ZMAX-$ZMIN+2;
- $DX=int(($DX * $PRECISION/10.0))/($PRECISION*0.1);
- $DY=int(($DY * $PRECISION/10.0))/($PRECISION*0.1);
- $DZ=int(($DZ * $PRECISION/10.0))/($PRECISION*0.1);
- if(abs($BOUNDS[0]-$DX) > $TOLERANCE || abs($BOUNDS[1] - $DY) > $TOLERANCE || abs($BOUNDS[2] - $DZ) > $TOLERANCE ){
-  $fail_log .= failed_message("Gro box size inconsistent\n\t$BOUNDS[0], $XMAX, $XMIN,$BOUNDS[1],$YMAX,$YMIN,$BOUNDS[2],$ZMAX,$ZMIN");
+ $DX=int($DX * $PRECISION/10.0)/($PRECISION*0.1);
+ $DY=int($DY * $PRECISION/10.0)/($PRECISION*0.1);
+ $DZ=int($DZ * $PRECISION/10.0)/($PRECISION*0.1);
+ my $t1=int(abs($BOUNDS[0]-$DX)* $PRECISION/10.0)/($PRECISION*0.1);
+ my $t2=int(abs($BOUNDS[1]-$DY)* $PRECISION/10.0)/($PRECISION*0.1);
+ my $t3=int(abs($BOUNDS[2]-$DZ)* $PRECISION/10.0)/($PRECISION*0.1);
+ if($t1 > $TOLERANCE || $t2 > $TOLERANCE || $t3 > $TOLERANCE ){
+  $fail_log .= failed_message("Gro box size inconsistent\n\t$BOUNDS[0],$XMAX,$XMIN,$BOUNDS[1],$YMAX,$YMIN,$BOUNDS[2],$ZMAX,$ZMIN,$t1,$t2,$t3");
  }else{
   $FAIL{'BOX DIMENSIONS'}=0;
  }
@@ -1025,7 +1027,13 @@ sub readtop
      my $label=sprintf("%i-%s", $A[2], $A[4]);
      $revData{$label}=$A[0];
     # nucleic acid, protein, ligand
-     $MOLTYPE[$A[0]]=$TYPE{$A[3]};
+     if(defined $TYPE{$A[3]}){
+      $MOLTYPE[$A[0]]=$TYPE{$A[3]};
+     }else{
+      print "there is an unrecognized residue name.\n";
+      print "$A[0] $A[3]\n";
+      internal_error("$A[0] $A[3]");
+     }
      # see if there are any amino acids, na, or ligands in the system.
      if($MOLTYPE[$A[0]] eq "AMINO"){
       $AMINO_PRESENT=1;
@@ -1037,10 +1045,6 @@ sub readtop
       $LIGAND_PRESENT=1;
      }elsif($MOLTYPE[$A[0]] eq "ION"){
       $ION_PRESENT=1;
-     }else{
-      print "there is an unrecognized residue name.\n";
-      print "$A[0] $A[3]\n";
-      internal_error("$A[0] $A[3]");
      }
      $NUMATOMS++;
      $#A = -1;
@@ -1762,12 +1766,12 @@ sub readtop
      }else{
       $fail_log .= failed_message("Only found $impCAfound improper dihedrals about CA atoms, out of an expected $impCApossible");
      }
-     if($impOMEfound == $impOMEpossible && $impOMEpossible != 0){
+     if($impOMEfound == $impOMEpossible){
       $FAIL{'OMEGA IMPROPERS EXIST'}=0;
      }else{
       $fail_log .= failed_message("Only found $impOMEfound improper omega dihedrals, out of an expected $impOMEpossible");
      }
-     if($impSCfound == $impSCpossible && $impSCpossible != 0){
+     if($impSCfound == $impSCpossible){
       $FAIL{'SIDECHAIN IMPROPERS EXIST'}=0;
      }else{
       $fail_log .= failed_message("Only found $impSCfound sidechain improper dihedrals, out of an expected $impSCpossible");
