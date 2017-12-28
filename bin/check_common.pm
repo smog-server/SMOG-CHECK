@@ -2,6 +2,7 @@ package check_common;
 use strict;
 use Exporter;
 
+our $PDB_DIR;
 our @ISA = 'Exporter';
 our @EXPORT =
 qw(internal_error smogcheck_error failed_message failsum);

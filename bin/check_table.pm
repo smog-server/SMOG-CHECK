@@ -6,19 +6,21 @@ use check_common;
 
 sub check_table
 {
-	my $NFAIL=0;
-	my $MESSAGE="";
-	my %FAIL;
-	my @FAILLIST = ('FATAL','UNINITIALIZED VARIABLES');
-	foreach my $item(@FAILLIST){
-		$FAIL{$item}=1;
-	}
-
-
-
-        my ($FAILED,$printbuffer)=failsum($FATAL,\%FAIL,\@FAILLIST);
-
-	return ($FAILED, $printbuffer);
+ my $NFAIL=0;
+ my $MESSAGE="";
+ my %FAIL;
+ my $FAILED;
+ my $FATAL;
+ my @FAILLIST = ('FATAL','UNINITIALIZED VARIABLES');
+ foreach my $item(@FAILLIST){
+ 	$FAIL{$item}=1;
+ }
+ 
+ 
+ 
+ my ($FAILED,$printbuffer)=failsum($FATAL,\%FAIL,\@FAILLIST);
+ 
+ return ($FAILED, $printbuffer);
 
 }
 
