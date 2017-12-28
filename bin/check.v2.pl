@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use smog_common;
+use check_common;
 # This is the main script that runs SMOG2 and then checks to see if the generated files are correct.
 # This is intended to be a brute-force evaluation of everything that should appear. Since this is
 # a testing script, it is not designed to be efficient, but to be thorough, and foolproof...
@@ -93,33 +94,6 @@ print "EXEC_NAME $EXEC_NAME\n";
 
 # where should data from failed tests be written
 our $FAILDIR="FAILED";
-
-sub internal_error
-{
- my ($MESSAGE)=@_;
- chomp($MESSAGE);
-  print "\n\nInternal error at $MESSAGE\n\n";
-  print "Please report this to info\@smog-server.org\n";
-  print "Quitting.\n";
-  exit;
-}
-
-sub smogcheck_error
-{
- my ($MESSAGE)=@_;
- chomp($MESSAGE);
-  print "\n\nERROR: SMOG-CHECK CRASH: $MESSAGE\n\n";
-  print "Quitting.\n";
-  exit;
-}
-
-sub failed_message
-{
- my ($MESSAGE)=@_;
- chomp($MESSAGE);
- $MESSAGE=sprintf ("FAILED TEST: %s\n\n", $MESSAGE);
- return $MESSAGE;
-}
 
 
 our @FILETYPES=("top","gro","ndx","settings","contacts","output","contacts.SCM", "contacts.CG");
