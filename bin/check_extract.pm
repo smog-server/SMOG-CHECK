@@ -8,6 +8,7 @@ our @EXPORT = qw(check_extract);
 
 sub check_extract
 {
+ my ($exec,$pdbdir)=@_;
  my $NFAIL=0;
  my $MESSAGE="";
  my %FAIL;
@@ -18,7 +19,7 @@ sub check_extract
  	$FAIL{$item}=1;
  }
  
- 
+ `$exec > output.extract`;
  
  my ($FAILED,$printbuffer)=failsum($FATAL,\%FAIL,\@FAILLIST);
  

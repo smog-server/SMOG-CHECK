@@ -29,12 +29,12 @@ EOT
 
 &checkForModules;
  
-our $EXEC_NAME=$ENV{'smog_exec'};
-our $EXEC_ADJUST=$ENV{'smog_adjust'};
-our $EXEC_IONS=$ENV{'smog_ions'};
-our $EXEC_EXTRACT=$ENV{'smog_extract'};
-our $EXEC_SCALE=$ENV{'smog_scale'};
-our $EXEC_TABLE=$ENV{'smog_table'};
+my $EXEC_NAME=$ENV{'smog_exec'};
+my $EXEC_ADJUST=$ENV{'exec_adjust'};
+my $EXEC_IONS=$ENV{'exec_ions'};
+my $EXEC_EXTRACT=$ENV{'exec_extract'};
+my $EXEC_SCALE=$ENV{'exec_scale'};
+my $EXEC_TABLE=$ENV{'exec_table'};
 
 our $TOLERANCE=$ENV{'TOLERANCE'};
 our $MAXTHR=1.0+$TOLERANCE;
@@ -61,7 +61,7 @@ my $FAILSUM=0;
 #	ensure no restraints when off
 
 
-($FAILED,$message)=check_adjust();
+($FAILED,$message)=check_adjust($EXEC_ADJUST,$PDB_DIR);
 
 if($FAILED eq "ALL" or $FAILED != 0){
 	

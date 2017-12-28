@@ -8,6 +8,7 @@ our @EXPORT = qw(check_table);
 
 sub check_table
 {
+ my ($exec,$pdbdir)=@_;
  my $NFAIL=0;
  my $MESSAGE="";
  my %FAIL;
@@ -18,7 +19,7 @@ sub check_table
  	$FAIL{$item}=1;
  }
  
- 
+ `$exec > output.table`;
  
  my ($FAILED,$printbuffer)=failsum($FATAL,\%FAIL,\@FAILLIST);
  

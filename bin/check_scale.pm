@@ -8,6 +8,7 @@ our @EXPORT = qw(check_scale);
 
 sub check_scale
 {
+ my ($exec,$pdbdir)=@_;
  my $NFAIL=0;
  my $MESSAGE="";
  my %FAIL;
@@ -18,7 +19,7 @@ sub check_scale
  	$FAIL{$item}=1;
  }
  
- 
+ `$exec > output.scale`;
  
  my ($FAILED,$printbuffer)=failsum($FATAL,\%FAIL,\@FAILLIST);
  

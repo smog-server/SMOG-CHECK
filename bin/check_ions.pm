@@ -8,6 +8,7 @@ our @EXPORT = qw(check_ions);
 
 sub check_ions
 {
+ my ($exec,$pdbdir)=@_;
  my $NFAIL=0;
  my $MESSAGE="";
  my %FAIL;
@@ -18,7 +19,7 @@ sub check_ions
  	$FAIL{$item}=1;
  }
  
- 
+ `$exec > output.ions`;
  
  my ($FAILED,$printbuffer)=failsum($FATAL,\%FAIL,\@FAILLIST);
  
