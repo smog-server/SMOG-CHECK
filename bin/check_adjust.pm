@@ -1,8 +1,10 @@
-package smog_adjust;
+package check_adjust;
 use strict;
 use Exporter;
 use smog_common;
 use check_common;
+our @ISA = 'Exporter';
+our @EXPORT = qw(check_adjust);
 
 sub check_adjust
 {

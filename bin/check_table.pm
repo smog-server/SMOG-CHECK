@@ -1,8 +1,10 @@
-package smog_table;
+package check_table;
 use strict;
 use Exporter;
 use smog_common;
 use check_common;
+our @ISA = 'Exporter';
+our @EXPORT = qw(check_table);
 
 sub check_table
 {

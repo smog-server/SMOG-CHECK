@@ -30,4 +30,4 @@ export PRECISION=10000
 
 bin/cleanup.bash
 mkdir FAILED.tools
-echo share/PDB.files/all.tools.pdbs | $perl4smog bin/check-tools.v2.pl
+$perl4smog bin/check-tools.v2.pl

@@ -1,8 +1,10 @@
-package smog_scale;
+package check_scale;
 use strict;
 use Exporter;
 use smog_common;
 use check_common;
+our @ISA = 'Exporter';
+our @EXPORT = qw(check_scale);
 
 sub check_scale
 {

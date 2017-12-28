@@ -1,8 +1,10 @@
-package smog_extract;
+package check_extract;
 use strict;
 use Exporter;
 use smog_common;
 use check_common;
+our @ISA = 'Exporter';
+our @EXPORT = qw(check_extract);
 
 sub check_extract
 {

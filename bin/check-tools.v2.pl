@@ -61,7 +61,7 @@ my $FAILSUM=0;
 #	ensure no restraints when off
 
 
-($FAILED,$message)=check_adjust;
+($FAILED,$message)=check_adjust();
 
 if($FAILED eq "ALL" or $FAILED != 0){
 	
