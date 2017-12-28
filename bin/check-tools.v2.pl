@@ -43,6 +43,9 @@ our $PRECISION=$ENV{'PRECISION'};
 
 our $PDB_DIR="share/PDB.files";
 
+my $FAILED;
+my $message;
+my $FAILSUM=0;
 
 #things to check
 #all: check for unitialized variables
@@ -56,4 +59,11 @@ our $PDB_DIR="share/PDB.files";
 #extract: make sure the energetics are correct.  compare to original
 #	make sure the restraints are on the right atoms
 #	ensure no restraints when off
-#
+
+
+($FAILED,$message)=check_adjust;
+
+if($FAILED eq "ALL" or $FAILED != 0){
+	
+} 
+
