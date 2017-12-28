@@ -2319,35 +2319,9 @@ sub checkvalues
 sub summary
 {
  my ($FATAL)=@_;
- my $printbuffer="";
- my $NFAILED=0;
- my $NPASSED=0;
- my $NNA=0;
- if($FATAL==0){
-  $printbuffer .= sprintf ("\n     LIST OF FAILED TESTS:\n");
-  foreach my $TEST (@FAILLIST){
-   if($FAIL{$TEST}==1){
-    $printbuffer .= sprintf ("        %s CHECK\n",$TEST);
-    $FAILED++;
-    $NFAILED++;
-   }elsif($FAIL{$TEST}==0){
-    $NPASSED++;
-   }elsif($FAIL{$TEST}==-1){
-    $NNA++;
-   }else{
-    internal_error("$TEST");
-   }
-  }
- }else{
-  $FAILED="ALL";
- }
- print "test results\n";
- print "\t passed : $NPASSED\n";
- if($NFAILED != 0){
-  
- print "\t failed : $NFAILED\n";
- }
- print "\t N/A    : $NNA\n";
+
+ my ($FAILED,$printbuffer)=failsum($FATAL,\%FAIL,\@FAILLIST);
+
  if($FAILED eq "ALL" || $FAILED > 0){
   print "\n*************************************************************\n";
   print "     $FAILED CHECKS FAILED FOR TEST $TESTNUM ($PDB)!!!\n";
@@ -2369,7 +2343,6 @@ sub summary
     }
    }
   }
- 
 
   if(-d "temp.bifsif"){
    `mv temp.bifsif $FAILDIR/$PDB.fail$TESTNUM.bifsif`;

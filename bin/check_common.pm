@@ -4,7 +4,7 @@ use Exporter;
 
 our @ISA = 'Exporter';
 our @EXPORT =
-qw(internal_error smogcheck_error failed_message);
+qw(internal_error smogcheck_error failed_message failsum);
 
 sub internal_error
 {
@@ -33,6 +33,45 @@ sub failed_message
  return $MESSAGE;
 }
 
+sub failsum
+{
+ my ($FATAL,$FAIL,$FAILLIST)=@_;
+ my %FAIL=%{$FAIL};
+ my @FAILLIST=@{$FAILLIST};
+ my $printbuffer="";
+ my $NFAILED=0;
+ my $NPASSED=0;
+ my $NNA=0;
+ my $FAILED=0;
+ if($FATAL==0){
+  $printbuffer .= sprintf ("\n     LIST OF FAILED TESTS:\n");
+  foreach my $TEST (@FAILLIST){
+   if($FAIL{$TEST}==1){
+    $printbuffer .= sprintf ("        %s CHECK\n",$TEST);
+    $FAILED++;
+    $NFAILED++;
+   }elsif($FAIL{$TEST}==0){
+    $NPASSED++;
+   }elsif($FAIL{$TEST}==-1){
+    $NNA++;
+   }else{
+    internal_error("$TEST");
+   }
+  }
+ }else{
+  $FAILED="ALL";
+ }
+ print "test results\n";
+ print "\t passed : $NPASSED\n";
+ if($NFAILED != 0){
+  
+ print "\t failed : $NFAILED\n";
+ }
+ print "\t N/A    : $NNA\n";
+
+ return ($FAILED,$printbuffer);
+
+}
 
 
 
