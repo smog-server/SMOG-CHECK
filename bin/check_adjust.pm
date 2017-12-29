@@ -26,7 +26,7 @@ sub check_adjust
  my @FAILLIST = ('FATAL','UNINITIALIZED VARIABLES','OUTPUT NAME','FILE LENGTH');
 
 
- print "Checking adjustPDB with default naming.\n";
+ print "Checking smog_adjustPDB with default naming.\n";
  foreach my $item(@FAILLIST){
  	$FAIL{$item}=1;
  }
@@ -55,7 +55,7 @@ sub check_adjust
  }
  my ($FAILED,$printbuffer)=failsum($FATAL,\%FAIL,\@FAILLIST);
  print "$printbuffer\n";
- print "Checking adjustPDB with user-specified file name.\n";
+ print "Checking smog_adjustPDB with user-specified file name.\n";
  foreach my $item(@FAILLIST){
  	$FAIL{$item}=1;
  }
