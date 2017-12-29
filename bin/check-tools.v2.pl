@@ -61,7 +61,9 @@ my $FAILSUM=0;
 #extract: make sure the energetics are correct.  compare to original
 #	make sure the restraints are on the right atoms
 #	ensure no restraints when off
-
+#	make sure it works with AA and CA models
+#	make sure specified files names work
+#
 # scale: make sure they are correct
 # table: recalculate values and ensure they are the same.
 # 	re-evaluate for different parameters

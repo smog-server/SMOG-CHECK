@@ -13,16 +13,28 @@ sub check_scale
  my $MESSAGE="";
  my %FAIL;
  my $FAILED;
- my $FATAL;
- my @FAILLIST = ('FATAL','UNINITIALIZED VARIABLES');
+ my $tool="scale";
+ my $printbuffer="";
+ my @FAILLIST = ('FATAL','UNINITIALIZED VARIABLES','SMOG FATAL');
  foreach my $item(@FAILLIST){
  	$FAIL{$item}=1;
  }
- 
- `$exec > output.scale`;
- 
- my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
- 
+
+# generate an AA model RNA 
+ `smog2 -i $pdbdir/tRNA.pdb -AA -dname AA.tmp > output.smog`;
+ my ($SMOGFATAL,$smt)=checkoutput("output.smog");
+
+  print "Checking smog_scale-energies with all-atom model\n";
+   foreach my $item(@FAILLIST){
+    $FAIL{$item}=1;
+   }
+   $FAIL{"SMOG FATAL"}=$SMOGFATAL ;
+   `smog_scale-energies -f AA.tmp.top -n share/PDB.files/sample.AA.ndx -rc 1.5 -rd 1.2 < $pdbdir/in.groups > output.$tool`;
+   ($FAIL{"FATAL"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
+
+   ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
+   print "$printbuffer\n";
+
  return ($FAILED, $printbuffer);
 
 }
