@@ -477,7 +477,7 @@ sub smogchecker
   }
 
 # check that the same contact map is generated
-  my $CONTDIFF=`diff $PDB.contacts $PDB.contacts.SCM | wc -l`;
+  my $CONTDIFF=filediff("$PDB.contacts","$PDB.contacts.SCM");
    if($CONTDIFF == 0){
     $FAIL{'SCM CONTACT COMPARISON'}=0;
    }
@@ -493,7 +493,7 @@ sub smogchecker
   }
 
   # run SCM to get map
-  my $CONTDIFF=`diff $PDB.contacts $PDB.contacts.SCM | wc -l`;
+  my $CONTDIFF=filediff("$PDB.contacts","$PDB.contacts.SCM");
    if($CONTDIFF == 0){
     $FAIL{'SCM CONTACT COMPARISON'}=0;
    }

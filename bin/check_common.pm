@@ -5,7 +5,7 @@ use Exporter;
 our $PDB_DIR;
 our @ISA = 'Exporter';
 our @EXPORT =
-qw(internal_error smogcheck_error failed_message failsum checkfatal checkuninit);
+qw(internal_error smogcheck_error failed_message failsum checkfatal checkuninit filediff);
 
 sub internal_error
 {
@@ -90,6 +90,7 @@ sub checkfatal
  while(<FILE>){
   $fatal++ if /FATAL ERROR/;
  }
+ close(FILE);
  return $fatal;	
 
 }
@@ -102,10 +103,48 @@ sub checkuninit
  while(<FILE>){
   $uninit++ if /unitialized/;
  }
+ close(FILE);
  return $uninit;	
 
 }
 
+###################################
+# check if two files are identical#
+# #################################
+
+sub filediff
+{
+ my ($file1,$file2)=@_;
+ my @info1;
+ my @info2;
+ open(FILE1,"$file1") or internal_error("can not open $file1 for reading.");
+ my $I1=0;
+ while(<FILE1>){
+  $info1[$I1]=$_;
+  $I1++;
+ }
+ close(FILE1);
+ open(FILE2,"$file2") or internal_error("can not open $file2 for reading.");
+ my $I2=0;
+ while(<FILE2>){
+  $info2[$I2]=$_;
+  $I2++;
+ }
+ close(FILE2);
+
+ if($I1 != $I2){
+  # files are different
+  return 1;
+ }
+
+ my $ndiff=0;
+ for(my $I=0;$I<$I1;$I++){
+  if($info1[$I] ne $info2[$I]){
+   $ndiff++;
+  }
+ }
+ return $ndiff;
+}
  
 return 1;
 
