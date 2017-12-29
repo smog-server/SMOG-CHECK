@@ -64,6 +64,8 @@ my $FAILSUM=0;
 ($FAILED,$message)=check_adjust($EXEC_ADJUST,$PDB_DIR);
 
 if($FAILED eq "ALL" or $FAILED != 0){
-	
-} 
+	print "\n\nSOME TESTS FAILED.  SEE EARLIER MESSAGES\n\n";	
+}else{
+	print "\n\nPassed all SMOG tool checks!\n\n"; 
+}
 
