@@ -502,7 +502,8 @@ sub smogchecker
   $FAIL{'SCM MAP GENERATED'}=0;
  }
 
- my $UNINITVARS=checkuninit("$PDB.output");
+
+ my ($FATAL,$UNINITVARS)=checkoutput("$PDB.output");
  if($UNINITVARS == 0){
   $FAIL{'UNINITIALIZED VARIABLES'}=0;
  }else{
@@ -510,7 +511,6 @@ sub smogchecker
   $fail_log .= failed_message("SMOG 2 encountered uninitialized variables.");
  }
 
- my $FATAL=checkfatal("$PDB.output");
  if($FATAL == 0){
   print "SMOG 2 exited without an error.\n\n";
   # CHECK THE OUTPUT
@@ -2327,9 +2327,9 @@ sub checkvalues
 
 sub summary
 {
- my ($FATAL)=@_;
+ ($FAIL{"FATAL"})=@_;
 
- my ($FAILED,$printbuffer)=failsum($FATAL,\%FAIL,\@FAILLIST);
+ my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
 
  if($FAILED eq "ALL" || $FAILED > 0){
   print "\n*************************************************************\n";

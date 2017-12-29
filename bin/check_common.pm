@@ -5,7 +5,7 @@ use Exporter;
 our $PDB_DIR;
 our @ISA = 'Exporter';
 our @EXPORT =
-qw(internal_error smogcheck_error failed_message failsum checkfatal checkuninit filediff);
+qw(internal_error smogcheck_error failed_message failsum checkoutput filediff);
 
 sub internal_error
 {
@@ -36,7 +36,7 @@ sub failed_message
 
 sub failsum
 {
- my ($FATAL,$FAIL,$FAILLIST)=@_;
+ my ($FAIL,$FAILLIST)=@_;
  my %FAIL=%{$FAIL};
  my @FAILLIST=@{$FAILLIST};
  my $printbuffer="";
@@ -44,10 +44,10 @@ sub failsum
  my $NPASSED=0;
  my $NNA=0;
  my $FAILED=0;
- if($FATAL==0){
+ if($FAIL{"FATAL"}==0){
   $printbuffer .= sprintf ("\n     LIST OF FAILED TESTS:\n");
   foreach my $TEST (@FAILLIST){
-   if($FAIL{$TEST}==1){
+   if($FAIL{$TEST}>1){
     $printbuffer .= sprintf ("        %s CHECK\n",$TEST);
     $FAILED++;
     $NFAILED++;
@@ -82,30 +82,18 @@ sub failsum
 # routines that check for errors #
 # ################################
 
-sub checkfatal
+sub checkoutput
 {
  my ($filename)=@_;
  open(FILE,"$filename") or internal_error("can not open $filename for reading.");
  my $fatal=0;
- while(<FILE>){
-  $fatal++ if /FATAL ERROR/;
- }
- close(FILE);
- return $fatal;	
-
-}
-
-sub checkuninit
-{
- my ($filename)=@_;
- open(FILE,"$filename") or internal_error("can not open $filename for reading.");
  my $uninit=0;
  while(<FILE>){
+  $fatal++ if /FATAL ERROR/;
   $uninit++ if /unitialized/;
  }
  close(FILE);
- return $uninit;	
-
+ return ($fatal,$uninit);	
 }
 
 ###################################

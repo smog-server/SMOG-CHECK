@@ -13,7 +13,6 @@ sub check_adjust
  my $MESSAGE="";
  my %FAIL;
  my $FAILED;
- my $FATAL;
  my $UNINIT;
  my $LINESorig=0;
  my $origpdb="$pdbdir/3PTA.preadjust.pdb";
@@ -37,14 +36,9 @@ sub check_adjust
  if(-e "adjusted.pdb"){
   $FAIL{"OUTPUT NAME"}=0;
  }
- $FATAL=checkfatal("output.$tool");
- if($FATAL ==0){
-  $FAIL{"FATAL"}=0;
- }
- $UNINIT=checkuninit("output.$tool");
- if($FATAL ==0){
-  $FAIL{"UNINITIALIZED VARIABLES"}=0;
- }
+
+ ($FAIL{"FATAL"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
+ 
  my $LINESnew=0;
  open(NEW,"adjusted.pdb") or internal_error("Unable to open adjusted.pdb");
  while(<NEW>){
@@ -53,7 +47,7 @@ sub check_adjust
  if($LINESnew==$LINESorig){
   $FAIL{"FILE LENGTH"}=0;
  }
- my ($FAILED,$printbuffer)=failsum($FATAL,\%FAIL,\@FAILLIST);
+ my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
  print "$printbuffer\n";
  print "Checking smog_adjustPDB with user-specified file name.\n";
  foreach my $item(@FAILLIST){
@@ -66,14 +60,9 @@ sub check_adjust
  if(-e "$newpdb"){
   $FAIL{"OUTPUT NAME"}=0;
  }
- $FATAL=checkfatal("output.$tool");
- if($FATAL ==0){
-  $FAIL{"FATAL"}=0;
- }
- $UNINIT=checkuninit("output.$tool");
- if($UNINIT ==0){
-  $FAIL{"UNINITIALIZED VARIABLES"}=0;
- }
+
+ ($FAIL{"FATAL"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
+
  my $LINESnew=0;
  open(NEW,"$newpdb") or internal_error("Unable to open adjusted.pdb");
  while(<NEW>){
@@ -82,7 +71,7 @@ sub check_adjust
  if($LINESnew==$LINESorig){
   $FAIL{"FILE LENGTH"}=0;
  }
- my ($FAILED,$printbuffer)=failsum($FATAL,\%FAIL,\@FAILLIST);
+ my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
  print "$printbuffer\n";
  
  return ($FAILED, $printbuffer);

@@ -21,7 +21,7 @@ sub check_scale
  
  `$exec > output.scale`;
  
- my ($FAILED,$printbuffer)=failsum($FATAL,\%FAIL,\@FAILLIST);
+ my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
  
  return ($FAILED, $printbuffer);
 

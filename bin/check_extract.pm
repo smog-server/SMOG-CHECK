@@ -14,15 +14,31 @@ sub check_extract
  my %FAIL;
  my $FAILED;
  my $FATAL;
- my @FAILLIST = ('FATAL','UNINITIALIZED VARIABLES');
+ my $UNINIT;
+ my $printbuffer;
+ my $tool="extract";
+ my @FAILLIST = ('FATAL','UNINITIALIZED VARIABLES','SMOG FATAL');
  foreach my $item(@FAILLIST){
  	$FAIL{$item}=1;
  }
- 
- `$exec > output.extract`;
- 
- my ($FAILED,$printbuffer)=failsum($FATAL,\%FAIL,\@FAILLIST);
- 
+
+# generate an AA model RNA 
+ `smog2 -i $pdbdir/tRNA.pdb -AA -dname AA.tmp > output.smog`;
+ my ($SMOGFATAL,$smt)=checkoutput("output.smog");
+
+  print "Checking smog_extract with all-atom model: no restaints\n";
+  for(my $group=0;$group<3;$group++){
+   foreach my $item(@FAILLIST){
+    $FAIL{$item}=1;
+   }
+   $FAIL{"SMOG FATAL"}=$SMOGFATAL ;
+   print "\tChecking with index group $group\n";
+   `echo $group | $exec -f AA.tmp.top -g AA.tmp.gro -n $pdbdir/sample.AA.ndx  > output.$tool`;
+   ($FAIL{"FATAL"},$FAIL{"UNINITIALIZED VARIABLES"})=$FATAL=checkoutput("output.$tool");
+
+   ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
+   print "$printbuffer\n";
+  } 
  return ($FAILED, $printbuffer);
 
 }

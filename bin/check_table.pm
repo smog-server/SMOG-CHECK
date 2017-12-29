@@ -13,7 +13,6 @@ sub check_table
  my $MESSAGE="";
  my %FAIL;
  my $FAILED;
- my $FATAL;
  my @FAILLIST = ('FATAL','UNINITIALIZED VARIABLES');
  foreach my $item(@FAILLIST){
  	$FAIL{$item}=1;
@@ -21,7 +20,7 @@ sub check_table
  
  `$exec > output.table`;
  
- my ($FAILED,$printbuffer)=failsum($FATAL,\%FAIL,\@FAILLIST);
+ my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
  
  return ($FAILED, $printbuffer);
 

@@ -29,7 +29,7 @@ sub check_ions
 
 # perform checks for AA model RNA 
  `smog2 -i $pdbdir/tRNA.pdb -AA -dname AA.tmp > output.smog`;
- my $SMOGFATAL=checkfatal("output.smog");
+ my ($SMOGFATAL,$smt)=checkoutput("output.smog");
 
  for(my $i=0;$i<=$#PARAMS;$i++){
   print "Checking smog_ions with all-atom model: parameter set $i\n";
@@ -40,23 +40,19 @@ sub check_ions
    $FAIL{"SMOG FATAL"}=0;
   }  
 
-  `$exec -f AA.tmp.top -g AA.tmp.gro -ionnm $PARAMS[$i][0] -ionn  $PARAMS[$i][1] -ionq $PARAMS[$i][2] -ionm $PARAMS[$i][3] -ionC12 $PARAMS[$i][4] -ionC6 $PARAMS[$i][5]   > output.ions`;
-  $FATAL=checkfatal("output.$tool");
-  if($FATAL ==0){
-   $FAIL{"FATAL"}=0;
-  }
-  $UNINIT=checkuninit("output.$tool");
-  if($UNINIT ==0){
-   $FAIL{"UNINITIALIZED VARIABLES"}=0;
-  }
-  ($FAILED,$printbuffer)=failsum($FATAL,\%FAIL,\@FAILLIST);
+  `$exec -f AA.tmp.top -g AA.tmp.gro -ionnm $PARAMS[$i][0] -ionn  $PARAMS[$i][1] -ionq $PARAMS[$i][2] -ionm $PARAMS[$i][3] -ionC12 $PARAMS[$i][4] -ionC6 $PARAMS[$i][5]   > output.$tool`;
+  ($FATAL,$UNINIT)=checkoutput("output.$tool");
+  $FAIL{"FATAL"}=$FATAL;
+  $FAIL{"UNINITIALIZED VARIABLES"}=$UNINIT;
+
+  ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
   print "$printbuffer\n";
  }
 
 
 # perform checks for CA model protein 
  `smog2 -i $pdbdir/2ci2_v2.pdb -CA -dname CA.tmp > output.smog`;
- $SMOGFATAL=checkfatal("output.smog");
+ ($SMOGFATAL,$smt)=checkoutput("output.smog");
 
  for(my $i=0;$i<=$#PARAMS;$i++){
   print "Checking smog_ions with C-alpha model: parameter set $i\n";
@@ -68,15 +64,9 @@ sub check_ions
   }  
 
   `$exec -f CA.tmp.top -g CA.tmp.gro -ionnm $PARAMS[$i][0] -ionn  $PARAMS[$i][1] -ionq $PARAMS[$i][2] -ionm $PARAMS[$i][3] -ionC12 $PARAMS[$i][4] -ionC6 $PARAMS[$i][5]   > output.$tool`;
-  $FATAL=checkfatal("output.$tool");
-  if($FATAL ==0){
-   $FAIL{"FATAL"}=0;
-  }
-  $UNINIT=checkuninit("output.$tool");
-  if($UNINIT ==0){
-   $FAIL{"UNINITIALIZED VARIABLES"}=0;
-  }
-  ($FAILED,$printbuffer)=failsum($FATAL,\%FAIL,\@FAILLIST);
+  ($FAIL{"FATAL"},$FAIL{"UNINITIALIZED VARIABLES"})=$FATAL=checkoutput("output.$tool");
+
+  ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
   print "$printbuffer\n";
  }
  
