@@ -81,10 +81,7 @@ my %supported_directives = ( 'defaults' => '0',
 
 
 unless(-d $BIFSIF_AA && -d $BIFSIF_CA && -d $TEMPLATE_DIR_AA && -d $TEMPLATE_DIR_AA_STATIC && -d $TEMPLATE_DIR_CA ){
- print "Can\'t find the template directories. Something is wrong with the configurations of this script.\n";
- print "Your intallation of SMOG2 may be ok, but we can\'t tell\n";
- print "Giving up...\n";
- die;
+ smogcheck_error("Can\'t find the template directories. Something is wrong with the configurations of this script.\nYour intallation of SMOG2 may be ok, but we can\'t tell\nGiving up...");
 }
 
 # default location of test PDBs
@@ -103,7 +100,7 @@ unless( -e $SCM){
 }
 our %BBTYPE;
 ## read in the backbone atom types.  Remember, CA and C1* can be involved in sidechain dihedrals
-open(BBAMINO,"share/backboneatoms/aminoacids") or die "no amino acid file\n";
+open(BBAMINO,"share/backboneatoms/aminoacids") or internal_error("no amino acid file");
 while(<BBAMINO>){
  my $LINE=$_;
  chomp($LINE);
@@ -111,7 +108,7 @@ while(<BBAMINO>){
  $BBTYPE{$LINE}= "BACKBONE";
 }
 
-open(BBNUCLEIC,"share/backboneatoms/nucleicacids") or die "no amino acid file\n";
+open(BBNUCLEIC,"share/backboneatoms/nucleicacids") or internal_error("no amino acid file");
 while(<BBNUCLEIC>){
  my $LINE=$_;
  chomp($LINE);
@@ -122,7 +119,7 @@ our %TYPE;
 my @AA;
 ## LOAD INFORMATION ABOUT WHAT TYPES OF RESIDUES ARE RECOGNIZED BY SMOG2
 #amino acids
-open(AMINO,"share/residues/aminoacids") or die "no amino acid file\n";
+open(AMINO,"share/residues/aminoacids") or internal_error("no amino acid file");
 my $AAn=0;
 while(<AMINO>){
  my $LINE=$_;
@@ -135,7 +132,7 @@ while(<AMINO>){
 
 
 #nucleic acids
-open(NUCLEIC,"share/residues/nucleicacids") or die "no nucleic acid file\n";
+open(NUCLEIC,"share/residues/nucleicacids") or internal_error("no nucleic acid file");
 my $NUCLEICn=0;
 my @NUCLEIC;
 while(<NUCLEIC>){
@@ -148,7 +145,7 @@ while(<NUCLEIC>){
 }
 
 #ligands
-open(LIGAND,"share/residues/ligands") or die "no nucleic acid file\n";
+open(LIGAND,"share/residues/ligands") or internal_error("no nucleic acid file");
 my $LIGANDn=0;
 my @LIGANDS;
 while(<LIGAND>){
@@ -161,7 +158,7 @@ while(<LIGAND>){
 }
 
 #ions
-open(ION,"share/residues/ions") or die "no ion file\n";
+open(ION,"share/residues/ions") or internal_error("no ion file");
 my $IONn=0;
 my @IONS;
 while(<ION>){
@@ -218,6 +215,8 @@ our @GRODATA;
 our @ATOMTYPE;
 our @RESNUM;
 our @MOLTYPE;
+our %MOLTYPEBYRES;
+our %restypecount;
 our $bondEps;
 our $bondMG;
 our $angleEps;
@@ -240,7 +239,7 @@ our $fail_log;
 my $NUMTESTED=0;
 my $SETTINGS_FILE=<STDIN>;
 chomp($SETTINGS_FILE);
-open(PARMS,"$SETTINGS_FILE") or die "The settings file is missing...\n";
+open(PARMS,"$SETTINGS_FILE") or internal_error("The settings file is missing...");
 my $TESTNUM=0;
 ## Run tests for each pdb
 while(<PARMS>){
@@ -608,7 +607,7 @@ sub checkgro
 sub preparesettings
 {
  # make a settings file...
- open(READSET,">$PDB.settings") or die  "can not open settings file\n";
+ open(READSET,">$PDB.settings") or internal_error("can not open settings file");
  printf READSET ("%s.pdb\n", $PDB);
  printf READSET ("%s.top\n", $PDB);
  if(-e "$PDB.top"){
@@ -701,8 +700,8 @@ sub preparesettings
 sub checkndx
 {
 
- open(NDX,"$PDB.ndx") or die " $PDB.ndx can not be opened...\n";
- open(NDX2,">$PDB.ndx2") or die " $PDB.ndx2 can not be opened...\n";
+ open(NDX,"$PDB.ndx") or internal_error(" $PDB.ndx can not be opened...");
+ open(NDX2,">$PDB.ndx2") or internal_error(" $PDB.ndx2 can not be opened...");
  while(<NDX>){
   my $LINE=$_;
   chomp($LINE);
@@ -722,7 +721,7 @@ sub checkndx
  close(NDX);
  close(NDX2);
  `mv $PDB.ndx2 $PDB.ndx`;
- open(NDX,"$PDB.ndx") or die "no ndx file\n"; 
+ open(NDX,"$PDB.ndx") or internal_error("no ndx file"); 
  my $CHAIN;
  while(<NDX>){
   my $LINE=$_;        
@@ -749,8 +748,8 @@ sub readtop
  $DIH_MAX=-100000000;
  $NCONTACTS=0;
  # clean up top file for easy parsing later
- open(TOP,"$PDB.top") or die " $PDB.top can not be opened...\n";
- open(TOP2,">$PDB.top2") or die " $PDB.top can not be opened...\n";
+ open(TOP,"$PDB.top") or internal_error(" $PDB.top can not be opened...");
+ open(TOP2,">$PDB.top2") or internal_error(" $PDB.top can not be opened...");
  while(<TOP>){
   my $LINE=$_;
   chomp($LINE);
@@ -770,11 +769,13 @@ sub readtop
  close(TOP);
  close(TOP2);
  `mv $PDB.top2 $PDB.top`;
- open(TOP,"$PDB.top") or die " $PDB.top can not be opened...\n";
+ open(TOP,"$PDB.top") or internal_error(" $PDB.top can not be opened...");
  $NUCLEIC_PRESENT=0;
  $AMINO_PRESENT=0;
  $LIGAND_PRESENT=0;
  $ION_PRESENT=0;
+ undef %MOLTYPEBYRES;
+ undef %restypecount;
  my @theta_gen;
  my @PAIRS;
  my %dihedral_array1;
@@ -971,6 +972,7 @@ sub readtop
     # nucleic acid, protein, ligand
      if(defined $TYPE{$A[3]}){
       $MOLTYPE[$A[0]]=$TYPE{$A[3]};
+      $MOLTYPEBYRES{$A[2]}=$TYPE{$A[3]};
      }else{
       print "there is an unrecognized residue name.\n";
       print "$A[0] $A[3]\n";
@@ -994,11 +996,18 @@ sub readtop
      last unless defined $LINE;
      @A=split(/ /,$LINE);
     }
-   if($FAIL_GROTOP ==0){
-    $FAIL{'GRO-TOP CONSISTENCY'}=0;
+    if($FAIL_GROTOP ==0){
+     $FAIL{'GRO-TOP CONSISTENCY'}=0;
+    }
+   # count the number of amino residue, nucleic residues and ligand residues
+    foreach my $rest(keys %MOLTYPEBYRES){
+     $restypecount{$MOLTYPEBYRES{$rest}}++;
+    }
+    foreach my $rest(keys %restypecount){
+     print "$rest $restypecount{$rest}\n";
+    }
    }
-   }
-  } 
+  }
   if(exists $A[1]){  
    # read the bonds.  Make sure they are not assigned twice.  Also, save the bonds, so we can generate all possible bond angles later.
    if($A[1] eq "bonds"){
@@ -1756,9 +1765,9 @@ sub readtop
 	$NOTSHORTSEQ++;
      }
 
-     if($CID[$A[0]] == $CID[$A[1]] && $MOLTYPE[$A[0]] eq "AMINO" &&  abs($resindex[$A[0]]-$resindex[$A[1]]) ==4 ){
+     if($CID[$A[0]] == $CID[$A[1]] && $MOLTYPE[$A[0]] eq "AMINO" && $MOLTYPE[$A[1]] eq "AMINO" &&  abs($resindex[$A[0]]-$resindex[$A[1]]) ==4 ){
 	$FAIL{'CONTACTS PROTEIN i-j=4'}=0;
-     }elsif($CID[$A[0]] == $CID[$A[1]] && $MOLTYPE[$A[0]] eq "NUCLEIC" &&  abs($resindex[$A[0]]-$resindex[$A[1]]) ==1 ){
+     }elsif($CID[$A[0]] == $CID[$A[1]] && $MOLTYPE[$A[0]] eq "NUCLEIC" && $MOLTYPE[$A[1]] eq "NUCLEIC" &&  abs($resindex[$A[0]]-$resindex[$A[1]]) ==1 ){
         $FAIL{'CONTACTS NUCLEIC i-j=1'}=0;
      }
 
@@ -2002,7 +2011,8 @@ sub readtop
   for(my $j=0;$j<=$DISP_MAX;$j++){
    if(exists $EDrig_T[$i][$j]){
     $NUM_NONZERO++;	
-    if( ($ATOMNAME[$i] eq "C"  && $ATOMNAME[$i+$j] eq "N") || (  $ATOMNAME[$i] eq "N"  && $ATOMNAME[$i+$j] eq "C"   )){
+    if( ($ATOMNAME[$i] eq "C"  && $ATOMNAME[$i+$j] eq "N") || (  $ATOMNAME[$i] eq "N"  && $ATOMNAME[$i+$j] eq "C"   ) ||
+        ($ATOMNAME[$i] eq "C"  && $ATOMNAME[$i+$j] eq "O3*") || (  $ATOMNAME[$i] eq "O3*"  && $ATOMNAME[$i+$j] eq "C"   )    ){
      $NRIGID++;
      if( abs($EDrig_T[$i][$j]-$omegaEps) > $TOLERANCE ){
       $fail_log .= failed_message("weird omega rigid...\n\t$i $j $EDrig_T[$i][$j]\n\t$ATOMNAME[$i] $ATOMNAME[$i+$j]\n\t$RESNUM[$i] $RESNUM[$i+$j]");
@@ -2273,7 +2283,6 @@ sub checkvalues
   }
  }else{
   smogcheck_error("unrecognized model. Quitting...");
-  die;
  }
  ## check the energy per dihedral and where the dihedral is SC/BB NA/AMINO
  if($DISP_MAX == 0){
