@@ -18,6 +18,7 @@ sub check_adjust
  my $LINESorig=0;
  my $origpdb="$pdbdir/3PTA.preadjust.pdb";
  my $newpdb="testname.pdb";
+ my $tool="adjust";
  open(ORIG,"$origpdb") or internal_error("Unable to open $origpdb");
  while(<ORIG>){
   $LINESorig++;
@@ -32,15 +33,15 @@ sub check_adjust
  if(-e "adjusted.pdb"){
   `rm adjusted.pdb`;
  }
- `$exec -default -i $origpdb > output.adjust`;
+ `$exec -default -i $origpdb > output.$tool`;
  if(-e "adjusted.pdb"){
   $FAIL{"OUTPUT NAME"}=0;
  }
- $FATAL=`grep 'FATAL ERROR' output.adjust | wc -l | awk '{print \$1}'`;
+ $FATAL=`grep 'FATAL ERROR' output.$tool | wc -l | awk '{print \$1}'`;
  if($FATAL ==0){
   $FAIL{"FATAL"}=0;
  }
- $UNINIT=`grep 'unintialized' output.adjust | wc -l | awk '{print \$1}'`;
+ $UNINIT=`grep 'unintialized' output.$tool | wc -l | awk '{print \$1}'`;
  if($FATAL ==0){
   $FAIL{"UNINITIALIZED VARIABLES"}=0;
  }
@@ -61,16 +62,16 @@ sub check_adjust
  if(-e "$newpdb"){
   `rm $newpdb`;
  }
- `$exec -default -i $origpdb -o $newpdb > output.adjust`;
+ `$exec -default -i $origpdb -o $newpdb > output.$tool`;
  if(-e "$newpdb"){
   $FAIL{"OUTPUT NAME"}=0;
  }
- $FATAL=`grep 'FATAL ERROR' output.adjust | wc -l | awk '{print \$1}'`;
+ $FATAL=`grep 'FATAL ERROR' output.$tool | wc -l | awk '{print \$1}'`;
  if($FATAL ==0){
   $FAIL{"FATAL"}=0;
  }
- $UNINIT=`grep 'unintialized' output.adjust | wc -l | awk '{print \$1}'`;
- if($FATAL ==0){
+ $UNINIT=`grep 'unintialized' output.$tool | wc -l | awk '{print \$1}'`;
+ if($UNINIT ==0){
   $FAIL{"UNINITIALIZED VARIABLES"}=0;
  }
  my $LINESnew=0;

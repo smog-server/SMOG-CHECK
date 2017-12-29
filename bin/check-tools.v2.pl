@@ -55,13 +55,20 @@ my $FAILSUM=0;
 #	make sure that only two directives change: perhaps diff the files first.
 #		this will ensure all directives are written.
 #		nothing should be unique to original file
-#
+#		make sure all parameters are varied
+#		make sure it works with CA models, as well.
 #extract: make sure the energetics are correct.  compare to original
 #	make sure the restraints are on the right atoms
 #	ensure no restraints when off
 
+# scale: make sure they are correct
+# table: recalculate values and ensure they are the same.
+# 	re-evaluate for different parameters
+# 	don't worry about switching function?
+#
 
 ($FAILED,$message)=check_adjust($EXEC_ADJUST,$PDB_DIR);
+($FAILED,$message)=check_ions($EXEC_IONS,$PDB_DIR);
 
 if($FAILED eq "ALL" or $FAILED != 0){
 	print "\n\nSOME TESTS FAILED.  SEE EARLIER MESSAGES\n\n";	
