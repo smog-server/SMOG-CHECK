@@ -503,7 +503,7 @@ sub smogchecker
   $FAIL{'SCM MAP GENERATED'}=0;
  }
 
- my $UNINITVARS=`grep -i 'uninitialized' $PDB.output | wc -l | awk '{print \$1}'`;
+ my $UNINITVARS=checkuninit("$PDB.output");
  if($UNINITVARS == 0){
   $FAIL{'UNINITIALIZED VARIABLES'}=0;
  }else{
@@ -511,7 +511,7 @@ sub smogchecker
   $fail_log .= failed_message("SMOG 2 encountered uninitialized variables.");
  }
 
- my $FATAL=`grep 'FATAL ERROR' $PDB.output | wc -l | awk '{print \$1}'`;
+ my $FATAL=checkfatal("$PDB.output");
  if($FATAL == 0){
   print "SMOG 2 successfully completed.\n\n";
   # CHECK THE OUTPUT

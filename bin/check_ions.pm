@@ -24,12 +24,12 @@ sub check_ions
   # major index will be parameter set.  Minor index will list name (0), number (1), charge (2), mass (3), C12 (4), C6 (5)
  my @PARAMS = (
  ['K', '10', '1.0', '1.0', '4E-9', '3E-4'],
- ['KR', '4', '-1.1', '1.3', '4.498E-2', '1E-3'],
+ ['K+', '4', '-1.1', '1.3', '4.498E-2', '1E-3'],
  );
 
 # perform checks for AA model RNA 
  `smog2 -i $pdbdir/tRNA.pdb -AA -dname AA.tmp > output.smog`;
- my $SMOGFATAL=`grep 'FATAL ERROR' output.smog | wc -l | awk '{print \$1}'`;
+ my $SMOGFATAL=checkfatal("output.smog");
 
  for(my $i=0;$i<=$#PARAMS;$i++){
   print "Checking smog_ions with all-atom model: parameter set $i\n";
@@ -41,11 +41,11 @@ sub check_ions
   }  
 
   `$exec -f AA.tmp.top -g AA.tmp.gro -ionnm $PARAMS[$i][0] -ionn  $PARAMS[$i][1] -ionq $PARAMS[$i][2] -ionm $PARAMS[$i][3] -ionC12 $PARAMS[$i][4] -ionC6 $PARAMS[$i][5]   > output.ions`;
-  $FATAL=`grep 'FATAL ERROR' output.$tool | wc -l | awk '{print \$1}'`;
+  $FATAL=checkfatal("output.$tool");
   if($FATAL ==0){
    $FAIL{"FATAL"}=0;
   }
-  $UNINIT=`grep 'unintialized' output.$tool | wc -l | awk '{print \$1}'`;
+  $UNINIT=checkuninit("output.$tool");
   if($UNINIT ==0){
    $FAIL{"UNINITIALIZED VARIABLES"}=0;
   }
@@ -54,9 +54,9 @@ sub check_ions
  }
 
 
-# perform checks for AA model RNA 
+# perform checks for CA model protein 
  `smog2 -i $pdbdir/2ci2_v2.pdb -CA -dname CA.tmp > output.smog`;
- $SMOGFATAL=`grep 'FATAL ERROR' output.smog | wc -l | awk '{print \$1}'`;
+ $SMOGFATAL=checkfatal("output.smog");
 
  for(my $i=0;$i<=$#PARAMS;$i++){
   print "Checking smog_ions with C-alpha model: parameter set $i\n";
@@ -68,11 +68,11 @@ sub check_ions
   }  
 
   `$exec -f CA.tmp.top -g CA.tmp.gro -ionnm $PARAMS[$i][0] -ionn  $PARAMS[$i][1] -ionq $PARAMS[$i][2] -ionm $PARAMS[$i][3] -ionC12 $PARAMS[$i][4] -ionC6 $PARAMS[$i][5]   > output.$tool`;
-  $FATAL=`grep 'FATAL ERROR' output.$tool | wc -l | awk '{print \$1}'`;
+  $FATAL=checkfatal("output.$tool");
   if($FATAL ==0){
    $FAIL{"FATAL"}=0;
   }
-  $UNINIT=`grep 'unintialized' output.$tool | wc -l | awk '{print \$1}'`;
+  $UNINIT=checkuninit("output.$tool");
   if($UNINIT ==0){
    $FAIL{"UNINITIALIZED VARIABLES"}=0;
   }

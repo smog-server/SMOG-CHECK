@@ -5,7 +5,7 @@ use Exporter;
 our $PDB_DIR;
 our @ISA = 'Exporter';
 our @EXPORT =
-qw(internal_error smogcheck_error failed_message failsum);
+qw(internal_error smogcheck_error failed_message failsum checkfatal checkuninit);
 
 sub internal_error
 {
@@ -77,6 +77,35 @@ sub failsum
  return ($FAILED,$printbuffer);
 
 }
+
+##################################
+# routines that check for errors #
+# ################################
+
+sub checkfatal
+{
+ my ($filename)=@_;
+ open(FILE,"$filename") or internal_error("can not open $filename for reading.");
+ my $fatal=0;
+ while(<FILE>){
+  $fatal++ if /FATAL ERROR/;
+ }
+ return $fatal;	
+
+}
+
+sub checkuninit
+{
+ my ($filename)=@_;
+ open(FILE,"$filename") or internal_error("can not open $filename for reading.");
+ my $uninit=0;
+ while(<FILE>){
+  $uninit++ if /unitialized/;
+ }
+ return $uninit;	
+
+}
+
  
 return 1;
 

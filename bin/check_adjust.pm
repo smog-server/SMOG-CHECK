@@ -37,11 +37,11 @@ sub check_adjust
  if(-e "adjusted.pdb"){
   $FAIL{"OUTPUT NAME"}=0;
  }
- $FATAL=`grep 'FATAL ERROR' output.$tool | wc -l | awk '{print \$1}'`;
+ $FATAL=checkfatal("output.$tool");
  if($FATAL ==0){
   $FAIL{"FATAL"}=0;
  }
- $UNINIT=`grep 'unintialized' output.$tool | wc -l | awk '{print \$1}'`;
+ $UNINIT=checkuninit("output.$tool");
  if($FATAL ==0){
   $FAIL{"UNINITIALIZED VARIABLES"}=0;
  }
@@ -66,11 +66,11 @@ sub check_adjust
  if(-e "$newpdb"){
   $FAIL{"OUTPUT NAME"}=0;
  }
- $FATAL=`grep 'FATAL ERROR' output.$tool | wc -l | awk '{print \$1}'`;
+ $FATAL=checkfatal("output.$tool");
  if($FATAL ==0){
   $FAIL{"FATAL"}=0;
  }
- $UNINIT=`grep 'unintialized' output.$tool | wc -l | awk '{print \$1}'`;
+ $UNINIT=checkuninit("output.$tool");
  if($UNINIT ==0){
   $FAIL{"UNINITIALIZED VARIABLES"}=0;
  }
