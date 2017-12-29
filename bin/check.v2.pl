@@ -512,7 +512,7 @@ sub smogchecker
 
  my $FATAL=checkfatal("$PDB.output");
  if($FATAL == 0){
-  print "SMOG 2 successfully completed.\n\n";
+  print "SMOG 2 exited without an error.\n\n";
   # CHECK THE OUTPUT
   &checkgro; 
   &checkndx;
@@ -999,12 +999,9 @@ sub readtop
     if($FAIL_GROTOP ==0){
      $FAIL{'GRO-TOP CONSISTENCY'}=0;
     }
-   # count the number of amino residue, nucleic residues and ligand residues
+   # count the number of amino residue, nucleic residues, ligand residues and ions
     foreach my $rest(keys %MOLTYPEBYRES){
      $restypecount{$MOLTYPEBYRES{$rest}}++;
-    }
-    foreach my $rest(keys %restypecount){
-     print "$rest $restypecount{$rest}\n";
     }
    }
   }
@@ -2153,6 +2150,9 @@ sub readtop
     $FAIL{'PROTEIN BB/SC RATIO'}=0;
    }else{
     $fail_log .= failed_message("Protein BB-SC Ratio issue: \n  Expected: $R_P_BB_SC, Actual: $ratio");
+   }
+   if($restypecount{"AMINO"} <5){
+    $FAIL{'CONTACTS PROTEIN i-j=4'}=-1;
    }
   }else{
     $FAIL{'PROTEIN BB/SC RATIO'}=-1;
