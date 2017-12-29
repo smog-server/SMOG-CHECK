@@ -54,7 +54,7 @@ sub check_adjust
   $FAIL{"FILE LENGTH"}=0;
  }
  my ($FAILED,$printbuffer)=failsum($FATAL,\%FAIL,\@FAILLIST);
-
+ print "$printbuffer\n";
  print "Checking adjustPDB with user-specified file name.\n";
  foreach my $item(@FAILLIST){
  	$FAIL{$item}=1;
@@ -83,6 +83,7 @@ sub check_adjust
   $FAIL{"FILE LENGTH"}=0;
  }
  my ($FAILED,$printbuffer)=failsum($FATAL,\%FAIL,\@FAILLIST);
+ print "$printbuffer\n";
  
  return ($FAILED, $printbuffer);
 

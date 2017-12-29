@@ -57,6 +57,7 @@ my $FAILSUM=0;
 #		nothing should be unique to original file
 #		make sure all parameters are varied
 #		make sure it works with CA models, as well.
+# 		make sure it works when more than one type of ion is added
 #extract: make sure the energetics are correct.  compare to original
 #	make sure the restraints are on the right atoms
 #	ensure no restraints when off

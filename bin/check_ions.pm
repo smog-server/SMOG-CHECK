@@ -50,6 +50,34 @@ sub check_ions
    $FAIL{"UNINITIALIZED VARIABLES"}=0;
   }
   ($FAILED,$printbuffer)=failsum($FATAL,\%FAIL,\@FAILLIST);
+  print "$printbuffer\n";
+ }
+
+
+# perform checks for AA model RNA 
+ `smog2 -i $pdbdir/2ci2_v2.pdb -CA -dname CA.tmp > output.smog`;
+ $SMOGFATAL=`grep 'FATAL ERROR' output.smog | wc -l | awk '{print \$1}'`;
+
+ for(my $i=0;$i<=$#PARAMS;$i++){
+  print "Checking smog_ions with C-alpha model: parameter set $i\n";
+  foreach my $item(@FAILLIST){
+   $FAIL{$item}=1;
+  }
+  if($SMOGFATAL ==0){
+   $FAIL{"SMOG FATAL"}=0;
+  }  
+
+  `$exec -f CA.tmp.top -g CA.tmp.gro -ionnm $PARAMS[$i][0] -ionn  $PARAMS[$i][1] -ionq $PARAMS[$i][2] -ionm $PARAMS[$i][3] -ionC12 $PARAMS[$i][4] -ionC6 $PARAMS[$i][5]   > output.$tool`;
+  $FATAL=`grep 'FATAL ERROR' output.$tool | wc -l | awk '{print \$1}'`;
+  if($FATAL ==0){
+   $FAIL{"FATAL"}=0;
+  }
+  $UNINIT=`grep 'unintialized' output.$tool | wc -l | awk '{print \$1}'`;
+  if($UNINIT ==0){
+   $FAIL{"UNINITIALIZED VARIABLES"}=0;
+  }
+  ($FAILED,$printbuffer)=failsum($FATAL,\%FAIL,\@FAILLIST);
+  print "$printbuffer\n";
  }
  
  return ($FAILED, $printbuffer);

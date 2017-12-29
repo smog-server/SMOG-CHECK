@@ -59,8 +59,12 @@ sub failsum
     internal_error("$TEST");
    }
   }
+  if($NFAILED==0){
+   $printbuffer="";
+  }
  }else{
   $FAILED="ALL";
+  $printbuffer = sprintf ("\tFATAL ERROR ENCOUNTERED\n");
  }
  print "test results\n";
  print "\t passed : $NPASSED\n";
