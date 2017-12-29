@@ -70,6 +70,9 @@ my $FAILSUM=0;
 
 ($FAILED,$message)=check_adjust($EXEC_ADJUST,$PDB_DIR);
 ($FAILED,$message)=check_ions($EXEC_IONS,$PDB_DIR);
+($FAILED,$message)=check_extract($EXEC_IONS,$PDB_DIR);
+($FAILED,$message)=check_scale($EXEC_IONS,$PDB_DIR);
+($FAILED,$message)=check_table($EXEC_IONS,$PDB_DIR);
 
 if($FAILED eq "ALL" or $FAILED != 0){
 	print "\n\nSOME TESTS FAILED.  SEE EARLIER MESSAGES\n\n";	
