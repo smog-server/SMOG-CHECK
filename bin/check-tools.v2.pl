@@ -94,7 +94,9 @@ if($FAILED eq "ALL" or $FAILED >0){$FAILSUM++};
 
 if($FAILSUM>0){
 	print "\n\nSOME TESTS FAILED.  SEE EARLIER MESSAGES\n\n";	
+	exit (1);
 }else{
 	print "\n\nPassed all SMOG tool checks!\n\n"; 
+	exit (0);
 }
 
