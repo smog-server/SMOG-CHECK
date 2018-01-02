@@ -68,6 +68,8 @@ my $FAILSUM=0;
 # table: recalculate values and ensure they are the same.
 # 	re-evaluate for different parameters
 # 	don't worry about switching function?
+# 	check the default
+
 #
 
 ($FAILED,$message)=check_adjust($EXEC_ADJUST,$PDB_DIR);

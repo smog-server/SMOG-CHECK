@@ -11,10 +11,10 @@ sub internal_error
 {
  my ($MESSAGE)=@_;
  chomp($MESSAGE);
-  print "\n\nInternal error at $MESSAGE\n\n";
+  print "\n\nInternal error : $MESSAGE\n\n";
   print "Please report this to info\@smog-server.org\n";
   print "Quitting.\n";
-  exit;
+  exit(2);
 }
 
 sub smogcheck_error
@@ -23,7 +23,7 @@ sub smogcheck_error
  chomp($MESSAGE);
   print "\n\nERROR: SMOG-CHECK CRASH: $MESSAGE\n\n";
   print "Quitting.\n";
-  exit;
+  exit(1);
 }
 
 sub failed_message
@@ -36,7 +36,7 @@ sub failed_message
 
 sub failsum
 {
- my ($FAIL,$FAILLIST)=@_;
+ our ($FAIL,$FAILLIST)=@_;
  my %FAIL=%{$FAIL};
  my @FAILLIST=@{$FAILLIST};
  my $printbuffer="";
@@ -44,7 +44,7 @@ sub failsum
  my $NPASSED=0;
  my $NNA=0;
  my $FAILED=0;
- if($FAIL{"FATAL"}==0){
+ if($FAIL{"NON-ZERO EXIT"}==0){
   $printbuffer .= sprintf ("\n     LIST OF FAILED TESTS:\n");
   foreach my $TEST (@FAILLIST){
    if($FAIL{$TEST}>1){
@@ -88,12 +88,12 @@ sub checkoutput
  open(FILE,"$filename") or internal_error("can not open $filename for reading.");
  my $fatal=0;
  my $uninit=0;
+ my $exitcode=$?;
  while(<FILE>){
-  $fatal++ if /FATAL ERROR/;
   $uninit++ if /unitialized/;
  }
  close(FILE);
- return ($fatal,$uninit);	
+ return ($exitcode,$uninit);	
 }
 
 ###################################
@@ -133,6 +133,7 @@ sub filediff
  }
  return $ndiff;
 }
- 
+
+
 return 1;
 

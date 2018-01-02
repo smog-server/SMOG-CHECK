@@ -438,12 +438,8 @@ while(<PARMS>){
   print "*************************************************************\n";
  }
 
-sub smogchecker
+sub runsmog
 {
-
- &preparesettings;
- 
- # RUN SMOG2
  if($default eq "yes"){
   if($model eq "CA" && $gaussian eq "no"){
    `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -CA &> $PDB.output`;
@@ -465,7 +461,11 @@ sub smogchecker
    smogcheck_error("unrecognized model.");
   }
  }
+}
 
+
+sub checkSCM
+{
  if($model eq "AA"){
   if($default eq "yes"){
    `java -jar $SCM  -g $PDB.gro -t $PDB.top -ch $PDB.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD -bif $BIFSIF_AA/AA-whitford09.bif &> $PDB.meta2.output`;
@@ -486,22 +486,28 @@ sub smogchecker
   if($default eq "yes"){
    `java -jar $SCM -g $PDB.meta1.gro -t $PDB.meta1.top -ch $PDB.meta1.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD -bif $BIFSIF_AA/AA-whitford09.bif  &> $PDB.meta3.output`;
   }elsif($default eq "no"){
-   `java -jar $SCM -g $PDB.meta1.gro -t $PDB.meta1.top -ch $PDB.meta1.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD -bif temp.cont.bifsif/tmp.cont.bif  &> $PDB.meta3.output`;
+   `java -jar $SCM -g $PDB.meta1.gro -t $PDB.meta1.top -ch $PDB.meta1.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD -bif temp.cont.bifsif/tmp.cont.b`
   }else{
    internal_error('SCM CA DEFAULT TESTING');
   }
-
-  # run SCM to get map
-  my $CONTDIFF=filediff("$PDB.contacts","$PDB.contacts.SCM");
-   if($CONTDIFF == 0){
-    $FAIL{'SCM CONTACT COMPARISON'}=0;
-   }
  }
+  # run SCM to get map
+ my $CONTDIFF=filediff("$PDB.contacts","$PDB.contacts.SCM");
+ if($CONTDIFF == 0){
+  $FAIL{'SCM CONTACT COMPARISON'}=0;
+ }
+ 
 
  if(-e "$PDB.contacts.SCM"){
   $FAIL{'SCM MAP GENERATED'}=0;
- }
+ } 
+}
 
+sub smogchecker
+{
+
+ &preparesettings;
+ &runsmog; 
 
  my ($FATAL,$UNINITVARS)=checkoutput("$PDB.output");
  if($UNINITVARS == 0){
@@ -514,12 +520,13 @@ sub smogchecker
  if($FATAL == 0){
   print "SMOG 2 exited without an error.\n\n";
   # CHECK THE OUTPUT
+  &checkSCM;
   &checkgro; 
   &checkndx;
   &readtop;
   &checkvalues;
  }else{
-  $fail_log .= failed_message("SMOG 2 encountered a FATAL ERROR when trying to process this PDB file.");
+  $fail_log .= failed_message("SMOG 2 exited with non-zero exit code when trying to process this PDB file.");
   $FAIL_SYSTEM++;
  }
  &summary($FATAL); 
@@ -974,9 +981,7 @@ sub readtop
       $MOLTYPE[$A[0]]=$TYPE{$A[3]};
       $MOLTYPEBYRES{$A[2]}=$TYPE{$A[3]};
      }else{
-      print "there is an unrecognized residue name.\n";
-      print "$A[0] $A[3]\n";
-      internal_error("$A[0] $A[3]");
+      internal_error("there is an unrecognized residue name at $A[0] $A[3]");
      }
      # see if there are any amino acids, na, or ligands in the system.
      if($MOLTYPE[$A[0]] eq "AMINO"){
@@ -2327,7 +2332,7 @@ sub checkvalues
 
 sub summary
 {
- ($FAIL{"FATAL"})=@_;
+ ($FAIL{"NON-ZERO EXIT"})=@_;
 
  my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
 

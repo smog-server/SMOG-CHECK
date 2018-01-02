@@ -32,6 +32,11 @@ sub check_scale
    `smog_scale-energies -f AA.tmp.top -n share/PDB.files/sample.AA.ndx -rc 1.5 -rd 1.2 < $pdbdir/in.groups > output.$tool`;
    ($FAIL{"FATAL"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
 
+
+## add checks here
+#check with different output names
+#verify that if 
+
    ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
    print "$printbuffer\n";
 
