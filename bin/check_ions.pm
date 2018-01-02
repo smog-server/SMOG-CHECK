@@ -15,7 +15,7 @@ sub check_ions
  my $FAILED;
  my $FATAL;
  my $UNINIT;
- my @FAILLIST = ('NON-ZERO EXIT','UNINITIALIZED VARIABLES');
+ my @FAILLIST = ('NON-ZERO EXIT','UNINITIALIZED VARIABLES','OUTPUT GRO NAME','OUTPUT TOP NAME');
  my $FAILED;
  my $printbuffer;
  my $tool="ions";
@@ -40,6 +40,7 @@ sub check_ions
   }
 
    `$exec -f AA.tmp.top -g AA.tmp.gro -ionnm $PARAMS[$i][0] -ionn  $PARAMS[$i][1] -ionq $PARAMS[$i][2] -ionm $PARAMS[$i][3] -ionC12 $PARAMS[$i][4] -ionC6 $PARAMS[$i][5]   > output.$tool`;
+   if(-e "smog.ions.top"){$FAIL{"OUT"}=0;}
    ($FATAL,$UNINIT)=checkoutput("output.$tool");
    $FAIL{"NON-ZERO EXIT"}=$FATAL;
    $FAIL{"UNINITIALIZED VARIABLES"}=$UNINIT;

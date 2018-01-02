@@ -65,11 +65,15 @@ my $FAILSUM=0;
 #	make sure specified files names work
 #
 # scale: make sure they are correct
+# 	correct atoms
+# 	all correct atoms
+# 	correct ratios
+# 	same number of lines before and after 
 # table: recalculate values and ensure they are the same.
 # 	re-evaluate for different parameters
 # 	don't worry about switching function?
 # 	check the default
-
+# 	check correct file names
 #
 my $FAILSUM=0;
 print "Testing smog_adjustPDB\n";

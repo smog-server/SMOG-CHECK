@@ -36,7 +36,7 @@ sub failed_message
 
 sub failsum
 {
- our ($FAIL,$FAILLIST)=@_;
+ my ($FAIL,$FAILLIST)=@_;
  my %FAIL=%{$FAIL};
  my @FAILLIST=@{$FAILLIST};
  my $printbuffer="";
@@ -46,7 +46,14 @@ sub failsum
  my $FAILED=0;
 # make sure we didn't assign a test entry that is not being monitored
  foreach my $tt(keys %FAIL){
-  if(!defined $FAILLIST[$tt]){
+ my $N=0;
+ for (my $J=0;$J<=$#FAILLIST;$J++){
+  if($FAILLIST[$J] eq "$tt"){
+   last;
+  }
+  $N++; 
+ }
+  if($N-1==$#FAILLIST){
     internal_error("FAILLIST entry $tt not defined");
   }
  }
