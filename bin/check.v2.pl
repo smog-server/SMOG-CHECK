@@ -486,15 +486,15 @@ sub checkSCM
   if($default eq "yes"){
    `java -jar $SCM -g $PDB.meta1.gro -t $PDB.meta1.top -ch $PDB.meta1.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD -bif $BIFSIF_AA/AA-whitford09.bif  &> $PDB.meta3.output`;
   }elsif($default eq "no"){
-   `java -jar $SCM -g $PDB.meta1.gro -t $PDB.meta1.top -ch $PDB.meta1.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD -bif temp.cont.bifsif/tmp.cont.b`
+   `java -jar $SCM -g $PDB.meta1.gro -t $PDB.meta1.top -ch $PDB.meta1.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD -bif temp.cont.bifsif/tmp.cont.bif  &> $PDB.meta3.output`;
   }else{
    internal_error('SCM CA DEFAULT TESTING');
   }
- }
   # run SCM to get map
- my $CONTDIFF=filediff("$PDB.contacts","$PDB.contacts.SCM");
- if($CONTDIFF == 0){
-  $FAIL{'SCM CONTACT COMPARISON'}=0;
+  my $CONTDIFF=filediff("$PDB.contacts","$PDB.contacts.SCM");
+  if($CONTDIFF == 0){
+   $FAIL{'SCM CONTACT COMPARISON'}=0;
+  }
  }
  
 
