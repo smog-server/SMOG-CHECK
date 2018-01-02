@@ -44,10 +44,16 @@ sub failsum
  my $NPASSED=0;
  my $NNA=0;
  my $FAILED=0;
+# make sure we didn't assign a test entry that is not being monitored
+ foreach my $tt(keys %FAIL){
+  if(!defined $FAILLIST[$tt]){
+    internal_error("FAILLIST entry $tt not defined");
+  }
+ }
  if($FAIL{"NON-ZERO EXIT"}==0){
   $printbuffer .= sprintf ("\n     LIST OF FAILED TESTS:\n");
   foreach my $TEST (@FAILLIST){
-   if($FAIL{$TEST}>1){
+   if($FAIL{$TEST}>0){
     $printbuffer .= sprintf ("        %s CHECK\n",$TEST);
     $FAILED++;
     $NFAILED++;
@@ -56,7 +62,7 @@ sub failsum
    }elsif($FAIL{$TEST}==-1){
     $NNA++;
    }else{
-    internal_error("$TEST");
+    internal_error("FAILLIST entry $TEST error");
    }
   }
   if($NFAILED==0){

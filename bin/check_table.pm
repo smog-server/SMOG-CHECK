@@ -13,7 +13,7 @@ sub check_table
  my $MESSAGE="";
  my %FAIL;
  my $FAILED;
- my @FAILLIST = ('FATAL','UNINITIALIZED VARIABLES');
+ my @FAILLIST = ('NON-ZERO EXIT','UNINITIALIZED VARIABLES');
  foreach my $item(@FAILLIST){
  	$FAIL{$item}=1;
  }

@@ -17,7 +17,7 @@ sub check_extract
  my $UNINIT;
  my $printbuffer;
  my $tool="extract";
- my @FAILLIST = ('FATAL','UNINITIALIZED VARIABLES','SMOG FATAL');
+ my @FAILLIST = ('NON-ZERO EXIT','UNINITIALIZED VARIABLES','SMOG FATAL');
  foreach my $item(@FAILLIST){
  	$FAIL{$item}=1;
  }
@@ -34,7 +34,7 @@ sub check_extract
    $FAIL{"SMOG FATAL"}=$SMOGFATAL ;
    print "\tChecking with index group $group\n";
    `echo $group | $exec -f AA.tmp.top -g AA.tmp.gro -n $pdbdir/sample.AA.ndx  > output.$tool`;
-   ($FAIL{"FATAL"},$FAIL{"UNINITIALIZED VARIABLES"})=$FATAL=checkoutput("output.$tool");
+   ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=$FATAL=checkoutput("output.$tool");
 
    ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
    print "$printbuffer\n";

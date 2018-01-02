@@ -22,7 +22,7 @@ sub check_adjust
  while(<ORIG>){
   $LINESorig++;
  }
- my @FAILLIST = ('FATAL','UNINITIALIZED VARIABLES','OUTPUT NAME','FILE LENGTH');
+ my @FAILLIST = ('NON-ZERO EXIT','UNINITIALIZED VARIABLES','OUTPUT NAME','FILE LENGTH');
 
 
  print "Checking smog_adjustPDB with default naming.\n";
@@ -37,7 +37,7 @@ sub check_adjust
   $FAIL{"OUTPUT NAME"}=0;
  }
 
- ($FAIL{"FATAL"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
+ ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
  
  my $LINESnew=0;
  open(NEW,"adjusted.pdb") or internal_error("Unable to open adjusted.pdb");
@@ -61,7 +61,7 @@ sub check_adjust
   $FAIL{"OUTPUT NAME"}=0;
  }
 
- ($FAIL{"FATAL"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
+ ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
 
  my $LINESnew=0;
  open(NEW,"$newpdb") or internal_error("Unable to open adjusted.pdb");

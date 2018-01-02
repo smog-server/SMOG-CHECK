@@ -15,7 +15,7 @@ sub check_ions
  my $FAILED;
  my $FATAL;
  my $UNINIT;
- my @FAILLIST = ('FATAL','UNINITIALIZED VARIABLES','SMOG FATAL');
+ my @FAILLIST = ('NON-ZERO EXIT','UNINITIALIZED VARIABLES');
  my $FAILED;
  my $printbuffer;
  my $tool="ions";
@@ -30,20 +30,19 @@ sub check_ions
 # perform checks for AA model RNA 
  `smog2 -i $pdbdir/tRNA.pdb -AA -dname AA.tmp > output.smog`;
  my ($SMOGFATAL,$smt)=checkoutput("output.smog");
-
+ unless($SMOGFATAL == 0){
+  internal_error("SMOG 2 crashed.  Fix SMOG 2 before testing smog_ions.");
+ }
  for(my $i=0;$i<=$#PARAMS;$i++){
   print "Checking smog_ions with all-atom model: parameter set $i\n";
   foreach my $item(@FAILLIST){
    $FAIL{$item}=1;
   }
-  if($SMOGFATAL ==0){
-   $FAIL{"SMOG FATAL"}=0;
-  }  
 
-  `$exec -f AA.tmp.top -g AA.tmp.gro -ionnm $PARAMS[$i][0] -ionn  $PARAMS[$i][1] -ionq $PARAMS[$i][2] -ionm $PARAMS[$i][3] -ionC12 $PARAMS[$i][4] -ionC6 $PARAMS[$i][5]   > output.$tool`;
-  ($FATAL,$UNINIT)=checkoutput("output.$tool");
-  $FAIL{"FATAL"}=$FATAL;
-  $FAIL{"UNINITIALIZED VARIABLES"}=$UNINIT;
+   `$exec -f AA.tmp.top -g AA.tmp.gro -ionnm $PARAMS[$i][0] -ionn  $PARAMS[$i][1] -ionq $PARAMS[$i][2] -ionm $PARAMS[$i][3] -ionC12 $PARAMS[$i][4] -ionC6 $PARAMS[$i][5]   > output.$tool`;
+   ($FATAL,$UNINIT)=checkoutput("output.$tool");
+   $FAIL{"NON-ZERO EXIT"}=$FATAL;
+   $FAIL{"UNINITIALIZED VARIABLES"}=$UNINIT;
 
   ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
   print "$printbuffer\n";
@@ -64,7 +63,7 @@ sub check_ions
   }  
 
   `$exec -f CA.tmp.top -g CA.tmp.gro -ionnm $PARAMS[$i][0] -ionn  $PARAMS[$i][1] -ionq $PARAMS[$i][2] -ionm $PARAMS[$i][3] -ionC12 $PARAMS[$i][4] -ionC6 $PARAMS[$i][5]   > output.$tool`;
-  ($FAIL{"FATAL"},$FAIL{"UNINITIALIZED VARIABLES"})=$FATAL=checkoutput("output.$tool");
+  ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=$FATAL=checkoutput("output.$tool");
 
   ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
   print "$printbuffer\n";

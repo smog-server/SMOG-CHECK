@@ -72,10 +72,15 @@ my $FAILSUM=0;
 
 #
 
+print "Testing smog_adjustPDB\n";
 ($FAILED,$message)=check_adjust($EXEC_ADJUST,$PDB_DIR);
+print "Testing smog_ions\n";
 ($FAILED,$message)=check_ions($EXEC_IONS,$PDB_DIR);
+print "Testing smog_extract\n";
 ($FAILED,$message)=check_extract($EXEC_EXTRACT,$PDB_DIR);
+print "Testing smog_scale-energies\n";
 ($FAILED,$message)=check_scale($EXEC_SCALE,$PDB_DIR);
+print "Testing smog_tablegen\n";
 ($FAILED,$message)=check_table($EXEC_TABLE,$PDB_DIR);
 
 if($FAILED eq "ALL" or $FAILED != 0){
