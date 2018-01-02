@@ -52,18 +52,17 @@ sub check_ions
 # perform checks for CA model protein 
  `smog2 -i $pdbdir/2ci2_v2.pdb -CA -dname CA.tmp > output.smog`;
  ($SMOGFATAL,$smt)=checkoutput("output.smog");
-
+ unless($SMOGFATAL == 0){
+  internal_error("SMOG 2 crashed.  Fix SMOG 2 before testing smog_ions.");
+ }
  for(my $i=0;$i<=$#PARAMS;$i++){
   print "Checking smog_ions with C-alpha model: parameter set $i\n";
   foreach my $item(@FAILLIST){
    $FAIL{$item}=1;
   }
-  if($SMOGFATAL ==0){
-   $FAIL{"SMOG FATAL"}=0;
-  }  
 
   `$exec -f CA.tmp.top -g CA.tmp.gro -ionnm $PARAMS[$i][0] -ionn  $PARAMS[$i][1] -ionq $PARAMS[$i][2] -ionm $PARAMS[$i][3] -ionC12 $PARAMS[$i][4] -ionC6 $PARAMS[$i][5]   > output.$tool`;
-  ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=$FATAL=checkoutput("output.$tool");
+  ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
 
   ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
   print "$printbuffer\n";

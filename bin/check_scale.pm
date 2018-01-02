@@ -15,7 +15,7 @@ sub check_scale
  my $FAILED;
  my $tool="scale";
  my $printbuffer="";
- my @FAILLIST = ('NON-ZERO EXIT','UNINITIALIZED VARIABLES','SMOG FATAL');
+ my @FAILLIST = ('NON-ZERO EXIT','UNINITIALIZED VARIABLES');
  foreach my $item(@FAILLIST){
  	$FAIL{$item}=1;
  }
@@ -23,12 +23,14 @@ sub check_scale
 # generate an AA model RNA 
  `smog2 -i $pdbdir/tRNA.pdb -AA -dname AA.tmp > output.smog`;
  my ($SMOGFATAL,$smt)=checkoutput("output.smog");
+ unless($SMOGFATAL == 0){
+  internal_error("SMOG 2 crashed.  Fix SMOG 2 before testing smog_ions.");
+ }
 
   print "Checking smog_scale-energies with all-atom model\n";
    foreach my $item(@FAILLIST){
     $FAIL{$item}=1;
    }
-   $FAIL{"SMOG FATAL"}=$SMOGFATAL ;
    `smog_scale-energies -f AA.tmp.top -n share/PDB.files/sample.AA.ndx -rc 1.5 -rd 1.2 < $pdbdir/in.groups > output.$tool`;
    ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
 

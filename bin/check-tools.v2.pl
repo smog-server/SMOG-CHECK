@@ -71,19 +71,24 @@ my $FAILSUM=0;
 # 	check the default
 
 #
-
+my $FAILSUM=0;
 print "Testing smog_adjustPDB\n";
 ($FAILED,$message)=check_adjust($EXEC_ADJUST,$PDB_DIR);
+if($FAILED eq "ALL" or $FAILED >0){$FAILSUM++};
 print "Testing smog_ions\n";
 ($FAILED,$message)=check_ions($EXEC_IONS,$PDB_DIR);
+if($FAILED eq "ALL" or $FAILED >0){$FAILSUM++};
 print "Testing smog_extract\n";
 ($FAILED,$message)=check_extract($EXEC_EXTRACT,$PDB_DIR);
+if($FAILED eq "ALL" or $FAILED >0){$FAILSUM++};
 print "Testing smog_scale-energies\n";
 ($FAILED,$message)=check_scale($EXEC_SCALE,$PDB_DIR);
+if($FAILED eq "ALL" or $FAILED >0){$FAILSUM++};
 print "Testing smog_tablegen\n";
 ($FAILED,$message)=check_table($EXEC_TABLE,$PDB_DIR);
+if($FAILED eq "ALL" or $FAILED >0){$FAILSUM++};
 
-if($FAILED eq "ALL" or $FAILED != 0){
+if($FAILSUM>0){
 	print "\n\nSOME TESTS FAILED.  SEE EARLIER MESSAGES\n\n";	
 }else{
 	print "\n\nPassed all SMOG tool checks!\n\n"; 

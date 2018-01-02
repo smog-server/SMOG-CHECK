@@ -13,12 +13,15 @@ sub check_table
  my $MESSAGE="";
  my %FAIL;
  my $FAILED;
+ my $tool="table";
  my @FAILLIST = ('NON-ZERO EXIT','UNINITIALIZED VARIABLES');
  foreach my $item(@FAILLIST){
  	$FAIL{$item}=1;
  }
- 
- `$exec > output.table`;
+
+ print "Checking default table\n"; 
+ `$exec > output.$tool`;
+ ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
  
  my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
  
