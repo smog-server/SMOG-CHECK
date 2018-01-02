@@ -76,7 +76,7 @@ sub failsum
    $printbuffer="";
   }
  }else{
-  $FAILED="ALL";
+  $FAILED=1;
   $printbuffer = sprintf ("\tFATAL ERROR ENCOUNTERED\n");
  }
  print "test results\n";
@@ -103,7 +103,10 @@ sub checkoutput
  my $uninit=0;
  my $exitcode=$?;
  while(<FILE>){
-  $uninit++ if /unitialized/;
+  $uninit=1 if /unitialized/;
+ }
+ if($exitcode >0){
+  $exitcode=1; 
  }
  close(FILE);
  return ($exitcode,$uninit);	
