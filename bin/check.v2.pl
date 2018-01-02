@@ -518,7 +518,7 @@ sub smogchecker
  }
 
  if($FATAL == 0){
-  print "SMOG 2 exited without an error.\n\n";
+  print "SMOG 2 exited without an error.\nAssessing generated files...\n";
   # CHECK THE OUTPUT
   &checkSCM;
   &checkgro; 
@@ -2337,14 +2337,21 @@ sub summary
  my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
 
  if($FATAL eq "ALL" || $FAILED > 0){
-  print "\n*************************************************************\n";
-  print "     $FAILED CHECKS FAILED FOR TEST $TESTNUM ($PDB)!!!\n";
-  print $printbuffer;
-  print "Note: Will save files with names FAILED/$PDB.fail$TESTNUM.X\n";
-  print  "*************************************************************\n";
+ my $tmpstring = <<"EOT";
+************************************************************* 
+     $FAILED CHECKS FAILED FOR TEST $TESTNUM ($PDB)!!!
+EOT
+ $printbuffer = $tmpstring . $printbuffer;
+ $printbuffer .= <<"EOT";
+Note: Will save files with names FAILED/$PDB.fail$TESTNUM.X
+*************************************************************
+EOT
+
+print $printbuffer;
+
   `cp share/PDB.files/$PDB.pdb $FAILDIR/$PDB.fail$TESTNUM.pdb`;
   open(FAILLOG,">$FAILDIR/$PDB.fail$TESTNUM.log") or smogcheck_error("unable to open log file for writing");
-  print FAILLOG "$fail_log";
+  print FAILLOG "$printbuffer\nSee possible additional messages below\n$fail_log";
   close(FAILLOG);
   foreach(@FILETYPES){
    if(-e "$PDB.$_"){
