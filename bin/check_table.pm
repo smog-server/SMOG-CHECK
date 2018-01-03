@@ -20,7 +20,7 @@ sub check_table
  }
 
  print "Checking default table\n"; 
- `$exec > output.$tool`;
+ `$exec &> output.$tool`;
  ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
  
  my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);

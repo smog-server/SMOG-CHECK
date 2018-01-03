@@ -39,7 +39,7 @@ sub check_ions
    $FAIL{$item}=1;
   }
 
-   `$exec -f AA.tmp.top -g AA.tmp.gro -ionnm $PARAMS[$i][0] -ionn  $PARAMS[$i][1] -ionq $PARAMS[$i][2] -ionm $PARAMS[$i][3] -ionC12 $PARAMS[$i][4] -ionC6 $PARAMS[$i][5]   > output.$tool`;
+   `$exec -f AA.tmp.top -g AA.tmp.gro -ionnm $PARAMS[$i][0] -ionn  $PARAMS[$i][1] -ionq $PARAMS[$i][2] -ionm $PARAMS[$i][3] -ionC12 $PARAMS[$i][4] -ionC6 $PARAMS[$i][5]   &> output.$tool`;
    if(-e "smog.ions.top"){$FAIL{"OUTPUT TOP NAME"}=0;}
    if(-e "smog.ions.gro"){$FAIL{"OUTPUT GRO NAME"}=0;}
    ($FATAL,$UNINIT)=checkoutput("output.$tool");
@@ -63,7 +63,7 @@ sub check_ions
    $FAIL{$item}=1;
   }
 
-  `$exec -f CA.tmp.top -g CA.tmp.gro -ionnm $PARAMS[$i][0] -ionn  $PARAMS[$i][1] -ionq $PARAMS[$i][2] -ionm $PARAMS[$i][3] -ionC12 $PARAMS[$i][4] -ionC6 $PARAMS[$i][5]   > output.$tool`;
+  `$exec -f CA.tmp.top -g CA.tmp.gro -ionnm $PARAMS[$i][0] -ionn  $PARAMS[$i][1] -ionq $PARAMS[$i][2] -ionm $PARAMS[$i][3] -ionC12 $PARAMS[$i][4] -ionC6 $PARAMS[$i][5]   &> output.$tool`;
   ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
    if(-e "smog.ions.top"){$FAIL{"OUTPUT TOP NAME"}=0;}
    if(-e "smog.ions.gro"){$FAIL{"OUTPUT GRO NAME"}=0;}

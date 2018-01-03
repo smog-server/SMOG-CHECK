@@ -34,7 +34,7 @@ sub check_extract
     $FAIL{$item}=1;
    }
    print "\tChecking with index group $group\n";
-   `echo $group | $exec -f AA.tmp.top -g AA.tmp.gro -n $pdbdir/sample.AA.ndx  > output.$tool`;
+   `echo $group | $exec -f AA.tmp.top -g AA.tmp.gro -n $pdbdir/sample.AA.ndx  &> output.$tool`;
    ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
 
    ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);

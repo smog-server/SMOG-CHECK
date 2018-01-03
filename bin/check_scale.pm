@@ -31,7 +31,7 @@ sub check_scale
    foreach my $item(@FAILLIST){
     $FAIL{$item}=1;
    }
-   `smog_scale-energies -f AA.tmp.top -n share/PDB.files/sample.AA.ndx -rc 1.5 -rd 1.2 < $pdbdir/in.groups > output.$tool`;
+   `$exec -f AA.tmp.top -n share/PDB.files/sample.AA.ndx -rc 1.5 -rd 1.2 < $pdbdir/in.groups &> output.$tool`;
    ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
 
 
