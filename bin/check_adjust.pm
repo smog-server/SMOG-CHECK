@@ -26,9 +26,8 @@ sub check_adjust
 
 
  print "Checking smog_adjustPDB with default naming.\n";
- foreach my $item(@FAILLIST){
- 	$FAIL{$item}=1;
- }
+ %FAIL=resettests(\%FAIL,\@FAILLIST);
+
  if(-e "adjusted.pdb"){
   `rm adjusted.pdb`;
  }
@@ -50,9 +49,7 @@ sub check_adjust
  my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
  print "$printbuffer\n";
  print "Checking smog_adjustPDB with user-specified file name.\n";
- foreach my $item(@FAILLIST){
- 	$FAIL{$item}=1;
- }
+ %FAIL=resettests(\%FAIL,\@FAILLIST);
  if(-e "$newpdb"){
   `rm $newpdb`;
  }

@@ -35,9 +35,8 @@ sub check_ions
  }
  for(my $i=0;$i<=$#PARAMS;$i++){
   print "Checking smog_ions with all-atom model: parameter set $i\n";
-  foreach my $item(@FAILLIST){
-   $FAIL{$item}=1;
-  }
+
+  %FAIL=resettests(\%FAIL,\@FAILLIST);
 
    `$exec -f AA.tmp.top -g AA.tmp.gro -ionnm $PARAMS[$i][0] -ionn  $PARAMS[$i][1] -ionq $PARAMS[$i][2] -ionm $PARAMS[$i][3] -ionC12 $PARAMS[$i][4] -ionC6 $PARAMS[$i][5]   &> output.$tool`;
    if(-e "smog.ions.top"){$FAIL{"OUTPUT TOP NAME"}=0;}
@@ -59,9 +58,8 @@ sub check_ions
  }
  for(my $i=0;$i<=$#PARAMS;$i++){
   print "Checking smog_ions with C-alpha model: parameter set $i\n";
-  foreach my $item(@FAILLIST){
-   $FAIL{$item}=1;
-  }
+
+  %FAIL=resettests(\%FAIL,\@FAILLIST);
 
   `$exec -f CA.tmp.top -g CA.tmp.gro -ionnm $PARAMS[$i][0] -ionn  $PARAMS[$i][1] -ionq $PARAMS[$i][2] -ionm $PARAMS[$i][3] -ionC12 $PARAMS[$i][4] -ionC6 $PARAMS[$i][5]   &> output.$tool`;
   ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");

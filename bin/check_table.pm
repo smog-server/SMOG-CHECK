@@ -15,9 +15,7 @@ sub check_table
  my $FAILED;
  my $tool="table";
  my @FAILLIST = ('NON-ZERO EXIT','UNINITIALIZED VARIABLES');
- foreach my $item(@FAILLIST){
- 	$FAIL{$item}=1;
- }
+ %FAIL=resettests(\%FAIL,\@FAILLIST);
 
  print "Checking default table\n"; 
  `$exec &> output.$tool`;

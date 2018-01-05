@@ -5,7 +5,7 @@ use Exporter;
 our $PDB_DIR;
 our @ISA = 'Exporter';
 our @EXPORT =
-qw(internal_error smogcheck_error failed_message failsum checkoutput filediff);
+qw(internal_error smogcheck_error failed_message failsum checkoutput filediff resettests);
 
 sub internal_error
 {
@@ -150,6 +150,16 @@ sub filediff
  return $ndiff;
 }
 
+sub resettests
+{
+ my ($FAIL,$FAILLIST)=@_;
+ my %FAIL=%{$FAIL};
+ my @FAILLIST=@{$FAILLIST};
+ foreach my $item(@FAILLIST){
+        $FAIL{$item}=1;
+ }
+ return %FAIL;
+}
 
 return 1;
 

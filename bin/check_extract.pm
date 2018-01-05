@@ -18,9 +18,9 @@ sub check_extract
  my $printbuffer;
  my $tool="extract";
  my @FAILLIST = ('NON-ZERO EXIT','UNINITIALIZED VARIABLES');
- foreach my $item(@FAILLIST){
- 	$FAIL{$item}=1;
- }
+
+
+ %FAIL=resettests(\%FAIL,\@FAILLIST);
 
 # generate an AA model RNA 
  `smog2 -i $pdbdir/tRNA.pdb -AA -dname AA.tmp > output.smog`;
@@ -30,9 +30,8 @@ sub check_extract
  }
   print "Checking smog_extract with all-atom model: no restaints\n";
   for(my $group=0;$group<3;$group++){
-   foreach my $item(@FAILLIST){
-    $FAIL{$item}=1;
-   }
+
+   %FAIL=resettests(\%FAIL,\@FAILLIST);
    print "\tChecking with index group $group\n";
    `echo $group | $exec -f AA.tmp.top -g AA.tmp.gro -n $pdbdir/sample.AA.ndx  &> output.$tool`;
    ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
