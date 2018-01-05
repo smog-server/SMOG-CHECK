@@ -50,7 +50,6 @@ To check the that the tools are working properly, use:
 ./smog-tools-check
 
 
-
 These scripts have been tested on Linux and OSX 
 platforms. 
 
