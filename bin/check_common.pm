@@ -103,7 +103,7 @@ sub checkoutput
  my $uninit=0;
  my $exitcode=$?;
  while(<FILE>){
-  $uninit=1 if /uninitialized/;
+  $uninit=1 if /uninitialized|masks/;
  }
  if($exitcode >0){
   $exitcode=1; 

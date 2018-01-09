@@ -75,7 +75,6 @@ my $FAILSUM=0;
 # 	check the default
 # 	check correct file names
 #
-my $FAILSUM=0;
 print "Testing smog_adjustPDB\n";
 ($FAILED,$message)=check_adjust($EXEC_ADJUST,$PDB_DIR);
 if($FAILED eq "ALL" or $FAILED >0){$FAILSUM++};
