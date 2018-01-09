@@ -39,6 +39,34 @@ sub check_extract
    ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
    print "$printbuffer\n";
   } 
+
+  print "Checking smog_extract with all-atom model: no restaints: non-standard fields\n";
+  for(my $group=0;$group<2;$group++){
+
+   %FAIL=resettests(\%FAIL,\@FAILLIST);
+   print "\tChecking with index group $group\n";
+   `echo $group | $exec -f $pdbdir/large.top -g $pdbdir/large.gro -n $pdbdir/large.ndx  &> output.$tool`;
+   ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
+
+   ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
+   print "$printbuffer\n";
+  } 
+
+  print "Checking smog_extract with all-atom model: restaints: non-standard fields\n";
+  for(my $group=0;$group<2;$group++){
+
+   %FAIL=resettests(\%FAIL,\@FAILLIST);
+   print "\tChecking with index group $group\n";
+   `echo $group | $exec -f $pdbdir/large.top -g $pdbdir/large.gro -n $pdbdir/large.ndx -restraints 100 &> output.$tool`;
+   ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
+
+   ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
+   print "$printbuffer\n";
+  } 
+
+
+
+
  return ($FAILED, $printbuffer);
 
 }
