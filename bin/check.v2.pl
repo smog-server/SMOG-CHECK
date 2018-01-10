@@ -633,6 +633,7 @@ sub preparesettings
 {
  # make a log of the settings being used for this test
 my $string = <<"EOT";
+Here are the settings used for this test
 $PDB.pdb
 $PDB.top
 $PDB.gro
@@ -768,18 +769,11 @@ sub readtop
  while(<TOP>){
   my $LINE=$_;
   chomp($LINE);
-  $LINE =~ s/^\s+|^\t+//g;
-  if($LINE =~ m/^;/){
+  my ($A,$B)=checkcomment($LINE);
+  if($A eq ""){
    next;
   }
-  $LINE =~ s/;.*$//g;
-  $LINE =~ s/\t/ /g;
-  $LINE =~ s/\s+$//g;
-  $LINE =~ s/\s+/ /g;
-  if($LINE eq ""){
-   next;
-  }
-  print TOP2 "$LINE\n";
+  print TOP2 "$A\n";
  }
  close(TOP);
  close(TOP2);
