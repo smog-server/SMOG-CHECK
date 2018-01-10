@@ -234,6 +234,7 @@ our $DENERGY;
 our @ED_T;
 our @EDrig_T;
 our $DISP_MAX=0;
+our $defname;
 our $CONTENERGY;
 our ($theta_gen_N,$phi_gen_N,$improper_gen_N);
 #our ($NonstackingE,$stackingE);
@@ -673,14 +674,24 @@ EOT
  if($model eq "CA"){
   $sigmaCA=$sigmaCA/10.0;
   $rep_s12=$sigmaCA**12;
+  if($default eq "yes"){
+   $defname="NB_1";
+  }else{
+   $defname="Y";
+  }
+  $C12NB{$defname}=$rep_s12;
+  $C6NB{$defname}=0;
+  $massNB{$defname}=1.0;
+  $chargeNB{$defname}=0.0;
   $sigmaCA=$sigmaCA*10.0;
  }elsif($model eq "AA"){
   $sigma=$sigma/10;
   $rep_s12=$sigma**12*$epsilon;
-  $C12NB{'NB_1'}=$rep_s12;
-  $C6NB{'NB_1'}=0;
-  $massNB{'NB_1'}=1.0;
-  $chargeNB{'NB_1'}=0.0;
+   $defname="NB_1";
+  $C12NB{$defname}=$rep_s12;
+  $C6NB{$defname}=0;
+  $massNB{$defname}=1.0;
+  $chargeNB{$defname}=0.0;
   $sigma=$sigma*10;
  }else{
   smogcheck_error("unknown model type.");
@@ -726,7 +737,7 @@ EOT
   }elsif($CONTTYPE eq "cutoff"){
    `sed "s/PARM_C_D/$R_CD/g;s/PARM_P_BB/$PARM_P_BB/g;s/PARM_P_SC/$PARM_P_SC/g;s/PARM_N_BB/$PARM_N_BB/g;s/PARM_N_SC/$PARM_N_SC/g;s/CUTDIST/$CONTD/g" $TEMPLATE_DIR_AA/*.cutoff.sif > temp.bifsif/tmp.sif`;
   }
-  `sed "s/PARM_MASS/$massNB{'NB_2'}/g;s/PARM_chargeNB/$chargeNB{'NB_2'}/g;s/PARM_C6_2/$C6NB{'NB_2'}/g;s/PARM_C12_2/$C12NB{'NB_2'}/g;s/PARM_C12/$C12NB{'NB_1'}/g" $TEMPLATE_DIR_AA/*.nb > temp.bifsif/tmp.nb`;
+  `sed "s/PARM_MASS/$massNB{'NB_2'}/g;s/PARM_chargeNB/$chargeNB{'NB_2'}/g;s/PARM_C6_2/$C6NB{'NB_2'}/g;s/PARM_C12_2/$C12NB{'NB_2'}/g;s/PARM_C12/$C12NB{$defname}/g" $TEMPLATE_DIR_AA/*.nb > temp.bifsif/tmp.nb`;
 
   `cp $TEMPLATE_DIR_AA/*.bif temp.bifsif/tmp.bif`;
   `cp $TEMPLATE_DIR_AA/*.b temp.bifsif/tmp.b`;
