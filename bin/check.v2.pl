@@ -990,7 +990,6 @@ sub readtop
      if($A[0] != $GRODATA[$NUMATOMS][3]){
       $FAIL_GROTOP++;
      }
-     
      if(exists $defcharge{"$A[3]-$A[4]"} && $#A==6){
       $fieldnum++;
       # check charge
@@ -1060,7 +1059,9 @@ sub readtop
     if($atomcharge == $NUMATOMS){
      $FAIL{'ATOM CHARGES'}=0;
     }
- 
+    if($default eq "yes"){
+     $FAIL{'ATOM CHARGES'}=-1;
+    }
    # count the number of amino residue, nucleic residues, ligand residues and ions
     foreach my $rest(keys %MOLTYPEBYRES){
      $restypecount{$MOLTYPEBYRES{$rest}}++;
