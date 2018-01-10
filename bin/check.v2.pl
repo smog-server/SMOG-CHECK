@@ -450,27 +450,33 @@ EOT
 
 sub runsmog
 {
+ my $ARGS=" -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts";
+
+# prepare the flags
  if($default eq "yes"){
   if($model eq "CA" && $gaussian eq "no"){
-   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -CA &> $PDB.output`;
+   $ARGS .= " -CA";
   }elsif($model eq "CA" && $gaussian eq "yes"){
-   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -CAgaussian &> $PDB.output`;
+   $ARGS .= " -CAgaussian";
   }elsif($model eq "AA" &&  $gaussian eq "no"){
-   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -AA &> $PDB.output`;
+   $ARGS .= " -AA";
   }elsif($model eq "AA" &&  $gaussian eq "yes"){
-   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -AAgaussian &> $PDB.output`;
+   $ARGS .= " -AAgaussian";
   }else{
    smogcheck_error("unrecognized model.");
   }
  }else{
   if($model eq "CA"){
-   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -tCG temp.bifsif/  -t temp.cont.bifsif &> $PDB.output`;
+   $ARGS .= " -tCG temp.bifsif/  -t temp.cont.bifsif";
   }elsif($model eq "AA"){
-   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -t temp.bifsif/  &> $PDB.output`;
+   $ARGS .= " -t temp.bifsif/ ";
   }else{
    smogcheck_error("unrecognized model.");
   }
  }
+
+# run smog2
+ `$EXEC_NAME $ARGS &> $PDB.output`;
 }
 
 
