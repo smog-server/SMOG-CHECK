@@ -483,36 +483,39 @@ sub runsmog
 sub checkSCM
 {
  if($model eq "AA"){
+  my $SHADOWARGS="-g $PDB.gro -t $PDB.top -ch $PDB.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD";
   if($default eq "yes"){
-   `java -jar $SCM  -g $PDB.gro -t $PDB.top -ch $PDB.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD -bif $BIFSIF_AA/AA-whitford09.bif &> $PDB.meta2.output`;
+   $SHADOWARGS .= " -bif $BIFSIF_AA/AA-whitford09.bif";
   }elsif($default eq "no"){
-   `java -jar $SCM  -g $PDB.gro -t $PDB.top -ch $PDB.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD -bif temp.bifsif/tmp.bif  &> $PDB.meta2.output`;
+   $SHADOWARGS .= " -bif -bif temp.bifsif/tmp.bif";
   }else{
    internal_error('SCM DEFAULT TESTING');
   }
+  `java -jar $SCM $SHADOWARGS &> $PDB.meta2.output`;
 
-# check that the same contact map is generated
-  my $CONTDIFF=filediff("$PDB.contacts","$PDB.contacts.SCM");
-   if($CONTDIFF == 0){
-    $FAIL{'SCM CONTACT COMPARISON'}=0;
-   }
  }elsif($model eq "CA"){
   # run AA model to get top
-   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.meta1.gro -o $PDB.meta1.top -n $PDB.meta1.ndx -s $PDB.meta1.contacts -t $BIFSIF_AA  &> $PDB.meta1.output`;
+  `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.meta1.gro -o $PDB.meta1.top -n $PDB.meta1.ndx -s $PDB.meta1.contacts -t $BIFSIF_AA  &> $PDB.meta1.output`;
+
+  my $SHADOWARGS="-g $PDB.meta1.gro -t $PDB.meta1.top -ch $PDB.meta1.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD";
+
   if($default eq "yes"){
-   `java -jar $SCM -g $PDB.meta1.gro -t $PDB.meta1.top -ch $PDB.meta1.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD -bif $BIFSIF_AA/AA-whitford09.bif  &> $PDB.meta3.output`;
+   $SHADOWARGS .= " -bif $BIFSIF_AA/AA-whitford09.bif";
   }elsif($default eq "no"){
-   `java -jar $SCM -g $PDB.meta1.gro -t $PDB.meta1.top -ch $PDB.meta1.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD -bif temp.cont.bifsif/tmp.cont.bif  &> $PDB.meta3.output`;
+   $SHADOWARGS .= " -bif -bif temp.cont.bifsif/tmp.cont.bif";
   }else{
    internal_error('SCM CA DEFAULT TESTING');
   }
+
   # run SCM to get map
-  my $CONTDIFF=filediff("$PDB.contacts","$PDB.contacts.SCM");
-  if($CONTDIFF == 0){
-   $FAIL{'SCM CONTACT COMPARISON'}=0;
-  }
+  `java -jar $SCM $SHADOWARGS &> $PDB.meta3.output`;
  }
- 
+
+ # check that the same contact map is generated
+ my $CONTDIFF=filediff("$PDB.contacts","$PDB.contacts.SCM");
+ if($CONTDIFF == 0){
+  $FAIL{'SCM CONTACT COMPARISON'}=0;
+ }
 
  if(-e "$PDB.contacts.SCM"){
   $FAIL{'SCM MAP GENERATED'}=0;
