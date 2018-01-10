@@ -121,20 +121,26 @@ sub filediff
  my ($file1,$file2)=@_;
  my @info1;
  my @info2;
- open(FILE1,"$file1") or internal_error("can not open $file1 for reading.");
  my $I1=0;
- while(<FILE1>){
-  $info1[$I1]=$_;
-  $I1++;
- }
- close(FILE1);
- open(FILE2,"$file2") or internal_error("can not open $file2 for reading.");
  my $I2=0;
- while(<FILE2>){
-  $info2[$I2]=$_;
-  $I2++;
+ if(open(FILE1,"$file1")){
+  while(<FILE1>){
+   $info1[$I1]=$_;
+   $I1++;
+  }
+  close(FILE1);
+ }else{
+  return 1
  }
- close(FILE2);
+ if(open(FILE2,"$file2")){
+  while(<FILE2>){
+   $info2[$I2]=$_;
+   $I2++;
+  }
+  close(FILE2);
+ }else{
+  return 1
+ }
 
  if($I1 != $I2){
   # files are different

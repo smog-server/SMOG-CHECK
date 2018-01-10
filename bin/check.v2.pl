@@ -487,7 +487,7 @@ sub checkSCM
   if($default eq "yes"){
    $SHADOWARGS .= " -bif $BIFSIF_AA/AA-whitford09.bif";
   }elsif($default eq "no"){
-   $SHADOWARGS .= " -bif -bif temp.bifsif/tmp.bif";
+   $SHADOWARGS .= " -bif temp.bifsif/tmp.bif";
   }else{
    internal_error('SCM DEFAULT TESTING');
   }
@@ -502,7 +502,7 @@ sub checkSCM
   if($default eq "yes"){
    $SHADOWARGS .= " -bif $BIFSIF_AA/AA-whitford09.bif";
   }elsif($default eq "no"){
-   $SHADOWARGS .= " -bif -bif temp.cont.bifsif/tmp.cont.bif";
+   $SHADOWARGS .= " -bif temp.cont.bifsif/tmp.cont.bif";
   }else{
    internal_error('SCM CA DEFAULT TESTING');
   }
