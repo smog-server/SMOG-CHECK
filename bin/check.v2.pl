@@ -525,6 +525,7 @@ sub checkSCM
 sub smogchecker
 {
 
+ &cleanoldfiles;
  &preparesettings;
  &runsmog; 
 
@@ -630,34 +631,27 @@ sub checkgro
 
 sub preparesettings
 {
- # make a settings file...
+ # make a log of the settings being used for this test
+my $string = <<"EOT";
+$PDB.pdb
+$PDB.top
+$PDB.gro
+$PDB.ndx
+All-Atom
+R_CD 	   $R_CD
+R_P_BB_SC  $R_P_BB_SC
+R_N_SC_BB  $R_N_SC_BB
+PRO_DIH    $PRO_DIH
+NA_DIH     $NA_DIH
+LIGAND_DIH $LIGAND_DIH
+sigma 	   $sigma 
+epsilon    $epsilon
+epsilonCAC $epsilonCAC
+epsilonCAD $epsilonCAD
+sigmaCA    $sigmaCA
+EOT
  open(READSET,">$PDB.settings") or internal_error("can not open settings file");
- printf READSET ("%s.pdb\n", $PDB);
- printf READSET ("%s.top\n", $PDB);
- if(-e "$PDB.top"){
-  `rm $PDB.top`;
- }
- if(-e "$PDB.gro"){
-  `rm $PDB.gro`;
- }
- if(-e "$PDB.ndx"){
-  `rm $PDB.ndx`;
- }
- printf READSET ("%s.gro\n", $PDB);
- printf READSET ("%s.ndx\n", $PDB);
- printf READSET ("%s\n", "All-Atom");
- # do not upload a contact file.
- printf READSET ("R_CD %s\n", $R_CD);
- printf READSET ("R_P_BB_SC %s\n", $R_P_BB_SC);
- printf READSET ("R_N_SC_BB %s\n", $R_N_SC_BB);
- printf READSET ("PRO_DIH %s\n", $PRO_DIH);
- printf READSET ("NA_DIH %s\n", $NA_DIH);
- printf READSET ("LIGAND_DIH %s\n", $LIGAND_DIH);
- printf READSET ("sigma %s\n", $sigma); 
- printf READSET ("epsilon %s\n", $epsilon);
- printf READSET ("epsilonCAC %s\n", $epsilonCAC);
- printf READSET ("epsilonCAD %s\n", $epsilonCAD);
- printf READSET ("sigmaCA %s\n", $sigmaCA);
+ print READSET "$string";
  close(READSET);
  if($model eq "CA"){
   $sigmaCA=$sigmaCA/10.0;
@@ -678,7 +672,6 @@ sub preparesettings
   `rm -r temp.cont.bifsif`;
  }
 
-#GAUSS ADD
  if($model eq "CA" && $default ne "yes"){
   `mkdir temp.bifsif temp.cont.bifsif`;
   my $PARM_P_BB=$PRO_DIH;
@@ -699,10 +692,8 @@ sub preparesettings
   }elsif($CONTTYPE eq "cutoff"){
    `sed "s/CUTDIST/$CONTD/g" $TEMPLATE_DIR_AA_STATIC/*.cutoff.sif > temp.cont.bifsif/tmp.cont.sif`;
   }
-
  } 
 
-#GAUSS ADD
  if($model eq "AA" && $default ne "yes"){
   `mkdir temp.bifsif`;
   my $PARM_P_BB=$PRO_DIH;
@@ -2345,6 +2336,19 @@ sub checkvalues
    $FAIL{'TOTAL ENERGY'}=-1;
  }
 
+}
+
+sub cleanoldfiles
+{
+ if(-e "$PDB.top"){
+  `rm $PDB.top`;
+ }
+ if(-e "$PDB.gro"){
+  `rm $PDB.gro`;
+ }
+ if(-e "$PDB.ndx"){
+  `rm $PDB.ndx`;
+ }
 }
 
 sub summary
