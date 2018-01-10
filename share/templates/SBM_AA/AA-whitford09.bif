@@ -193,7 +193,7 @@
 		<residue name="ALA" residueType="amino">
 			<atoms>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">N</atom>
-				<atom bType="B_1" nbType="NB_1" pairType="P_1">CA</atom>
+				<atom bType="B_1" nbType="NB_2" pairType="P_1">CA</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">C</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">O</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">CB</atom>
@@ -2632,7 +2632,7 @@
 <!--RNA A-->
 		<residue name="A" residueType="nucleic">
 			<atoms>
-				<atom bType="B_1" nbType="NB_1" pairType="P_1">P</atom>
+				<atom bType="B_1" nbType="NB_2" pairType="P_1">P</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">O1P</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">O2P</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">O5*</atom>
@@ -5934,7 +5934,7 @@
 <!--DNA G-->
 		<residue name="DG" residueType="nucleic">
 			<atoms>
-				<atom bType="B_1" nbType="NB_1" pairType="P_1">P</atom>
+				<atom bType="B_1" nbType="NB_2" pairType="P_1">P</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">O1P</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">O2P</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">O5*</atom>

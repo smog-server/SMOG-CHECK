@@ -60,7 +60,7 @@ our $TEMPLATE_DIR_CA=$ENV{'BIFSIF_CA_TESTING'};
 
 # FAILLIST is a list of all the tests.
 # If you are developing and testing your own forcefield, which may not need to conform to certain checks, then you may want to disable some tests by  removing the test name from this list. However, do so at your own risk.
-our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','ONLY 1 ATOMTYPE','TOP FIELDS FOUND','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'ANGLE TYPES', 'ANGLE WEIGHTS', 'DUPLICATE BONDS', 'DUPLICATE ANGLES', 'ANGLE CONSISTENCY 1','ANGLE CONSISTENCY 2','ANGLE CONSISTENCY 3', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL CONSISTENCY 1','DIHEDRAL CONSISTENCY 2','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','GAUSSIAN CONTACT EXCLUDED VOLUME','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM MAP GENERATED','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY','TYPE6 ATOMS','UNINITIALIZED VARIABLES','CLASSIFYING DIHEDRALS','NON-ZERO EXIT');
+our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','TOP FIELDS FOUND','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'ANGLE TYPES', 'ANGLE WEIGHTS', 'DUPLICATE BONDS', 'DUPLICATE ANGLES', 'ANGLE CONSISTENCY 1','ANGLE CONSISTENCY 2','ANGLE CONSISTENCY 3', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL CONSISTENCY 1','DIHEDRAL CONSISTENCY 2','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','GAUSSIAN CONTACT EXCLUDED VOLUME','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM MAP GENERATED','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY','TYPE6 ATOMS','UNINITIALIZED VARIABLES','CLASSIFYING DIHEDRALS','NON-ZERO EXIT');
 
 
 
@@ -157,6 +157,8 @@ while(<LIGAND>){
  $LIGANDn++;
 }
 
+my %numfield = ( 'default' => '2', 'default-gaussian' => '2', 'cutoff' => '19', 'shadow' => '20', 'shadow-gaussian' => '20', 'cutoff-gaussian' => '19');
+
 #ions
 open(ION,"share/residues/ions") or internal_error("no ion file");
 my $IONn=0;
@@ -196,6 +198,11 @@ our $epsilon;
 our $epsilonCAC;
 our $epsilonCAD;
 our $sigmaCA;
+our %massNB;
+our %chargeNB;
+our %C6NB;
+our %C12NB;
+our $chargeAT;
 our $FAILED;
 our @CID;
 our $DIH_MIN;
@@ -305,6 +312,13 @@ while(<PARMS>){
  }else{
   smogcheck_error("Unknown contact option: \"$A[2]\"");
  }
+ if(!exists $numfield{$A[2]}){
+  internal_error("model $A[2] in all.pdbs is not recognized");
+ }
+ if($numfield{$A[2]} != $#A){
+  internal_error("all.pdbs has wrong number of entries for model $A[2]. Expected $numfield{$A[2]}, found $#A");
+ }
+
  if($model =~ m/CA/){
   print "Testing CA model\n";
  }elsif($model =~ m/AA/){
@@ -313,14 +327,11 @@ while(<PARMS>){
   smogcheck_error("Model name $model, not understood. Only CA and AA models are supported by the test script.");
  }
 # clean up the tracking for the next test
- foreach my $item(@FAILLIST){
-  $FAIL{$item}=1;
- }
-
+## %FAIL=%{
+ %FAIL=resettests(\%FAIL,\@FAILLIST);
  if($default eq "yes"){
   print "Checking default parameters\n";
   # energy distributions
-
   ## Settings relevant for the default model
   $CONTTYPE="shadow";
   $CONTD=6.0;
@@ -374,8 +385,6 @@ while(<PARMS>){
    smogcheck_error("Contact scheme $CONTTYPE is not supported. Is there a typo in $PDB_DIR/$PDB.pdb?");
   }
 
-   #if shadow, read length and size
-  # if cutoff, just read length
   $R_CD=$A[$ARG];
    $ARG++;
   $R_P_BB_SC=$A[$ARG];
@@ -398,9 +407,16 @@ while(<PARMS>){
   $epsilonCAD=$A[$ARG];
    $ARG++;
   $sigmaCA=$A[$ARG];
-  if(!exists $A[$ARG]){
-   smogcheck_error("Insufficient number of arguments given in settings file for smog-check.");
-  }
+   $ARG++;
+  $massNB{'NB_2'}=$A[$ARG];
+   $ARG++;
+  $chargeNB{'NB_2'}=$A[$ARG];
+   $ARG++;
+  $C6NB{'NB_2'}=$A[$ARG];
+   $ARG++;
+  $C12NB{'NB_2'}=$A[$ARG];
+   $ARG++;
+  $chargeAT=$A[$ARG];
  }
 
  if($model =~ m/CA/){
@@ -661,6 +677,10 @@ EOT
  }elsif($model eq "AA"){
   $sigma=$sigma/10;
   $rep_s12=$sigma**12*$epsilon;
+  $C12NB{'NB_1'}=$rep_s12;
+  $C6NB{'NB_1'}=0;
+  $massNB{'NB_1'}=1.0;
+  $chargeNB{'NB_1'}=0.0;
   $sigma=$sigma*10;
  }else{
   smogcheck_error("unknown model type.");
@@ -706,7 +726,8 @@ EOT
   }elsif($CONTTYPE eq "cutoff"){
    `sed "s/PARM_C_D/$R_CD/g;s/PARM_P_BB/$PARM_P_BB/g;s/PARM_P_SC/$PARM_P_SC/g;s/PARM_N_BB/$PARM_N_BB/g;s/PARM_N_SC/$PARM_N_SC/g;s/CUTDIST/$CONTD/g" $TEMPLATE_DIR_AA/*.cutoff.sif > temp.bifsif/tmp.sif`;
   }
-  `sed "s/PARM_C12/$rep_s12/g" $TEMPLATE_DIR_AA/*.nb > temp.bifsif/tmp.nb`;
+  `sed "s/PARM_MASS/$massNB{'NB_2'}/g;s/PARM_chargeNB/$chargeNB{'NB_2'}/g;s/PARM_C6_2/$C6NB{'NB_2'}/g;s/PARM_C12_2/$C12NB{'NB_2'}/g;s/PARM_C12/$C12NB{'NB_1'}/g" $TEMPLATE_DIR_AA/*.nb > temp.bifsif/tmp.nb`;
+
   `cp $TEMPLATE_DIR_AA/*.bif temp.bifsif/tmp.bif`;
   `cp $TEMPLATE_DIR_AA/*.b temp.bifsif/tmp.b`;
  }
@@ -868,19 +889,21 @@ sub readtop
       my $T=$A[0];
       smogcheck_error("Only letters, numbers and _ can appear in atomtype names. atomtype $T found.");
      }
-     if($A[1] == 1){
+     if($A[1] > $MINTHR*$massNB{$A[0]} && $A[1] < $MAXTHR*$massNB{$A[0]}){
       $mass1++;
      }
-     if($A[2] == 0){
+     if($A[2] >= $MINTHR*$chargeNB{$A[0]} && $A[2] <= $MAXTHR*$chargeNB{$A[0]} && $chargeNB{$A[0]} >= 0){
+      $charge1++;
+     }elsif($A[2] <= $MINTHR*$chargeNB{$A[0]} && $A[2] >= $MAXTHR*$chargeNB{$A[0]} && $chargeNB{$A[0]} < 0){
       $charge1++;
      }
      if($A[3] eq "A"){
       $particle1++;
      }
-     if($A[4] == 0.0){
+     if($A[4] >= $MINTHR*$C6NB{$A[0]} && $A[4] <= $MAXTHR*$C6NB{$A[0]}){
       $c61++
      }
-     if($A[5] > $MINTHR*$rep_s12 && $A[5] < $MAXTHR*$rep_s12){
+     if($A[5] > $MINTHR*$C12NB{$A[0]} && $A[5] < $MAXTHR*$C12NB{$A[0]}){
       $excl1++;
      }
      $#A = -1;
@@ -905,9 +928,6 @@ sub readtop
     }
     if($numtypes == $typesunique and $typesunique !=0){
      $FAIL{'ATOMTYPES UNIQUE'}=0;
-    }
-    if($numtypes ==1){
-     $FAIL{'ONLY 1 ATOMTYPE'}=0;
     }
     if($numtypes == $acceptablenames and $acceptablenames !=0){
      $FAIL{'ALPHANUMERIC ATOMTYPES'}=0;
