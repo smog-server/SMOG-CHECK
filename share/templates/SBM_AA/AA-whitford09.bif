@@ -1137,10 +1137,10 @@
 <!--GLYCINE-->
 		<residue name="GLY" residueType="amino">
 			<atoms>
-				<atom bType="B_1" nbType="NB_1" pairType="P_1">N</atom>
+				<atom bType="B_1" nbType="NB_1" pairType="P_1" charge="0.5">N</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">CA</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">C</atom>
-				<atom bType="B_1" nbType="NB_1" pairType="P_1">O</atom>
+				<atom bType="B_1" nbType="NB_1" pairType="P_1" charge="-0.5">O</atom>
 			</atoms>
 			<bonds>
 	<!--BACKBONE-->
