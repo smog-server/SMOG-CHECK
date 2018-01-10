@@ -999,6 +999,8 @@ sub readtop
      }elsif(!exists $defcharge{"$A[3]-$A[4]"} && $#A==5){
       $fieldnum++;
       $atomcharge++;
+     }elsif($default eq "yes" && $#A==5){
+      $fieldnum++;
      }else{
       $fail_log .= failed_message("atom has wrong number of fields\t$LINE");
      }
