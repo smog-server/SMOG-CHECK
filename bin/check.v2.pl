@@ -245,7 +245,7 @@ our @ZT;
 our $bondtype6;
 our $type6count;
 our $fail_log;
-%defcharge = ('GLY-N' => "0.5", 'GLY-O' => "-0.5");
+%defcharge = ('GLY-N' => "0.3", 'GLY-C' => "0.2", 'GLY-O' => "-0.5");
 my $NUMTESTED=0;
 my $SETTINGS_FILE=<STDIN>;
 chomp($SETTINGS_FILE);
@@ -995,6 +995,8 @@ sub readtop
       # check charge
       if($defcharge{"$A[3]-$A[4]"} == $A[6]){
        $atomcharge++;
+      }else{
+       $fail_log .= failed_message("atom has wrong charge\t$LINE");
       }
      }elsif(!exists $defcharge{"$A[3]-$A[4]"} && $#A==5){
       $fieldnum++;
