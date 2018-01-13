@@ -11,8 +11,8 @@ export SMOG_PATH=`tail -n 1 $smog_exec| awk '{print $2}' | sed "s/src\/smogv2$//
 CURDIR=`pwd`
 CURDIR=$CURDIR/bin
 
-export PERLLIB=$PERLLIB:$CURDIR
-export PERL5LIB=$PERL5LIB:$CURDIR
+export PERLLIB=$PERLLIB:$CURDIR/modules
+export PERL5LIB=$PERL5LIB:$CURDIR/modules
 
 echo "Using the files found in $SMOG_PATH"
 echo "This is set when running configure.smog2"

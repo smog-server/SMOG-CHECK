@@ -13,8 +13,8 @@ export exec_table=`which smog_tablegen`
 CURDIR=`pwd`
 CURDIR=$CURDIR/bin
 
-export PERLLIB=$PERLLIB:$CURDIR
-export PERL5LIB=$PERL5LIB:$CURDIR
+export PERLLIB=$PERLLIB:$CURDIR/modules
+export PERL5LIB=$PERL5LIB:$CURDIR/modules
 
 echo Will test the following executables
 echo $exec_adjust
