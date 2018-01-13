@@ -5,7 +5,7 @@ use Exporter;
 our $PDB_DIR;
 our @ISA = 'Exporter';
 our @EXPORT =
-qw(internal_error smogcheck_error failed_message failsum checkoutput filediff resettests);
+qw(internal_error smogcheck_error failed_message failsum checkoutput filediff resettests compare_table);
 
 sub internal_error
 {
@@ -112,6 +112,23 @@ sub checkoutput
  return ($exitcode,$uninit);	
 }
 
+sub load_file
+{
+ my ($file1)=@_;
+ my @info;
+ my $I;
+ if(open(FILE1,"$file1")){
+  while(<FILE1>){
+   $info[$I]=$_;
+   $I++;
+  }
+  close(FILE1);
+  return ($I,\@info);
+ }else{
+  return (-1,1);
+ }
+}
+
 ###################################
 # check if two files are identical#
 # #################################
@@ -121,25 +138,20 @@ sub filediff
  my ($file1,$file2)=@_;
  my @info1;
  my @info2;
- my $I1=0;
  my $I2=0;
- if(open(FILE1,"$file1")){
-  while(<FILE1>){
-   $info1[$I1]=$_;
-   $I1++;
-  }
-  close(FILE1);
+ my ($I1,$data)=load_file($file1);
+ if($I1==-1){
+  # could not open file
+  return 1;
  }else{
-  return 1
+  @info1=@{$data};
  }
- if(open(FILE2,"$file2")){
-  while(<FILE2>){
-   $info2[$I2]=$_;
-   $I2++;
-  }
-  close(FILE2);
+ my ($I2,$data)=load_file($file2);
+ if($I2==-1){
+  # could not open file
+  return 1;
  }else{
-  return 1
+  @info2=@{$data};
  }
 
  if($I1 != $I2){
@@ -165,6 +177,50 @@ sub resettests
         $FAIL{$item}=1;
  }
  return %FAIL;
+}
+
+sub compare_table
+{
+ my ($file1,$file2)=@_;
+ my @info1;
+ my @info2;
+ my ($I1,$data)=load_file($file1);
+ if($I1==-1){
+  # could not open file
+  return 1;
+ }else{
+  @info1=@{$data};
+ }
+ my ($I2,$data)=load_file($file2);
+ if($I2==-1){
+  # could not open file
+  return 1;
+ }else{
+  @info2=@{$data};
+ }
+
+ if($I1 != $I2){
+  # files are different
+  return 1;
+ }
+
+ my $ndiff=0;
+ for(my $I=0;$I<$I1;$I++){
+  if($info1[$I] =~ m/^#/ && $info2[$I] =~ m/^#/){
+   next;
+  }
+  my @A=split(/\s+/,$info1[$I]);
+  my @B=split(/\s+/,$info2[$I]);
+  if ($#A != $#B){
+   return 1;
+  }
+  for(my $J=0;$J<=$#A;$J++){
+   if($info1[$J] != 0 && $info2[$J] != 0 && abs($info1[$J]-$info2[$J])/abs($info1[$J]) > 0.00001){
+    $ndiff++;
+   }
+  } 
+ }
+ return $ndiff;
 }
 
 return 1;

@@ -75,6 +75,10 @@ my $FAILSUM=0;
 # 	check the default
 # 	check correct file names
 #
+
+print "Testing smog_tablegen\n";
+($FAILED,$message)=check_table($EXEC_TABLE,$PDB_DIR);
+if($FAILED eq "ALL" or $FAILED >0){$FAILSUM++};
 print "Testing smog_adjustPDB\n";
 ($FAILED,$message)=check_adjust($EXEC_ADJUST,$PDB_DIR);
 if($FAILED eq "ALL" or $FAILED >0){$FAILSUM++};
@@ -86,9 +90,6 @@ print "Testing smog_extract\n";
 if($FAILED eq "ALL" or $FAILED >0){$FAILSUM++};
 print "Testing smog_scale-energies\n";
 ($FAILED,$message)=check_scale($EXEC_SCALE,$PDB_DIR);
-if($FAILED eq "ALL" or $FAILED >0){$FAILSUM++};
-print "Testing smog_tablegen\n";
-($FAILED,$message)=check_table($EXEC_TABLE,$PDB_DIR);
 if($FAILED eq "ALL" or $FAILED >0){$FAILSUM++};
 
 if($FAILSUM>0){
