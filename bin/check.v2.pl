@@ -1345,25 +1345,25 @@ sub readtop
          $phi2=$A2;
          $phi3=$A3;
          $phi4=$B3;
-        	$formed='proper';
+         $formed='proper';
         }elsif($A2 == $B3 && $A3 == $B2){
          $phi1=$A1;
          $phi2=$A2;
          $phi3=$A3;
          $phi4=$B1;
-        	$formed='proper';
+         $formed='proper';
         }elsif($A2 == $B1  && $A1 == $B2){
          $phi1=$A3;
          $phi2=$A2;
          $phi3=$A1;
          $phi4=$B3;
-        	$formed='proper';
+         $formed='proper';
         }elsif($A2 == $B3 && $A1 == $B2){
          $phi1=$A3;
          $phi2=$A2;
          $phi3=$A1;
          $phi4=$B1;
-        	$formed='proper';
+         $formed='proper';
         }elsif($A2 == $B2 && $A1 == $B3){
          $phi1=$A1;
          $phi2=$A2;
@@ -1389,7 +1389,7 @@ sub readtop
          $phi4=$B1;
          $formed='improper';
         }else{
-        	$formed="not";
+         $formed="not";
         }
   
         if($formed eq "proper" ){

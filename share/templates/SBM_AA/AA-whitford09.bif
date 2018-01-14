@@ -1315,11 +1315,11 @@
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">CA</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">C</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">O</atom>
-				<atom bType="B_1" nbType="NB_1" pairType="P_1">CB</atom>
-				<atom bType="B_1" nbType="NB_1" pairType="P_1">CG</atom>
-				<atom bType="B_1" nbType="NB_1" pairType="P_1">CD1</atom>
+				<atom bType="B_4" nbType="NB_1" pairType="P_1">CB</atom>
+				<atom bType="B_4" nbType="NB_1" pairType="P_1">CG</atom>
+				<atom bType="B_4" nbType="NB_1" pairType="P_1">CD1</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">CD2</atom>
-				<atom bType="B_1" nbType="NB_1" pairType="P_1">CE1</atom>
+				<atom bType="B_4" nbType="NB_1" pairType="P_1">CE1</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">CE2</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">CZ</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">OH</atom>
@@ -1347,7 +1347,7 @@
 					<atom>CB</atom>
 					<atom>CG</atom>
 				</bond>
-				<bond energyGroup="pr_a">
+				<bond energyGroup="free">
 					<atom>CG</atom>
 					<atom>CD1</atom>
 				</bond>
@@ -1479,8 +1479,8 @@
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">C</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">O</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">CB</atom>
-				<atom bType="B_1" nbType="NB_1" pairType="P_1">CG</atom>
-				<atom bType="B_1" nbType="NB_1" pairType="P_1">CD1</atom>
+				<atom bType="B_2" nbType="NB_1" pairType="P_1">CG</atom>
+				<atom bType="B_2" nbType="NB_1" pairType="P_1">CD1</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">CD2</atom>
 			</atoms>
 			<bonds>
@@ -2083,9 +2083,9 @@
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">CA</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">C</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">O</atom>
-				<atom bType="B_1" nbType="NB_1" pairType="P_1">CB</atom>
-				<atom bType="B_1" nbType="NB_1" pairType="P_1">CG</atom>
-				<atom bType="B_1" nbType="NB_1" pairType="P_1">CD</atom>
+				<atom bType="B_3" nbType="NB_1" pairType="P_1">CB</atom>
+				<atom bType="B_3" nbType="NB_1" pairType="P_1">CG</atom>
+				<atom bType="B_3" nbType="NB_1" pairType="P_1">CD</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">OE1</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">NE2</atom>
 			</atoms>
@@ -2443,8 +2443,8 @@
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">C</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">O</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">CB</atom>
-				<atom bType="B_1" nbType="NB_1" pairType="P_1">CG</atom>
-				<atom bType="B_1" nbType="NB_1" pairType="P_1">CD1</atom>
+				<atom bType="B_2" nbType="NB_1" pairType="P_1">CG</atom>
+				<atom bType="B_2" nbType="NB_1" pairType="P_1">CD1</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">CD2</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">NE1</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">CE2</atom>
