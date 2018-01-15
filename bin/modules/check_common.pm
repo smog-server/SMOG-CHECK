@@ -61,7 +61,7 @@ sub failsum
   $printbuffer .= sprintf ("\n     LIST OF FAILED TESTS:\n");
   foreach my $TEST (@FAILLIST){
    if($FAIL{$TEST}>0){
-    $printbuffer .= sprintf ("        %s CHECK\n",$TEST);
+    $printbuffer .= sprintf ("        %s\n",$TEST);
     $FAILED++;
     $NFAILED++;
    }elsif($FAIL{$TEST}==0){
