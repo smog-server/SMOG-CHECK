@@ -6,6 +6,11 @@
 	<bType>*</bType>
 	<bType>*</bType>
         </bond>
+	<bond func="bond_free()">
+	<bType>B_2</bType>
+	<bType>B_2</bType>
+        </bond>
+
 </bonds>
 
 <!-- ANGLES -->
@@ -14,6 +19,11 @@
 	<bType>*</bType>
 	<bType>*</bType>
 	<bType>*</bType>
+	</angle>
+	<angle func="angle_free()">
+	<bType>B_3</bType>
+	<bType>B_3</bType>
+	<bType>B_3</bType>
 	</angle>
 </angles>
 
@@ -61,6 +71,13 @@
 	<bType>*</bType>
 	<bType>*</bType>
 	<bType>*</bType>
+	<bType>*</bType>
+	</dihedral>
+
+	<dihedral func="dihedral_free()" energyGroup="free">
+	<bType>*</bType>
+	<bType>B_4</bType>
+	<bType>B_4</bType>
 	<bType>*</bType>
 	</dihedral>
 

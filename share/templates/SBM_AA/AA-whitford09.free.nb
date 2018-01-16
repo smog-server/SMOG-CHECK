@@ -8,6 +8,10 @@
 	<nbType>NB_1</nbType>
 </nonbond>	
 
+<nonbond mass="PARM_MASS"  charge="PARM_chargeNB" ptype="A"  c6="PARM_C6_2"  c12="PARM_C12_2">
+	<nbType>NB_2</nbType>
+</nonbond>	
+
 <!-- CONTACTS -->
 <contact func="contact_2(2*?**6,?**12,?,?)" contactGroup="c">
 	<pairType>*</pairType>
