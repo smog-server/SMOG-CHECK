@@ -1343,7 +1343,7 @@
 					<atom>CA</atom>
 					<atom>CB</atom>
 				</bond>
-				<bond energyGroup="sc_a">
+				<bond energyGroup="free">
 					<atom>CB</atom>
 					<atom>CG</atom>
 				</bond>
@@ -1355,7 +1355,7 @@
 					<atom>CG</atom>
 					<atom>CD2</atom>
 				</bond>
-				<bond energyGroup="pr_a">
+				<bond energyGroup="free">
 					<atom>CD1</atom>
 					<atom>CE1</atom>
 				</bond>
