@@ -101,7 +101,7 @@ my %free_angle_defs=('GLN-CB-CG-CD' =>'1');
 # list the dihedrals that are free in the free-templates
 my %free_dihedrals_defs=('TYR-CB-CG' =>'1',
 			 'TYR-CG-CD1' =>'1',
-			 'TYR-CD1-CE2' =>'1',
+			 'TYR-CD1-CE1' =>'1',
 			 );
 
 unless(-d $BIFSIF_AA && -d $BIFSIF_CA && -d $TEMPLATE_DIR_AA && -d $TEMPLATE_DIR_AA_STATIC && -d $TEMPLATE_DIR_CA ){
@@ -1263,7 +1263,7 @@ sub readtop
         }
         if($free eq "yes"){
 	 # if the residue-atom-atom-atom pair matches something that we defined as free, then don't generate it.
-	 my $RESTMP=$GRODATA[$theta1][1];
+	 my $RESTMP=$GRODATA[$theta1-1][1];
 	 my $A1=$GRODATA[$theta1-1][2];
 	 my $A2=$GRODATA[$theta2-1][2];
 	 my $A3=$GRODATA[$theta3-1][2];
@@ -1466,6 +1466,15 @@ sub readtop
           $string=sprintf("%i-%i-%i-%i", $phi1, $phi2, $phi3, $phi4);
          }else{
           $string=sprintf("%i-%i-%i-%i", $phi4, $phi3, $phi2, $phi1);
+         }
+         if($free eq "yes"){
+	  # if the residue-atom-atom pair matches something that we defined as free, then don't generate it.
+	  my $RESTMP=$GRODATA[$phi2-1][1];
+	  my $A1=$GRODATA[$phi2-1][2];
+	  my $A2=$GRODATA[$phi3-1][2];
+          if(exists $free_dihedrals_defs{"$RESTMP-$A1-$A2"} || exists $free_dihedrals_defs{"$RESTMP-$A2-$A1"} ){
+           next;
+          }
          }
          $phi_gen_as{$string} = 1;
          $phi_gen[$phi_gen_N]="$string";
