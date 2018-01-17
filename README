@@ -45,6 +45,12 @@ can indicate which test with
 where N is the test you would like to repeat.  This can 
 be useful when debugging SMOG 2.
 
+If you would like to only tests N to M, indicate which 
+tests with
+
+./smog-check N M
+
+
 To check the that the tools are working properly, use:
 
 ./smog-tools-check

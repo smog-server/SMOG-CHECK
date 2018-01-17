@@ -21,25 +21,42 @@ print <<EOT;
 EOT
 
 
-# check if we are simply rerunning a single test, or performing all
+# check if we are simply rerunning a single test, a few tests, or performing all
 my $RETEST=$#ARGV;
-if($RETEST == 0){
+my $RETESTEND=-1;
+if($RETEST == 0 || $RETEST == 1 ){
+	my $RETESTT;
 	if($ARGV[0] =~ /^\d+$/){
 		# is an integer
-		$RETEST=$ARGV[0];
-		print "\nWill only run test $ARGV[0].\n\n";
+		$RETESTT=$ARGV[0];
+		$RETESTEND=$RETESTT;
 	}else{
 		# is not an integer.  flag error
-		smogcheck_error("argument to smog-check must be an integer. Found \"$ARGV[0]\"");
+		smogcheck_error("argument to smog-check can only be one, or two, integers. Found \"$ARGV[0]\"");
 	}
+
+	if($RETEST == 1 ){
+		if($ARGV[1] =~ /^\d+$/){
+			# is an integer
+			$RETESTEND=$ARGV[1];
+			print "\nWill run tests $ARGV[0] to $ARGV[1].\n\n";
+		}else{
+			# is not an integer.  flag error
+			smogcheck_error("argument to smog-check can only be one, or two, integers. Found \"$ARGV[0]\"");
+		}
+		if($ARGV[1] < $ARGV[0]){
+			smogcheck_error("Arguments must be first test, then last test. Last test number must be larger.");
+		}
+	}else{
+		print "\nWill only run test $ARGV[0].\n\n";
+	}
+	$RETEST=$RETESTT;
 
 }elsif($RETEST== -1){
 	print "\nWill run all tests (default).\n\n";
 }else{
 	smogcheck_error("Too many arguments passed to smog-check");
 }
-
-# rerun rend
 
 &checkForModules;
  
@@ -266,7 +283,7 @@ while(<PARMS>){
  my @A=split(/ /,$LINE);
  $PDB=$A[0];
  $TESTNUM++;
- if($RETEST>0 and $RETEST != $TESTNUM){
+ if($RETEST>0 && ($RETEST > $TESTNUM || $RETESTEND < $TESTNUM)){
   next;
  }
  $NUMTESTED++;
