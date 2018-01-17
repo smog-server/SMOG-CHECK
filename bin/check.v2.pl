@@ -115,8 +115,8 @@ print "EXEC_NAME $EXEC_NAME\n";
 
 # where should data from failed tests be written
 our $FAILDIR="FAILED";
-# our we testing files with free interactions?
-our $free="no";
+# are we testing files with free interactions?
+our $free;
 # will add free-specific hashes, here
 
 
@@ -317,7 +317,8 @@ while(<PARMS>){
   undef  $epsilonCAC;
   undef  $epsilonCAD;
   undef  $sigmaCA;
-
+  # default is that we are not testing free
+  $free="no";
 
  $model=$A[1];
  if($A[2] =~ m/^default$/){
