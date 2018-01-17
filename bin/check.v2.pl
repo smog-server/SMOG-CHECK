@@ -1261,19 +1261,16 @@ sub readtop
         }else{
          $string=sprintf("%i-%i-%i", $theta3, $theta2, $theta1);
         }
-
         if($free eq "yes"){
 	 # if the residue-atom-atom-atom pair matches something that we defined as free, then don't generate it.
 	 my $RESTMP=$GRODATA[$theta1][1];
 	 my $A1=$GRODATA[$theta1-1][2];
 	 my $A2=$GRODATA[$theta2-1][2];
 	 my $A3=$GRODATA[$theta3-1][2];
-
          if(exists $free_angle_defs{"$RESTMP-$A1-$A2-$A3"} || exists $free_angle_defs{"$RESTMP-$A3-$A2-$A1"} ){
           next;
          }
         }
-
         $theta_gen_as{$string} = 1;
         $theta_gen[$theta_gen_N]="$string";
         $theta_gen_N++;
@@ -1858,7 +1855,9 @@ sub readtop
      }else{
       $fail_log .= failed_message("Only found $impOMEfound improper omega dihedrals, out of an expected $impOMEpossible");
      }
-     if($impSCfound == $impSCpossible){
+     if($free eq "yes"){
+      $FAIL{'SIDECHAIN IMPROPERS EXIST'}=-1;
+     }elsif($impSCfound == $impSCpossible){
       $FAIL{'SIDECHAIN IMPROPERS EXIST'}=0;
      }else{
       $fail_log .= failed_message("Only found $impSCfound sidechain improper dihedrals, out of an expected $impSCpossible");
@@ -2234,18 +2233,18 @@ sub readtop
  }elsif(! $AMINO_PRESENT){
    $FAIL{'STRENGTHS OF OMEGA DIHEDRALS'}=-1;
  }
- if($NPBB>0){
+ if($NPBB>0 && $free eq "no"){
   if($NPBB == $NPBBC){
    $FAIL{'STRENGTHS OF PROTEIN BB DIHEDRALS'}=0;
   }
- }elsif(! $AMINO_PRESENT){
+ }elsif(! $AMINO_PRESENT || $free eq "yes"){
    $FAIL{'STRENGTHS OF PROTEIN BB DIHEDRALS'}=-1;
  }
- if($NPSC>0){
+ if($NPSC>0 && $free eq "no"){
   if($NPSC == $NPSCC){
    $FAIL{'STRENGTHS OF PROTEIN SC DIHEDRALS'}=0;
   }
- }elsif(! $AMINO_PRESENT){
+ }elsif(! $AMINO_PRESENT || $free eq "yes"){
    $FAIL{'STRENGTHS OF PROTEIN SC DIHEDRALS'}=-1;
  }
  if($NNBB>0){
@@ -2283,7 +2282,7 @@ sub readtop
    $FAIL{'STACK-NONSTACK RATIO'}=-1;
   }
  
-  if($AMINO_PRESENT){
+  if($AMINO_PRESENT && $free eq "no"){
    my $ratio=$PBBvalue/$PSCvalue;
    if($ratio < $MAXTHR*$R_P_BB_SC   and $ratio > $MINTHR*$R_P_BB_SC ){
     $FAIL{'PROTEIN BB/SC RATIO'}=0;
@@ -2308,7 +2307,7 @@ sub readtop
     $FAIL{'NUCLEIC SC/BB RATIO'}=-1;
   }
 
-  if($AMINO_PRESENT && $NUCLEIC_PRESENT){
+  if($AMINO_PRESENT && $NUCLEIC_PRESENT && $free eq "no"){
    my $RR=$PBBvalue/$NABBvalue;
    my $RR_TARGET=$PRO_DIH/$NA_DIH;
    if($RR < $MAXTHR*$RR_TARGET and $RR > $MINTHR*$RR_TARGET){
@@ -2319,7 +2318,7 @@ sub readtop
   }else{
     $FAIL{'AMINO/NUCLEIC DIHEDRAL RATIO'}=-1;
   }
-  if($AMINO_PRESENT && $LIGAND_PRESENT){
+  if($AMINO_PRESENT && $LIGAND_PRESENT && $free eq "no"){
    my $RR=$PBBvalue/$LIGdvalue;
    my $RR_TARGET=$PRO_DIH/$LIGAND_DIH;
    if($RR < $MAXTHR*$RR_TARGET and $RR > $MINTHR*$RR_TARGET){
@@ -2353,6 +2352,8 @@ sub readtop
    $FAIL{'NONZERO DIHEDRAL ENERGY'}=0;
    if($MAXTHR*$R_CD > $CD_ratio and $MINTHR*$R_CD < $CD_ratio){
    $FAIL{'CONTACT/DIHEDRAL RATIO'}=0;
+   }elsif($free eq "yes"){
+    $FAIL{'CONTACT/DIHEDRAL RATIO'}=-1;
    }else{
     $fail_log .=failed_message("Contact/Dihedral ratio is off. Expected $R_CD, found $CD_ratio.");
    }
@@ -2397,16 +2398,6 @@ sub readtop
 
 sub checkvalues
 {
-
- ## DONE READING IN THE FILE.  TIME TO CHECK AND SEE IF ALL THE RATIOS ARE CORRECT
-# print "number of atoms = $NUMATOMS\n";
-# print "number of atoms(excluding ligands and ions) = $NUMATOMS_LIGAND\n";
-# print "Dihedral energy = $DENERGY\n";
-# print "Contact energy = $CONTENERGY\n";
-# print "max dihedral = $DIH_MAX\n";
-# print "min dihedral = $DIH_MIN\n";
-# print "generated angles, dihedrals, impropers\n";
-# print "$theta_gen_N $phi_gen_N $improper_gen_N\n";
  if($model eq "CA"){
   if($theta_gen_N > 0 and $phi_gen_N > 0 ){
    $FAIL{'GENERATION OF ANGLES/DIHEDRALS'}=0;
@@ -2452,7 +2443,7 @@ sub checkvalues
  }
  my $E_TOTAL=$DENERGY+$CONTENERGY;
  my $CTHRESH=$NUMATOMS*10.0/$PRECISION;
- if($model eq "AA"){ 
+ if($model eq "AA" && $free eq "no"){ 
   if(abs($NUMATOMS_LIGAND-$E_TOTAL) < $CTHRESH){
    $FAIL{'TOTAL ENERGY'}=0;
   }else{
