@@ -91,6 +91,9 @@ print "EXEC_NAME $EXEC_NAME\n";
 
 # where should data from failed tests be written
 our $FAILDIR="FAILED";
+# our we testing files with free interactions?
+our $free="no";
+# will add free-specific hashes, here
 
 
 our @FILETYPES=("top","gro","ndx","settings","contacts","output","contacts.SCM", "contacts.CG");
@@ -308,6 +311,11 @@ while(<PARMS>){
   print "Will use shadow contacts\n";
   $default="no";
   $gaussian="no";
+ }elsif($A[2] =~ m/^shadow-free$/){
+  print "Will use shadow contacts\n";
+  $default="no";
+  $gaussian="no";
+  $free="yes";
  }elsif($A[2] =~ m/^shadow-gaussian$/ || $A[2] =~ m/^cutoff-gaussian$/){
   print "Will use gaussian contacts\n";
   $default="no";
@@ -651,6 +659,8 @@ sub checkgro
 sub preparesettings
 {
  # make a log of the settings being used for this test
+ my $templateAA="AA-whitford09";
+ my $templateCA="CA-clementi09";
 my $string = <<"EOT";
 Here are the settings used for this test
 $PDB.pdb
@@ -713,19 +723,20 @@ EOT
   my $PARM_N_BB=$NA_DIH;
   my $PARM_N_SC=$NA_DIH*$R_N_SC_BB;
   my $epsilonCAD3=$epsilonCAD/2.0;
-  `sed "s/EPS_CONT/$epsilonCAC/g;s/EPS_DIH/$epsilonCAD/g;s/EPS_dih3/$epsilonCAD3/g" $TEMPLATE_DIR_CA/*.sif > temp.bifsif/tmp.sif`;
+  `sed "s/EPS_CONT/$epsilonCAC/g;s/EPS_DIH/$epsilonCAD/g;s/EPS_dih3/$epsilonCAD3/g" $TEMPLATE_DIR_CA/$templateCA.sif > temp.bifsif/tmp.sif`;
   `sed "s/PARM_C12/$rep_s12/g;s/EPS_CONT/$epsilonCAC/g" $TEMPLATE_DIR_CA/*.nb > temp.bifsif/tmp.nb`;
-  `sed "s/EPS_CONT/$epsilonCAC/g;s/EPS_DIH/$epsilonCAD/g;s/EPS_dih3/$epsilonCAD3/g" $TEMPLATE_DIR_CA/*.b > temp.bifsif/tmp.b`;
-  `cp $TEMPLATE_DIR_CA/*.bif temp.bifsif/tmp.bif`;
+  `sed "s/EPS_CONT/$epsilonCAC/g;s/EPS_DIH/$epsilonCAD/g;s/EPS_dih3/$epsilonCAD3/g" $TEMPLATE_DIR_CA/$templateCA.b > temp.bifsif/tmp.b`;
+  `cp $TEMPLATE_DIR_CA/$templateCA.bif temp.bifsif/tmp.bif`;
 
-  `cp $TEMPLATE_DIR_AA_STATIC/*.bif temp.cont.bifsif/tmp.cont.bif`;
-  `cp $TEMPLATE_DIR_AA_STATIC/*.nb temp.cont.bifsif/tmp.cont.nb`;
-  `cp $TEMPLATE_DIR_AA_STATIC/*.b temp.cont.bifsif/tmp.cont.b`;
+  `cp $TEMPLATE_DIR_AA_STATIC/$templateAA.bif temp.cont.bifsif/tmp.cont.bif`;
+  `cp $TEMPLATE_DIR_AA_STATIC/$templateAA.nb temp.cont.bifsif/tmp.cont.nb`;
+  `cp $TEMPLATE_DIR_AA_STATIC/$templateAA.b temp.cont.bifsif/tmp.cont.b`;
   if($CONTTYPE eq "shadow"){
-   `sed "s/CUTDIST/$CONTD/g;s/SCM_R/$CONTR/g;s/SCM_BR/$BBRAD/g" $TEMPLATE_DIR_AA_STATIC/*.shadow.sif > temp.cont.bifsif/tmp.cont.sif`;
+   `sed "s/CUTDIST/$CONTD/g;s/SCM_R/$CONTR/g;s/SCM_BR/$BBRAD/g" $TEMPLATE_DIR_AA_STATIC/$templateAA.shadow.sif > temp.cont.bifsif/tmp.cont.sif`;
   }elsif($CONTTYPE eq "cutoff"){
-   `sed "s/CUTDIST/$CONTD/g" $TEMPLATE_DIR_AA_STATIC/*.cutoff.sif > temp.cont.bifsif/tmp.cont.sif`;
+   `sed "s/CUTDIST/$CONTD/g" $TEMPLATE_DIR_AA_STATIC/$templateAA.cutoff.sif > temp.cont.bifsif/tmp.cont.sif`;
   }
+ CheckTemplatesCreated("temp.cont.bifsif","temp.cont");
  } 
 
  if($model eq "AA" && $default ne "yes"){
@@ -735,14 +746,15 @@ EOT
   my $PARM_N_BB=$NA_DIH;
   my $PARM_N_SC=$NA_DIH*$R_N_SC_BB;
   if($CONTTYPE eq "shadow"){
-   `sed "s/PARM_C_D/$R_CD/g;s/PARM_P_BB/$PARM_P_BB/g;s/PARM_P_SC/$PARM_P_SC/g;s/PARM_N_BB/$PARM_N_BB/g;s/PARM_N_SC/$PARM_N_SC/g;s/CUTDIST/$CONTD/g;s/SCM_R/$CONTR/g;s/SCM_BR/$BBRAD/g" $TEMPLATE_DIR_AA/*.shadow.sif > temp.bifsif/tmp.sif`;
+   `sed "s/PARM_C_D/$R_CD/g;s/PARM_P_BB/$PARM_P_BB/g;s/PARM_P_SC/$PARM_P_SC/g;s/PARM_N_BB/$PARM_N_BB/g;s/PARM_N_SC/$PARM_N_SC/g;s/CUTDIST/$CONTD/g;s/SCM_R/$CONTR/g;s/SCM_BR/$BBRAD/g" $TEMPLATE_DIR_AA/$templateAA.shadow.sif > temp.bifsif/tmp.sif`;
   }elsif($CONTTYPE eq "cutoff"){
-   `sed "s/PARM_C_D/$R_CD/g;s/PARM_P_BB/$PARM_P_BB/g;s/PARM_P_SC/$PARM_P_SC/g;s/PARM_N_BB/$PARM_N_BB/g;s/PARM_N_SC/$PARM_N_SC/g;s/CUTDIST/$CONTD/g" $TEMPLATE_DIR_AA/*.cutoff.sif > temp.bifsif/tmp.sif`;
+   `sed "s/PARM_C_D/$R_CD/g;s/PARM_P_BB/$PARM_P_BB/g;s/PARM_P_SC/$PARM_P_SC/g;s/PARM_N_BB/$PARM_N_BB/g;s/PARM_N_SC/$PARM_N_SC/g;s/CUTDIST/$CONTD/g" $TEMPLATE_DIR_AA/$templateAA.cutoff.sif > temp.bifsif/tmp.sif`;
   }
-  `sed "s/PARM_MASS/$massNB{'NB_2'}/g;s/PARM_chargeNB/$chargeNB{'NB_2'}/g;s/PARM_C6_2/$C6NB{'NB_2'}/g;s/PARM_C12_2/$C12NB{'NB_2'}/g;s/PARM_C12/$C12NB{$defname}/g" $TEMPLATE_DIR_AA/*.nb > temp.bifsif/tmp.nb`;
+  `sed "s/PARM_MASS/$massNB{'NB_2'}/g;s/PARM_chargeNB/$chargeNB{'NB_2'}/g;s/PARM_C6_2/$C6NB{'NB_2'}/g;s/PARM_C12_2/$C12NB{'NB_2'}/g;s/PARM_C12/$C12NB{$defname}/g" $TEMPLATE_DIR_AA/$templateAA.nb > temp.bifsif/tmp.nb`;
 
-  `cp $TEMPLATE_DIR_AA/*.bif temp.bifsif/tmp.bif`;
-  `cp $TEMPLATE_DIR_AA/*.b temp.bifsif/tmp.b`;
+  `cp $TEMPLATE_DIR_AA/$templateAA.bif temp.bifsif/tmp.bif`;
+  `cp $TEMPLATE_DIR_AA/$templateAA.b temp.bifsif/tmp.b`;
+  CheckTemplatesCreated("temp.bifsif","tmp");
  }
 }
 
@@ -2402,6 +2414,17 @@ sub cleanoldfiles
  }
  if(-e "$PDB.ndx"){
   `rm $PDB.ndx`;
+ }
+}
+
+sub CheckTemplatesCreated
+{
+ my ($dir,$prefix)=@_;
+ my @arr=("bif","b","sif","nb");
+ foreach my $i(@arr){
+  unless(-e "$dir/$prefix.$i"){
+   internal_error("Failed when trying to create file $dir/$prefix.$i");
+  }	
  }
 }
 

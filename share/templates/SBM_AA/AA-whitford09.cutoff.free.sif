@@ -5,9 +5,12 @@
 <functions>
 	<function name="bond_harmonic" directive="bonds"/>
     	<function name="bond_type6" directive="bonds"/>
+    	<function name="bond_free" directive="bonds"/>
 	<function name="angle_harmonic" directive="angles"/>
+    	<function name="angle_free" directive="angles"/>
 	<function name="dihedral_cosine" directive="dihedrals"/>
 	<function name="dihedral_harmonic" directive="dihedrals"/>
+    	<function name="dihedral_free" directive="dihedrals"/>
     	<function name="contact_1" directive="pairs" exclusions="1"/>
     	<function name="contact_2" directive="pairs" exclusions="1"/>
     	<function name="contact_gaussian" directive="pairs" exclusions="1"/>
@@ -23,8 +26,6 @@
 	<energyGroup residueType="nucleic" name="sc_n" intraRelativeStrength="PARM_N_SC" normalize="1"/>
 	<!-- Not-Normalized -->
 	<energyGroup residueType="nucleic" name="pr_n" normalize="0"/>
-	<energyGroup residueType="nucleic" name="ip_n" normalize="0"/>
-	<energyGroup residueType="nucleic" name="r_n" normalize="0"/>
 
 	<!-- AMINO ENERGY GROUPS --> 
 	<!-- Normalized -->
@@ -32,8 +33,8 @@
 	<energyGroup residueType="amino" name="sc_a" intraRelativeStrength="PARM_P_SC" normalize="1"/>
 	<!-- Not-Normalized -->
 	<energyGroup residueType="amino" name="pr_a" normalize="0"/>
-	<energyGroup residueType="amino" name="ip_a" normalize="0"/>
 	<energyGroup residueType="amino" name="r_a"  normalize="0"/>
+	<energyGroup residueType="amino" name="free"  normalize="0"/>
 
     	<!-- LIGAND ENERGY GROUP -->
     	<energyGroup residueType="ligand" name="lig" normalize="0"/>
@@ -48,7 +49,7 @@
 </Groups>
 
 <!-- CONTACT MAP SETTINGS -->
-<Contacts method="CONTMAP" contactDistance="CUTDIST" shadowRadius="SCM_R">
+<Contacts method="cutoff" contactDistance="CUTDIST">
 <contactScaling name="stackingScale" residueType1="nucleic" residueType2="nucleic" scale="1" deltaMin="1" deltaMax="1"
 atomList="N1 N2 N3 N4 N5 N6 N7 N8 N9 C1 C2 C3 C4 C5 C6 C7 C8 C9 O1 O2 O3 O4 O5 O6 O7 O8 O9"/>
 </Contacts>
