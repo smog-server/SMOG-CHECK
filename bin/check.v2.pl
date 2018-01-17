@@ -177,7 +177,7 @@ while(<LIGAND>){
  $LIGANDn++;
 }
 
-my %numfield = ( 'default' => '2', 'default-gaussian' => '2', 'cutoff' => '19', 'shadow' => '20', 'shadow-gaussian' => '20', 'cutoff-gaussian' => '19');
+my %numfield = ( 'default' => '2', 'default-gaussian' => '2', 'cutoff' => '19', 'shadow' => '20',  'shadow-free' => '20', 'shadow-gaussian' => '20', 'cutoff-gaussian' => '19');
 
 #ions
 open(ION,"share/residues/ions") or internal_error("no ion file");
@@ -384,6 +384,13 @@ while(<PARMS>){
   $CONTTYPE=$A[$ARG];
   $ARG++;
   if($CONTTYPE =~ m/^shadow$/){
+   print "Will generate and use a shadow map\n";
+   $CONTD=$A[$ARG];
+   $ARG++;
+   $CONTR=$A[$ARG];
+   $ARG++;
+   $BBRAD=0.5;
+  }elsif($CONTTYPE =~ m/^shadow-free$/){
    print "Will generate and use a shadow map\n";
    $CONTD=$A[$ARG];
    $ARG++;
@@ -771,13 +778,22 @@ EOT
   my $PARM_N_SC=$NA_DIH*$R_N_SC_BB;
   if($CONTTYPE eq "shadow"){
    `sed "s/PARM_C_D/$R_CD/g;s/PARM_P_BB/$PARM_P_BB/g;s/PARM_P_SC/$PARM_P_SC/g;s/PARM_N_BB/$PARM_N_BB/g;s/PARM_N_SC/$PARM_N_SC/g;s/CUTDIST/$CONTD/g;s/SCM_R/$CONTR/g;s/SCM_BR/$BBRAD/g" $TEMPLATE_DIR_AA/$templateAA.shadow.sif > temp.bifsif/tmp.sif`;
+  }elsif($CONTTYPE eq "shadow-free"){
+   `sed "s/PARM_C_D/$R_CD/g;s/PARM_P_BB/$PARM_P_BB/g;s/PARM_P_SC/$PARM_P_SC/g;s/PARM_N_BB/$PARM_N_BB/g;s/PARM_N_SC/$PARM_N_SC/g;s/CUTDIST/$CONTD/g;s/SCM_R/$CONTR/g;s/SCM_BR/$BBRAD/g" $TEMPLATE_DIR_AA/$templateAA.shadow.free.sif > temp.bifsif/tmp.sif`;
   }elsif($CONTTYPE eq "cutoff"){
    `sed "s/PARM_C_D/$R_CD/g;s/PARM_P_BB/$PARM_P_BB/g;s/PARM_P_SC/$PARM_P_SC/g;s/PARM_N_BB/$PARM_N_BB/g;s/PARM_N_SC/$PARM_N_SC/g;s/CUTDIST/$CONTD/g" $TEMPLATE_DIR_AA/$templateAA.cutoff.sif > temp.bifsif/tmp.sif`;
   }
   `sed "s/PARM_MASS/$massNB{'NB_2'}/g;s/PARM_chargeNB/$chargeNB{'NB_2'}/g;s/PARM_C6_2/$C6NB{'NB_2'}/g;s/PARM_C12_2/$C12NB{'NB_2'}/g;s/PARM_C12/$C12NB{$defname}/g" $TEMPLATE_DIR_AA/$templateAA.nb > temp.bifsif/tmp.nb`;
 
-  `cp $TEMPLATE_DIR_AA/$templateAA.bif temp.bifsif/tmp.bif`;
-  `cp $TEMPLATE_DIR_AA/$templateAA.b temp.bifsif/tmp.b`;
+  if($CONTTYPE eq "shadow-free"){
+   `sed "s/PARM_MASS/$massNB{'NB_2'}/g;s/PARM_chargeNB/$chargeNB{'NB_2'}/g;s/PARM_C6_2/$C6NB{'NB_2'}/g;s/PARM_C12_2/$C12NB{'NB_2'}/g;s/PARM_C12/$C12NB{$defname}/g" $TEMPLATE_DIR_AA/$templateAA.free.nb > temp.bifsif/tmp.nb`;
+   `cp $TEMPLATE_DIR_AA/$templateAA.free.bif temp.bifsif/tmp.bif`;
+   `cp $TEMPLATE_DIR_AA/$templateAA.free.b temp.bifsif/tmp.b`;
+  }else{
+   `sed "s/PARM_MASS/$massNB{'NB_2'}/g;s/PARM_chargeNB/$chargeNB{'NB_2'}/g;s/PARM_C6_2/$C6NB{'NB_2'}/g;s/PARM_C12_2/$C12NB{'NB_2'}/g;s/PARM_C12/$C12NB{$defname}/g" $TEMPLATE_DIR_AA/$templateAA.nb > temp.bifsif/tmp.nb`;
+   `cp $TEMPLATE_DIR_AA/$templateAA.bif temp.bifsif/tmp.bif`;
+   `cp $TEMPLATE_DIR_AA/$templateAA.b temp.bifsif/tmp.b`;
+  }
   CheckTemplatesCreated("temp.bifsif","tmp");
  }
 }
@@ -2447,7 +2463,7 @@ sub CheckTemplatesCreated
  my @arr=("bif","b","sif","nb");
  foreach my $i(@arr){
   unless(-e "$dir/$prefix.$i"){
-   internal_error("Failed when trying to create file $dir/$prefix.$i");
+   internal_error(" $dir/$prefix.$i not created");
   }	
  }
 }
