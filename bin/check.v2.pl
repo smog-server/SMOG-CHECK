@@ -660,7 +660,7 @@ sub preparesettings
 {
  # make a log of the settings being used for this test
  my $templateAA="AA-whitford09";
- my $templateCA="CA-clementi09";
+ my $templateCA="CA-clementi00";
 my $string = <<"EOT";
 Here are the settings used for this test
 $PDB.pdb
@@ -736,7 +736,7 @@ EOT
   }elsif($CONTTYPE eq "cutoff"){
    `sed "s/CUTDIST/$CONTD/g" $TEMPLATE_DIR_AA_STATIC/$templateAA.cutoff.sif > temp.cont.bifsif/tmp.cont.sif`;
   }
- CheckTemplatesCreated("temp.cont.bifsif","temp.cont");
+ CheckTemplatesCreated("temp.cont.bifsif","tmp.cont");
  } 
 
  if($model eq "AA" && $default ne "yes"){
