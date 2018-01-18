@@ -14,6 +14,7 @@
     	<function name="contact_1" directive="pairs" exclusions="1"/>
     	<function name="contact_2" directive="pairs" exclusions="1"/>
     	<function name="contact_gaussian" directive="pairs" exclusions="1"/>
+    	<function name="contact_free" directive="pairs" exclusions="0"/>
 </functions>
 
 <!-- HAMILTONIAN SETTINGS -->
@@ -42,6 +43,7 @@
 
  	<!-- Global Contacts Settings -->
 	<contactGroup name="c" intraRelativeStrength="1" normalize="1"/>
+	<contactGroup name="fc" intraRelativeStrength="0" normalize="0"/>
 
  	<!-- Contact/Dihedral Group ratio -->
        	<groupRatios contacts="PARM_C_D" dihedrals="1"/>
