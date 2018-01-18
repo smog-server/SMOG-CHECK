@@ -17,5 +17,11 @@
 	<pairType>*</pairType>
 	<pairType>*</pairType>
 </contact>
+
+<contact func="contact_free()" contactGroup="c">
+	<pairType>P_2</pairType>
+	<pairType>P_2</pairType>
+</contact>
+
 </nb>
 

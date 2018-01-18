@@ -77,7 +77,7 @@ our $TEMPLATE_DIR_CA=$ENV{'BIFSIF_CA_TESTING'};
 
 # FAILLIST is a list of all the tests.
 # If you are developing and testing your own forcefield, which may not need to conform to certain checks, then you may want to disable some tests by  removing the test name from this list. However, do so at your own risk.
-our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','TOP FIELDS FOUND','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'ANGLE TYPES', 'ANGLE WEIGHTS', 'DUPLICATE BONDS', 'DUPLICATE ANGLES', 'GENERATED ANGLE COUNT','GENERATED ANGLE IN TOP','ANGLES IN TOP GENERATED', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL IN TOP GENERATED','GENERATED DIHEDRAL IN TOP','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','GAUSSIAN CONTACT EXCLUDED VOLUME','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM MAP GENERATED','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY','TYPE6 ATOMS','UNINITIALIZED VARIABLES','CLASSIFYING DIHEDRALS','NON-ZERO EXIT','ATOM FIELDS','ATOM CHARGES');
+our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','TOP FIELDS FOUND','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'ANGLE TYPES', 'ANGLE WEIGHTS', 'DUPLICATE BONDS', 'DUPLICATE ANGLES', 'GENERATED ANGLE COUNT','GENERATED ANGLE IN TOP','ANGLES IN TOP GENERATED', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL IN TOP GENERATED','GENERATED DIHEDRAL IN TOP','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','GAUSSIAN CONTACT EXCLUDED VOLUME','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM MAP GENERATED','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY','TYPE6 ATOMS','UNINITIALIZED VARIABLES','CLASSIFYING DIHEDRALS','NON-ZERO EXIT','ATOM FIELDS','ATOM CHARGES','FREE PAIRS APPEAR IN CONTACTS');
 
 my %supported_directives = ( 'defaults' => '0',
         'atomtypes' => '1',
@@ -103,6 +103,12 @@ my %free_dihedrals_defs=('TYR-CB-CG' =>'1',
 			 'TYR-CG-CD1' =>'1',
 			 'TYR-CD1-CE1' =>'1',
 			 );
+# list the residue pairs that free in the free-templates
+my %free_pair_defs=('ASN-MET' =>'1',
+	   	    'ASN-ASN' =>'1',
+	   	    'MET-MET' =>'1'
+		   );
+
 
 unless(-d $BIFSIF_AA && -d $BIFSIF_CA && -d $TEMPLATE_DIR_AA && -d $TEMPLATE_DIR_AA_STATIC && -d $TEMPLATE_DIR_CA ){
  smogcheck_error("Can\'t find the template directories. Something is wrong with the configurations of this script.\nYour intallation of SMOG2 may be ok, but we can\'t tell\nGiving up...");
@@ -338,6 +344,7 @@ while(<PARMS>){
   $gaussian="no";
  }elsif($A[2] =~ m/^shadow-free$/){
   print "Will use shadow contacts\n";
+  print "Checking use of \"free\" interactions\n";
   $default="no";
   $gaussian="no";
   $free="yes";
@@ -1803,7 +1810,7 @@ sub readtop
           }
           if($dihedral_array2{$string}){
            $impSCfound++;
-          }else{
+          }elsif($free eq "no"){
            $fail_log .= failed_message("Sidechain Improper not found: expected dihedral formed by atoms $string");
           }
          }
@@ -1817,7 +1824,7 @@ sub readtop
           }
           if($dihedral_array2{$string}){
            $impSCfound++;
-          }else{
+          }elsif($free eq "no"){
            $fail_log .= failed_message("Sidechain Improper not found: expected dihedral formed by atoms $string");
           }
          }
@@ -1831,7 +1838,7 @@ sub readtop
           }
           if($dihedral_array2{$string}){
            $impSCfound++;
-          }else{
+          }elsif($free eq "no"){
            $fail_log .= failed_message("Sidechain Improper not found: expected dihedral formed by atoms $string");
           }
          }
@@ -1894,6 +1901,7 @@ sub readtop
     my $GaussianContactWidth=0;
     my $GaussianEXVOL=0;
     my $NOTSHORTSEQ=0;
+    my $freepair=0;
     $#A = -1;
     $LINE=<TOP>;
     chomp($LINE);
@@ -1905,7 +1913,12 @@ sub readtop
      $PAIRS[$NCONTACTS][0]=$A[0];
      $PAIRS[$NCONTACTS][1]=$A[1];
      $NCONTACTS++;
-
+     my $R0=$GRODATA[$A[0]-1][1];
+     my $R1=$GRODATA[$A[1]-1][1];
+     if($free eq "yes" && (exists $free_pair_defs{"$R0-$R1"} || exists $free_pair_defs{"$R0-$R1"})){
+      $freepair=1;
+      $fail_log .= failed_message("Free contacts defined, but a contact between $R0 and $R1 was found in the contacts. Atoms $A[0] and $A[1]\n");
+     }
      unless($CID[$A[0]] == $CID[$A[1]] && $MOLTYPE[$A[0]] eq "AMINO" &&  abs($resindex[$A[0]]-$resindex[$A[1]]) <4 ){
 	$NOTSHORTSEQ++;
      }
@@ -2069,6 +2082,11 @@ sub readtop
     }else{
      smogcheck_error("unrecognized model.");
     }
+     if($freepair ==0){
+      $FAIL{'FREE PAIRS APPEAR IN CONTACTS'}=0;	
+     }else{
+      $FAIL{'FREE PAIRS APPEAR IN CONTACTS'}=1;	
+     }
    }
   } 
   if(exists $A[1]){ 
@@ -2189,7 +2207,7 @@ sub readtop
      }else{
       $NPSC++;
 #      $DIH_TYPE[$i][$j]="AMINOSC";
-      if($PSCvalue !=$ED_T[$i][$j] && $PSCvalue !=0){
+      if($PSCvalue !=$ED_T[$i][$j] && $PSCvalue !=0 && $free eq "no"){
        $fail_log .= failed_message("protein sidechain dihedral $i $j\n\t$PSCvalue is before\n\t$ED_T[$i][$j] is the bad one...");
       }else{
        $NPSCC++;
@@ -2445,9 +2463,10 @@ sub checkvalues
   $NUMBER_OF_CONTACTS_SHADOW++;
  }
   my $NRD=$NCONTACTS+$bondtype6;
- if($NUMBER_OF_CONTACTS_SHADOW == $NRD){
+ if($free eq "yes"){
+  $FAIL{'NCONTACTS'}=-1;
+ }elsif($NUMBER_OF_CONTACTS_SHADOW == $NRD){
   $FAIL{'NCONTACTS'}=0;
-
  }else{
   $fail_log .= failed_message("Same number of contacts not found in contact file and top file!!!! FAIL\n\t$NUMBER_OF_CONTACTS_SHADOW contacts were found in the contact file.\n\t$NRD contacts were found in the top file.");
  }

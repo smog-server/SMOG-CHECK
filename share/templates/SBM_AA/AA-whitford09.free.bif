@@ -662,14 +662,14 @@
 <!--METHIONINE-->
 		<residue name="MET" residueType="amino">
 			<atoms>
-				<atom bType="B_1" nbType="NB_1" pairType="P_1">N</atom>
-				<atom bType="B_1" nbType="NB_1" pairType="P_1">CA</atom>
-				<atom bType="B_1" nbType="NB_1" pairType="P_1">C</atom>
-				<atom bType="B_1" nbType="NB_1" pairType="P_1">O</atom>
-				<atom bType="B_1" nbType="NB_1" pairType="P_1">CB</atom>
-				<atom bType="B_1" nbType="NB_1" pairType="P_1">CG</atom>
-				<atom bType="B_1" nbType="NB_1" pairType="P_1">SD</atom>
-				<atom bType="B_1" nbType="NB_1" pairType="P_1">CE</atom>
+				<atom bType="B_1" nbType="NB_1" pairType="P_2">N</atom>
+				<atom bType="B_1" nbType="NB_1" pairType="P_2">CA</atom>
+				<atom bType="B_1" nbType="NB_1" pairType="P_2">C</atom>
+				<atom bType="B_1" nbType="NB_1" pairType="P_2">O</atom>
+				<atom bType="B_1" nbType="NB_1" pairType="P_2">CB</atom>
+				<atom bType="B_1" nbType="NB_1" pairType="P_2">CG</atom>
+				<atom bType="B_1" nbType="NB_1" pairType="P_2">SD</atom>
+				<atom bType="B_1" nbType="NB_1" pairType="P_2">CE</atom>
 			</atoms>
 			<bonds>
 	<!--BACKBONE-->
@@ -1726,14 +1726,14 @@
 <!--ASPARGINE-->
 		<residue name="ASN" residueType="amino">
 			<atoms>
-				<atom bType="B_1" nbType="NB_1" pairType="P_1">N</atom>
-				<atom bType="B_1" nbType="NB_1" pairType="P_1">CA</atom>
-				<atom bType="B_1" nbType="NB_1" pairType="P_1">C</atom>
-				<atom bType="B_1" nbType="NB_1" pairType="P_1">O</atom>
-				<atom bType="B_1" nbType="NB_1" pairType="P_1">CB</atom>
-				<atom bType="B_1" nbType="NB_1" pairType="P_1">CG</atom>
-				<atom bType="B_1" nbType="NB_1" pairType="P_1">OD1</atom>
-				<atom bType="B_1" nbType="NB_1" pairType="P_1">ND2</atom>
+				<atom bType="B_1" nbType="NB_1" pairType="P_2">N</atom>
+				<atom bType="B_1" nbType="NB_1" pairType="P_2">CA</atom>
+				<atom bType="B_1" nbType="NB_1" pairType="P_2">C</atom>
+				<atom bType="B_1" nbType="NB_1" pairType="P_2">O</atom>
+				<atom bType="B_1" nbType="NB_1" pairType="P_2">CB</atom>
+				<atom bType="B_1" nbType="NB_1" pairType="P_2">CG</atom>
+				<atom bType="B_1" nbType="NB_1" pairType="P_2">OD1</atom>
+				<atom bType="B_1" nbType="NB_1" pairType="P_2">ND2</atom>
 			</atoms>
 			<bonds>
 	<!--BACKBONE-->
