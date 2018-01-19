@@ -190,7 +190,7 @@ while(<LIGAND>){
  $LIGANDn++;
 }
 
-my %numfield = ( 'default' => '2', 'default-userC' => '2', 'default-gaussian' => '2', 'cutoff' => '19', 'shadow' => '20',  'shadow-free' => '20', 'shadow-gaussian' => '20', 'cutoff-gaussian' => '19');
+my %numfield = ( 'default' => '2', 'default-userC' => '2', 'default-gaussian' => '2', 'default-gaussian-userC' => '2','cutoff' => '19', 'shadow' => '20',  'shadow-free' => '20', 'shadow-gaussian' => '20', 'cutoff-gaussian' => '19');
 
 #ions
 open(ION,"share/residues/ions") or internal_error("no ion file");
@@ -338,6 +338,11 @@ while(<PARMS>){
   print "Will use gaussian contacts\n";
   $default="yes";
   $gaussian="yes";
+ }elsif($A[2] =~ m/^default-gaussian-userC$/){
+  print "Will use gaussian contacts with user-provided distances\n";
+  $default="yes";
+  $gaussian="yes";
+  $usermap="yes";
  }elsif($A[2] =~ m/^default-userC$/){
   print "Will use default settings with user-provided contact and distances\n";
   $default="yes";
