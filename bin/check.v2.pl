@@ -190,7 +190,7 @@ while(<LIGAND>){
  $LIGANDn++;
 }
 
-my %numfield = ( 'default' => '2', 'default-gaussian' => '2', 'cutoff' => '19', 'shadow' => '20',  'shadow-free' => '20', 'shadow-gaussian' => '20', 'cutoff-gaussian' => '19');
+my %numfield = ( 'default' => '2', 'default-userC' => '2', 'default-gaussian' => '2', 'cutoff' => '19', 'shadow' => '20',  'shadow-free' => '20', 'shadow-gaussian' => '20', 'cutoff-gaussian' => '19');
 
 #ions
 open(ION,"share/residues/ions") or internal_error("no ion file");
@@ -213,6 +213,7 @@ my $FAIL_SYSTEM=0;
 
 # a number of global variables.
 our $default;
+our $usermap;
 our $gaussian;
 our $model;
 our $PDB;
@@ -305,6 +306,7 @@ while(<PARMS>){
   $FAIL_SYSTEM++;
   next;
  }
+
   print "\n*************************************************************\n";
   print "                 STARTING TEST $TESTNUM ($PDB)\n";
   print "*************************************************************\n";
@@ -325,6 +327,8 @@ while(<PARMS>){
   undef  $sigmaCA;
   # default is that we are not testing free
   $free="no";
+  # default is to not read a contact map
+  $usermap="no";
 
  $model=$A[1];
  if($A[2] =~ m/^default$/){
@@ -334,6 +338,11 @@ while(<PARMS>){
   print "Will use gaussian contacts\n";
   $default="yes";
   $gaussian="yes";
+ }elsif($A[2] =~ m/^default-userC$/){
+  print "Will use default settings with user-provided contact and distances\n";
+  $default="yes";
+  $gaussian="no";
+  $usermap="yes";
  }elsif($A[2] =~ m/^cutoff$/){
   print "Will use cutoff contacts\n";
   $default="no";
@@ -361,6 +370,14 @@ while(<PARMS>){
  if($numfield{$A[2]} != $#A){
   internal_error("all.pdbs has wrong number of entries for model $A[2]. Expected $numfield{$A[2]}, found $#A");
  }
+ if($usermap eq "yes"){
+  unless(-e "$PDB_DIR/$PDB.contacts"){
+   print "Unable to find PDB file $PDB_DIR/$PDB.contacts for testing.  Skipping this test\n\n";
+   $FAIL_SYSTEM++;
+   next;
+  }
+ }
+
 
  if($model =~ m/CA/){
   print "Testing CA model\n";
@@ -547,7 +564,9 @@ sub runsmog
    smogcheck_error("unrecognized model.");
   }
  }
-
+ if($usermap eq "yes"){
+   $ARGS .= " -c $PDB_DIR/$PDB.contacts ";
+ }
 # run smog2
  `$EXEC_NAME $ARGS &> $PDB.output`;
 }
@@ -1909,6 +1928,9 @@ sub readtop
     my $W;
     my $Cdist;
     my $CALCD;
+    if($usermap eq "yes"){
+     open(CMAP,"$PDB_DIR/$PDB.contacts") or internal_error("can not open $PDB_DIR/$PDB.contacts");
+    }
     until($A[0] eq "["){
      $PAIRS[$NCONTACTS][0]=$A[0];
      $PAIRS[$NCONTACTS][1]=$A[1];
@@ -1939,11 +1961,11 @@ sub readtop
      if($gaussian eq "yes"){
       $W=$A[3];
       $Cdist=$A[4];
-      $CALCD=(($XT[$A[0]]-$XT[$A[1]])**2+($YT[$A[0]]-$YT[$A[1]])**2+($ZT[$A[0]]-$ZT[$A[1]])**2)**(0.5);
+      $CALCD=getdist(\*CMAP,\@A,\@XT,\@YT,\@ZT);
       if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0) ){
        $ContactDist++;
       }else{
-       $fail_log .= failed_message("A contact appears to be the wrong distance.  From the .gro file, we found r=$CALCD, and from the .top r=$Cdist.\n\t$LINE");
+       $fail_log .= failed_message("A contact appears to be the wrong distance.  From the .gro (or .contact) file, we found r=$CALCD, and from the .top r=$Cdist.\n\t$LINE");
       }
       # check width of gaussian
       my $sigmagaussian=$A[5];
@@ -1966,20 +1988,20 @@ sub readtop
      }elsif($model eq "CA"){
       $W=5.0**5.0/6.0**6.0*($A[3]**6.0)/($A[4]**5.0);
       $Cdist=(6*$A[4]/(5*$A[3]))**(1.0/2.0);
-      $CALCD=(($XT[$A[0]]-$XT[$A[1]])**2+($YT[$A[0]]-$YT[$A[1]])**2+($ZT[$A[0]]-$ZT[$A[1]])**2)**(0.5);
+      $CALCD=getdist(\*CMAP,\@A,\@XT,\@YT,\@ZT);
       if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0) ){
        $ContactDist++;
       }else{
-       $fail_log .= failed_message("A contact appears to be the wrong distance.  From the .gro file, we found r=$CALCD, and from the .top r=$Cdist.\n\t$LINE");
+       $fail_log .= failed_message("A contact appears to be the wrong distance.  From the .gro (or .contact) file, we found r=$CALCD, and from the .top r=$Cdist.\n\t$LINE");
       }
      }elsif($model eq "AA"){
       $W=($A[3]*$A[3])/(4*$A[4]);
       $Cdist=(2.0*$A[4]/($A[3]))**(1.0/6.0);
-      $CALCD=(($XT[$A[0]]-$XT[$A[1]])**2+($YT[$A[0]]-$YT[$A[1]])**2+($ZT[$A[0]]-$ZT[$A[1]])**2)**(0.5);
+      $CALCD=getdist(\*CMAP,\@A,\@XT,\@YT,\@ZT);
       if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0)){
        $ContactDist++;
       }else{
-       $fail_log .= failed_message("A contact appears to be the wrong distance.  From the .gro file, we found r=$CALCD, and from the .top r=$Cdist.\n\t$LINE");
+       $fail_log .= failed_message("A contact appears to be the wrong distance.  From the .gro (or .contact) file, we found r=$CALCD, and from the .top r=$Cdist.\n\t$LINE");
       }
      }else{
       smogcheck_error("unrecognized model.");
@@ -2507,6 +2529,28 @@ sub CheckTemplatesCreated
   }	
  }
 }
+
+sub getdist
+{
+ my ($handle,$A,$X,$Y,$Z)=@_;
+ my $dist;
+ my @A=@{$A};
+ my @X=@{$X};
+ my @Y=@{$Y};
+ my @Z=@{$Z};
+ if($usermap eq "yes"){
+  my $TMP=<$handle>;
+  my ($data,$comment)=checkcomment($TMP);
+  my @A=split(/\s+/,$data);
+  if($#A != 4){internal_error("user-provided contact map has wrong number of fields. See $TMP")};
+  $A[4]/=10;;
+  return $A[4];
+ }else{
+  $dist=(($XT[$A[0]]-$XT[$A[1]])**2+($YT[$A[0]]-$YT[$A[1]])**2+($ZT[$A[0]]-$ZT[$A[1]])**2)**(0.5);
+  return $dist;
+ }
+}
+
 
 sub summary
 {
