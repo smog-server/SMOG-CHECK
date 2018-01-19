@@ -607,8 +607,9 @@ sub checkSCM
  my $CONTDIFF=filediff("$PDB.contacts","$PDB.contacts.SCM");
  if($CONTDIFF == 0){
   $FAIL{'SCM CONTACT COMPARISON'}=0;
+ }elsif($usermap eq "yes"){
+  $FAIL{'SCM CONTACT COMPARISON'}=-1;
  }
-
  if(-e "$PDB.contacts.SCM"){
   $FAIL{'SCM MAP GENERATED'}=0;
  } 
@@ -2058,6 +2059,8 @@ sub readtop
     }
     if($NOTSHORTSEQ == $NCONTACTS){
      $FAIL{'CONTACTS PROTEIN i-j!<4'}=0;
+    }elsif($usermap eq "yes"){
+     $FAIL{'CONTACTS PROTEIN i-j!<4'}=-1;
     }
     if($ContactDist == $NCONTACTS){
      $FAIL{'CONTACT DISTANCES'}=0;
@@ -2469,28 +2472,33 @@ sub checkvalues
   internal_error("DISP_MAX");
  }
 
- if($model eq "AA"){
-  if(open(CFILE,"$PDB.contacts")){
-   $FAIL{'OPEN CONTACT FILE'}=0;
+ if($usermap eq "no"){
+  if($model eq "AA"){
+   if(open(CFILE,"$PDB.contacts")){
+    $FAIL{'OPEN CONTACT FILE'}=0;
+   }
+  }elsif($model eq "CA"){
+   if(open(CFILE,"$PDB.contacts.CG")){
+    $FAIL{'OPEN CONTACT FILE'}=0;
+   }
   }
- }elsif($model eq "CA"){
-  if(open(CFILE,"$PDB.contacts.CG")){
-   $FAIL{'OPEN CONTACT FILE'}=0;
+  my $NUMBER_OF_CONTACTS_SHADOW=0;
+  while(<CFILE>){
+   $NUMBER_OF_CONTACTS_SHADOW++;
   }
- }
-
-
- my $NUMBER_OF_CONTACTS_SHADOW=0;
- while(<CFILE>){
-  $NUMBER_OF_CONTACTS_SHADOW++;
- }
+  close(CFILE);
   my $NRD=$NCONTACTS+$bondtype6;
- if($free eq "yes"){
-  $FAIL{'NCONTACTS'}=-1;
- }elsif($NUMBER_OF_CONTACTS_SHADOW == $NRD){
-  $FAIL{'NCONTACTS'}=0;
+  if($NUMBER_OF_CONTACTS_SHADOW == $NRD){
+   $FAIL{'NCONTACTS'}=0;
+  }else{
+   $fail_log .= failed_message("Same number of contacts not found in contact file and top file!!!! FAIL\n\t$NUMBER_OF_CONTACTS_SHADOW contacts were found in the contact file.\n\t$NRD contacts were found in the top file.");
+  }
  }else{
-  $fail_log .= failed_message("Same number of contacts not found in contact file and top file!!!! FAIL\n\t$NUMBER_OF_CONTACTS_SHADOW contacts were found in the contact file.\n\t$NRD contacts were found in the top file.");
+  $FAIL{'OPEN CONTACT FILE'}=-1;
+  $FAIL{'NCONTACTS'}=-1;
+ }
+ if($free eq "yes" ){
+  $FAIL{'NCONTACTS'}=-1;
  }
  my $E_TOTAL=$DENERGY+$CONTENERGY;
  my $CTHRESH=$NUMATOMS*10.0/$PRECISION;
