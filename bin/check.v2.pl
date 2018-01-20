@@ -1967,7 +1967,7 @@ sub readtop
      if($gaussian eq "yes"){
       $W=$A[3];
       $Cdist=$A[4];
-      $CALCD=getdist(\*CMAP,\@A,\@XT,\@YT,\@ZT);
+      $CALCD=getdist(\*CMAP,$XT[$A[0]],$YT[$A[0]],$ZT[$A[0]],$XT[$A[1]],$YT[$A[1]],$ZT[$A[1]]);
       if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0) ){
        $ContactDist++;
       }else{
@@ -1994,7 +1994,7 @@ sub readtop
      }elsif($model eq "CA"){
       $W=5.0**5.0/6.0**6.0*($A[3]**6.0)/($A[4]**5.0);
       $Cdist=(6*$A[4]/(5*$A[3]))**(1.0/2.0);
-      $CALCD=getdist(\*CMAP,\@A,\@XT,\@YT,\@ZT);
+      $CALCD=getdist(\*CMAP,$XT[$A[0]],$YT[$A[0]],$ZT[$A[0]],$XT[$A[1]],$YT[$A[1]],$ZT[$A[1]]);
       if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0) ){
        $ContactDist++;
       }else{
@@ -2003,7 +2003,7 @@ sub readtop
      }elsif($model eq "AA"){
       $W=($A[3]*$A[3])/(4*$A[4]);
       $Cdist=(2.0*$A[4]/($A[3]))**(1.0/6.0);
-      $CALCD=getdist(\*CMAP,\@A,\@XT,\@YT,\@ZT);
+      $CALCD=getdist(\*CMAP,$XT[$A[0]],$YT[$A[0]],$ZT[$A[0]],$XT[$A[1]],$YT[$A[1]],$ZT[$A[1]]);
       if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0)){
        $ContactDist++;
       }else{
@@ -2545,12 +2545,8 @@ sub CheckTemplatesCreated
 
 sub getdist
 {
- my ($handle,$A,$X,$Y,$Z)=@_;
+ my ($handle,$X0,$Y0,$Z0,$X1,$Y1,$Z1)=@_;
  my $dist;
- my @A=@{$A};
- my @X=@{$X};
- my @Y=@{$Y};
- my @Z=@{$Z};
  if($usermap eq "yes"){
   my $TMP=<$handle>;
   my ($data,$comment)=checkcomment($TMP);
@@ -2559,7 +2555,7 @@ sub getdist
   $A[4]/=10;;
   return $A[4];
  }else{
-  $dist=(($XT[$A[0]]-$XT[$A[1]])**2+($YT[$A[0]]-$YT[$A[1]])**2+($ZT[$A[0]]-$ZT[$A[1]])**2)**(0.5);
+  $dist=(($X0-$X1)**2+($Y0-$Y1)**2+($Z0-$Z1)**2)**(0.5);
   return $dist;
  }
 }
