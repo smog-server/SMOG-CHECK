@@ -1414,7 +1414,6 @@ sub readtop
      $FAIL{'ANGLES IN TOP GENERATED'}=1;
     }
 
- 
     # generate all possible dihedral angles based on bond angles
     undef %phi_gen_as;
     $phi_gen_N=0;
@@ -1422,20 +1421,20 @@ sub readtop
     undef %improper_gen_as;
     $improper_gen_N=0;
     $#improper_gen=-1;
+    my ($phi1,$phi2,$phi3,$phi4,$AIJ,$AIK,$A1,$A2,$A3,$B1,$B2,$B3);
     for(my $i=1;$i<=$NUMATOMS;$i++){
     # go through the atoms.  For each atom, check all of the angles it is involved in, and see if we can make an angle out of it.
      for(my $j=0;$j<$NangleWatom[$i];$j++){
-      my $AIJ=$angleWatom[$i][$j];
-      my $A1=$angles2[$AIJ][0];
-      my $A2=$angles2[$AIJ][1];
-      my $A3=$angles2[$AIJ][2];
+      $AIJ=$angleWatom[$i][$j];
+      $A1=$angles2[$AIJ][0];
+      $A2=$angles2[$AIJ][1];
+      $A3=$angles2[$AIJ][2];
       for(my $k=$j+1;$k<$NangleWatom[$i];$k++){
        if($j!=$k){
-        my $AIK=$angleWatom[$i][$k];
-        my $B1=$angles2[$AIK][0];
-        my $B2=$angles2[$AIK][1];
-        my $B3=$angles2[$AIK][2];
-        my ($phi1,$phi2,$phi3,$phi4);
+        $AIK=$angleWatom[$i][$k];
+        $B1=$angles2[$AIK][0];
+        $B2=$angles2[$AIK][1];
+        $B3=$angles2[$AIK][2];
         # find all the dihedral angles that can be made with these angles
         my $formed='not';
         if($A2 == $B1 && $A3 == $B2){
