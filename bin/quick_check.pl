@@ -1,8 +1,5 @@
 #!/usr/bin/env perl 
 
-#awk '{if($1=="[")print "@"$2"Lines;"}' templates/CI2.smog2.top
-
-
 #template top is first argument
 #top to compare is second argument
 $template_top=$ARGV[0];

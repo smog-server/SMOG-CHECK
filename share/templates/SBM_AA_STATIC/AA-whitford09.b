@@ -6,10 +6,6 @@
 	<bType>*</bType>
 	<bType>*</bType>
         </bond>
-	<bond func="bond_harmonic_6(?,200)">
-	<bType>*</bType>
-    	<bType>MG</bType>
-        </bond>
 </bonds>
 
 <!-- ANGLES -->
@@ -37,12 +33,6 @@
 	<bType>*</bType>
 	</dihedral>
 	<dihedral func="dihedral_harmonic(?,40)" energyGroup="pr_n">
-	<bType>*</bType>
-	<bType>*</bType>
-	<bType>*</bType>
-	<bType>*</bType>
-	</dihedral>
-	<dihedral func="dihedral_harmonic(?,10)" energyGroup="r_n">
 	<bType>*</bType>
 	<bType>*</bType>
 	<bType>*</bType>

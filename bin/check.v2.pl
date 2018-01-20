@@ -1,12 +1,10 @@
 use strict;
 use warnings;
+use smog_common;
+use check_common;
 # This is the main script that runs SMOG2 and then checks to see if the generated files are correct.
 # This is intended to be a brute-force evaluation of everything that should appear. Since this is
 # a testing script, it is not designed to be efficient, but to be thorough, and foolproof...
-
-#assumes shell is bash
-
-
 print <<EOT;
 *****************************************************************************************
                                        smog-check                                   
@@ -21,6 +19,44 @@ print <<EOT;
             For questions regarding this script, contact info\@smog-server.org              
 *****************************************************************************************
 EOT
+
+
+# check if we are simply rerunning a single test, a few tests, or performing all
+my $RETEST=$#ARGV;
+my $RETESTEND=-1;
+if($RETEST == 0 || $RETEST == 1 ){
+	my $RETESTT;
+	if($ARGV[0] =~ /^\d+$/){
+		# is an integer
+		$RETESTT=$ARGV[0];
+		$RETESTEND=$RETESTT;
+	}else{
+		# is not an integer.  flag error
+		smogcheck_error("argument to smog-check can only be one, or two, integers. Found \"$ARGV[0]\"");
+	}
+
+	if($RETEST == 1 ){
+		if($ARGV[1] =~ /^\d+$/){
+			# is an integer
+			$RETESTEND=$ARGV[1];
+			print "\nWill run tests $ARGV[0] to $ARGV[1].\n\n";
+		}else{
+			# is not an integer.  flag error
+			smogcheck_error("argument to smog-check can only be one, or two, integers. Found \"$ARGV[0]\"");
+		}
+		if($ARGV[1] < $ARGV[0]){
+			smogcheck_error("Arguments must be first test, then last test. Last test number must be larger.");
+		}
+	}else{
+		print "\nWill only run test $ARGV[0].\n\n";
+	}
+	$RETEST=$RETESTT;
+
+}elsif($RETEST== -1){
+	print "\nWill run all tests (default).\n\n";
+}else{
+	smogcheck_error("Too many arguments passed to smog-check");
+}
 
 &checkForModules;
  
@@ -39,11 +75,43 @@ our $TEMPLATE_DIR_AA=$ENV{'BIFSIF_AA_TESTING'};
 our $TEMPLATE_DIR_AA_STATIC=$ENV{'BIFSIF_STATIC_TESTING'};
 our $TEMPLATE_DIR_CA=$ENV{'BIFSIF_CA_TESTING'};
 
+# FAILLIST is a list of all the tests.
+# If you are developing and testing your own forcefield, which may not need to conform to certain checks, then you may want to disable some tests by  removing the test name from this list. However, do so at your own risk.
+our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','TOP FIELDS FOUND','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'ANGLE TYPES', 'ANGLE WEIGHTS', 'DUPLICATE BONDS', 'DUPLICATE ANGLES', 'GENERATED ANGLE COUNT','GENERATED ANGLE IN TOP','ANGLES IN TOP GENERATED', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL IN TOP GENERATED','GENERATED DIHEDRAL IN TOP','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','GAUSSIAN CONTACT EXCLUDED VOLUME','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM MAP GENERATED','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY','TYPE6 ATOMS','UNINITIALIZED VARIABLES','CLASSIFYING DIHEDRALS','NON-ZERO EXIT','ATOM FIELDS','ATOM CHARGES','FREE PAIRS APPEAR IN CONTACTS');
+
+my %supported_directives = ( 'defaults' => '0',
+        'atomtypes' => '1',
+        'moleculetype' => '0',
+        'nonbond_params' => '0',
+        'atoms' => '1',
+        'bonds' => '1',
+        'angles' => '1',
+        'dihedrals' => '1',
+        'pairs' => '1',
+        'exclusions' => '1',
+        'system' => '1',
+        'molecules' => '1',
+        'position_restraints' => '1'
+        );
+
+# list the bonds that are free in the free-templates
+my %free_bond_defs=('TRP-CG-CD1' =>'1');
+# list the angles that are free in the free-templates
+my %free_angle_defs=('GLN-CB-CG-CD' =>'1');
+# list the dihedrals that are free in the free-templates
+my %free_dihedrals_defs=('TYR-CB-CG' =>'1',
+			 'TYR-CG-CD1' =>'1',
+			 'TYR-CD1-CE1' =>'1',
+			 );
+# list the residue pairs that free in the free-templates
+my %free_pair_defs=('ASN-MET' =>'1',
+	   	    'ASN-ASN' =>'1',
+	   	    'MET-MET' =>'1'
+		   );
+
+
 unless(-d $BIFSIF_AA && -d $BIFSIF_CA && -d $TEMPLATE_DIR_AA && -d $TEMPLATE_DIR_AA_STATIC && -d $TEMPLATE_DIR_CA ){
- print "Can\'t find the template directories. Something is wrong with the configurations of this script.\n";
- print "Your intallation of SMOG2 may be ok, but we can\'t tell\n";
- print "Giving up...\n";
- die;
+ smogcheck_error("Can\'t find the template directories. Something is wrong with the configurations of this script.\nYour intallation of SMOG2 may be ok, but we can\'t tell\nGiving up...");
 }
 
 # default location of test PDBs
@@ -51,47 +119,12 @@ our $PDB_DIR="share/PDB.files";
 print "environment variables read\n";
 print "EXEC_NAME $EXEC_NAME\n";
 
-## this is the all-atom smog check with shadow.
+# where should data from failed tests be written
 our $FAILDIR="FAILED";
+# are we testing files with free interactions?
+our $free;
+# will add free-specific hashes, here
 
-
-sub internal_error
-{
- my ($MESSAGE)=@_;
- chomp($MESSAGE);
-  print "\n\nInternal error at $MESSAGE\n\n";
-  print "Please report this to info\@smog-server.org\n";
-  print "Quitting.\n";
-  exit;
-}
-
-sub smogcheck_error
-{
- my ($MESSAGE)=@_;
- chomp($MESSAGE);
-  print "\n\nERROR: SMOG-CHECK CRASH: $MESSAGE\n\n";
-  print "Quitting.\n";
-  exit;
-}
-
-sub checkForModules {
-	my $checkPackage; my $sum=0;
-	$checkPackage=`echo \$perl4smog | wc | awk '{print \$3}'`;
-	if($checkPackage < 2) { print "Path perl4smog not set, maybe you need to edit the configure.smog2 script and run it with \"source configure.smog2\"\n"; $sum++;}
-	$checkPackage=`\$perl4smog -e "use XML::Simple" 2>&1 | wc -l | awk '{print \$1}'`;
-	if($checkPackage > 0) { print "Perl module XML::Simple not installed!\n"; $sum++;}
-	$checkPackage=`\$perl4smog -e "use XML::Validator::Schema" 2>&1 | wc -l | awk '{print \$1}'`;
-	if($checkPackage > 0) { print "Perl module XML::Validator::Schema not installed!\n"; $sum++;}
-	$checkPackage=`\$perl4smog -e "use Exporter" 2>&1 | wc -l | awk '{print \$1}'`;
-	if($checkPackage > 0) { print "Perl module Exporter not installed!\n"; $sum++;}
-	$checkPackage=`\$perl4smog -e "use String::Util" 2>&1 | wc -l | awk '{print \$1}'`;
-	if($checkPackage > 0) { print "Perl module String::Util not installed!\n"; $sum++;}
-	$checkPackage=`\$perl4smog -e "use PDL" 2>&1 | wc -l | awk '{print \$1}'`;
-	if($checkPackage > 0) { print "Perl Data Language not installed!\n"; $sum++;}
-	$checkPackage=`which java | wc -l | awk '{print \$1}'`;
-	if($checkPackage < 1) { print "Java might not be installed. This package assumes Java 1.7 or greater is in the path as 'java'.\n"; $sum++;}
-	if($sum > 0) { print "Need above packages before smog-check (and smog2) can run. Some hints may be in the SMOG2 manual.\n"; exit(1); }
-}
 
 our @FILETYPES=("top","gro","ndx","settings","contacts","output","contacts.SCM", "contacts.CG");
 
@@ -100,7 +133,7 @@ unless( -e $SCM){
 }
 our %BBTYPE;
 ## read in the backbone atom types.  Remember, CA and C1* can be involved in sidechain dihedrals
-open(BBAMINO,"share/backboneatoms/aminoacids") or die "no amino acid file\n";
+open(BBAMINO,"share/backboneatoms/aminoacids") or internal_error("no amino acid file");
 while(<BBAMINO>){
  my $LINE=$_;
  chomp($LINE);
@@ -108,7 +141,7 @@ while(<BBAMINO>){
  $BBTYPE{$LINE}= "BACKBONE";
 }
 
-open(BBNUCLEIC,"share/backboneatoms/nucleicacids") or die "no amino acid file\n";
+open(BBNUCLEIC,"share/backboneatoms/nucleicacids") or internal_error("no amino acid file");
 while(<BBNUCLEIC>){
  my $LINE=$_;
  chomp($LINE);
@@ -119,7 +152,7 @@ our %TYPE;
 my @AA;
 ## LOAD INFORMATION ABOUT WHAT TYPES OF RESIDUES ARE RECOGNIZED BY SMOG2
 #amino acids
-open(AMINO,"share/residues/aminoacids") or die "no amino acid file\n";
+open(AMINO,"share/residues/aminoacids") or internal_error("no amino acid file");
 my $AAn=0;
 while(<AMINO>){
  my $LINE=$_;
@@ -132,7 +165,7 @@ while(<AMINO>){
 
 
 #nucleic acids
-open(NUCLEIC,"share/residues/nucleicacids") or die "no nucleic acid file\n";
+open(NUCLEIC,"share/residues/nucleicacids") or internal_error("no nucleic acid file");
 my $NUCLEICn=0;
 my @NUCLEIC;
 while(<NUCLEIC>){
@@ -145,7 +178,7 @@ while(<NUCLEIC>){
 }
 
 #ligands
-open(LIGAND,"share/residues/ligands") or die "no nucleic acid file\n";
+open(LIGAND,"share/residues/ligands") or internal_error("no nucleic acid file");
 my $LIGANDn=0;
 my @LIGANDS;
 while(<LIGAND>){
@@ -157,8 +190,10 @@ while(<LIGAND>){
  $LIGANDn++;
 }
 
+my %numfield = ( 'default' => '2', 'default-userC' => '2', 'default-gaussian' => '2', 'default-gaussian-userC' => '2','cutoff' => '19', 'shadow' => '20',  'shadow-free' => '20', 'shadow-gaussian' => '20', 'cutoff-gaussian' => '19');
+
 #ions
-open(ION,"share/residues/ions") or die "no ion file\n";
+open(ION,"share/residues/ions") or internal_error("no ion file");
 my $IONn=0;
 my @IONS;
 while(<ION>){
@@ -175,13 +210,10 @@ while(<ION>){
 # we are a bit lazy, and will just use global variables
 my $FAIL_SYSTEM=0;
  
-# FAILLIST is a list of all the tests.
-# If you are developing and testing your own forcefield, which may not need to conform to certain checks, then you may want to disable some tests by  removing the test name from this list. However, do so at your own risk.
-our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','ONLY 1 ATOMTYPE','TOP FIELDS FOUND','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'ANGLE TYPES', 'ANGLE WEIGHTS', 'DUPLICATE BONDS', 'DUPLICATE ANGLES', 'ANGLE CONSISTENCY 1','ANGLE CONSISTENCY 2','ANGLE CONSISTENCY 3', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL CONSISTENCY 1','DIHEDRAL CONSISTENCY 2','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','GAUSSIAN CONTACT EXCLUDED VOLUME','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM MAP GENERATED','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY');
-
 
 # a number of global variables.
 our $default;
+our $usermap;
 our $gaussian;
 our $model;
 our $PDB;
@@ -200,6 +232,11 @@ our $epsilon;
 our $epsilonCAC;
 our $epsilonCAD;
 our $sigmaCA;
+our %massNB;
+our %chargeNB;
+our %C6NB;
+our %C12NB;
+our $chargeAT;
 our $FAILED;
 our @CID;
 our $DIH_MIN;
@@ -219,6 +256,8 @@ our @GRODATA;
 our @ATOMTYPE;
 our @RESNUM;
 our @MOLTYPE;
+our %MOLTYPEBYRES;
+our %restypecount;
 our $bondEps;
 our $bondMG;
 our $angleEps;
@@ -229,6 +268,8 @@ our $DENERGY;
 our @ED_T;
 our @EDrig_T;
 our $DISP_MAX=0;
+our $defname;
+our %defcharge;
 our $CONTENERGY;
 our ($theta_gen_N,$phi_gen_N,$improper_gen_N);
 #our ($NonstackingE,$stackingE);
@@ -236,28 +277,36 @@ our @XT;
 our @YT;
 our @ZT;
 our $bondtype6;
-
+our $type6count;
+our $fail_log;
+%defcharge = ('GLY-N' => "0.3", 'GLY-C' => "0.2", 'GLY-O' => "-0.5");
+my $NUMTESTED=0;
 my $SETTINGS_FILE=<STDIN>;
 chomp($SETTINGS_FILE);
-open(PARMS,"$SETTINGS_FILE") or die "The settings file is missing...\n";
+open(PARMS,"$SETTINGS_FILE") or internal_error("The settings file is missing...");
 my $TESTNUM=0;
 ## Run tests for each pdb
 while(<PARMS>){
  my $LINE=$_;
  chomp($LINE);
+ $LINE =~ s/\s+/ /g;
  $LINE =~ s/\s+$//;
+ $LINE =~ s/^\s+//;
+ $fail_log="";
  $FAILED=0;
- $LINE=$_;
- chomp($LINE);
- $LINE =~ s/\s+$//;
  my @A=split(/ /,$LINE);
  $PDB=$A[0];
  $TESTNUM++;
+ if($RETEST>0 && ($RETEST > $TESTNUM || $RETESTEND < $TESTNUM)){
+  next;
+ }
+ $NUMTESTED++;
  unless(-e "$PDB_DIR/$PDB.pdb"){
-  print "Unable to find PDB file $PDB_DIR/$PDB.pdb for testing.  Skipping this test\n";
+  print "Unable to find PDB file $PDB_DIR/$PDB.pdb for testing.  Skipping this test\n\n";
   $FAIL_SYSTEM++;
   next;
  }
+
   print "\n*************************************************************\n";
   print "                 STARTING TEST $TESTNUM ($PDB)\n";
   print "*************************************************************\n";
@@ -276,7 +325,10 @@ while(<PARMS>){
   undef  $epsilonCAC;
   undef  $epsilonCAD;
   undef  $sigmaCA;
-
+  # default is that we are not testing free
+  $free="no";
+  # default is to not read a contact map
+  $usermap="no";
 
  $model=$A[1];
  if($A[2] =~ m/^default$/){
@@ -286,6 +338,16 @@ while(<PARMS>){
   print "Will use gaussian contacts\n";
   $default="yes";
   $gaussian="yes";
+ }elsif($A[2] =~ m/^default-gaussian-userC$/){
+  print "Will use gaussian contacts with user-provided distances\n";
+  $default="yes";
+  $gaussian="yes";
+  $usermap="yes";
+ }elsif($A[2] =~ m/^default-userC$/){
+  print "Will use default settings with user-provided contact and distances\n";
+  $default="yes";
+  $gaussian="no";
+  $usermap="yes";
  }elsif($A[2] =~ m/^cutoff$/){
   print "Will use cutoff contacts\n";
   $default="no";
@@ -294,6 +356,12 @@ while(<PARMS>){
   print "Will use shadow contacts\n";
   $default="no";
   $gaussian="no";
+ }elsif($A[2] =~ m/^shadow-free$/){
+  print "Will use shadow contacts\n";
+  print "Checking use of \"free\" interactions\n";
+  $default="no";
+  $gaussian="no";
+  $free="yes";
  }elsif($A[2] =~ m/^shadow-gaussian$/ || $A[2] =~ m/^cutoff-gaussian$/){
   print "Will use gaussian contacts\n";
   $default="no";
@@ -301,6 +369,21 @@ while(<PARMS>){
  }else{
   smogcheck_error("Unknown contact option: \"$A[2]\"");
  }
+ if(!exists $numfield{$A[2]}){
+  internal_error("model $A[2] in all.pdbs is not recognized");
+ }
+ if($numfield{$A[2]} != $#A){
+  internal_error("all.pdbs has wrong number of entries for model $A[2]. Expected $numfield{$A[2]}, found $#A");
+ }
+ if($usermap eq "yes"){
+  unless(-e "$PDB_DIR/$PDB.contacts"){
+   print "Unable to find PDB file $PDB_DIR/$PDB.contacts for testing.  Skipping this test\n\n";
+   $FAIL_SYSTEM++;
+   next;
+  }
+ }
+
+
  if($model =~ m/CA/){
   print "Testing CA model\n";
  }elsif($model =~ m/AA/){
@@ -309,14 +392,11 @@ while(<PARMS>){
   smogcheck_error("Model name $model, not understood. Only CA and AA models are supported by the test script.");
  }
 # clean up the tracking for the next test
- foreach my $item(@FAILLIST){
-  $FAIL{$item}=1;
- }
-
+## %FAIL=%{
+ %FAIL=resettests(\%FAIL,\@FAILLIST);
  if($default eq "yes"){
-  print "checking default parameters\n";
+  print "Checking default parameters\n";
   # energy distributions
-
   ## Settings relevant for the default model
   $CONTTYPE="shadow";
   $CONTD=6.0;
@@ -334,13 +414,20 @@ while(<PARMS>){
   $epsilonCAD=1.0;
   $sigmaCA=4.0;
  }else{
-  print "checking non-default parameters for SMOG models\n";
+  print "Checking non-default parameters for SMOG models\n";
   my $ARG=2;
   # energy distributions
   # map type
   $CONTTYPE=$A[$ARG];
   $ARG++;
   if($CONTTYPE =~ m/^shadow$/){
+   print "Will generate and use a shadow map\n";
+   $CONTD=$A[$ARG];
+   $ARG++;
+   $CONTR=$A[$ARG];
+   $ARG++;
+   $BBRAD=0.5;
+  }elsif($CONTTYPE =~ m/^shadow-free$/){
    print "Will generate and use a shadow map\n";
    $CONTD=$A[$ARG];
    $ARG++;
@@ -370,8 +457,6 @@ while(<PARMS>){
    smogcheck_error("Contact scheme $CONTTYPE is not supported. Is there a typo in $PDB_DIR/$PDB.pdb?");
   }
 
-   #if shadow, read length and size
-  # if cutoff, just read length
   $R_CD=$A[$ARG];
    $ARG++;
   $R_P_BB_SC=$A[$ARG];
@@ -394,9 +479,16 @@ while(<PARMS>){
   $epsilonCAD=$A[$ARG];
    $ARG++;
   $sigmaCA=$A[$ARG];
-  if(!exists $A[$ARG]){
-   smogcheck_error("Insufficient number of arguments given in settings file for smog-check.");
-  }
+   $ARG++;
+  $massNB{'NB_2'}=$A[$ARG];
+   $ARG++;
+  $chargeNB{'NB_2'}=$A[$ARG];
+   $ARG++;
+  $C6NB{'NB_2'}=$A[$ARG];
+   $ARG++;
+  $C12NB{'NB_2'}=$A[$ARG];
+   $ARG++;
+  $chargeAT=$A[$ARG];
  }
 
  if($model =~ m/CA/){
@@ -420,93 +512,141 @@ while(<PARMS>){
 
  # If any systems failed, output message
  if($FAIL_SYSTEM > 0){
-  print "\n*************************************************************\n";
-  print "             TESTS FAILED: CHECK MESSAGES ABOVE  !!!\n";
-  print "*************************************************************\n";
- 
- }else{
-  print "\n*************************************************************\n";
-  print "                      PASSED ALL TESTS  !!!\n";
-  print "*************************************************************\n";
+  print <<EOT;
+*************************************************************
+             TESTS FAILED: CHECK MESSAGES ABOVE  !!!
+************************************************************* 
+EOT
+  exit(1);
+ }elsif($NUMTESTED == 0){
+  print <<EOT;
+*************************************************************
+                      NO TESTS PERFORMED !!!
+*************************************************************
+EOT
+  exit(1);
+ }elsif($RETEST < 0){
+  print <<EOT;
+*************************************************************
+                      PASSED ALL TESTS  !!!
+*************************************************************
+EOT
+  exit(0);
+ }elsif($RETEST > 0){
+  if($RETESTEND != -1){
+  print <<EOT;
+*************************************************************
+                 PASSED TESTS $RETEST to $RETESTEND  !!!
+*************************************************************
+EOT
+  }
+  exit(0);
  }
 
-sub smogchecker
+sub runsmog
 {
+ my $ARGS=" -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts";
 
- &preparesettings;
- 
- # RUN SMOG2
+# prepare the flags
  if($default eq "yes"){
   if($model eq "CA" && $gaussian eq "no"){
-   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -CA &> $PDB.output`;
+   $ARGS .= " -CA";
   }elsif($model eq "CA" && $gaussian eq "yes"){
-   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -CAgaussian &> $PDB.output`;
+   $ARGS .= " -CAgaussian";
   }elsif($model eq "AA" &&  $gaussian eq "no"){
-   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -AA &> $PDB.output`;
+   $ARGS .= " -AA";
   }elsif($model eq "AA" &&  $gaussian eq "yes"){
-   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -AAgaussian &> $PDB.output`;
+   $ARGS .= " -AAgaussian";
   }else{
    smogcheck_error("unrecognized model.");
   }
  }else{
   if($model eq "CA"){
-   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -tCG temp.bifsif/  -t temp.cont.bifsif &> $PDB.output`;
+   $ARGS .= " -tCG temp.bifsif/  -t temp.cont.bifsif";
   }elsif($model eq "AA"){
-   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -t temp.bifsif/  &> $PDB.output`;
+   $ARGS .= " -t temp.bifsif/ ";
   }else{
    smogcheck_error("unrecognized model.");
   }
  }
+ if($usermap eq "yes"){
+   $ARGS .= " -c $PDB_DIR/$PDB.contacts ";
+ }
+# run smog2
+ `$EXEC_NAME $ARGS &> $PDB.output`;
+}
 
+
+sub checkSCM
+{
  if($model eq "AA"){
+  my $SHADOWARGS="-g $PDB.gro -t $PDB.top -ch $PDB.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD";
   if($default eq "yes"){
-   `java -jar $SCM  -g $PDB.gro -t $PDB.top -ch $PDB.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD -bif $BIFSIF_AA/AA-whitford09.bif &> $PDB.meta2.output`;
+   $SHADOWARGS .= " -bif $BIFSIF_AA/AA-whitford09.bif";
   }elsif($default eq "no"){
-   `java -jar $SCM  -g $PDB.gro -t $PDB.top -ch $PDB.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD -bif temp.bifsif/tmp.bif  &> $PDB.meta2.output`;
+   $SHADOWARGS .= " -bif temp.bifsif/tmp.bif";
   }else{
    internal_error('SCM DEFAULT TESTING');
   }
+  `java -jar $SCM $SHADOWARGS &> $PDB.meta2.output`;
 
-# check that the same contact map is generated
-  my $CONTDIFF=`diff $PDB.contacts $PDB.contacts.SCM | wc -l`;
-   if($CONTDIFF == 0){
-    $FAIL{'SCM CONTACT COMPARISON'}=0;
-   }
  }elsif($model eq "CA"){
   # run AA model to get top
-   `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.meta1.gro -o $PDB.meta1.top -n $PDB.meta1.ndx -s $PDB.meta1.contacts -t $BIFSIF_AA  &> $PDB.meta1.output`;
+  `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.meta1.gro -o $PDB.meta1.top -n $PDB.meta1.ndx -s $PDB.meta1.contacts -t $BIFSIF_AA  &> $PDB.meta1.output`;
+
+  my $SHADOWARGS="-g $PDB.meta1.gro -t $PDB.meta1.top -ch $PDB.meta1.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD";
+
   if($default eq "yes"){
-   `java -jar $SCM -g $PDB.meta1.gro -t $PDB.meta1.top -ch $PDB.meta1.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD -bif $BIFSIF_AA/AA-whitford09.bif  &> $PDB.meta3.output`;
+   $SHADOWARGS .= " -bif $BIFSIF_AA/AA-whitford09.bif";
   }elsif($default eq "no"){
-   `java -jar $SCM -g $PDB.meta1.gro -t $PDB.meta1.top -ch $PDB.meta1.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD -bif temp.cont.bifsif/tmp.cont.bif  &> $PDB.meta3.output`;
+   $SHADOWARGS .= " -bif temp.cont.bifsif/tmp.cont.bif";
   }else{
    internal_error('SCM CA DEFAULT TESTING');
   }
 
   # run SCM to get map
-  my $CONTDIFF=`diff $PDB.contacts $PDB.contacts.SCM | wc -l`;
-   if($CONTDIFF == 0){
-    $FAIL{'SCM CONTACT COMPARISON'}=0;
-   }
+  `java -jar $SCM $SHADOWARGS &> $PDB.meta3.output`;
  }
 
+ # check that the same contact map is generated
+ my $CONTDIFF=filediff("$PDB.contacts","$PDB.contacts.SCM");
+ if($CONTDIFF == 0){
+  $FAIL{'SCM CONTACT COMPARISON'}=0;
+ }elsif($usermap eq "yes"){
+  $FAIL{'SCM CONTACT COMPARISON'}=-1;
+ }
  if(-e "$PDB.contacts.SCM"){
   $FAIL{'SCM MAP GENERATED'}=0;
+ } 
+}
+
+sub smogchecker
+{
+
+ &cleanoldfiles;
+ &preparesettings;
+ print "Running SMOG 2\n";
+ &runsmog; 
+
+ ($FAIL{'NON-ZERO EXIT'},$FAIL{'UNINITIALIZED VARIABLES'})=checkoutput("$PDB.output");
+
+ if($FAIL{'UNINITIALIZED VARIABLES'} == 1){
+  $fail_log .= failed_message("SMOG 2 encountered uninitialized variables.");
  }
 
- my $FATAL=`grep 'FATAL ERROR' $PDB.output | wc -l | awk '{print \$1}'`;
- if($FATAL == 0){
-  print "SMOG 2 successfully completed.\n\n";
+ if($FAIL{'NON-ZERO EXIT'} == 0){
+  print "SMOG 2 exited without an error.\nAssessing generated files...\n";
   # CHECK THE OUTPUT
+  &checkSCM;
   &checkgro; 
   &checkndx;
   &readtop;
   &checkvalues;
  }else{
-  print "\nERROR: SMOG 2 encountered a FATAL ERROR when trying to process this PDB file.\n";
+  $fail_log .= failed_message("SMOG 2 exited with non-zero exit code when trying to process this PDB file.");
   $FAIL_SYSTEM++;
  }
- &summary($FATAL); 
+ &summary; 
 }
 
 sub checkgro
@@ -575,12 +715,14 @@ sub checkgro
  my $DX=$XMAX-$XMIN+2;
  my $DY=$YMAX-$YMIN+2;
  my $DZ=$ZMAX-$ZMIN+2;
- $DX=int(($DX * $PRECISION/10.0))/($PRECISION*0.1);
- $DY=int(($DY * $PRECISION/10.0))/($PRECISION*0.1);
- $DZ=int(($DZ * $PRECISION/10.0))/($PRECISION*0.1);
- if(abs($BOUNDS[0]-$DX) > $TOLERANCE || abs($BOUNDS[1] - $DY) > $TOLERANCE || abs($BOUNDS[2] - $DZ) > $TOLERANCE ){
-  print "Gro box size inconsistent\n";
-  print "$BOUNDS[0], $XMAX, $XMIN,$BOUNDS[1],$YMAX,$YMIN,$BOUNDS[2],$ZMAX,$ZMIN\n";
+ $DX=int($DX * $PRECISION/10.0)/($PRECISION*0.1);
+ $DY=int($DY * $PRECISION/10.0)/($PRECISION*0.1);
+ $DZ=int($DZ * $PRECISION/10.0)/($PRECISION*0.1);
+ my $t1=int(abs($BOUNDS[0]-$DX)* $PRECISION/10.0)/($PRECISION*0.1);
+ my $t2=int(abs($BOUNDS[1]-$DY)* $PRECISION/10.0)/($PRECISION*0.1);
+ my $t3=int(abs($BOUNDS[2]-$DZ)* $PRECISION/10.0)/($PRECISION*0.1);
+ if($t1 > $TOLERANCE || $t2 > $TOLERANCE || $t3 > $TOLERANCE ){
+  $fail_log .= failed_message("Gro box size inconsistent\n\t$BOUNDS[0],$XMAX,$XMIN,$BOUNDS[1],$YMAX,$YMIN,$BOUNDS[2],$ZMAX,$ZMIN,$t1,$t2,$t3");
  }else{
   $FAIL{'BOX DIMENSIONS'}=0;
  }
@@ -588,42 +730,52 @@ sub checkgro
 
 sub preparesettings
 {
- # make a settings file...
- open(READSET,">$PDB.settings") or die  "can not open settings file\n";
- printf READSET ("%s.pdb\n", $PDB);
- printf READSET ("%s.top\n", $PDB);
- if(-e "$PDB.top"){
-  `rm $PDB.top`;
- }
- if(-e "$PDB.gro"){
-  `rm $PDB.gro`;
- }
- if(-e "$PDB.ndx"){
-  `rm $PDB.ndx`;
- }
- printf READSET ("%s.gro\n", $PDB);
- printf READSET ("%s.ndx\n", $PDB);
- printf READSET ("%s\n", "All-Atom");
- # do not upload a contact file.
- printf READSET ("R_CD %s\n", $R_CD);
- printf READSET ("R_P_BB_SC %s\n", $R_P_BB_SC);
- printf READSET ("R_N_SC_BB %s\n", $R_N_SC_BB);
- printf READSET ("PRO_DIH %s\n", $PRO_DIH);
- printf READSET ("NA_DIH %s\n", $NA_DIH);
- printf READSET ("LIGAND_DIH %s\n", $LIGAND_DIH);
- printf READSET ("sigma %s\n", $sigma); 
- printf READSET ("epsilon %s\n", $epsilon);
- printf READSET ("epsilonCAC %s\n", $epsilonCAC);
- printf READSET ("epsilonCAD %s\n", $epsilonCAD);
- printf READSET ("sigmaCA %s\n", $sigmaCA);
+ # make a log of the settings being used for this test
+ my $templateAA="AA-whitford09";
+ my $templateCA="CA-clementi00";
+my $string = <<"EOT";
+Here are the settings used for this test
+$PDB.pdb
+$PDB.top
+$PDB.gro
+$PDB.ndx
+All-Atom
+R_CD 	   $R_CD
+R_P_BB_SC  $R_P_BB_SC
+R_N_SC_BB  $R_N_SC_BB
+PRO_DIH    $PRO_DIH
+NA_DIH     $NA_DIH
+LIGAND_DIH $LIGAND_DIH
+sigma 	   $sigma 
+epsilon    $epsilon
+epsilonCAC $epsilonCAC
+epsilonCAD $epsilonCAD
+sigmaCA    $sigmaCA
+EOT
+ open(READSET,">$PDB.settings") or internal_error("can not open settings file");
+ print READSET "$string";
  close(READSET);
  if($model eq "CA"){
   $sigmaCA=$sigmaCA/10.0;
   $rep_s12=$sigmaCA**12;
+  if($default eq "yes"){
+   $defname="NB_1";
+  }else{
+   $defname="Y";
+  }
+  $C12NB{$defname}=$rep_s12;
+  $C6NB{$defname}=0;
+  $massNB{$defname}=1.0;
+  $chargeNB{$defname}=0.0;
   $sigmaCA=$sigmaCA*10.0;
  }elsif($model eq "AA"){
   $sigma=$sigma/10;
   $rep_s12=$sigma**12*$epsilon;
+   $defname="NB_1";
+  $C12NB{$defname}=$rep_s12;
+  $C6NB{$defname}=0;
+  $massNB{$defname}=1.0;
+  $chargeNB{$defname}=0.0;
   $sigma=$sigma*10;
  }else{
   smogcheck_error("unknown model type.");
@@ -636,7 +788,6 @@ sub preparesettings
   `rm -r temp.cont.bifsif`;
  }
 
-#GAUSS ADD
  if($model eq "CA" && $default ne "yes"){
   `mkdir temp.bifsif temp.cont.bifsif`;
   my $PARM_P_BB=$PRO_DIH;
@@ -644,23 +795,22 @@ sub preparesettings
   my $PARM_N_BB=$NA_DIH;
   my $PARM_N_SC=$NA_DIH*$R_N_SC_BB;
   my $epsilonCAD3=$epsilonCAD/2.0;
-  `sed "s/EPS_CONT/$epsilonCAC/g;s/EPS_DIH/$epsilonCAD/g;s/EPS_dih3/$epsilonCAD3/g" $TEMPLATE_DIR_CA/*.sif > temp.bifsif/tmp.sif`;
+  `sed "s/EPS_CONT/$epsilonCAC/g;s/EPS_DIH/$epsilonCAD/g;s/EPS_dih3/$epsilonCAD3/g" $TEMPLATE_DIR_CA/$templateCA.sif > temp.bifsif/tmp.sif`;
   `sed "s/PARM_C12/$rep_s12/g;s/EPS_CONT/$epsilonCAC/g" $TEMPLATE_DIR_CA/*.nb > temp.bifsif/tmp.nb`;
-  `sed "s/EPS_CONT/$epsilonCAC/g;s/EPS_DIH/$epsilonCAD/g;s/EPS_dih3/$epsilonCAD3/g" $TEMPLATE_DIR_CA/*.b > temp.bifsif/tmp.b`;
-  `cp $TEMPLATE_DIR_CA/*.bif temp.bifsif/tmp.bif`;
+  `sed "s/EPS_CONT/$epsilonCAC/g;s/EPS_DIH/$epsilonCAD/g;s/EPS_dih3/$epsilonCAD3/g" $TEMPLATE_DIR_CA/$templateCA.b > temp.bifsif/tmp.b`;
+  `cp $TEMPLATE_DIR_CA/$templateCA.bif temp.bifsif/tmp.bif`;
 
-  `cp $TEMPLATE_DIR_AA_STATIC/*.bif temp.cont.bifsif/tmp.cont.bif`;
-  `cp $TEMPLATE_DIR_AA_STATIC/*.nb temp.cont.bifsif/tmp.cont.nb`;
-  `cp $TEMPLATE_DIR_AA_STATIC/*.b temp.cont.bifsif/tmp.cont.b`;
+  `cp $TEMPLATE_DIR_AA_STATIC/$templateAA.bif temp.cont.bifsif/tmp.cont.bif`;
+  `cp $TEMPLATE_DIR_AA_STATIC/$templateAA.nb temp.cont.bifsif/tmp.cont.nb`;
+  `cp $TEMPLATE_DIR_AA_STATIC/$templateAA.b temp.cont.bifsif/tmp.cont.b`;
   if($CONTTYPE eq "shadow"){
-   `sed "s/CUTDIST/$CONTD/g;s/SCM_R/$CONTR/g;s/SCM_BR/$BBRAD/g" $TEMPLATE_DIR_AA_STATIC/*.shadow.sif > temp.cont.bifsif/tmp.cont.sif`;
+   `sed "s/CUTDIST/$CONTD/g;s/SCM_R/$CONTR/g;s/SCM_BR/$BBRAD/g" $TEMPLATE_DIR_AA_STATIC/$templateAA.shadow.sif > temp.cont.bifsif/tmp.cont.sif`;
   }elsif($CONTTYPE eq "cutoff"){
-   `sed "s/CUTDIST/$CONTD/g" $TEMPLATE_DIR_AA_STATIC/*.cutoff.sif > temp.cont.bifsif/tmp.cont.sif`;
+   `sed "s/CUTDIST/$CONTD/g" $TEMPLATE_DIR_AA_STATIC/$templateAA.cutoff.sif > temp.cont.bifsif/tmp.cont.sif`;
   }
-
+ CheckTemplatesCreated("temp.cont.bifsif","tmp.cont");
  } 
 
-#GAUSS ADD
  if($model eq "AA" && $default ne "yes"){
   `mkdir temp.bifsif`;
   my $PARM_P_BB=$PRO_DIH;
@@ -668,22 +818,32 @@ sub preparesettings
   my $PARM_N_BB=$NA_DIH;
   my $PARM_N_SC=$NA_DIH*$R_N_SC_BB;
   if($CONTTYPE eq "shadow"){
-   `sed "s/PARM_C_D/$R_CD/g;s/PARM_P_BB/$PARM_P_BB/g;s/PARM_P_SC/$PARM_P_SC/g;s/PARM_N_BB/$PARM_N_BB/g;s/PARM_N_SC/$PARM_N_SC/g;s/CUTDIST/$CONTD/g;s/SCM_R/$CONTR/g;s/SCM_BR/$BBRAD/g" $TEMPLATE_DIR_AA/*.shadow.sif > temp.bifsif/tmp.sif`;
+   `sed "s/PARM_C_D/$R_CD/g;s/PARM_P_BB/$PARM_P_BB/g;s/PARM_P_SC/$PARM_P_SC/g;s/PARM_N_BB/$PARM_N_BB/g;s/PARM_N_SC/$PARM_N_SC/g;s/CUTDIST/$CONTD/g;s/SCM_R/$CONTR/g;s/SCM_BR/$BBRAD/g" $TEMPLATE_DIR_AA/$templateAA.shadow.sif > temp.bifsif/tmp.sif`;
+  }elsif($CONTTYPE eq "shadow-free"){
+   `sed "s/PARM_C_D/$R_CD/g;s/PARM_P_BB/$PARM_P_BB/g;s/PARM_P_SC/$PARM_P_SC/g;s/PARM_N_BB/$PARM_N_BB/g;s/PARM_N_SC/$PARM_N_SC/g;s/CUTDIST/$CONTD/g;s/SCM_R/$CONTR/g;s/SCM_BR/$BBRAD/g" $TEMPLATE_DIR_AA/$templateAA.shadow.free.sif > temp.bifsif/tmp.sif`;
   }elsif($CONTTYPE eq "cutoff"){
-   `sed "s/PARM_C_D/$R_CD/g;s/PARM_P_BB/$PARM_P_BB/g;s/PARM_P_SC/$PARM_P_SC/g;s/PARM_N_BB/$PARM_N_BB/g;s/PARM_N_SC/$PARM_N_SC/g;s/CUTDIST/$CONTD/g" $TEMPLATE_DIR_AA/*.cutoff.sif > temp.bifsif/tmp.sif`;
+   `sed "s/PARM_C_D/$R_CD/g;s/PARM_P_BB/$PARM_P_BB/g;s/PARM_P_SC/$PARM_P_SC/g;s/PARM_N_BB/$PARM_N_BB/g;s/PARM_N_SC/$PARM_N_SC/g;s/CUTDIST/$CONTD/g" $TEMPLATE_DIR_AA/$templateAA.cutoff.sif > temp.bifsif/tmp.sif`;
   }
-  `sed "s/PARM_C12/$rep_s12/g" $TEMPLATE_DIR_AA/*.nb > temp.bifsif/tmp.nb`;
-  `cp $TEMPLATE_DIR_AA/*.bif temp.bifsif/tmp.bif`;
-  `cp $TEMPLATE_DIR_AA/*.b temp.bifsif/tmp.b`;
+  `sed "s/PARM_MASS/$massNB{'NB_2'}/g;s/PARM_chargeNB/$chargeNB{'NB_2'}/g;s/PARM_C6_2/$C6NB{'NB_2'}/g;s/PARM_C12_2/$C12NB{'NB_2'}/g;s/PARM_C12/$C12NB{$defname}/g" $TEMPLATE_DIR_AA/$templateAA.nb > temp.bifsif/tmp.nb`;
+
+  if($CONTTYPE eq "shadow-free"){
+   `sed "s/PARM_MASS/$massNB{'NB_2'}/g;s/PARM_chargeNB/$chargeNB{'NB_2'}/g;s/PARM_C6_2/$C6NB{'NB_2'}/g;s/PARM_C12_2/$C12NB{'NB_2'}/g;s/PARM_C12/$C12NB{$defname}/g" $TEMPLATE_DIR_AA/$templateAA.free.nb > temp.bifsif/tmp.nb`;
+   `cp $TEMPLATE_DIR_AA/$templateAA.free.bif temp.bifsif/tmp.bif`;
+   `cp $TEMPLATE_DIR_AA/$templateAA.free.b temp.bifsif/tmp.b`;
+  }else{
+   `sed "s/PARM_MASS/$massNB{'NB_2'}/g;s/PARM_chargeNB/$chargeNB{'NB_2'}/g;s/PARM_C6_2/$C6NB{'NB_2'}/g;s/PARM_C12_2/$C12NB{'NB_2'}/g;s/PARM_C12/$C12NB{$defname}/g" $TEMPLATE_DIR_AA/$templateAA.nb > temp.bifsif/tmp.nb`;
+   `cp $TEMPLATE_DIR_AA/$templateAA.bif temp.bifsif/tmp.bif`;
+   `cp $TEMPLATE_DIR_AA/$templateAA.b temp.bifsif/tmp.b`;
+  }
+  CheckTemplatesCreated("temp.bifsif","tmp");
  }
 }
 
 
 sub checkndx
 {
-
- open(NDX,"$PDB.ndx") or die " $PDB.ndx can not be opened...\n";
- open(NDX2,">$PDB.ndx2") or die " $PDB.ndx2 can not be opened...\n";
+ open(NDX,"$PDB.ndx") or internal_error(" $PDB.ndx can not be opened...");
+ open(NDX2,">$PDB.ndx2") or internal_error(" $PDB.ndx2 can not be opened...");
  while(<NDX>){
   my $LINE=$_;
   chomp($LINE);
@@ -703,7 +863,7 @@ sub checkndx
  close(NDX);
  close(NDX2);
  `mv $PDB.ndx2 $PDB.ndx`;
- open(NDX,"$PDB.ndx") or die "no ndx file\n"; 
+ open(NDX,"$PDB.ndx") or internal_error("no ndx file"); 
  my $CHAIN;
  while(<NDX>){
   my $LINE=$_;        
@@ -724,38 +884,31 @@ sub checkndx
 
 sub readtop
 {
-
  my %FOUND;
  $DIH_MIN=100000000;
  $DIH_MAX=-100000000;
  $NCONTACTS=0;
  # clean up top file for easy parsing later
- open(TOP,"$PDB.top") or die " $PDB.top can not be opened...\n";
- open(TOP2,">$PDB.top2") or die " $PDB.top can not be opened...\n";
+ open(TOP,"$PDB.top") or internal_error(" $PDB.top can not be opened...");
+ my $topNlines=0;
+ my @topdata;
  while(<TOP>){
   my $LINE=$_;
   chomp($LINE);
-  $LINE =~ s/^\s+|^\t+//g;
-  if($LINE =~ m/^;/){
+  my ($A,$B)=checkcomment($LINE);
+  if($A eq ""){
    next;
   }
-  $LINE =~ s/;.*$//g;
-  $LINE =~ s/\t/ /g;
-  $LINE =~ s/\s+$//g;
-  $LINE =~ s/\s+/ /g;
-  if($LINE eq ""){
-   next;
-  }
-  print TOP2 "$LINE\n";
+  $topdata[$topNlines]=$A;
+  $topNlines++;
  }
  close(TOP);
- close(TOP2);
- `mv $PDB.top2 $PDB.top`;
- open(TOP,"$PDB.top") or die " $PDB.top can not be opened...\n";
  $NUCLEIC_PRESENT=0;
  $AMINO_PRESENT=0;
  $LIGAND_PRESENT=0;
  $ION_PRESENT=0;
+ undef %MOLTYPEBYRES;
+ undef %restypecount;
  my @theta_gen;
  my @PAIRS;
  my %dihedral_array1;
@@ -781,30 +934,29 @@ sub readtop
  my @A;
  my $stackingE=0;
  my $NonstackingE=0;
- while(<TOP>){
-  my $LINE=$_;
-  chomp($LINE);
+ my $LN=0;
+ while($LN<$topNlines){
+  my $LINE=$topdata[$LN];$LN++;
   @A=split(/ /,$LINE);
   if(exists $A[1]){
    if($A[1] eq "defaults"){
     $FOUND{'defaults'}++;
-    $LINE=<TOP>;
-    chomp($LINE);
+    $LINE=$topdata[$LN];$LN++;
     @A=split(/ /,$LINE);
     if($A[0] == 1){
      $FAIL{'DEFAULTS, nbfunc'}=0; 
     }else{
-     print "default nbfunc is not correctly set.\n";
+     $fail_log .= failed_message("default nbfunc is not correctly set.");
     }
     if($A[1] == 1){
      $FAIL{'DEFAULTS, comb-rule'}=0; 
     }else{
-     print "default comb-rule is not correctly set.\n";
+     $fail_log .= failed_message("default comb-rule is not correctly set.");
     }
     if($A[2] eq "no"){
      $FAIL{'DEFAULTS, gen-pairs'}=0; 
     }else{
-     print "default gen-pairs is not correctly set.\n";
+     $fail_log .= failed_message("default gen-pairs is not correctly set.");
     }
    }
   }
@@ -812,8 +964,7 @@ sub readtop
    if($A[1] eq "atomtypes"){
     $FOUND{'atomtypes'}++;
     $#A = -1;
-    $LINE=<TOP>;
-    chomp($LINE);
+    $LINE=$topdata[$LN];$LN++;
     @A=split(/ /,$LINE);
     my %seen;
     my $numtypes=0;
@@ -839,24 +990,25 @@ sub readtop
       my $T=$A[0];
       smogcheck_error("Only letters, numbers and _ can appear in atomtype names. atomtype $T found.");
      }
-     if($A[1] == 1){
+     if($A[1] > $MINTHR*$massNB{$A[0]} && $A[1] < $MAXTHR*$massNB{$A[0]}){
       $mass1++;
      }
-     if($A[2] == 0){
+     if($A[2] >= $MINTHR*$chargeNB{$A[0]} && $A[2] <= $MAXTHR*$chargeNB{$A[0]} && $chargeNB{$A[0]} >= 0){
+      $charge1++;
+     }elsif($A[2] <= $MINTHR*$chargeNB{$A[0]} && $A[2] >= $MAXTHR*$chargeNB{$A[0]} && $chargeNB{$A[0]} < 0){
       $charge1++;
      }
      if($A[3] eq "A"){
       $particle1++;
      }
-     if($A[4] == 0.0){
+     if($A[4] >= $MINTHR*$C6NB{$A[0]} && $A[4] <= $MAXTHR*$C6NB{$A[0]}){
       $c61++
      }
-     if($A[5] > $MINTHR*$rep_s12 && $A[5] < $MAXTHR*$rep_s12){
+     if($A[5] > $MINTHR*$C12NB{$A[0]} && $A[5] < $MAXTHR*$C12NB{$A[0]}){
       $excl1++;
      }
      $#A = -1;
-     $LINE=<TOP>;
-     last unless defined $LINE;
+     $LINE=$topdata[$LN];$LN++;
      @A=split(/ /,$LINE);
     }
     if($numtypes == $mass1 and $mass1 !=0){
@@ -877,9 +1029,6 @@ sub readtop
     if($numtypes == $typesunique and $typesunique !=0){
      $FAIL{'ATOMTYPES UNIQUE'}=0;
     }
-    if($numtypes ==1){
-     $FAIL{'ONLY 1 ATOMTYPE'}=0;
-    }
     if($numtypes == $acceptablenames and $acceptablenames !=0){
      $FAIL{'ALPHANUMERIC ATOMTYPES'}=0;
     }
@@ -889,18 +1038,17 @@ sub readtop
    # check the excluded volume is consistent with the settings.
    if($A[1] eq "moleculetype"){
     $FOUND{'moleculetype'}++;
-    my $LINE=<TOP>;
-    chomp($LINE); 
+    $LINE=$topdata[$LN];$LN++;
     @A=split(/ /,$LINE);
     if($A[0] eq "Macromolecule"){
      $FAIL{'moleculetype=Macromolecule'}=0;
     }else{
-     print "default molecule name is off.\n";
+     $fail_log .= failed_message("default molecule name is different than expected");
     }
     if($A[1] == 3){
      $FAIL{'nrexcl=3'}=0;
     }else{
-     print "nrexcl is not set to 3.\n";
+     $fail_log .=failed_message("nrexcl is not set to 3.");
     }
    }
   } 
@@ -910,9 +1058,11 @@ sub readtop
    if($A[1] eq "atoms"){
     $FOUND{'atoms'}++;
     $NUMATOMS=0;
+    my $fieldnum=0;
+    my $atomcharge=0;
     $NUMATOMS_LIGAND=0;
     $#A = -1;
-    $LINE=<TOP>;
+    $LINE=$topdata[$LN];$LN++;
     @A=split(/ /,$LINE);
     until($A[0] eq "["){
     # atom name
@@ -925,6 +1075,22 @@ sub readtop
      }
      if($A[0] != $GRODATA[$NUMATOMS][3]){
       $FAIL_GROTOP++;
+     }
+     if(exists $defcharge{"$A[3]-$A[4]"} && $#A==6){
+      $fieldnum++;
+      # check charge
+      if($defcharge{"$A[3]-$A[4]"} == $A[6]){
+       $atomcharge++;
+      }else{
+       $fail_log .= failed_message("atom has wrong charge\t$LINE");
+      }
+     }elsif(!exists $defcharge{"$A[3]-$A[4]"} && $#A==5){
+      $fieldnum++;
+      $atomcharge++;
+     }elsif($default eq "yes" && $#A==5){
+      $fieldnum++;
+     }else{
+      $fail_log .= failed_message("atom has wrong number of fields\t$LINE");
      }
 
     if($A[4] ne $GRODATA[$NUMATOMS][2]){
@@ -950,7 +1116,12 @@ sub readtop
      my $label=sprintf("%i-%s", $A[2], $A[4]);
      $revData{$label}=$A[0];
     # nucleic acid, protein, ligand
-     $MOLTYPE[$A[0]]=$TYPE{$A[3]};
+     if(defined $TYPE{$A[3]}){
+      $MOLTYPE[$A[0]]=$TYPE{$A[3]};
+      $MOLTYPEBYRES{$A[2]}=$TYPE{$A[3]};
+     }else{
+      internal_error("there is an unrecognized residue name at $A[0] $A[3]");
+     }
      # see if there are any amino acids, na, or ligands in the system.
      if($MOLTYPE[$A[0]] eq "AMINO"){
       $AMINO_PRESENT=1;
@@ -962,22 +1133,30 @@ sub readtop
       $LIGAND_PRESENT=1;
      }elsif($MOLTYPE[$A[0]] eq "ION"){
       $ION_PRESENT=1;
-     }else{
-      print "there is an unrecognized residue name (This should never happen).\n";
-      print "$A[0] $A[3]\n";
-      internal_error("$A[0] $A[3]");
      }
      $NUMATOMS++;
      $#A = -1;
-     $LINE=<TOP>;
-     last unless defined $LINE;
+     $LINE=$topdata[$LN];$LN++;
      @A=split(/ /,$LINE);
     }
-   if($FAIL_GROTOP ==0){
-    $FAIL{'GRO-TOP CONSISTENCY'}=0;
+    if($FAIL_GROTOP ==0){
+     $FAIL{'GRO-TOP CONSISTENCY'}=0;
+    }
+    if($fieldnum == $NUMATOMS){
+     $FAIL{'ATOM FIELDS'}=0;
+    }
+    if($atomcharge == $NUMATOMS){
+     $FAIL{'ATOM CHARGES'}=0;
+    }
+    if($default eq "yes"){
+     $FAIL{'ATOM CHARGES'}=-1;
+    }
+   # count the number of amino residue, nucleic residues, ligand residues and ions
+    foreach my $rest(keys %MOLTYPEBYRES){
+     $restypecount{$MOLTYPEBYRES{$rest}}++;
+    }
    }
-   }
-  } 
+  }
   if(exists $A[1]){  
    # read the bonds.  Make sure they are not assigned twice.  Also, save the bonds, so we can generate all possible bond angles later.
    if($A[1] eq "bonds"){
@@ -991,6 +1170,7 @@ sub readtop
     $#NbondWatom = -1;
     my $doublebond=0;
     $bondtype6=0;
+    $type6count=0;
     my $Nbonds=0;
     my %bond_array;
     undef %bond_array;
@@ -1001,15 +1181,14 @@ sub readtop
     for (my $I=1;$I<=$NUMATOMS;$I++){
        $NbondWatom[$I]=0;
     }
-    $LINE=<TOP>;
+    $LINE=$topdata[$LN];$LN++;
     @A=split(/ /,$LINE);
     until($A[0] eq "["){
      $NBONDS++;
      if($A[2] == 1){
       $RECOGNIZEDBTYPES++;
       if($A[4] != $bondEps){
-       print "bond has incorrect weight\n";
-       print "$LINE";
+       $fail_log .= failed_message("bond has incorrect weight\n\t$LINE");
       }else{
        $CORRECTBONDWEIGHTS++;
       }		
@@ -1034,28 +1213,34 @@ sub readtop
       ## bond has already been assigned.
        $doublebond++;
       }
-     }elsif($A[2] ==6){
+     }elsif($A[2] == 6){
       $RECOGNIZEDBTYPES++;
       $bondtype6++;
+      if($ATOMNAME[$A[0]] eq "BMG" or $ATOMNAME[$A[1]] eq "BMG"){
+       $type6count++; 
+      }else{
+       $fail_log .= failed_message("type 6 bond between non-BMG atoms: $ATOMNAME[$A[0]] $A[0], and $ATOMNAME[$A[1]] $A[1].");
+      } 
        if($A[4] != $bondMG){
-        print "BMG bond has incorrect weight\n";
-        print "$LINE";
+        $fail_log .= failed_message("BMG bond has incorrect weight\n\t$LINE");
        }else{
        $CORRECTBONDWEIGHTS++;
       }		
      }else{
-       print "unknown function type for bond\n";
-       print "$LINE";
+      $fail_log .= failed_message("unknown function type for bond\n\t$LINE");
      }
-     $LINE=<TOP>;
-     last unless defined $LINE;
+     $LINE=$topdata[$LN];$LN++;
      @A=split(/ /,$LINE);
     }
 
     if($doublebond ==0){
      $FAIL{'DUPLICATE BONDS'}=0;
     }
-
+    if($bondtype6 == 0){
+     $FAIL{'TYPE6 ATOMS'}=-1;
+    }elsif($bondtype6 == $type6count){
+     $FAIL{'TYPE6 ATOMS'}=0;
+    }
     if($RECOGNIZEDBTYPES == $NBONDS && $NBONDS !=0){
      $FAIL{'SUPPORTED BOND TYPES'}=0;
     }
@@ -1101,6 +1286,16 @@ sub readtop
         }else{
          $string=sprintf("%i-%i-%i", $theta3, $theta2, $theta1);
         }
+        if($free eq "yes"){
+	 # if the residue-atom-atom-atom pair matches something that we defined as free, then don't generate it.
+	 my $RESTMP=$GRODATA[$theta1-1][1];
+	 my $A1=$GRODATA[$theta1-1][2];
+	 my $A2=$GRODATA[$theta2-1][2];
+	 my $A3=$GRODATA[$theta3-1][2];
+         if(exists $free_angle_defs{"$RESTMP-$A1-$A2-$A3"} || exists $free_angle_defs{"$RESTMP-$A3-$A2-$A1"} ){
+          next;
+         }
+        }
         $theta_gen_as{$string} = 1;
         $theta_gen[$theta_gen_N]="$string";
         $theta_gen_N++;
@@ -1131,7 +1326,7 @@ sub readtop
 
     my %angle_array;
     my $string;
-    $LINE=<TOP>;
+    $LINE=$topdata[$LN];$LN++;
     @A=split(/ /,$LINE);
     until($A[0] eq "["){
      if($A[3] == 1){
@@ -1151,23 +1346,25 @@ sub readtop
      if(!exists $angle_array{$string} ){
       ## bond was not assigned.
       $angle_array{$string}=1;
-      $angles2[$Nangles][0]=$A[0];
-      $angles2[$Nangles][1]=$A[1];
-      $angles2[$Nangles][2]=$A[2];
+      my $A0=$A[0];
+      my $A1=$A[1];
+      my $A2=$A[2];
+      $angles2[$Nangles][0]=$A0;
+      $angles2[$Nangles][1]=$A1;
+      $angles2[$Nangles][2]=$A2;
       # this organization is also strange, but it will make sense later...
-      $angleWatom[$A[0]][$NangleWatom[$A[0]]]= $Nangles;
-      $angleWatom[$A[1]][$NangleWatom[$A[1]]]= $Nangles;
-      $angleWatom[$A[2]][$NangleWatom[$A[2]]]= $Nangles;
-      $NangleWatom[$A[0]]++;
-      $NangleWatom[$A[1]]++;
-      $NangleWatom[$A[2]]++;
+      $angleWatom[$A0][$NangleWatom[$A0]]= $Nangles;
+      $angleWatom[$A1][$NangleWatom[$A1]]= $Nangles;
+      $angleWatom[$A2][$NangleWatom[$A2]]= $Nangles;
+      $NangleWatom[$A0]++;
+      $NangleWatom[$A1]++;
+      $NangleWatom[$A2]++;
       $Nangles++;
      }else{
       ## bond has already been assigned.
       $doubleangle++;
      }
-     $LINE=<TOP>;
-     last unless defined $LINE;
+     $LINE=$topdata[$LN];$LN++;
      @A=split(/ /,$LINE);
     }
     if($doubleangle ==0){
@@ -1182,11 +1379,10 @@ sub readtop
 
     ## cross-check the angles
     if($theta_gen_N == $Nangles){
-     $FAIL{'ANGLE CONSISTENCY 1'}=0;
+     $FAIL{'GENERATED ANGLE COUNT'}=0;
     }else{
-     print "the number of generated angles is inconsistent with the number of angles in the top file\n";
-     print "generated: $theta_gen_N, found: $Nangles\n";
-     $FAIL{'ANGLE CONSISTENCY 1'}=1;
+     $fail_log .= failed_message("The number of generated angles is inconsistent with the number of angles in the top file\n\tgenerated: $theta_gen_N, found: $Nangles");
+     $FAIL{'GENERATED ANGLE COUNT'}=1;
     }
     my $CONangles=0;
     # check to see if all the generated angles (from this script) are present in the top file
@@ -1194,13 +1390,13 @@ sub readtop
      if(exists $angle_array{$theta_gen[$i]} ){
        $CONangles++;
       }else{
-       print "angle generated, but not in top: $theta_gen[$i]\n";
+       $fail_log .= failed_message("angle generated, but not in top: $theta_gen[$i]");
      }
     }
     if($CONangles == $theta_gen_N){
-     $FAIL{'ANGLE CONSISTENCY 2'}=0;
+     $FAIL{'GENERATED ANGLE IN TOP'}=0;
     }else{
-     $FAIL{'ANGLE CONSISTENCY 2'}=1;
+     $FAIL{'GENERATED ANGLE IN TOP'}=1;
     }
 
     $CONangles=0;
@@ -1209,16 +1405,15 @@ sub readtop
      if(exists $theta_gen_as{$angles1[$i]}){
       $CONangles++;
      }else{
-      print "angle in top, but not generated: $angles1[$i]\n";
+      $fail_log .= failed_message("angle in top, but not generated: $angles1[$i]");
      }
     }
      if($CONangles == $Nangles){
-     $FAIL{'ANGLE CONSISTENCY 3'}=0;
+     $FAIL{'ANGLES IN TOP GENERATED'}=0;
     }else{
-     $FAIL{'ANGLE CONSISTENCY 3'}=1;
+     $FAIL{'ANGLES IN TOP GENERATED'}=1;
     }
 
- 
     # generate all possible dihedral angles based on bond angles
     undef %phi_gen_as;
     $phi_gen_N=0;
@@ -1226,18 +1421,20 @@ sub readtop
     undef %improper_gen_as;
     $improper_gen_N=0;
     $#improper_gen=-1;
+    my ($phi1,$phi2,$phi3,$phi4,$AIJ,$AIK,$A1,$A2,$A3,$B1,$B2,$B3);
     for(my $i=1;$i<=$NUMATOMS;$i++){
-    # go through the atoms.  For each atom, check all of the angles it is involved in, and see if we can make a angle angle out of it.
+    # go through the atoms.  For each atom, check all of the angles it is involved in, and see if we can make an angle out of it.
      for(my $j=0;$j<$NangleWatom[$i];$j++){
+      $AIJ=$angleWatom[$i][$j];
+      $A1=$angles2[$AIJ][0];
+      $A2=$angles2[$AIJ][1];
+      $A3=$angles2[$AIJ][2];
       for(my $k=$j+1;$k<$NangleWatom[$i];$k++){
        if($j!=$k){
-        my $A1=$angles2[$angleWatom[$i][$j]][0];
-        my $A2=$angles2[$angleWatom[$i][$j]][1];
-        my $A3=$angles2[$angleWatom[$i][$j]][2];
-        my $B1=$angles2[$angleWatom[$i][$k]][0];
-        my $B2=$angles2[$angleWatom[$i][$k]][1];
-        my $B3=$angles2[$angleWatom[$i][$k]][2];
-        my ($phi1,$phi2,$phi3,$phi4);
+        $AIK=$angleWatom[$i][$k];
+        $B1=$angles2[$AIK][0];
+        $B2=$angles2[$AIK][1];
+        $B3=$angles2[$AIK][2];
         # find all the dihedral angles that can be made with these angles
         my $formed='not';
         if($A2 == $B1 && $A3 == $B2){
@@ -1245,25 +1442,25 @@ sub readtop
          $phi2=$A2;
          $phi3=$A3;
          $phi4=$B3;
-        	$formed='proper';
+         $formed='proper';
         }elsif($A2 == $B3 && $A3 == $B2){
          $phi1=$A1;
          $phi2=$A2;
          $phi3=$A3;
          $phi4=$B1;
-        	$formed='proper';
+         $formed='proper';
         }elsif($A2 == $B1  && $A1 == $B2){
          $phi1=$A3;
          $phi2=$A2;
          $phi3=$A1;
          $phi4=$B3;
-        	$formed='proper';
+         $formed='proper';
         }elsif($A2 == $B3 && $A1 == $B2){
          $phi1=$A3;
          $phi2=$A2;
          $phi3=$A1;
          $phi4=$B1;
-        	$formed='proper';
+         $formed='proper';
         }elsif($A2 == $B2 && $A1 == $B3){
          $phi1=$A1;
          $phi2=$A2;
@@ -1289,7 +1486,7 @@ sub readtop
          $phi4=$B1;
          $formed='improper';
         }else{
-        	$formed="not";
+         $formed="not";
         }
   
         if($formed eq "proper" ){
@@ -1298,20 +1495,29 @@ sub readtop
          }else{
           $string=sprintf("%i-%i-%i-%i", $phi4, $phi3, $phi2, $phi1);
          }
+         if($free eq "yes"){
+	  # if the residue-atom-atom pair matches something that we defined as free, then don't generate it.
+	  my $RESTMP=$GRODATA[$phi2-1][1];
+	  my $A1=$GRODATA[$phi2-1][2];
+	  my $A2=$GRODATA[$phi3-1][2];
+          if(exists $free_dihedrals_defs{"$RESTMP-$A1-$A2"} || exists $free_dihedrals_defs{"$RESTMP-$A2-$A1"} ){
+           next;
+          }
+         }
          $phi_gen_as{$string} = 1;
          $phi_gen[$phi_gen_N]="$string";
          $phi_gen_N++;
         }elsif($formed eq "improper"){
          my @phit;
-        	$phit[0]=$phi1;
-        	$phit[1]=$phi2;
-        	$phit[2]=$phi3;
-        	$phit[3]=$phi4;
-        	for(my $ii=0;$ii<4;$ii++){
+         $phit[0]=$phi1;
+         $phit[1]=$phi2;
+         $phit[2]=$phi3;
+         $phit[3]=$phi4;
+         for(my $ii=0;$ii<4;$ii++){
           $phi1=$phit[$ii];
-        	 for(my $jj=0;$jj<4;$jj++){
-        	  if($ii != $jj){
-        	   $phi2=$phit[$jj];
+          for(my $jj=0;$jj<4;$jj++){
+           if($ii != $jj){
+            $phi2=$phit[$jj];
             for(my$kk=0;$kk<4;$kk++){
              if($kk != $jj && $kk != $ii){
               $phi3=$phit[$kk];
@@ -1366,7 +1572,7 @@ sub readtop
     $#A = -1;
     $#ED_T = -1;
     $#EDrig_T = -1;
-    $LINE=<TOP>;
+    $LINE=$topdata[$LN];$LN++;
     @A=split(/ /,$LINE);
     until($A[0] eq "["){
      if($A[0] < $A[3]){
@@ -1388,11 +1594,11 @@ sub readtop
         $accounted++;
 	if(!exists $dihedral_array3{$string}){
          $solitary3++;
-         print "Type 3 dihedral appeared w/o a type 1...\n  $LINE\n";
+         $fail_log .= failed_message("Type 3 dihedral appeared w/o a type 1...\n\t$LINE");
         }
        }elsif(exists $dihedral_array3{$string} and exists $A[7] and $A[7] == 3){
         $doubledih3++; 
-        print "Duplicate dihedral\n   $LINE\n";
+        $fail_log .= failed_message("Duplicate dihedral\n\t$LINE");
        }elsif(!exists $dihedral_array1{$string} and exists $A[7] and $A[7] == 1){
 	#check duplicate type 1 and 2
         ## dihedral was not assigned.
@@ -1403,13 +1609,13 @@ sub readtop
         $accounted1++;
        }elsif(exists $dihedral_array1{$string} and exists $A[7] and $A[7] == 1){
         $doubledih1++;
-        print "Duplicate dihedral\n   $LINE\n";
+        $fail_log .= failed_message("Duplicate dihedral\n\t$LINE");
        }elsif(!exists $dihedral_array2{$string} and $A[4] == 2){
         $dihedral_array2{$string}=1;
         $accounted++;
        }elsif(exists $dihedral_array2{$string} and $A[4] == 2){
         $doubledih2++;
-        print "Duplicate dihedral\n   $LINE\n";
+        $fail_log .= failed_message("Duplicate dihedral\n\t$LINE");
        }else{
         internal_error('DUPLICATE DIHEDRAL CHECKING')
        }
@@ -1431,8 +1637,7 @@ sub readtop
         if(($A[6] > $MINTHR*$epsilonCAD && $A[6] < $MAXTHR*$epsilonCAD)){
          $DIHSW++;
         }elsif(($A[6] < $MINTHR*$epsilonCAD || $A[6] > $MAXTHR*$epsilonCAD)){
-         print "error in dihedral strength on line:";
-         print "$LINE\n";
+         $fail_log .= failed_message("error in dihedral strength on line:$LINE\n");
         }
        } 
        if($MOLTYPE[$A[0]] ne "LIGAND" ){
@@ -1487,14 +1692,12 @@ sub readtop
       if($impEps == $A[6]){
        $CORIMP--;
       }else{
-       print "improper dihedral has wrong weight\n";
-       print "$LINE";
+       $fail_log .= failed_message("improper dihedral has wrong weight\n\t$LINE");
       }
      }
 
      $#A = -1;
-     $LINE=<TOP>;
-     last unless defined $LINE;
+     $LINE=$topdata[$LN];$LN++;
      @A=split(/ /,$LINE);
     }
 
@@ -1507,13 +1710,13 @@ sub readtop
      if(exists $phi_gen_as{$phi[$i]} or exists $improper_gen_as{$phi[$i]} ){
       $CONdihedrals++;
      }else{
-      print "dihedral appearing in top, but does not match a proper/improper generated by script: $phi[$i]\n";
+      $fail_log .= failed_message("dihedral appearing in top, but does not match a proper/improper generated by script: $phi[$i]");
      }
     }
      if($CONdihedrals == $Nphi){
-     $FAIL{'DIHEDRAL CONSISTENCY 1'}=0;
+     $FAIL{'DIHEDRAL IN TOP GENERATED'}=0;
     }else{
-     $FAIL{'DIHEDRAL CONSISTENCY 1'}=1;
+     $FAIL{'DIHEDRAL IN TOP GENERATED'}=1;
     }
 
     my $gen_match=0;
@@ -1522,11 +1725,11 @@ sub readtop
      if(exists $dihedral_array1{$phi_gen[$i]}  or exists $dihedral_array2{$phi_gen[$i]} ){
       $gen_match++;
      }else{
-      print "Generated dihedral $phi_gen[$i] is not in the list of included dihedrals...\n";
+      $fail_log .= failed_message("Generated dihedral $phi_gen[$i] is not in the list of included dihedrals...");
      }
     }
     if($gen_match==$phi_gen_N){
-     $FAIL{'DIHEDRAL CONSISTENCY 2'}=0;
+     $FAIL{'GENERATED DIHEDRAL IN TOP'}=0;
     }
 
     if($CORIMP == 0){
@@ -1536,15 +1739,13 @@ sub readtop
      if($Nphi/2 == $DIHSW){
       $FAIL{'CA DIHEDRAL WEIGHTS'}=0;
      }else{
-      print "ISSUE with CA dihedral weights\n";
-      print "$Nphi $DIHSW\n";
+      $fail_log .= failed_message("ISSUE with CA dihedral weights\n\t$Nphi $DIHSW");
      }
     }
     if($Nphi == $accounted and $Nphi != 0){
      $FAIL{'CLASSIFYING DIHEDRALS'}=0;
     }else{
-     print "ISSUE classifying dihedrals\n";
-     print "$Nphi $DIHSW\n";
+     $fail_log .= failed_message("ISSUE classifying dihedrals\n\t$Nphi $DIHSW");
     }
     if($doubledih1 == 0){
      $FAIL{'DUPLICATE TYPE 1 DIHEDRALS'}=0;
@@ -1569,14 +1770,14 @@ sub readtop
       if($dihedral_array3_W{$pair}  > $MINTHR*0.5*$dihedral_array1_W{$pair} and $dihedral_array3_W{$pair}  < $MAXTHR*0.5*$dihedral_array1_W{$pair}  ){
        $matchingpairs_W++;
       }else{
-       print "Relative weight between a N=1 and N=3 dihedral is not consistent: $pair, $dihedral_array1_W{$pair}, $dihedral_array3_W{$pair}\n"
+       $fail_log .= failed_message("Relative weight between a N=1 and N=3 dihedral is not consistent: $pair, $dihedral_array1_W{$pair}, $dihedral_array3_W{$pair}");
       }
       my $angle1=$dihedral_array1_A{$pair};
       my $angle3=$dihedral_array3_A{$pair};
       if((($angle3 % 360.0) > $MINTHR*(3*$angle1 % 360.0) and ($angle3 % 360.0) < $MAXTHR*(3*$angle1 % 360.0)) or (($angle3 % 360.0) < ($MAXTHR-1) and (3*$angle1 % 360.0) < ($MAXTHR-1) )){
        $matchingpairs_A++;
       }else{
-       print "Relative angles between a N=1 and N=3 dihedral is not consistent: $pair,$angle1,$angle3\n";
+       $fail_log .= failed_message("Relative angles between a N=1 and N=3 dihedral is not consistent: $pair,$angle1,$angle3");
       }
      }
     }
@@ -1589,7 +1790,6 @@ sub readtop
     if($matchingpairs_W == $accounted1){
      $FAIL{'1-3 DIHEDRAL RELATIVE WEIGHTS'}=0
     }
-    #print "$matchingpairs_A, $accounted1 $MINTHR $MAXTHR\n";
     if($matchingpairs_A == $accounted1){
      $FAIL{'1-3 DIHEDRAL ANGLE VALUES'}=0
     }
@@ -1615,7 +1815,7 @@ sub readtop
         if($dihedral_array2{$string}){
          $impCAfound++;
         }else{
-         print "Improper about CA atom not found: expected dihedral formed by atoms $string\n";
+         $fail_log .= failed_message("Improper about CA atom not found: expected dihedral formed by atoms $string");
         }
         # check for expected side-chain impropers
         if($GRODATA[$revData{"$I-CA"}][1] !~  m/^TYR|^PHE|^TRP/){
@@ -1629,8 +1829,8 @@ sub readtop
           }
           if($dihedral_array2{$string}){
            $impSCfound++;
-          }else{
-           print "Sidechain Improper not found: expected dihedral formed by atoms $string\n";
+          }elsif($free eq "no"){
+           $fail_log .= failed_message("Sidechain Improper not found: expected dihedral formed by atoms $string");
           }
          }
          if(exists $revData{"$I-CG1"} && exists $revData{"$I-CG2"}){
@@ -1643,8 +1843,8 @@ sub readtop
           }
           if($dihedral_array2{$string}){
            $impSCfound++;
-          }else{
-           print "Sidechain Improper not found: expected dihedral formed by atoms $string\n";
+          }elsif($free eq "no"){
+           $fail_log .= failed_message("Sidechain Improper not found: expected dihedral formed by atoms $string");
           }
          }
          if(exists $revData{"$I-CG"} && exists $revData{"$I-CD1"} && exists $revData{"$I-CD2"}){
@@ -1657,8 +1857,8 @@ sub readtop
           }
           if($dihedral_array2{$string}){
            $impSCfound++;
-          }else{
-           print "Sidechain Improper not found: expected dihedral formed by atoms $string\n";
+          }elsif($free eq "no"){
+           $fail_log .= failed_message("Sidechain Improper not found: expected dihedral formed by atoms $string");
           }
          }
         }
@@ -1676,7 +1876,7 @@ sub readtop
         if($dihedral_array2{$string}){
          $impOMEfound++;
         }else{
-         print "Improper about peptide bond not found: expected dihedral formed by atoms $string\n";
+         $fail_log .= failed_message("Improper about peptide bond not found: expected dihedral formed by atoms $string");
         }
        }
       }
@@ -1684,17 +1884,19 @@ sub readtop
      if($impCAfound == $impCApossible && $impCApossible != 0){
       $FAIL{'CA IMPROPERS EXIST'}=0;
      }else{
-      print "Only found $impCAfound improper dihedrals about CA atoms, out of an expected $impCApossible\n";
+      $fail_log .= failed_message("Only found $impCAfound improper dihedrals about CA atoms, out of an expected $impCApossible");
      }
-     if($impOMEfound == $impOMEpossible && $impOMEpossible != 0){
+     if($impOMEfound == $impOMEpossible){
       $FAIL{'OMEGA IMPROPERS EXIST'}=0;
      }else{
-	print "Only found $impOMEfound improper omega dihedrals, out of an expected $impOMEpossible\n";
+      $fail_log .= failed_message("Only found $impOMEfound improper omega dihedrals, out of an expected $impOMEpossible");
      }
-     if($impSCfound == $impSCpossible && $impSCpossible != 0){
+     if($free eq "yes"){
+      $FAIL{'SIDECHAIN IMPROPERS EXIST'}=-1;
+     }elsif($impSCfound == $impSCpossible){
       $FAIL{'SIDECHAIN IMPROPERS EXIST'}=0;
      }else{
-	print "Only found $impSCfound sidechain improper dihedrals, out of an expected $impSCpossible\n";
+      $fail_log .= failed_message("Only found $impSCfound sidechain improper dihedrals, out of an expected $impSCpossible");
      }
     }else{
      $FAIL{'CA IMPROPERS EXIST'}=-1;
@@ -1718,31 +1920,39 @@ sub readtop
     my $GaussianContactWidth=0;
     my $GaussianEXVOL=0;
     my $NOTSHORTSEQ=0;
+    my $freepair=0;
     $#A = -1;
-    $LINE=<TOP>;
-    chomp($LINE);
+    $LINE=$topdata[$LN];$LN++;
     @A=split(/ /,$LINE);
     my $W;
     my $Cdist;
     my $CALCD;
+    if($usermap eq "yes"){
+     open(CMAP,"$PDB_DIR/$PDB.contacts") or internal_error("can not open $PDB_DIR/$PDB.contacts");
+    }
     until($A[0] eq "["){
      $PAIRS[$NCONTACTS][0]=$A[0];
      $PAIRS[$NCONTACTS][1]=$A[1];
      $NCONTACTS++;
-
+     my $R0=$GRODATA[$A[0]-1][1];
+     my $R1=$GRODATA[$A[1]-1][1];
+     if($free eq "yes" && (exists $free_pair_defs{"$R0-$R1"} || exists $free_pair_defs{"$R0-$R1"})){
+      $freepair=1;
+      $fail_log .= failed_message("Free contacts defined, but a contact between $R0 and $R1 was found in the contacts. Atoms $A[0] and $A[1]\n");
+     }
      unless($CID[$A[0]] == $CID[$A[1]] && $MOLTYPE[$A[0]] eq "AMINO" &&  abs($resindex[$A[0]]-$resindex[$A[1]]) <4 ){
 	$NOTSHORTSEQ++;
      }
 
-     if($CID[$A[0]] == $CID[$A[1]] && $MOLTYPE[$A[0]] eq "AMINO" &&  abs($resindex[$A[0]]-$resindex[$A[1]]) ==4 ){
+     if($CID[$A[0]] == $CID[$A[1]] && $MOLTYPE[$A[0]] eq "AMINO" && $MOLTYPE[$A[1]] eq "AMINO" &&  abs($resindex[$A[0]]-$resindex[$A[1]]) ==4 ){
 	$FAIL{'CONTACTS PROTEIN i-j=4'}=0;
-     }elsif($CID[$A[0]] == $CID[$A[1]] && $MOLTYPE[$A[0]] eq "NUCLEIC" &&  abs($resindex[$A[0]]-$resindex[$A[1]]) ==1 ){
+     }elsif($CID[$A[0]] == $CID[$A[1]] && $MOLTYPE[$A[0]] eq "NUCLEIC" && $MOLTYPE[$A[1]] eq "NUCLEIC" &&  abs($resindex[$A[0]]-$resindex[$A[1]]) ==1 ){
         $FAIL{'CONTACTS NUCLEIC i-j=1'}=0;
      }
 
      # determine the epsilon of the contact
      if($A[4] == 0){
-      print "\nERROR: A divide by zero was encountered during testing. This typically means the top file is incomplete\n";
+      $fail_log .= failed_message("A divide by zero was encountered during testing. This typically means the top file is incomplete");
       $FAILED++; 
       last;
      }
@@ -1750,12 +1960,11 @@ sub readtop
      if($gaussian eq "yes"){
       $W=$A[3];
       $Cdist=$A[4];
-      $CALCD=(($XT[$A[0]]-$XT[$A[1]])**2+($YT[$A[0]]-$YT[$A[1]])**2+($ZT[$A[0]]-$ZT[$A[1]])**2)**(0.5);
+      $CALCD=getdist(\*CMAP,$A[0],$A[1]);
       if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0) ){
        $ContactDist++;
       }else{
-       print "A contact appears to be the wrong distance.  From the .gro file, we found r=$CALCD, and from the .top r=$Cdist.\n";
-       print "$LINE\n";
+       $fail_log .= failed_message("A contact appears to be the wrong distance.  From the .gro (or .contact) file, we found r=$CALCD, and from the .top r=$Cdist.\n\t$LINE");
       }
       # check width of gaussian
       my $sigmagaussian=$A[5];
@@ -1768,34 +1977,30 @@ sub readtop
       if(abs($sigmagaussian-$sigmagaussianCALC) < 100.0/($PRECISION*1.0) ){
        $GaussianContactWidth++;
       }else{
-       print "A gaussian contact appears to have the wrong width.  From the .top file, we found sigma=$sigmagaussian, but based on the native distance, we expect sigma=$sigmagaussianCALC.\n";
-       print "$LINE\n";
+       $fail_log .= failed_message("A gaussian contact appears to have the wrong width.  From the .top file, we found sigma=$sigmagaussian, but based on the native distance, we expect sigma=$sigmagaussianCALC.\n\t$LINE");
       }
       if(abs($rep_s12-$A[6]) < 100.0/($PRECISION*1.0) ){
        $GaussianEXVOL++;
       }else{
-       print "A gaussian contact appears to have the wrong excluded volume.  From the .top file, we found a=$A[6], but expect a=$rep_s12.\n";
-       print "$LINE\n";
+       $fail_log .= failed_message("A gaussian contact appears to have the wrong excluded volume.  From the .top file, we found a=$A[6], but expect a=$rep_s12.\n\t$LINE");
       }
      }elsif($model eq "CA"){
       $W=5.0**5.0/6.0**6.0*($A[3]**6.0)/($A[4]**5.0);
       $Cdist=(6*$A[4]/(5*$A[3]))**(1.0/2.0);
-      $CALCD=(($XT[$A[0]]-$XT[$A[1]])**2+($YT[$A[0]]-$YT[$A[1]])**2+($ZT[$A[0]]-$ZT[$A[1]])**2)**(0.5);
+      $CALCD=getdist(\*CMAP,$A[0],$A[1]);
       if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0) ){
        $ContactDist++;
       }else{
-       print "A contact appears to be the wrong distance.  From the .gro file, we found r=$CALCD, and from the .top r=$Cdist.\n";
-       print "$LINE\n";
+       $fail_log .= failed_message("A contact appears to be the wrong distance.  From the .gro (or .contact) file, we found r=$CALCD, and from the .top r=$Cdist.\n\t$LINE");
       }
      }elsif($model eq "AA"){
       $W=($A[3]*$A[3])/(4*$A[4]);
       $Cdist=(2.0*$A[4]/($A[3]))**(1.0/6.0);
-      $CALCD=(($XT[$A[0]]-$XT[$A[1]])**2+($YT[$A[0]]-$YT[$A[1]])**2+($ZT[$A[0]]-$ZT[$A[1]])**2)**(0.5);
+      $CALCD=getdist(\*CMAP,$A[0],$A[1]);
       if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0)){
        $ContactDist++;
       }else{
-       print "A contact appears to be the wrong distance.  From the .gro file, we found r=$CALCD, and from the .top r=$Cdist.\n";
-       print "$LINE\n";
+       $fail_log .= failed_message("A contact appears to be the wrong distance.  From the .gro (or .contact) file, we found r=$CALCD, and from the .top r=$Cdist.\n\t$LINE");
       }
      }else{
       smogcheck_error("unrecognized model.");
@@ -1806,19 +2011,14 @@ sub readtop
       if($W > $MINTHR*$epsilonCAC and $W < $MAXTHR*$epsilonCAC){
        $CONTACT_W_CA++;
       }else{
-       print "Error in EpsilonC values\n";
-       print "Value: Target\n";
-       print "$W $epsilonCAC\n";
-       print "line:\n";
-       print "$LINE\n";
+       $fail_log .= failed_message("EpsilonC values\n\tValue: Target\n\t$W $epsilonCAC\n\tline:\n\t$LINE");
       }
      }elsif($model eq "AA"){
       $Cdist = int(($Cdist * $PRECISION)/10.0)/($PRECISION*10.0);
       if($Cdist <= $CONTD/10.0){
        $LONGCONT++;
       }else{
-       print "long contact! distance $Cdist nm.\n";
-       print "$LINE\n";
+       $fail_log .= failed_message("long contact. distance $Cdist nm.\n\t$LINE");
      }
       ## so long as the contacts are not with ligands, then we add the sum
       if($MOLTYPE[$A[0]] ne "LIGAND" and $MOLTYPE[$A[1]] ne "LIGAND"){
@@ -1828,11 +2028,10 @@ sub readtop
        # if we haven't assigned a value to stacking interactions, then let's save it
        # if we have saved it, check to see that this value is the same as the previous ones.
        if($stackingE == 0 ){
-#	print "stacking weight found: $W ";
         $stackingE=$W;
        }elsif(abs($stackingE - $W) > 10.0/($PRECISION*1.0) ){
         $FAIL_STACK++;
-        print "error in stacking energies: $stackingE  $W $A[0] $A[1] \n";
+        $fail_log .= failed_message("stacking energies: $stackingE  $W $A[0] $A[1]");
         }
       }else{
       # it is not a stacking contact.  Do the same checks for non-stacking interactions
@@ -1840,9 +2039,7 @@ sub readtop
         $NonstackingE=$W;
        }elsif(abs($NonstackingE - $W) > 10.0/($PRECISION*1.0) ){
         $FAIL_NONSTACK++;
-        print "error in non-stacking contacts: $NonstackingE $W\n";
-        print "line:\n";
-        print "$LINE\n";
+        $fail_log .= failed_message("non-stacking contacts: $NonstackingE $W\n\tline:\n\t$LINE");
        }
       }
      }else{
@@ -1853,13 +2050,13 @@ sub readtop
      # check to see if the contact is nucleic acids, adjacent residues and not backbone atoms.  These should be rescaled by a factor of 1/3
      # read the next line
      $#A = -1;
-     $LINE=<TOP>;
-     chomp($LINE);
-     last unless defined $LINE;
+     $LINE=$topdata[$LN];$LN++;
      @A=split(/ /,$LINE);
     }
     if($NOTSHORTSEQ == $NCONTACTS){
      $FAIL{'CONTACTS PROTEIN i-j!<4'}=0;
+    }elsif($usermap eq "yes"){
+     $FAIL{'CONTACTS PROTEIN i-j!<4'}=-1;
     }
     if($ContactDist == $NCONTACTS){
      $FAIL{'CONTACT DISTANCES'}=0;
@@ -1906,28 +2103,30 @@ sub readtop
     }else{
      smogcheck_error("unrecognized model.");
     }
+     if($freepair ==0){
+      $FAIL{'FREE PAIRS APPEAR IN CONTACTS'}=0;	
+     }else{
+      $FAIL{'FREE PAIRS APPEAR IN CONTACTS'}=1;	
+     }
    }
   } 
   if(exists $A[1]){ 
    if($A[1] eq "exclusions"){
     $FOUND{'exclusions'}++;
     $#A = -1;
-    $LINE=<TOP>;
+    $LINE=$topdata[$LN];$LN++;
     @A=split(/ /,$LINE);
     my $NEXCL=0;
     my $NEXCLUSIONS=0;
     until($A[0] eq "["){
      if($PAIRS[$NEXCL][0] != $A[0] || $PAIRS[$NEXCL][1] != $A[1]){
       $NEXCLUSIONS++;
-      print "FAIL: mis-match between pairs and exclusions (pair $NEXCL)\n";
-      print "pair: $PAIRS[$NEXCL][0] $PAIRS[$NEXCL][1]\n";
-      print "excl: $A[0] $A[1]\n";
+      $fail_log .= failed_message("mis-match between pairs and exclusions (pair $NEXCL)\n\tpair: $PAIRS[$NEXCL][0] $PAIRS[$NEXCL][1]\n\texcl: $A[0] $A[1]");
      }
      $NEXCL++;
      # read the next line
      $#A = -1;
-     $LINE=<TOP>;
-     last unless defined $LINE;
+     $LINE=$topdata[$LN];$LN++;
      @A=split(/ /,$LINE);
     }
     if($NEXCL == $NCONTACTS){
@@ -1938,13 +2137,12 @@ sub readtop
   if(exists $A[1]){
    if($A[1] eq "system"){
     $FOUND{'system'}++;
-    $LINE=<TOP>;
-    chomp($LINE);
+    $LINE=$topdata[$LN];$LN++;
     @A=split(/ /,$LINE);
     if($A[0] eq "Macromolecule"){
      $FAIL{'NAME'}=0;
     }else{
-     print "Default system name is ($A[0]) non-standard\n";
+     $fail_log .= failed_message("Default system name is ($A[0]) non-standard");
     }
    }
   }
@@ -1952,15 +2150,14 @@ sub readtop
   if(exists $A[1]){
    if($A[1] eq "molecules"){
     $FOUND{'molecules'}++;
-    $LINE=<TOP>;
-    chomp($LINE);
+    $LINE=$topdata[$LN];$LN++;
     @A=split(/ /,$LINE);
     if($A[0] eq "Macromolecule"){
      $FAIL{'NAME'}=0;
      if($A[1] == 1){
       $FAIL{'1 MOLECULE'}=0;
      }else{
-      print "wrong number of molecules...\n";
+      $fail_log .= failed_message("wrong number of molecules");
      }
     }
    }
@@ -1995,23 +2192,18 @@ sub readtop
   for(my $j=0;$j<=$DISP_MAX;$j++){
    if(exists $EDrig_T[$i][$j]){
     $NUM_NONZERO++;	
-    if( ($ATOMNAME[$i] eq "C"  && $ATOMNAME[$i+$j] eq "N") || (  $ATOMNAME[$i] eq "N"  && $ATOMNAME[$i+$j] eq "C"   )){
+    if( ($ATOMNAME[$i] eq "C"  && $ATOMNAME[$i+$j] eq "N") || (  $ATOMNAME[$i] eq "N"  && $ATOMNAME[$i+$j] eq "C"   ) ||
+        ($ATOMNAME[$i] eq "C"  && $ATOMNAME[$i+$j] eq "O3*") || (  $ATOMNAME[$i] eq "O3*"  && $ATOMNAME[$i+$j] eq "C"   )    ){
      $NRIGID++;
      if( abs($EDrig_T[$i][$j]-$omegaEps) > $TOLERANCE ){
-      print "weird omega rigid...\n";
-      print "$i $j $EDrig_T[$i][$j]\n";
-      print "$ATOMNAME[$i] $ATOMNAME[$i+$j]\n"; 
-      print "$RESNUM[$i] $RESNUM[$i+$j]\n\n";
+      $fail_log .= failed_message("weird omega rigid...\n\t$i $j $EDrig_T[$i][$j]\n\t$ATOMNAME[$i] $ATOMNAME[$i+$j]\n\t$RESNUM[$i] $RESNUM[$i+$j]");
      }else{
      $NRIGIDC++;
      }
     }else{
      $NOMEGA++;
      if(abs($EDrig_T[$i][$j]-$ringEps) > $TOLERANCE ){
-      print "weird ring dihedral...\n";
-      print "$i $j $EDrig_T[$i][$j]\n";
-      print "$ATOMNAME[$i] $ATOMNAME[$i+$j]\n";
-      print "$RESNUM[$i] $RESNUM[$i+$j]\n\n";
+      $fail_log .= failed_message("weird ring dihedral...\n\t$i $j $EDrig_T[$i][$j]\n\t$ATOMNAME[$i] $ATOMNAME[$i+$j]\n\t$RESNUM[$i] $RESNUM[$i+$j]");
      }else{
      $NOMEGAC++;
      }
@@ -2025,9 +2217,7 @@ sub readtop
       $NPBB++;
 #      $DIH_TYPE[$i][$j]="AMINOBB";
       if($PBBvalue !=$ED_T[$i][$j] && $PBBvalue !=0){
-       print "protein backbone dihedral $i $j failed\n";
-       print "$PBBvalue is before\n";
-       print "$ED_T[$i][$j] is the bad one...\n";
+       $fail_log .= failed_message("protein backbone dihedral $i $j\n\t$PBBvalue is before\n\t$ED_T[$i][$j] is the bad one...");
       }else{
        $NPBBC++;
       }
@@ -2035,10 +2225,8 @@ sub readtop
      }else{
       $NPSC++;
 #      $DIH_TYPE[$i][$j]="AMINOSC";
-      if($PSCvalue !=$ED_T[$i][$j] && $PSCvalue !=0){
-       print "protein sidechain dihedral $i $j failed\n";
-       print "$PSCvalue is before\n";
-       print "$ED_T[$i][$j] is the bad one...\n";
+      if($PSCvalue !=$ED_T[$i][$j] && $PSCvalue !=0 && $free eq "no"){
+       $fail_log .= failed_message("protein sidechain dihedral $i $j\n\t$PSCvalue is before\n\t$ED_T[$i][$j] is the bad one...");
       }else{
        $NPSCC++;
       }
@@ -2049,9 +2237,7 @@ sub readtop
 #      $DIH_TYPE[$i][$j]="NUCLEICBB";
       $NNBB++;     
       if($NABBvalue !=$ED_T[$i][$j] && $NABBvalue != 0 ){
-       print "nucleic backbone dihedral $i $j failed\n";
-       print "$NABBvalue is before\n";
-       print "$ED_T[$i][$j] is the bad one...\n";
+       $fail_log .= failed_message("nucleic backbone dihedral $i $j\n\t$NABBvalue is before\n\t$ED_T[$i][$j] is the bad one...");
       }else{
        $NNBBC++;     
       }
@@ -2060,9 +2246,7 @@ sub readtop
       $NNSC++;     
 #      $DIH_TYPE[$i][$j]="NUCLEICSC";
       if($NASCvalue !=$ED_T[$i][$j] && $NASCvalue !=0){
-       print "nucleic sidechain dihedral $i $j failed\n";
-       print "$NASCvalue is before\n";
-       print "$ED_T[$i][$j] is the bad one...\n";
+       $fail_log .= failed_message("nucleic sidechain dihedral $i $j\n\t$NASCvalue is before\n\t$ED_T[$i][$j] is the bad one...");
       }else{
        $NNSCC++;     
       }
@@ -2072,9 +2256,7 @@ sub readtop
 #     $DIH_TYPE[$i][$j]="LIGAND";
      $NLIG++;
      if($LIGdvalue !=$ED_T[$i][$j] && $LIGdvalue != 0 ){
-      print "backbone atom $i $j failed\n";
-      print "$LIGdvalue is before\n";
-      print "$ED_T[$i][$j] is the bad one...\n";
+      $fail_log .= failed_message("backbone atom $i $j\n\t$LIGdvalue is before\n\t$ED_T[$i][$j] is the bad one...");
      }else{
       $NLIGC++;
      }
@@ -2097,18 +2279,18 @@ sub readtop
  }elsif(! $AMINO_PRESENT){
    $FAIL{'STRENGTHS OF OMEGA DIHEDRALS'}=-1;
  }
- if($NPBB>0){
+ if($NPBB>0 && $free eq "no"){
   if($NPBB == $NPBBC){
    $FAIL{'STRENGTHS OF PROTEIN BB DIHEDRALS'}=0;
   }
- }elsif(! $AMINO_PRESENT){
+ }elsif(! $AMINO_PRESENT || $free eq "yes"){
    $FAIL{'STRENGTHS OF PROTEIN BB DIHEDRALS'}=-1;
  }
- if($NPSC>0){
+ if($NPSC>0 && $free eq "no"){
   if($NPSC == $NPSCC){
    $FAIL{'STRENGTHS OF PROTEIN SC DIHEDRALS'}=0;
   }
- }elsif(! $AMINO_PRESENT){
+ }elsif(! $AMINO_PRESENT || $free eq "yes"){
    $FAIL{'STRENGTHS OF PROTEIN SC DIHEDRALS'}=-1;
  }
  if($NNBB>0){
@@ -2140,18 +2322,21 @@ sub readtop
    if($CR < $MAXTHR and  $CR > $MINTHR){
     $FAIL{'STACK-NONSTACK RATIO'}=0;
    }else{
-    print "NonStacking-stacking ratio issue: \n  Expected: 1, Actual: $CR\n";
+    $fail_log .= failed_message("NonStacking-stacking ratio issue: \n  Expected: 1, Actual: $CR");
    }
   }else{
    $FAIL{'STACK-NONSTACK RATIO'}=-1;
   }
  
-  if($AMINO_PRESENT){
+  if($AMINO_PRESENT && $free eq "no"){
    my $ratio=$PBBvalue/$PSCvalue;
    if($ratio < $MAXTHR*$R_P_BB_SC   and $ratio > $MINTHR*$R_P_BB_SC ){
     $FAIL{'PROTEIN BB/SC RATIO'}=0;
    }else{
-    print "Protein BB-SC Ratio issue: \n  Expected: $R_P_BB_SC, Actual: $ratio\n";
+    $fail_log .= failed_message("Protein BB-SC Ratio issue: \n  Expected: $R_P_BB_SC, Actual: $ratio");
+   }
+   if($restypecount{"AMINO"} <5){
+    $FAIL{'CONTACTS PROTEIN i-j=4'}=-1;
    }
   }else{
     $FAIL{'PROTEIN BB/SC RATIO'}=-1;
@@ -2162,44 +2347,41 @@ sub readtop
    if($ratio < $MAXTHR*$R_N_SC_BB   and $ratio > $MINTHR*$R_N_SC_BB ){
     $FAIL{'NUCLEIC SC/BB RATIO'}=0;
    }else{
-    print "Nucleic SC-BB Ratio issue: \n  Expected: $R_N_SC_BB, Actual: $ratio\n";
+    $fail_log .= failed_message("Nucleic SC-BB Ratio issue:\n\tExpected: $R_N_SC_BB, Actual: $ratio");
    }
   }else{
     $FAIL{'NUCLEIC SC/BB RATIO'}=-1;
   }
 
-  if($AMINO_PRESENT && $NUCLEIC_PRESENT){
-   print "BB dihedral values protein: $PBBvalue nucleic acid: $NABBvalue\n";
+  if($AMINO_PRESENT && $NUCLEIC_PRESENT && $free eq "no"){
    my $RR=$PBBvalue/$NABBvalue;
    my $RR_TARGET=$PRO_DIH/$NA_DIH;
-   print "Target ratio: $RR_TARGET\n";
-   print "Actual ratio: $RR\n";
    if($RR < $MAXTHR*$RR_TARGET and $RR > $MINTHR*$RR_TARGET){
     $FAIL{'AMINO/NUCLEIC DIHEDRAL RATIO'}=0;
+   }else{
+    $fail_log .= failed_message("FAIL: BB dihedral values protein: $PBBvalue nucleic acid: $NABBvalue\n\tTarget ratio: $RR_TARGET\n\tActual ratio: $RR");
    }
   }else{
     $FAIL{'AMINO/NUCLEIC DIHEDRAL RATIO'}=-1;
   }
-  if($AMINO_PRESENT && $LIGAND_PRESENT){
-   print "protein: $PBBvalue Ligand: $LIGdvalue\n";
+  if($AMINO_PRESENT && $LIGAND_PRESENT && $free eq "no"){
    my $RR=$PBBvalue/$LIGdvalue;
    my $RR_TARGET=$PRO_DIH/$LIGAND_DIH;
-   print "Target ratio: $RR_TARGET\n";
-   print "Actual ratio: $RR\n";
    if($RR < $MAXTHR*$RR_TARGET and $RR > $MINTHR*$RR_TARGET){
     $FAIL{'AMINO/LIGAND DIHEDRAL RATIO'}=0;
+   }else{
+    $fail_log .= failed_message("protein: $PBBvalue Ligand: $LIGdvalue\n\tTarget ratio: $RR_TARGET\n\tActual ratio: $RR");
    }
   }else{
     $FAIL{'AMINO/LIGAND DIHEDRAL RATIO'}=-1;
   }
   if($LIGAND_PRESENT && $NUCLEIC_PRESENT){
-   print "ligand: $LIGdvalue nucleic acid: $NABBvalue\n";
    my $RR=$LIGdvalue/$NABBvalue;
    my $RR_TARGET=$LIGAND_DIH/$NA_DIH;
-   print "Target ratio: $RR_TARGET\n";
-   print "Actual ratio: $RR\n";
    if($RR < $MAXTHR*$RR_TARGET and $RR > $MINTHR*$RR_TARGET){
     $FAIL{'NUCLEIC/LIGAND DIHEDRAL RATIO'}=0;
+   }else{
+    $fail_log .= failed_message("ligand: $LIGdvalue nucleic acid: $NABBvalue\n\tTarget ratio: $RR_TARGET\n\tActual ratio: $RR");
    }
   }else{
     $FAIL{'NUCLEIC/LIGAND DIHEDRAL RATIO'}=-1;
@@ -2210,17 +2392,16 @@ sub readtop
   if($D_R > $MAXTHR*4*$R_P_BB_SC  ){
    print "WARNING!!!: range of dihedrals is large\n";
   }
-   #else{
-   #print "range of dihedrals: PASSED\n";
-  #}
-
-  #print "ENERGIES: Contact=$CONTENERGY; Dihedral=$DENERGY\n";
   my $CD_ratio;
   if($DENERGY > 0){
    $CD_ratio=$CONTENERGY/$DENERGY;
    $FAIL{'NONZERO DIHEDRAL ENERGY'}=0;
    if($MAXTHR*$R_CD > $CD_ratio and $MINTHR*$R_CD < $CD_ratio){
    $FAIL{'CONTACT/DIHEDRAL RATIO'}=0;
+   }elsif($free eq "yes"){
+    $FAIL{'CONTACT/DIHEDRAL RATIO'}=-1;
+   }else{
+    $fail_log .=failed_message("Contact/Dihedral ratio is off. Expected $R_CD, found $CD_ratio.");
    }
   }
  }else{
@@ -2250,7 +2431,7 @@ sub readtop
   if($FOUND{"$FF"} == 1){
    $NFIELDC++;
   }elsif($FOUND{"$FF"} == 0){
-   print "Error: [ $FF ] not found in top file.  This either means SMOG did not complete, or there was a problem reading the file.  All subsequent output will be meaningless.\n";
+   $fail_log .= failed_message("Directive [ $FF ] not found in top file.  This either means SMOG did not complete, or there was a problem reading the file.  All subsequent output will be meaningless.");
   }else{
    smogcheck_error("Serious problem understanding .top file.  A directive may be duplicated.");
   }
@@ -2263,16 +2444,6 @@ sub readtop
 
 sub checkvalues
 {
-
- ## DONE READING IN THE FILE.  TIME TO CHECK AND SEE IF ALL THE RATIOS ARE CORRECT
-# print "number of atoms = $NUMATOMS\n";
-# print "number of atoms(excluding ligands) = $NUMATOMS_LIGAND\n";
-# print "Dihedral energy = $DENERGY\n";
-# print "Contact energy = $CONTENERGY\n";
-# print "max dihedral = $DIH_MAX\n";
-# print "min dihedral = $DIH_MIN\n";
-# print "generated angles, dihedrals, impropers\n";
-# print "$theta_gen_N $phi_gen_N $improper_gen_N\n";
  if($model eq "CA"){
   if($theta_gen_N > 0 and $phi_gen_N > 0 ){
    $FAIL{'GENERATION OF ANGLES/DIHEDRALS'}=0;
@@ -2288,43 +2459,47 @@ sub checkvalues
   }
  }else{
   smogcheck_error("unrecognized model. Quitting...");
-  die;
  }
  ## check the energy per dihedral and where the dihedral is SC/BB NA/AMINO
  if($DISP_MAX == 0){
   internal_error("DISP_MAX");
  }
 
- if($model eq "AA"){
-  if(open(CFILE,"$PDB.contacts")){
-   $FAIL{'OPEN CONTACT FILE'}=0;
+ if($usermap eq "no"){
+  if($model eq "AA"){
+   if(open(CFILE,"$PDB.contacts")){
+    $FAIL{'OPEN CONTACT FILE'}=0;
+   }
+  }elsif($model eq "CA"){
+   if(open(CFILE,"$PDB.contacts.CG")){
+    $FAIL{'OPEN CONTACT FILE'}=0;
+   }
   }
- }elsif($model eq "CA"){
-  if(open(CFILE,"$PDB.contacts.CG")){
-   $FAIL{'OPEN CONTACT FILE'}=0;
+  my $NUMBER_OF_CONTACTS_SHADOW=0;
+  while(<CFILE>){
+   $NUMBER_OF_CONTACTS_SHADOW++;
   }
- }
-
-
- my $NUMBER_OF_CONTACTS_SHADOW=0;
- while(<CFILE>){
-  $NUMBER_OF_CONTACTS_SHADOW++;
- }
+  close(CFILE);
   my $NRD=$NCONTACTS+$bondtype6;
- if($NUMBER_OF_CONTACTS_SHADOW == $NRD){
-  $FAIL{'NCONTACTS'}=0;
-
+  if($NUMBER_OF_CONTACTS_SHADOW == $NRD){
+   $FAIL{'NCONTACTS'}=0;
+  }else{
+   $fail_log .= failed_message("Same number of contacts not found in contact file and top file!!!! FAIL\n\t$NUMBER_OF_CONTACTS_SHADOW contacts were found in the contact file.\n\t$NRD contacts were found in the top file.");
+  }
  }else{
-  print "Same number of contacts not found in contact file and top file!!!! FAIL\n";
-  printf ("%i contacts were found in the contact file.\n", $NUMBER_OF_CONTACTS_SHADOW);
-  printf ("%i contacts were found in the top file.\n", $NRD);
+  $FAIL{'OPEN CONTACT FILE'}=-1;
+  $FAIL{'NCONTACTS'}=-1;
+ }
+ if($free eq "yes" ){
+  $FAIL{'NCONTACTS'}=-1;
  }
  my $E_TOTAL=$DENERGY+$CONTENERGY;
  my $CTHRESH=$NUMATOMS*10.0/$PRECISION;
-# print "number of non-ligand atoms $NUMATOMS_LIGAND total E $E_TOTAL\n";
- if($model eq "AA"){ 
+ if($model eq "AA" && $free eq "no"){ 
   if(abs($NUMATOMS_LIGAND-$E_TOTAL) < $CTHRESH){
    $FAIL{'TOTAL ENERGY'}=0;
+  }else{
+   $fail_log .= failed_message("Inconsistent total energy: Expected $NUMATOMS_LIGAND, found $E_TOTAL");
   }
  }else{
    $FAIL{'TOTAL ENERGY'}=-1;
@@ -2332,50 +2507,69 @@ sub checkvalues
 
 }
 
+sub cleanoldfiles
+{
+ if(-e "$PDB.top"){
+  `rm $PDB.top`;
+ }
+ if(-e "$PDB.gro"){
+  `rm $PDB.gro`;
+ }
+ if(-e "$PDB.ndx"){
+  `rm $PDB.ndx`;
+ }
+}
+
+sub CheckTemplatesCreated
+{
+ my ($dir,$prefix)=@_;
+ my @arr=("bif","b","sif","nb");
+ foreach my $i(@arr){
+  unless(-e "$dir/$prefix.$i"){
+   internal_error(" $dir/$prefix.$i not created");
+  }	
+ }
+}
+
+sub getdist
+{
+ my ($handle,$A0,$A1)=@_;
+ my $dist;
+ if($usermap eq "yes"){
+  my $TMP=<$handle>;
+  my ($data,$comment)=checkcomment($TMP);
+  my @A=split(/\s+/,$data);
+  if($#A != 4){internal_error("user-provided contact map has wrong number of fields. See $TMP")};
+  $A[4]/=10;;
+  return $A[4];
+ }else{
+  $dist=(($XT[$A0]-$XT[$A1])**2+($YT[$A0]-$YT[$A1])**2+($ZT[$A0]-$ZT[$A1])**2)**(0.5);
+  return $dist;
+ }
+}
+
+
 sub summary
 {
- my ($FATAL)=@_;
- my $printbuffer="";
- my $NFAILED=0;
- my $NPASSED=0;
- my $NNA=0;
- if($FATAL==0){
-  $printbuffer .= sprintf ("\n     SUMMARY OF FAILED TESTS:\n");
- 
-  foreach my $TEST (@FAILLIST){
-   if($FAIL{$TEST}==1){
-    $printbuffer .= sprintf ("        %s CHECK\n",$TEST);
-    $FAILED++;
-    $NFAILED++;
-   }elsif($FAIL{$TEST}==0){
-   # $printbuffer .= sprintf("%s CHECK : PASSED\n", $TEST);
-    $NPASSED++;
-   }elsif($FAIL{$TEST}==-1){
-    $NNA++;
-   # $printbuffer .= sprintf("%s CHECK : N/A\n",$TEST);
-   }else{
-    internal_error("$TEST");
-   }
-  }
 
- }else{
-  $FAILED="ALL";
- }
- print "test results\n";
- print "\t passed : $NPASSED\n";
- if($NFAILED != 0){
-  
- print "\t failed : $NFAILED\n";
- }
- print "\t N/A    : $NNA\n";
- if($FAILED eq "ALL" || $FAILED > 0){
-  print "\n*************************************************************\n";
-  print "     $FAILED CHECKS FAILED FOR TEST $TESTNUM ($PDB)!!!\n";
-  print $printbuffer;
-  print "Note: Will save files with names FAILED/$PDB.fail$TESTNUM.X\n";
-  print  "*************************************************************\n";
+ my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
+ if($FAILED > 0){
+ my $tmpstring = <<"EOT";
+************************************************************* 
+     $FAILED CHECKS FAILED FOR TEST $TESTNUM ($PDB)!!!
+EOT
+ $printbuffer = $tmpstring . $printbuffer;
+ $printbuffer .= <<"EOT";
+Note: Will save files with names FAILED/$PDB.fail$TESTNUM.X
+*************************************************************
+EOT
+
+print $printbuffer;
+
   `cp share/PDB.files/$PDB.pdb $FAILDIR/$PDB.fail$TESTNUM.pdb`;
-
+  open(FAILLOG,">$FAILDIR/$PDB.fail$TESTNUM.log") or smogcheck_error("unable to open log file for writing");
+  print FAILLOG "$printbuffer\nSee possible additional messages below\n$fail_log";
+  close(FAILLOG);
   foreach(@FILETYPES){
    if(-e "$PDB.$_"){
     `mv $PDB.$_ $FAILDIR/$PDB.fail$TESTNUM.$_`;
@@ -2387,7 +2581,6 @@ sub summary
     }
    }
   }
- 
 
   if(-d "temp.bifsif"){
    `mv temp.bifsif $FAILDIR/$PDB.fail$TESTNUM.bifsif`;

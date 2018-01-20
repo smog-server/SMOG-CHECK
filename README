@@ -18,10 +18,10 @@ General Public License. See COPYING.
 
 			USAGE
 
-There are two check scripts provided by this bundle. 
-One script is very fast, whereas the second is very 
-comprehensive and can be used to test new SMOG models
-that you may design.
+There are three check scripts provided by this bundle. 
+One script is very fast, one is very comprehensive and 
+can be used to test new SMOG models that you may 
+design. The third script will check the smog tools.
 
 When everything works well, running the checks is 
 fairly quick and easy.  Just make sure you run 
@@ -33,9 +33,28 @@ For the less comprehensive check, issue the command:
 
 ./quick-check
 
-For the comprehensive check (may take ~30 minutes): 
+For the comprehensive check (may take over an hour): 
 
 ./smog-check 
+
+If you would like to only perform a specific test, you
+can indicate which test with
+
+./smog-check N
+
+where N is the test you would like to repeat.  This can 
+be useful when debugging SMOG 2.
+
+If you would like to only tests N to M, indicate which 
+tests with
+
+./smog-check N M
+
+
+To check the that the tools are working properly, use:
+
+./smog-tools-check
+
 
 These scripts have been tested on Linux and OSX 
 platforms. 

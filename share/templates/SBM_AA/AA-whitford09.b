@@ -6,10 +6,6 @@
 	<bType>*</bType>
 	<bType>*</bType>
         </bond>
-	<bond func="bond_harmonic_6(?,200)">
-	<bType>*</bType>
-    	<bType>MG</bType>
-        </bond>
 </bonds>
 
 <!-- ANGLES -->
@@ -42,12 +38,6 @@
 	<bType>*</bType>
 	<bType>*</bType>
 	</dihedral>
-	<dihedral func="dihedral_harmonic(?,10)" energyGroup="r_n">
-	<bType>*</bType>
-	<bType>*</bType>
-	<bType>*</bType>
-	<bType>*</bType>
-	</dihedral>
 	<!-- AMINO DIHEDRALS -->
 	<dihedral func="dihedral_cosine(?,1,1)+dihedral_cosine(?,0.5,3)" energyGroup="bb_a">
 	<bType>*</bType>
@@ -73,6 +63,7 @@
 	<bType>*</bType>
 	<bType>*</bType>
 	</dihedral>
+
 	<!-- LIGAND DIHEDRALS -->
         <dihedral func="dihedral_harmonic(?,10)" energyGroup="lig">
         <bType>*</bType>
