@@ -620,6 +620,7 @@ sub smogchecker
 
  &cleanoldfiles;
  &preparesettings;
+ print "Running SMOG 2\n";
  &runsmog; 
 
  ($FAIL{'NON-ZERO EXIT'},$FAIL{'UNINITIALIZED VARIABLES'})=checkoutput("$PDB.output");
@@ -836,7 +837,6 @@ EOT
 
 sub checkndx
 {
-
  open(NDX,"$PDB.ndx") or internal_error(" $PDB.ndx can not be opened...");
  open(NDX2,">$PDB.ndx2") or internal_error(" $PDB.ndx2 can not be opened...");
  while(<NDX>){
@@ -879,14 +879,14 @@ sub checkndx
 
 sub readtop
 {
-
  my %FOUND;
  $DIH_MIN=100000000;
  $DIH_MAX=-100000000;
  $NCONTACTS=0;
  # clean up top file for easy parsing later
  open(TOP,"$PDB.top") or internal_error(" $PDB.top can not be opened...");
- open(TOP2,">$PDB.top2") or internal_error(" $PDB.top can not be opened...");
+ my $topNlines=0;
+ my @topdata;
  while(<TOP>){
   my $LINE=$_;
   chomp($LINE);
@@ -894,12 +894,10 @@ sub readtop
   if($A eq ""){
    next;
   }
-  print TOP2 "$A\n";
+  $topdata[$topNlines]=$A;
+  $topNlines++;
  }
  close(TOP);
- close(TOP2);
- `mv $PDB.top2 $PDB.top`;
- open(TOP,"$PDB.top") or internal_error(" $PDB.top can not be opened...");
  $NUCLEIC_PRESENT=0;
  $AMINO_PRESENT=0;
  $LIGAND_PRESENT=0;
@@ -931,15 +929,14 @@ sub readtop
  my @A;
  my $stackingE=0;
  my $NonstackingE=0;
- while(<TOP>){
-  my $LINE=$_;
-  chomp($LINE);
+ my $LN=0;
+ while($LN<$topNlines){
+  my $LINE=$topdata[$LN];$LN++;
   @A=split(/ /,$LINE);
   if(exists $A[1]){
    if($A[1] eq "defaults"){
     $FOUND{'defaults'}++;
-    $LINE=<TOP>;
-    chomp($LINE);
+    $LINE=$topdata[$LN];$LN++;
     @A=split(/ /,$LINE);
     if($A[0] == 1){
      $FAIL{'DEFAULTS, nbfunc'}=0; 
@@ -962,8 +959,7 @@ sub readtop
    if($A[1] eq "atomtypes"){
     $FOUND{'atomtypes'}++;
     $#A = -1;
-    $LINE=<TOP>;
-    chomp($LINE);
+    $LINE=$topdata[$LN];$LN++;
     @A=split(/ /,$LINE);
     my %seen;
     my $numtypes=0;
@@ -1007,8 +1003,7 @@ sub readtop
       $excl1++;
      }
      $#A = -1;
-     $LINE=<TOP>;
-     last unless defined $LINE;
+     $LINE=$topdata[$LN];$LN++;
      @A=split(/ /,$LINE);
     }
     if($numtypes == $mass1 and $mass1 !=0){
@@ -1038,8 +1033,7 @@ sub readtop
    # check the excluded volume is consistent with the settings.
    if($A[1] eq "moleculetype"){
     $FOUND{'moleculetype'}++;
-    my $LINE=<TOP>;
-    chomp($LINE); 
+    $LINE=$topdata[$LN];$LN++;
     @A=split(/ /,$LINE);
     if($A[0] eq "Macromolecule"){
      $FAIL{'moleculetype=Macromolecule'}=0;
@@ -1063,7 +1057,7 @@ sub readtop
     my $atomcharge=0;
     $NUMATOMS_LIGAND=0;
     $#A = -1;
-    $LINE=<TOP>;
+    $LINE=$topdata[$LN];$LN++;
     @A=split(/ /,$LINE);
     until($A[0] eq "["){
     # atom name
@@ -1137,8 +1131,7 @@ sub readtop
      }
      $NUMATOMS++;
      $#A = -1;
-     $LINE=<TOP>;
-     last unless defined $LINE;
+     $LINE=$topdata[$LN];$LN++;
      @A=split(/ /,$LINE);
     }
     if($FAIL_GROTOP ==0){
@@ -1183,7 +1176,7 @@ sub readtop
     for (my $I=1;$I<=$NUMATOMS;$I++){
        $NbondWatom[$I]=0;
     }
-    $LINE=<TOP>;
+    $LINE=$topdata[$LN];$LN++;
     @A=split(/ /,$LINE);
     until($A[0] eq "["){
      $NBONDS++;
@@ -1231,8 +1224,7 @@ sub readtop
      }else{
       $fail_log .= failed_message("unknown function type for bond\n\t$LINE");
      }
-     $LINE=<TOP>;
-     last unless defined $LINE;
+     $LINE=$topdata[$LN];$LN++;
      @A=split(/ /,$LINE);
     }
 
@@ -1329,7 +1321,7 @@ sub readtop
 
     my %angle_array;
     my $string;
-    $LINE=<TOP>;
+    $LINE=$topdata[$LN];$LN++;
     @A=split(/ /,$LINE);
     until($A[0] eq "["){
      if($A[3] == 1){
@@ -1349,23 +1341,25 @@ sub readtop
      if(!exists $angle_array{$string} ){
       ## bond was not assigned.
       $angle_array{$string}=1;
-      $angles2[$Nangles][0]=$A[0];
-      $angles2[$Nangles][1]=$A[1];
-      $angles2[$Nangles][2]=$A[2];
+      my $A0=$A[0];
+      my $A1=$A[1];
+      my $A2=$A[2];
+      $angles2[$Nangles][0]=$A0;
+      $angles2[$Nangles][1]=$A1;
+      $angles2[$Nangles][2]=$A2;
       # this organization is also strange, but it will make sense later...
-      $angleWatom[$A[0]][$NangleWatom[$A[0]]]= $Nangles;
-      $angleWatom[$A[1]][$NangleWatom[$A[1]]]= $Nangles;
-      $angleWatom[$A[2]][$NangleWatom[$A[2]]]= $Nangles;
-      $NangleWatom[$A[0]]++;
-      $NangleWatom[$A[1]]++;
-      $NangleWatom[$A[2]]++;
+      $angleWatom[$A0][$NangleWatom[$A0]]= $Nangles;
+      $angleWatom[$A1][$NangleWatom[$A1]]= $Nangles;
+      $angleWatom[$A2][$NangleWatom[$A2]]= $Nangles;
+      $NangleWatom[$A0]++;
+      $NangleWatom[$A1]++;
+      $NangleWatom[$A2]++;
       $Nangles++;
      }else{
       ## bond has already been assigned.
       $doubleangle++;
      }
-     $LINE=<TOP>;
-     last unless defined $LINE;
+     $LINE=$topdata[$LN];$LN++;
      @A=split(/ /,$LINE);
     }
     if($doubleangle ==0){
@@ -1424,16 +1418,18 @@ sub readtop
     $improper_gen_N=0;
     $#improper_gen=-1;
     for(my $i=1;$i<=$NUMATOMS;$i++){
-    # go through the atoms.  For each atom, check all of the angles it is involved in, and see if we can make a angle angle out of it.
+    # go through the atoms.  For each atom, check all of the angles it is involved in, and see if we can make an angle out of it.
      for(my $j=0;$j<$NangleWatom[$i];$j++){
+      my $AIJ=$angleWatom[$i][$j];
+      my $A1=$angles2[$AIJ][0];
+      my $A2=$angles2[$AIJ][1];
+      my $A3=$angles2[$AIJ][2];
       for(my $k=$j+1;$k<$NangleWatom[$i];$k++){
        if($j!=$k){
-        my $A1=$angles2[$angleWatom[$i][$j]][0];
-        my $A2=$angles2[$angleWatom[$i][$j]][1];
-        my $A3=$angles2[$angleWatom[$i][$j]][2];
-        my $B1=$angles2[$angleWatom[$i][$k]][0];
-        my $B2=$angles2[$angleWatom[$i][$k]][1];
-        my $B3=$angles2[$angleWatom[$i][$k]][2];
+        my $AIK=$angleWatom[$i][$k];
+        my $B1=$angles2[$AIK][0];
+        my $B2=$angles2[$AIK][1];
+        my $B3=$angles2[$AIK][2];
         my ($phi1,$phi2,$phi3,$phi4);
         # find all the dihedral angles that can be made with these angles
         my $formed='not';
@@ -1509,15 +1505,15 @@ sub readtop
          $phi_gen_N++;
         }elsif($formed eq "improper"){
          my @phit;
-        	$phit[0]=$phi1;
-        	$phit[1]=$phi2;
-        	$phit[2]=$phi3;
-        	$phit[3]=$phi4;
-        	for(my $ii=0;$ii<4;$ii++){
+         $phit[0]=$phi1;
+         $phit[1]=$phi2;
+         $phit[2]=$phi3;
+         $phit[3]=$phi4;
+         for(my $ii=0;$ii<4;$ii++){
           $phi1=$phit[$ii];
-        	 for(my $jj=0;$jj<4;$jj++){
-        	  if($ii != $jj){
-        	   $phi2=$phit[$jj];
+          for(my $jj=0;$jj<4;$jj++){
+           if($ii != $jj){
+            $phi2=$phit[$jj];
             for(my$kk=0;$kk<4;$kk++){
              if($kk != $jj && $kk != $ii){
               $phi3=$phit[$kk];
@@ -1572,7 +1568,7 @@ sub readtop
     $#A = -1;
     $#ED_T = -1;
     $#EDrig_T = -1;
-    $LINE=<TOP>;
+    $LINE=$topdata[$LN];$LN++;
     @A=split(/ /,$LINE);
     until($A[0] eq "["){
      if($A[0] < $A[3]){
@@ -1697,8 +1693,7 @@ sub readtop
      }
 
      $#A = -1;
-     $LINE=<TOP>;
-     last unless defined $LINE;
+     $LINE=$topdata[$LN];$LN++;
      @A=split(/ /,$LINE);
     }
 
@@ -1923,8 +1918,7 @@ sub readtop
     my $NOTSHORTSEQ=0;
     my $freepair=0;
     $#A = -1;
-    $LINE=<TOP>;
-    chomp($LINE);
+    $LINE=$topdata[$LN];$LN++;
     @A=split(/ /,$LINE);
     my $W;
     my $Cdist;
@@ -1962,7 +1956,7 @@ sub readtop
      if($gaussian eq "yes"){
       $W=$A[3];
       $Cdist=$A[4];
-      $CALCD=getdist(\*CMAP,\@A,\@XT,\@YT,\@ZT);
+      $CALCD=getdist(\*CMAP,$A[0],$A[1]);
       if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0) ){
        $ContactDist++;
       }else{
@@ -1989,7 +1983,7 @@ sub readtop
      }elsif($model eq "CA"){
       $W=5.0**5.0/6.0**6.0*($A[3]**6.0)/($A[4]**5.0);
       $Cdist=(6*$A[4]/(5*$A[3]))**(1.0/2.0);
-      $CALCD=getdist(\*CMAP,\@A,\@XT,\@YT,\@ZT);
+      $CALCD=getdist(\*CMAP,$A[0],$A[1]);
       if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0) ){
        $ContactDist++;
       }else{
@@ -1998,7 +1992,7 @@ sub readtop
      }elsif($model eq "AA"){
       $W=($A[3]*$A[3])/(4*$A[4]);
       $Cdist=(2.0*$A[4]/($A[3]))**(1.0/6.0);
-      $CALCD=getdist(\*CMAP,\@A,\@XT,\@YT,\@ZT);
+      $CALCD=getdist(\*CMAP,$A[0],$A[1]);
       if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0)){
        $ContactDist++;
       }else{
@@ -2052,9 +2046,7 @@ sub readtop
      # check to see if the contact is nucleic acids, adjacent residues and not backbone atoms.  These should be rescaled by a factor of 1/3
      # read the next line
      $#A = -1;
-     $LINE=<TOP>;
-     chomp($LINE);
-     last unless defined $LINE;
+     $LINE=$topdata[$LN];$LN++;
      @A=split(/ /,$LINE);
     }
     if($NOTSHORTSEQ == $NCONTACTS){
@@ -2118,7 +2110,7 @@ sub readtop
    if($A[1] eq "exclusions"){
     $FOUND{'exclusions'}++;
     $#A = -1;
-    $LINE=<TOP>;
+    $LINE=$topdata[$LN];$LN++;
     @A=split(/ /,$LINE);
     my $NEXCL=0;
     my $NEXCLUSIONS=0;
@@ -2130,8 +2122,7 @@ sub readtop
      $NEXCL++;
      # read the next line
      $#A = -1;
-     $LINE=<TOP>;
-     last unless defined $LINE;
+     $LINE=$topdata[$LN];$LN++;
      @A=split(/ /,$LINE);
     }
     if($NEXCL == $NCONTACTS){
@@ -2142,8 +2133,7 @@ sub readtop
   if(exists $A[1]){
    if($A[1] eq "system"){
     $FOUND{'system'}++;
-    $LINE=<TOP>;
-    chomp($LINE);
+    $LINE=$topdata[$LN];$LN++;
     @A=split(/ /,$LINE);
     if($A[0] eq "Macromolecule"){
      $FAIL{'NAME'}=0;
@@ -2156,8 +2146,7 @@ sub readtop
   if(exists $A[1]){
    if($A[1] eq "molecules"){
     $FOUND{'molecules'}++;
-    $LINE=<TOP>;
-    chomp($LINE);
+    $LINE=$topdata[$LN];$LN++;
     @A=split(/ /,$LINE);
     if($A[0] eq "Macromolecule"){
      $FAIL{'NAME'}=0;
@@ -2540,12 +2529,8 @@ sub CheckTemplatesCreated
 
 sub getdist
 {
- my ($handle,$A,$X,$Y,$Z)=@_;
+ my ($handle,$A0,$A1)=@_;
  my $dist;
- my @A=@{$A};
- my @X=@{$X};
- my @Y=@{$Y};
- my @Z=@{$Z};
  if($usermap eq "yes"){
   my $TMP=<$handle>;
   my ($data,$comment)=checkcomment($TMP);
@@ -2554,7 +2539,7 @@ sub getdist
   $A[4]/=10;;
   return $A[4];
  }else{
-  $dist=(($XT[$A[0]]-$XT[$A[1]])**2+($YT[$A[0]]-$YT[$A[1]])**2+($ZT[$A[0]]-$ZT[$A[1]])**2)**(0.5);
+  $dist=(($XT[$A0]-$XT[$A1])**2+($YT[$A0]-$YT[$A1])**2+($ZT[$A0]-$ZT[$A1])**2)**(0.5);
   return $dist;
  }
 }

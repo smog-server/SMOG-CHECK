@@ -5,7 +5,7 @@ use Exporter;
 our $PDB_DIR;
 our @ISA = 'Exporter';
 our @EXPORT =
-qw(internal_error smogcheck_error failed_message failsum checkoutput filediff resettests compare_table);
+qw(internal_error smogcheck_error failed_message failsum checkoutput filediff resettests compare_table timediff);
 
 sub internal_error
 {
@@ -79,7 +79,7 @@ sub failsum
   $FAILED=1;
   $printbuffer = sprintf ("\tFATAL ERROR ENCOUNTERED\n");
  }
- print "test results\n";
+ print "\ntest results\n";
  print "\t passed : $NPASSED\n";
  if($NFAILED != 0){
   
@@ -222,6 +222,16 @@ sub compare_table
  }
  return $ndiff;
 }
+
+sub timediff
+{
+	my ($time_last)=@_;
+	my $time=time-$time_last;
+	print "$time seconds\n";
+	$time_last=time;
+	return $time_last;
+}
+
 
 return 1;
 
