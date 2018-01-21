@@ -2543,7 +2543,7 @@ sub CheckTemplatesCreated
    internal_error(" $dir/$prefix.$i not created");
   }	
  }
- unless(-e "$dir/extras"){
+ if($model eq "AA" && $default eq "no" && ! -e "$dir/extras"){
   internal_error(" $dir/extras not created");
  }	
 
