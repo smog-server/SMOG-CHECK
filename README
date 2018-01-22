@@ -53,9 +53,9 @@ which tests with
 
 To check the that the smog tools are working properly, use:
 
-./smog-tools-check
+./smog-tool-check
 
-smog-tools-check is not very comprehensive, but it will 
+smog-tool-check is not very comprehensive, but it will 
 ensure basic functionality of the tools.
 
 These scripts have been tested on Linux and OSX 
