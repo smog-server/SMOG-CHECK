@@ -51,7 +51,7 @@ which tests with
 ./smog-check N M
 
 
-To check the that the smog tools are working properly, use:
+To check that the smog tools are working properly, use:
 
 ./smog-tool-check
 
