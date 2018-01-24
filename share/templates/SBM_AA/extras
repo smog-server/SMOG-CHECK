@@ -1,4 +1,5 @@
 ; this is a sample extras file to make sure that nothing gets mangled by the use of extras
 ; test adding another atom type (these values will be checked by smog-check 
+nonbond_params < NB_1 NB_1 1  2.0   7.0
 atomtypes < extratype   2.1   -3  A     2.0   7.0
 pairs<;this is a test comment that will be added under the pairs section.  This should have no effect on any tests
