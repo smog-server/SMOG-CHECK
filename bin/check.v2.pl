@@ -5,21 +5,28 @@ use check_common;
 # This is the main script that runs SMOG2 and then checks to see if the generated files are correct.
 # This is intended to be a brute-force evaluation of everything that should appear. Since this is
 # a testing script, it is not designed to be efficient, but to be thorough, and foolproof...
-print <<EOT;
-*****************************************************************************************
-                                       smog-check                                   
+
+my $VERSION="2.2beta";
+my $tmpstring = <<"EOS";
+
+                    smog-check                                   
 
        smog-check is part of the SMOG 2 distribution, available at smog-server.org     
 
-       This tool will check your installation of SMOG 2, to ensure that a number of
-                         models are being constructed properly.
+       This tool will check your installation of SMOG 2, to ensure 
+		that a number of models are being constructed properly.
 
                        See the SMOG manual for usage guidelines.
 
             For questions regarding this script, contact info\@smog-server.org              
-*****************************************************************************************
-EOT
 
+EOS
+
+my $wide=88;
+
+printdashed($wide);
+printcenter($wide,$tmpstring);
+printdashed($wide);
 
 # check if we are simply rerunning a single test, a few tests, or performing all
 my $RETEST=$#ARGV;
@@ -74,6 +81,15 @@ our $BIFSIF_CA=$ENV{'BIFSIF_CA_DEFAULT'};
 our $TEMPLATE_DIR_AA=$ENV{'BIFSIF_AA_TESTING'};
 our $TEMPLATE_DIR_AA_STATIC=$ENV{'BIFSIF_STATIC_TESTING'};
 our $TEMPLATE_DIR_CA=$ENV{'BIFSIF_CA_TESTING'};
+
+# before testing anything, make sure this version of smog-check is compatible with the version of smog2
+my $smogversion=`$EXEC_NAME -v | tail -n 1`;
+chomp($smogversion);
+$smogversion=~s/Version //g;
+$smogversion=~/^\s+|\s+$/;
+if($VERSION ne $smogversion){
+ smogcheck_error("Incompatible versions of SMOG ($smogversion) and SMOG-CHECK ($VERSION)");	
+}
 
 # FAILLIST is a list of all the tests.
 # If you are developing and testing your own forcefield, which may not need to conform to certain checks, then you may want to disable some tests by  removing the test name from this list. However, do so at your own risk.
