@@ -957,9 +957,11 @@ sub readtop
  my $NonstackingE=0;
  for(my $N=0;$N<$topNlines;$N++){
   my $LINE=$topdata[$N];
-  @A=split(/ /,$LINE);
-  if(exists $A[0] && $A[0] eq "[" && exists $A[1]){
-   $FOUND{$A[1]}++;
+  if(substr($LINE,0,1) eq "["){
+   @A=split(/ /,$LINE);
+   if(exists $A[0] && $A[0] eq "[" && exists $A[1]){
+    $FOUND{$A[1]}++;
+   }
   }
  }
  my $LN=0;
