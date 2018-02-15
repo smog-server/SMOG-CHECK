@@ -1,4 +1,4 @@
-########################################################
+#############################################################
 
 README for smog-check. These are very simple scripts 
 that will test to see if your installation of SMOG 2 is
@@ -11,10 +11,10 @@ General Public License. See COPYING.
 
             Paul Whitford, Jeffrey Noel
 
-########################################################
+#############################################################
 
 
-########################################################
+#############################################################
 
 			USAGE
 
@@ -33,7 +33,7 @@ For the less comprehensive check, issue the command:
 
 ./quick-check
 
-For the comprehensive check (may take over an hour): 
+For the comprehensive check (requires ~30 minutes): 
 
 ./smog-check 
 
@@ -45,20 +45,22 @@ can indicate which test with
 where N is the test you would like to repeat.  This can 
 be useful when debugging SMOG 2.
 
-If you would like to only tests N to M, indicate which 
-tests with
+If you would like to only perform tests N to M, indicate 
+which tests with
 
 ./smog-check N M
 
 
-To check the that the tools are working properly, use:
+To check that the smog tools are working properly, use:
 
-./smog-tools-check
+./smog-tool-check
 
+smog-tool-check is not very comprehensive, but it will 
+ensure basic functionality of the tools.
 
 These scripts have been tested on Linux and OSX 
 platforms. 
 
-Direct all questions to info@smog-server.org.
+Direct all questions and suggestions to info@smog-server.org.
 
-########################################################
+#############################################################

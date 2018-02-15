@@ -5,21 +5,28 @@ use check_common;
 # This is the main script that runs SMOG2 and then checks to see if the generated files are correct.
 # This is intended to be a brute-force evaluation of everything that should appear. Since this is
 # a testing script, it is not designed to be efficient, but to be thorough, and foolproof...
-print <<EOT;
-*****************************************************************************************
-                                       smog-check                                   
+
+my $VERSION="2.2beta";
+my $tmpstring = <<"EOS";
+
+                    smog-check                                   
 
        smog-check is part of the SMOG 2 distribution, available at smog-server.org     
 
-       This tool will check your installation of SMOG 2, to ensure that a number of
-                         models are being constructed properly.
+       This tool will check your installation of SMOG 2, to ensure 
+		that a number of models are being constructed properly.
 
                        See the SMOG manual for usage guidelines.
 
             For questions regarding this script, contact info\@smog-server.org              
-*****************************************************************************************
-EOT
 
+EOS
+
+my $wide=88;
+
+printdashed($wide);
+printcenter($wide,$tmpstring);
+printdashed($wide);
 
 # check if we are simply rerunning a single test, a few tests, or performing all
 my $RETEST=$#ARGV;
@@ -75,13 +82,22 @@ our $TEMPLATE_DIR_AA=$ENV{'BIFSIF_AA_TESTING'};
 our $TEMPLATE_DIR_AA_STATIC=$ENV{'BIFSIF_STATIC_TESTING'};
 our $TEMPLATE_DIR_CA=$ENV{'BIFSIF_CA_TESTING'};
 
+# before testing anything, make sure this version of smog-check is compatible with the version of smog2
+my $smogversion=`$EXEC_NAME -v | tail -n 1`;
+chomp($smogversion);
+$smogversion=~s/Version //g;
+$smogversion=~/^\s+|\s+$/;
+if($VERSION ne $smogversion){
+ smogcheck_error("Incompatible versions of SMOG ($smogversion) and SMOG-CHECK ($VERSION)");	
+}
+
 # FAILLIST is a list of all the tests.
 # If you are developing and testing your own forcefield, which may not need to conform to certain checks, then you may want to disable some tests by  removing the test name from this list. However, do so at your own risk.
-our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','TOP FIELDS FOUND','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'ANGLE TYPES', 'ANGLE WEIGHTS', 'DUPLICATE BONDS', 'DUPLICATE ANGLES', 'GENERATED ANGLE COUNT','GENERATED ANGLE IN TOP','ANGLES IN TOP GENERATED', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL IN TOP GENERATED','GENERATED DIHEDRAL IN TOP','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','GAUSSIAN CONTACT EXCLUDED VOLUME','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM MAP GENERATED','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY','TYPE6 ATOMS','UNINITIALIZED VARIABLES','CLASSIFYING DIHEDRALS','NON-ZERO EXIT','ATOM FIELDS','ATOM CHARGES','FREE PAIRS APPEAR IN CONTACTS');
+our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','TOP FIELDS FOUND','TOP FIELDS RECOGNIZED','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'ANGLE TYPES', 'ANGLE WEIGHTS', 'DUPLICATE BONDS', 'DUPLICATE ANGLES', 'GENERATED ANGLE COUNT','GENERATED ANGLE IN TOP','ANGLES IN TOP GENERATED', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL IN TOP GENERATED','GENERATED DIHEDRAL IN TOP','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','GAUSSIAN CONTACT EXCLUDED VOLUME','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM MAP GENERATED','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY','TYPE6 ATOMS','UNINITIALIZED VARIABLES','CLASSIFYING DIHEDRALS','NON-ZERO EXIT','ATOM FIELDS','ATOM CHARGES','FREE PAIRS APPEAR IN CONTACTS','EXTRAS ADDED');
 
-my %supported_directives = ( 'defaults' => '0',
+my %supported_directives = ( 'defaults' => '1',
         'atomtypes' => '1',
-        'moleculetype' => '0',
+        'moleculetype' => '1',
         'nonbond_params' => '0',
         'atoms' => '1',
         'bonds' => '1',
@@ -90,8 +106,7 @@ my %supported_directives = ( 'defaults' => '0',
         'pairs' => '1',
         'exclusions' => '1',
         'system' => '1',
-        'molecules' => '1',
-        'position_restraints' => '1'
+        'molecules' => '1'
         );
 
 # list the bonds that are free in the free-templates
@@ -780,7 +795,13 @@ EOT
  }else{
   smogcheck_error("unknown model type.");
  }
-
+ # make some special entries to handle extras
+ if($model eq "AA" && $default ne "yes"){
+  $C12NB{"extratype"}=7;
+  $C6NB{"extratype"}=2;
+  $massNB{"extratype"}=2.1;
+  $chargeNB{"extratype"}=-3.0;
+ }
  if(-d "temp.bifsif"){
   `rm -r temp.bifsif`;
  }
@@ -835,6 +856,7 @@ EOT
    `cp $TEMPLATE_DIR_AA/$templateAA.bif temp.bifsif/tmp.bif`;
    `cp $TEMPLATE_DIR_AA/$templateAA.b temp.bifsif/tmp.b`;
   }
+  `cp $TEMPLATE_DIR_AA/extras temp.bifsif/extras`;
   CheckTemplatesCreated("temp.bifsif","tmp");
  }
 }
@@ -921,8 +943,7 @@ sub readtop
  my $finalres;
  my %revData;
  my @resindex;
- @FIELDS=("defaults","atomtypes","moleculetype","atoms","pairs","bonds","angles","dihedrals","system","molecules","exclusions");
- foreach(@FIELDS){
+ foreach(keys %supported_directives){
   $FOUND{$_}=0;
  }
 
@@ -934,13 +955,21 @@ sub readtop
  my @A;
  my $stackingE=0;
  my $NonstackingE=0;
+ for(my $N=0;$N<$topNlines;$N++){
+  my $LINE=$topdata[$N];
+  if(substr($LINE,0,1) eq "["){
+   @A=split(/ /,$LINE);
+   if(exists $A[0] && $A[0] eq "[" && exists $A[1]){
+    $FOUND{$A[1]}++;
+   }
+  }
+ }
  my $LN=0;
  while($LN<$topNlines){
   my $LINE=$topdata[$LN];$LN++;
   @A=split(/ /,$LINE);
   if(exists $A[1]){
    if($A[1] eq "defaults"){
-    $FOUND{'defaults'}++;
     $LINE=$topdata[$LN];$LN++;
     @A=split(/ /,$LINE);
     if($A[0] == 1){
@@ -962,7 +991,6 @@ sub readtop
   }
   if(exists $A[1]){
    if($A[1] eq "atomtypes"){
-    $FOUND{'atomtypes'}++;
     $#A = -1;
     $LINE=$topdata[$LN];$LN++;
     @A=split(/ /,$LINE);
@@ -990,21 +1018,21 @@ sub readtop
       my $T=$A[0];
       smogcheck_error("Only letters, numbers and _ can appear in atomtype names. atomtype $T found.");
      }
-     if($A[1] > $MINTHR*$massNB{$A[0]} && $A[1] < $MAXTHR*$massNB{$A[0]}){
+     if(defined $massNB{$A[0]} && $A[1] > $MINTHR*$massNB{$A[0]} && $A[1] < $MAXTHR*$massNB{$A[0]}){
       $mass1++;
      }
-     if($A[2] >= $MINTHR*$chargeNB{$A[0]} && $A[2] <= $MAXTHR*$chargeNB{$A[0]} && $chargeNB{$A[0]} >= 0){
+     if(defined $chargeNB{$A[0]} && $A[2] >= $MINTHR*$chargeNB{$A[0]} && $A[2] <= $MAXTHR*$chargeNB{$A[0]} && $chargeNB{$A[0]} >= 0){
       $charge1++;
-     }elsif($A[2] <= $MINTHR*$chargeNB{$A[0]} && $A[2] >= $MAXTHR*$chargeNB{$A[0]} && $chargeNB{$A[0]} < 0){
+     }elsif(defined $chargeNB{$A[0]} && $A[2] <= $MINTHR*$chargeNB{$A[0]} && $A[2] >= $MAXTHR*$chargeNB{$A[0]} && $chargeNB{$A[0]} < 0){
       $charge1++;
      }
      if($A[3] eq "A"){
       $particle1++;
      }
-     if($A[4] >= $MINTHR*$C6NB{$A[0]} && $A[4] <= $MAXTHR*$C6NB{$A[0]}){
+     if(defined $C6NB{$A[0]} && $A[4] >= $MINTHR*$C6NB{$A[0]} && $A[4] <= $MAXTHR*$C6NB{$A[0]}){
       $c61++
      }
-     if($A[5] > $MINTHR*$C12NB{$A[0]} && $A[5] < $MAXTHR*$C12NB{$A[0]}){
+     if(defined $C12NB{$A[0]} && $A[5] > $MINTHR*$C12NB{$A[0]} && $A[5] < $MAXTHR*$C12NB{$A[0]}){
       $excl1++;
      }
      $#A = -1;
@@ -1032,12 +1060,18 @@ sub readtop
     if($numtypes == $acceptablenames and $acceptablenames !=0){
      $FAIL{'ALPHANUMERIC ATOMTYPES'}=0;
     }
+    if($model eq "AA" && $default ne "yes"){
+     if(exists $seen{"extratype"}){
+      $FAIL{'EXTRAS ADDED'}=0;
+     }
+    }else{
+     $FAIL{'EXTRAS ADDED'}=-1;
+    }
    }
   } 
   if(exists $A[1]){
    # check the excluded volume is consistent with the settings.
    if($A[1] eq "moleculetype"){
-    $FOUND{'moleculetype'}++;
     $LINE=$topdata[$LN];$LN++;
     @A=split(/ /,$LINE);
     if($A[0] eq "Macromolecule"){
@@ -1056,7 +1090,6 @@ sub readtop
    # read the atoms, and store information about them
     my $FAIL_GROTOP=0;
    if($A[1] eq "atoms"){
-    $FOUND{'atoms'}++;
     $NUMATOMS=0;
     my $fieldnum=0;
     my $atomcharge=0;
@@ -1093,9 +1126,9 @@ sub readtop
       $fail_log .= failed_message("atom has wrong number of fields\t$LINE");
      }
 
-    if($A[4] ne $GRODATA[$NUMATOMS][2]){
+     if($A[4] ne $GRODATA[$NUMATOMS][2]){
       $FAIL_GROTOP++;
-    }
+     }
      # check if it is a backbone atom. This list does not include CA and C1* because this classification is only used for determining which bonds are backbone and which are sidechain
      if(exists $BBTYPE{$A[4]}){
       $ATOMTYPE[$A[0]]=$BBTYPE{$A[4]};
@@ -1160,7 +1193,6 @@ sub readtop
   if(exists $A[1]){  
    # read the bonds.  Make sure they are not assigned twice.  Also, save the bonds, so we can generate all possible bond angles later.
    if($A[1] eq "bonds"){
-    $FOUND{'bonds'}++;
     $#A = -1;
     my @bonds;
     $#bonds = -1;
@@ -1307,7 +1339,6 @@ sub readtop
   } 
   if(exists $A[1]){ 
    if($A[1] eq "angles"){
-    $FOUND{'angles'}++;
     $#A = -1;
     my $doubleangle=0;
     my $Nangles=0;
@@ -1549,7 +1580,6 @@ sub readtop
   if(exists $A[1]){
    if($A[1] eq "dihedrals"){
     my $CORIMP=0;
-    $FOUND{'dihedrals'}++;
     if($model ne "CA" ){
      $FAIL{'CA DIHEDRAL WEIGHTS'}=-1;
     }
@@ -1909,7 +1939,6 @@ sub readtop
   if(exists $A[1]){
    # check values for contact energy
    if($A[1] eq "pairs"){
-    $FOUND{'pairs'}++;
    # reset all the values because we can analyze multiple settings, and we want to make sure we always start at 0 and with arrays cleared.
     $CONTENERGY=0;
     my $FAIL_STACK=0;
@@ -2112,7 +2141,6 @@ sub readtop
   } 
   if(exists $A[1]){ 
    if($A[1] eq "exclusions"){
-    $FOUND{'exclusions'}++;
     $#A = -1;
     $LINE=$topdata[$LN];$LN++;
     @A=split(/ /,$LINE);
@@ -2136,7 +2164,6 @@ sub readtop
   }
   if(exists $A[1]){
    if($A[1] eq "system"){
-    $FOUND{'system'}++;
     $LINE=$topdata[$LN];$LN++;
     @A=split(/ /,$LINE);
     if($A[0] eq "Macromolecule"){
@@ -2149,7 +2176,6 @@ sub readtop
 
   if(exists $A[1]){
    if($A[1] eq "molecules"){
-    $FOUND{'molecules'}++;
     $LINE=$topdata[$LN];$LN++;
     @A=split(/ /,$LINE);
     if($A[0] eq "Macromolecule"){
@@ -2424,19 +2450,35 @@ sub readtop
  unless($AMINO_PRESENT){
   $FAIL{'CONTACTS PROTEIN i-j=4'}=-1;
  }
- my $NFIELDS=@FIELDS;
+ my $cf=0;
+ my $NFIELDFOUND=scalar keys %FOUND;
+ foreach my $ffields(keys %FOUND)
+ {
+  if(exists $supported_directives{$ffields}){
+   $cf++;
+  }else{
+   $fail_log .= failed_message("Unrecognized directive $ffields found in top file.")
+  }
+ }
+ if(scalar keys %FOUND == $cf){
+  $FAIL{'TOP FIELDS RECOGNIZED'}=0;
+ }
  my $NFIELDC=0;
- foreach(@FIELDS){
-  my $FF=$_;
-  if($FOUND{"$FF"} == 1){
+ foreach my $FF(keys %supported_directives){
+  if($FOUND{"$FF"} == $supported_directives{"$FF"}){
    $NFIELDC++;
-  }elsif($FOUND{"$FF"} == 0){
-   $fail_log .= failed_message("Directive [ $FF ] not found in top file.  This either means SMOG did not complete, or there was a problem reading the file.  All subsequent output will be meaningless.");
+  }elsif($model eq "AA" and $default eq "no" and $FF eq "nonbond_params" and $FOUND{"$FF"} == 1){
+   # allow nb params to appear in non-default AA models
+   $NFIELDC++;
+  }elsif($supported_directives{"$FF"}==1){
+   $fail_log .= failed_message("Required directive [ $FF ] not found in top file.  This either means SMOG did not complete, or there was a problem reading the file.  All subsequent output will likely be meaningless.");
+  }elsif($supported_directives{"$FF"}==0){
+   $fail_log .= failed_message("Directive [ $FF ] found in top file, but it should not for this model.");
   }else{
    smogcheck_error("Serious problem understanding .top file.  A directive may be duplicated.");
   }
  }
- if($NFIELDS == $NFIELDC){
+ if(scalar keys %supported_directives == $NFIELDC){
   $FAIL{'TOP FIELDS FOUND'}=0;
  }
 }
@@ -2529,6 +2571,10 @@ sub CheckTemplatesCreated
    internal_error(" $dir/$prefix.$i not created");
   }	
  }
+ if($model eq "AA" && $default eq "no" && ! -e "$dir/extras"){
+  internal_error(" $dir/extras not created");
+ }	
+
 }
 
 sub getdist
