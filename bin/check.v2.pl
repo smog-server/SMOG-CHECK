@@ -249,6 +249,8 @@ our $epsilonCAC;
 our $epsilonCAD;
 our $sigmaCA;
 our %massNB;
+our %atombondedtypes;
+our @atombondedtype;
 our %chargeNB;
 our %C6NB;
 our %C12NB;
@@ -348,6 +350,8 @@ while(<PARMS>){
   undef  $epsilonCAD;
   undef  $sigmaCA;
   undef  %massNB;
+  undef  %atombondedtypes;
+  undef  @atombondedtype;
   undef  %chargeNB;
   undef  %C6NB;
   undef  %C12NB;
@@ -358,7 +362,8 @@ while(<PARMS>){
   undef  %matchdihedral_val;
   undef  %matchdihedral_weight;
   undef  $chargeAT;
-
+  undef  $bondEps;
+  undef  $angleEps;
 
 
   # default is that we are not testing free
@@ -510,12 +515,15 @@ while(<PARMS>){
   }
  }
 
- if($model =~ m/CA/){
+ if($model eq "CA"){
   $bondEps=20000;
   $angleEps=40;
- }elsif($model =~ m/AA/){
+ }elsif($model eq "AA"){
   $bondEps=10000;
   $angleEps=80;
+ }elsif($model eq "AA-match"){
+  undef $bondEps;
+  undef $angleEps;
  }else{
   smogcheck_error("Model name $model, not understood. Only CA and AA models are supported by the test script.");
  }
@@ -811,58 +819,75 @@ EOT
   $chargeNB{$defname}=0.0;
   $sigma=$sigma*10;
  }elsif($model eq "AA-match"){
+  my $atomtypefile="$TEMPLATE_DIR_AA_MATCH/atomtypes";
+  print "reading atom bonded type expected values from:\n\t$atomtypefile\n";
+  open(ATF,"$atomtypefile") or smogcheck_error("unable to open $atomtypefile");
+  while(<ATF>){
+   my $LINE=$_;
+   my ($data,$comment)=checkcomment($LINE);
+   my @A=split(/ /,$data);
+   if($#A != 2){
+    smogcheck_error("wrong number of fields if atomtype file. Offending line:\n\t$data\n");
+   }
+   my $ttype="$A[0]-$A[1]";
+   if(exists $atombondedtypes{$ttype}){
+    smogcheck_error("$A[1] defined more than once in atomtype file. Offending line:\n\t$data\n");
+   }
+   $atombondedtypes{$ttype}=$A[2];
+  }
+  close(ATF);
   my $compare="$TEMPLATE_DIR_AA_MATCH/comparelist";
   print "will using \"matching\" template. Target values will be read from\n\t$compare\n"; 
   open(MATCH,"$compare") or smogcheck_error("unable to open $compare");
-   while(<MATCH>){
-    my $LINE=$_;
-    my ($data,$comment)=checkcomment($LINE);
-    my @A=split(/ /,$data);
-    if($A[0] eq "atom"){
-     if($#A != 4){
-      smogcheck_error("wrong number of fields if compare file. Offending line:\n\t$data\n");
-     }
-     if(exists $massNB{$A[1]}){
-      smogcheck_error("$A[1] defined more than once in compare file. Offending line:\n\t$data\n");
-     }
-     $massNB{$A[1]}=$A[2];
-     $chargeNB{$A[1]}=$A[3];
-     $C12NB{$A[1]}=$A[4];
-     $C6NB{$A[1]}=0;
-    }elsif($A[0] eq "bond"){
-     if($#A != 4){
-      smogcheck_error("wrong number of fields if compare file. Offending line:\n\t$data\n");
-     }
-     my $bondname="$A[1]-$A[2]";
-     if(exists $matchbond_val{$bondname}){
-      smogcheck_error("bone $bondname defined more than once in compare file. Offending line:\n\t$data\n");
-     }
-     $matchbond_val{$bondname}=$A[3];
-     $matchbond_weight{$bondname}=$A[4];
-    }elsif($A[0] eq "angle"){
-     if($#A != 5){
-      smogcheck_error("wrong number of fields if compare file. Offending line:\n\t$data\n");
-     }
-     my $anglename="$A[1]-$A[2]-$A[3]";
-     if(exists $matchangle_val{$anglename}){
-      smogcheck_error("angle $anglename defined more than once in compare file. Offending line:\n\t$data\n");
-     }
-     $matchangle_val{$anglename}=$A[4];
-     $matchangle_weight{$anglename}=$A[5];
-    }elsif($A[0] eq "dihedral"){
-     if($#A != 6){
-      smogcheck_error("wrong number of fields if compare file. Offending line:\n\t$data\n");
-     }
-     my $dihname="$A[1]-$A[2]-$A[3]-$A[4]";
-     if(exists $matchdihedral_val{$dihname}){
-      smogcheck_error("dihedral $dihname defined more than once in compare file. Offending line:\n\t$data\n");
-     }
-     $matchdihedral_val{$dihname}=$A[5];
-     $matchdihedral_weight{$dihname}=$A[6];
-    }else{
-     smogcheck_error("Unsupported field in $compare\n\t $A[0]");
+  while(<MATCH>){
+   my $LINE=$_;
+   my ($data,$comment)=checkcomment($LINE);
+   my @A=split(/ /,$data);
+   if($A[0] eq "atom"){
+    if($#A != 4){
+     smogcheck_error("wrong number of fields if compare file. Offending line:\n\t$data\n");
     }
+    if(exists $massNB{$A[1]}){
+     smogcheck_error("$A[1] defined more than once in compare file. Offending line:\n\t$data\n");
+    }
+    $massNB{$A[1]}=$A[2];
+    $chargeNB{$A[1]}=$A[3];
+    $C12NB{$A[1]}=$A[4];
+    $C6NB{$A[1]}=0;
+   }elsif($A[0] eq "bond"){
+    if($#A != 4){
+     smogcheck_error("wrong number of fields if compare file. Offending line:\n\t$data\n");
+    }
+    my $bondname="$A[1]-$A[2]";
+    if(exists $matchbond_val{$bondname}){
+     smogcheck_error("bone $bondname defined more than once in compare file. Offending line:\n\t$data\n");
+    }
+    $matchbond_val{$bondname}=$A[3];
+    $matchbond_weight{$bondname}=$A[4];
+   }elsif($A[0] eq "angle"){
+    if($#A != 5){
+     smogcheck_error("wrong number of fields if compare file. Offending line:\n\t$data\n");
+    }
+    my $anglename="$A[1]-$A[2]-$A[3]";
+    if(exists $matchangle_val{$anglename}){
+     smogcheck_error("angle $anglename defined more than once in compare file. Offending line:\n\t$data\n");
+    }
+    $matchangle_val{$anglename}=$A[4];
+    $matchangle_weight{$anglename}=$A[5];
+   }elsif($A[0] eq "dihedral"){
+    if($#A != 6){
+     smogcheck_error("wrong number of fields if compare file. Offending line:\n\t$data\n");
+    }
+    my $dihname="$A[1]-$A[2]-$A[3]-$A[4]";
+    if(exists $matchdihedral_val{$dihname}){
+     smogcheck_error("dihedral $dihname defined more than once in compare file. Offending line:\n\t$data\n");
+    }
+    $matchdihedral_val{$dihname}=$A[5];
+    $matchdihedral_weight{$dihname}=$A[6];
+   }else{
+    smogcheck_error("Unsupported field in $compare\n\t $A[0]");
    }
+  }
   close(MATCH);
  }else{
   smogcheck_error("unknown model type.");
@@ -1172,6 +1197,10 @@ sub readtop
     until($A[0] eq "["){
     # atom name
      $ATOMNAME[$A[0]]=$A[4];
+     # if we are matching hetergeneous parameters, we need to store the smog-internal bonded types
+     if($model eq "AA-match"){
+      $atombondedtype[$A[0]]=$atombondedtypes{"$A[3]-$A[4]"};
+     }
      for(my $J=0;$J<5;$J++){
       $A[$J] =~ s/^\s+|\s+$//g;
      }
@@ -1291,17 +1320,34 @@ sub readtop
      $NBONDS++;
      if($A[2] == 1){
       $RECOGNIZEDBTYPES++;
-      if($A[4] != $bondEps){
-       $fail_log .= failed_message("bond has incorrect weight\n\t$LINE");
+      my $bval;
+      if(defined  $bondEps){
+       # there is a homogeneous value used
+       $bval=$bondEps;
+      }else{
+       # heterogeneous bonds need to be checked (obtained from compare file).
+       my $bt1=$atombondedtype[$A[0]];
+       my $bt2=$atombondedtype[$A[1]];
+       if(exists $matchbond_weight{"$bt1-$bt2"}){
+        # check for the expected values of the weight, if defined 
+        $bval=$matchbond_weight{"$bt1-$bt2"};
+       }else{
+	# since one only needs to provide weights that are used, 
+	# we verify here, as opposed to checking all possible combinations earlier
+        smogcheck_error("Bonded types $bt1 $bt2 don\'t have a defined reference weight.")
+       }
+      }
+      if($A[4] != $bval){
+       $fail_log .= failed_message("bond has incorrect weight. Expected $bval. Found:\n\t$LINE");
       }else{
        $CORRECTBONDWEIGHTS++;
       }		
+      ##check if bond has already appeared in the .top file
       if($A[0] < $A[1]){
        $string=sprintf("%i-%i", $A[0], $A[1]);
       }else{
        $string=sprintf("%i-%i", $A[1], $A[0]);
       }
-      ##check if bond has already appeared in the .top file
       if(!exists $bond_array{$string}){
        ## bond was not assigned.
        $bond_array{$string}=1;
