@@ -479,6 +479,7 @@ while(<PARMS>){
   }
   if($CONTTYPE =~ m/match/){
    # if we are using a "match" template, then read corresponding expected values
+   $R_CD=1.0; # using a default value with the match templates
   }else{
    $R_CD=$A[$ARG];
     $ARG++;
@@ -2465,14 +2466,14 @@ sub readtop
   if($NRIGID == $NRIGIDC){
    $FAIL{'STRENGTHS OF RIGID DIHEDRALS'}=0;
   }
- }elsif(! $AMINO_PRESENT){
+ }elsif(! $AMINO_PRESENT || $NRIGID==0){
    $FAIL{'STRENGTHS OF RIGID DIHEDRALS'}=-1;
  }
  if($NOMEGA>0){
   if($NOMEGA == $NOMEGAC){
    $FAIL{'STRENGTHS OF OMEGA DIHEDRALS'}=0;
   }
- }elsif(! $AMINO_PRESENT){
+ }elsif(! $AMINO_PRESENT || $NOMEGA==0){
    $FAIL{'STRENGTHS OF OMEGA DIHEDRALS'}=-1;
  }
  if($NPBB>0 && $free eq "no"){
@@ -2487,6 +2488,8 @@ sub readtop
    $FAIL{'STRENGTHS OF PROTEIN SC DIHEDRALS'}=0;
   }
  }elsif(! $AMINO_PRESENT || $free eq "yes"){
+   $FAIL{'STRENGTHS OF PROTEIN SC DIHEDRALS'}=-1;
+ }elsif($NPSC==0){
    $FAIL{'STRENGTHS OF PROTEIN SC DIHEDRALS'}=-1;
  }
  if($NNBB>0){
