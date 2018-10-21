@@ -2409,7 +2409,7 @@ sub readtop
    if(exists $ED_T[$i][$j]){
     $ED_T[$i][$j]= int(($ED_T[$i][$j] * $PRECISION))/($PRECISION*1.0) ;
     if($MOLTYPE[$i] eq "AMINO"){
-     if($ATOMTYPE[$i] eq "BACKBONE" or  $ATOMTYPE[$i+$j] eq "BACKBONE"){
+     if($ATOMTYPE[$i] eq "BACKBONE" and  $ATOMTYPE[$i+$j] eq "BACKBONE"){
       $NPBB++;
 #      $DIH_TYPE[$i][$j]="AMINOBB";
       if($PBBvalue !=$ED_T[$i][$j] && $PBBvalue !=0){
@@ -2429,7 +2429,7 @@ sub readtop
      $PSCvalue=$ED_T[$i][$j];
      }
     }elsif($MOLTYPE[$i] eq "NUCLEIC"){
-     if($ATOMTYPE[$i] eq "BACKBONE" or  $ATOMTYPE[$i+$j] eq "BACKBONE"){
+     if($ATOMTYPE[$i] eq "BACKBONE" and  $ATOMTYPE[$i+$j] eq "BACKBONE"){
 #      $DIH_TYPE[$i][$j]="NUCLEICBB";
       $NNBB++;     
       if($NABBvalue !=$ED_T[$i][$j] && $NABBvalue != 0 ){
@@ -2524,7 +2524,7 @@ sub readtop
    $FAIL{'STACK-NONSTACK RATIO'}=-1;
   }
  
-  if($AMINO_PRESENT && $free eq "no"){
+  if($AMINO_PRESENT && $free eq "no" && $NPSC>0){
    my $ratio=$PBBvalue/$PSCvalue;
    if($ratio < $MAXTHR*$R_P_BB_SC   and $ratio > $MINTHR*$R_P_BB_SC ){
     $FAIL{'PROTEIN BB/SC RATIO'}=0;
