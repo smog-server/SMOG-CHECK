@@ -94,7 +94,7 @@ if($VERSION ne $smogversion){
 
 # FAILLIST is a list of all the tests.
 # If you are developing and testing your own forcefield, which may not need to conform to certain checks, then you may want to disable some tests by  removing the test name from this list. However, do so at your own risk.
-our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','TOP FIELDS FOUND','TOP FIELDS RECOGNIZED','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'BOND LENGTHS','ANGLE TYPES', 'ANGLE WEIGHTS', 'ANGLE VALUES','DUPLICATE BONDS', 'DUPLICATE ANGLES', 'GENERATED ANGLE COUNT','GENERATED ANGLE IN TOP','ANGLES IN TOP GENERATED', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL IN TOP GENERATED','GENERATED DIHEDRAL IN TOP','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','GAUSSIAN CONTACT EXCLUDED VOLUME','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY','TYPE6 ATOMS','UNINITIALIZED VARIABLES','CLASSIFYING DIHEDRALS','NON-ZERO EXIT','ATOM FIELDS','ATOM CHARGES','FREE PAIRS APPEAR IN CONTACTS','EXTRAS ADDED');
+our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','TOP FIELDS FOUND','TOP FIELDS RECOGNIZED','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'BOND LENGTHS','ANGLE TYPES', 'ANGLE WEIGHTS', 'ANGLE VALUES','DUPLICATE BONDS', 'DUPLICATE ANGLES', 'GENERATED ANGLE COUNT','GENERATED ANGLE IN TOP','ANGLES IN TOP GENERATED', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','MATCH DIH WEIGHTS','MATCH DIH ANGLES','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL IN TOP GENERATED','GENERATED DIHEDRAL IN TOP','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','GAUSSIAN CONTACT EXCLUDED VOLUME','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY','TYPE6 ATOMS','UNINITIALIZED VARIABLES','CLASSIFYING DIHEDRALS','NON-ZERO EXIT','ATOM FIELDS','ATOM CHARGES','FREE PAIRS APPEAR IN CONTACTS','EXTRAS ADDED');
 
 my %supported_directives = ( 'defaults' => '1',
         'atomtypes' => '1',
@@ -285,6 +285,7 @@ our %restypecount;
 our $bondEps;
 our $bondMG;
 our $angleEps;
+our $dihmatch;
 our $ringEps;
 our $omegaEps;
 our $impEps;
@@ -364,6 +365,7 @@ while(<PARMS>){
   undef  $chargeAT;
   undef  $bondEps;
   undef  $angleEps;
+  undef  $dihmatch;
 
 
   # default is that we are not testing free
@@ -525,6 +527,7 @@ while(<PARMS>){
  }elsif($model eq "AA-match"){
   undef $bondEps;
   undef $angleEps;
+  $dihmatch=0;
  }else{
   smogcheck_error("Model name $model, not understood. Only CA and AA models are supported by the test script.");
  }
@@ -1770,6 +1773,8 @@ sub readtop
     my $DIHSW=0;
     my $accounted=0;
     my $accounted1=0;
+    my $CORRECTDIHEDRALANGLES=0;
+    my $CORRECTDIHEDRALWEIGHTS=0;
     $#A = -1;
     $#ED_T = -1;
     $#EDrig_T = -1;
@@ -1827,6 +1832,36 @@ sub readtop
        $LAST_W=$A[6];
        $string_last=$string;
        $DANGLE_LAST=$A[5];
+     # only going to check the value for matching if type 1
+       my $dihweight;
+       my $dihval;
+       if(defined  $dihmatch){
+        # heterogeneous bonds need to be checked (obtained from compare file).
+        my $at1=$atombondedtype[$A[0]];
+        my $at2=$atombondedtype[$A[1]];
+        my $at3=$atombondedtype[$A[2]];
+        my $at4=$atombondedtype[$A[3]];
+        my $dname="$at1-$at2-$at3-$at4";
+        if(exists $matchdihedral_weight{"$dname"}){
+         # check for the expected values of the weight, if defined 
+         my $dweight=$matchdihedral_weight{"$dname"};
+         my $dval=$matchdihedral_val{"$dname"};
+         if(abs($A[5]- $dval) > 10E-10){
+          $fail_log .= failed_message("dihedral has incorrect angle. Expected $dval. Found:\n\t$LINE");
+         }else{
+          $CORRECTDIHEDRALANGLES++;
+         }	
+         if(abs($A[6]- $dweight) > 10E-10){
+          $fail_log .= failed_message("dihedral has incorrect weight. Expected $dweight. Found:\n\t$LINE");
+         }else{
+          $CORRECTDIHEDRALWEIGHTS++;
+         }	
+        }else{
+         # since one only needs to provide weights that are used, 
+         # we verify here, as opposed to checking all possible combinations earlier
+         smogcheck_error("Bonded types $at1 $at2 $at3 $at4 don\'t have a defined reference dihedral angle weight.")
+        }
+       }
       }
       $LAST_N=$A[7];
       if($A[7] == 3 && ($string eq $string_last)){
@@ -1983,7 +2018,19 @@ sub readtop
      }
     }
     if($matchingpairs == $accounted1){
-     $FAIL{'1-3 DIHEDRAL PAIRS'}=0
+     $FAIL{'1-3 DIHEDRAL PAIRS'}=0;
+    }
+    if(defined  $dihmatch){
+     if($CORRECTDIHEDRALANGLES == $accounted1){
+      $FAIL{'MATCH DIH ANGLES'}=0;
+     }
+     if($CORRECTDIHEDRALWEIGHTS == $accounted1){
+      $FAIL{'MATCH DIH WEIGHTS'}=0;
+     }
+    }else{
+      $FAIL{'MATCH DIH WEIGHTS'}=-1;
+      $FAIL{'MATCH DIH ANGLES'}=-1;
+
     }
     if($S3_match == $accounted1){
      $FAIL{'1-3 ORDERING OF DIHEDRALS'}=0
