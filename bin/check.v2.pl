@@ -1525,8 +1525,8 @@ sub readtop
        smogcheck_error("Bonded types $at1 $at2 $at3 don\'t have a defined reference angle weight.")
       }
      }
-     if(abs($A[5] - $angleEps) > 10E-10){
-      $fail_log .= failed_message("bond has incorrect weight. Expected $aweight. Found:\n\t$LINE");
+     if(abs($A[5] - $aweight) > 10E-10){
+      $fail_log .= failed_message("bond angle has incorrect weight. Expected $aweight. Found:\n\t$LINE");
      }else{
       $CORRECTAW++;
      }
