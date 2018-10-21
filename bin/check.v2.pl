@@ -576,6 +576,8 @@ sub runsmog
    $ARGS .= " -tCG temp.bifsif/  -t temp.cont.bifsif";
   }elsif($model eq "AA"){
    $ARGS .= " -t temp.bifsif/ ";
+  }elsif($model eq "AA-match"){
+   $ARGS .= " -t $TEMPLATE_DIR_AA_STATIC ";
   }else{
    smogcheck_error("unrecognized model.");
   }
@@ -801,10 +803,11 @@ EOT
   $chargeNB{$defname}=0.0;
   $sigma=$sigma*10;
  }elsif($model eq "AA-match"){
-  print "will using \"matching\" template.  Variables will be read from...\n"; 
+  my $compare="$TEMPLATE_DIR_AA_MATCH/comparelist";
+  print "will using \"matching\" template. Target values will be read from\n\t$compare\n"; 
+  open(matching,"$compare") or smogcheck_quit("unable to open $compare");
 
-
-
+  close(matching);
  }else{
   smogcheck_error("unknown model type.");
  }
