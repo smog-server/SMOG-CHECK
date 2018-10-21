@@ -2587,9 +2587,11 @@ sub readtop
   }
   ## check if the range of dihedrals is reasonable  
 
-  my $D_R=$DIH_MAX/ $DIH_MIN;
-  if($D_R > $MAXTHR*4*$R_P_BB_SC  ){
-   print "WARNING!!!: range of dihedrals is large\n";
+  my $D_R=$DIH_MAX/$DIH_MIN;
+  if(defined $R_P_BB_SC){
+   if($D_R > $MAXTHR*4*$R_P_BB_SC  ){
+    print "WARNING!!!: range of dihedrals is large\n";
+   }
   }
   my $CD_ratio;
   if($DENERGY > 0){
