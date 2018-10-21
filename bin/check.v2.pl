@@ -252,6 +252,12 @@ our %massNB;
 our %chargeNB;
 our %C6NB;
 our %C12NB;
+our %matchbond_val;
+our %matchbond_weight;
+our %matchangle_val;
+our %matchangle_weight;
+our %matchdihedral_val;
+our %matchdihedral_weight;
 our $chargeAT;
 our $FAILED;
 our @CID;
@@ -345,6 +351,12 @@ while(<PARMS>){
   undef  %chargeNB;
   undef  %C6NB;
   undef  %C12NB;
+  undef  %matchbond_val;
+  undef  %matchbond_weight;
+  undef  %matchangle_val;
+  undef  %matchangle_weight;
+  undef  %matchdihedral_val;
+  undef  %matchdihedral_weight;
   undef  $chargeAT;
 
 
@@ -805,8 +817,56 @@ EOT
  }elsif($model eq "AA-match"){
   my $compare="$TEMPLATE_DIR_AA_MATCH/comparelist";
   print "will using \"matching\" template. Target values will be read from\n\t$compare\n"; 
-  open(MATCH,"$compare") or smogcheck_quit("unable to open $compare");
-
+  open(MATCH,"$compare") or smogcheck_error("unable to open $compare");
+   while(<MATCH>){
+    my $LINE=$_;
+    my ($data,$comment)=checkcomment($LINE);
+    my @A=split(/ /,$data);
+    if($A[0] eq "atom"){
+     if($#A != 4){
+      smogcheck_error("wrong number of fields if compare file. Offending line:\n\t$data\n");
+     }
+     if(exists $massNB{$A[1]}){
+      smogcheck_error("$A[1] defined more than once in compare file. Offending line:\n\t$data\n");
+     }
+     $massNB{$A[1]}=$A[2];
+     $chargeNB{$A[1]}=$A[3];
+     $C12NB{$A[1]}=$A[4];
+     $C6NB{$A[1]}=0;
+    }elsif($A[0] eq "bond"){
+     if($#A != 4){
+      smogcheck_error("wrong number of fields if compare file. Offending line:\n\t$data\n");
+     }
+     my $bondname="$A[1]-$A[2]";
+     if(exists $matchbond_val{$bondname}){
+      smogcheck_error("bone $bondname defined more than once in compare file. Offending line:\n\t$data\n");
+     }
+     $matchbond_val{$bondname}=$A[3];
+     $matchbond_weight{$bondname}=$A[4];
+    }elsif($A[0] eq "angle"){
+     if($#A != 5){
+      smogcheck_error("wrong number of fields if compare file. Offending line:\n\t$data\n");
+     }
+     my $anglename="$A[1]-$A[2]-$A[3]";
+     if(exists $matchangle_val{$anglename}){
+      smogcheck_error("angle $anglename defined more than once in compare file. Offending line:\n\t$data\n");
+     }
+     $matchangle_val{$anglename}=$A[4];
+     $matchangle_weight{$anglename}=$A[5];
+    }elsif($A[0] eq "dihedral"){
+     if($#A != 6){
+      smogcheck_error("wrong number of fields if compare file. Offending line:\n\t$data\n");
+     }
+     my $dihname="$A[1]-$A[2]-$A[3]-$A[4]";
+     if(exists $matchdihedral_val{$dihname}){
+      smogcheck_error("dihedral $dihname defined more than once in compare file. Offending line:\n\t$data\n");
+     }
+     $matchdihedral_val{$dihname}=$A[5];
+     $matchdihedral_weight{$dihname}=$A[6];
+    }else{
+     smogcheck_error("Unsupported field in $compare\n\t $A[0]");
+    }
+   }
   close(MATCH);
  }else{
   smogcheck_error("unknown model type.");
