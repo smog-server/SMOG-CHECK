@@ -1785,7 +1785,7 @@ sub readtop
      $phi[$Nphi]="$string";
      $Nphi++;
 
-    # #check if dihedral has been seen already...
+     # #check if dihedral has been seen already...
 
        # check duplicate type 3 
        if(!exists $dihedral_array3{$string} and exists $A[7] and $A[7] == 3){

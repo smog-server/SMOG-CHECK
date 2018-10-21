@@ -41,6 +41,27 @@
 <!-- AMINO DIHEDRALS -->
 	<dihedral func="dihedral_cosine(?,1,1)+dihedral_cosine(?,0.5,3)" energyGroup="bb">
 	<bType>*</bType>
+	<bType>X1</bType>
+	<bType>X</bType>
+	<bType>*</bType>
+	</dihedral>
+
+	<dihedral func="dihedral_cosine(?,1,1)+dihedral_cosine(?,0.5,3)" energyGroup="bb">
+	<bType>X</bType>
+	<bType>*</bType>
+	<bType>X</bType>
+	<bType>X</bType>
+	</dihedral>
+
+	<dihedral func="dihedral_cosine(?,1,1)+dihedral_cosine(?,0.5,3)" energyGroup="bb">
+	<bType>X1</bType>
+	<bType>X1</bType>
+	<bType>*</bType>
+	<bType>X1</bType>
+	</dihedral>
+
+	<dihedral func="dihedral_cosine(?,1,1)+dihedral_cosine(?,0.5,3)" energyGroup="bb">
+	<bType>*</bType>
 	<bType>*</bType>
 	<bType>*</bType>
 	<bType>*</bType>
