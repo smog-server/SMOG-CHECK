@@ -2630,7 +2630,7 @@ sub checkvalues
  }
 
  if($usermap eq "no"){
-  if($model eq "AA"){
+  if($model eq "AA" || $model eq "AA-match" ){
    if(open(CFILE,"$PDB.contacts")){
     $FAIL{'OPEN CONTACT FILE'}=0;
    }
