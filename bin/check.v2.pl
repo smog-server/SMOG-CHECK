@@ -388,7 +388,7 @@ while(<PARMS>){
   print "Will use cutoff contacts\n";
   $default="no";
   $gaussian="no";
- }elsif($A[2] =~ m/^shadow$/){
+ }elsif($A[2] =~ m/^shadow$/ || $A[2] =~ m/^shadow-match$/){
   print "Will use shadow contacts\n";
   $default="no";
   $gaussian="no";
@@ -402,10 +402,6 @@ while(<PARMS>){
   print "Will use gaussian contacts\n";
   $default="no";
   $gaussian="yes";
- }elsif($A[2] =~ m/^shadow-match$/){
-  print "Will use shadow contacts\n";
-  $default="no";
-  $gaussian="no";
  }else{
   smogcheck_error("Unknown contact option: \"$A[2]\"");
  }
@@ -2098,7 +2094,7 @@ sub readtop
       }else{
        $fail_log .= failed_message("A contact appears to be the wrong distance.  From the .gro (or .contact) file, we found r=$CALCD, and from the .top r=$Cdist.\n\t$LINE");
       }
-     }elsif($model eq "AA"){
+     }elsif($model eq "AA" || $model eq "AA-match"){
       $W=($A[3]*$A[3])/(4*$A[4]);
       $Cdist=(2.0*$A[4]/($A[3]))**(1.0/6.0);
       $CALCD=getdist(\*CMAP,$A[0],$A[1]);
@@ -2108,7 +2104,7 @@ sub readtop
        $fail_log .= failed_message("A contact appears to be the wrong distance.  From the .gro (or .contact) file, we found r=$CALCD, and from the .top r=$Cdist.\n\t$LINE");
       }
      }else{
-      smogcheck_error("Gaussian-model combination not recognized.");
+      smogcheck_error("Contact-model combination not recognized.");
      }
      # so long as the contacts are not with ligands, then we add the sum
      if($model eq "CA"){
@@ -2118,7 +2114,7 @@ sub readtop
       }else{
        $fail_log .= failed_message("EpsilonC values\n\tValue: Target\n\t$W $epsilonCAC\n\tline:\n\t$LINE");
       }
-     }elsif($model eq "AA"){
+     }elsif($model eq "AA" || $model eq "AA-match" ){
       $Cdist = int(($Cdist * $PRECISION)/10.0)/($PRECISION*10.0);
       if($Cdist <= $CONTD/10.0){
        $LONGCONT++;
@@ -2177,7 +2173,7 @@ sub readtop
       $FAIL{'GAUSSIAN CONTACT EXCLUDED VOLUME'}=-1;
       $FAIL{'GAUSSIAN CONTACT WIDTHS'}=-1;
     }
-    if($model eq "AA"){
+    if($model eq "AA" || $model eq "AA-match"){
      if($LONGCONT == $NCONTACTS){
       $FAIL{'LONG CONTACTS'}=0;
      }
@@ -2202,17 +2198,17 @@ sub readtop
      $FAIL{'LONG CONTACTS'}=-1;
      $FAIL{'STACKING CONTACT WEIGHTS'}=-1;	
      $FAIL{'NON-STACKING CONTACT WEIGHTS'}=-1;	
-    }elsif($model eq "AA" and !$NUCLEIC_PRESENT){
+    }elsif(($model eq "AA" || $model eq "AA-match") and !$NUCLEIC_PRESENT){
      $FAIL{'STACKING CONTACT WEIGHTS'}=-1;	
      $FAIL{'NON-STACKING CONTACT WEIGHTS'}=-1;	
     }else{
      smogcheck_error("Unrecognized model when checking contacts.");
     }
-     if($freepair ==0){
-      $FAIL{'FREE PAIRS APPEAR IN CONTACTS'}=0;	
-     }else{
-      $FAIL{'FREE PAIRS APPEAR IN CONTACTS'}=1;	
-     }
+    if($freepair ==0){
+     $FAIL{'FREE PAIRS APPEAR IN CONTACTS'}=0;	
+    }else{
+     $FAIL{'FREE PAIRS APPEAR IN CONTACTS'}=1;	
+    }
    }
   } 
   if(exists $A[1]){ 
@@ -2418,7 +2414,7 @@ sub readtop
    $FAIL{'STRENGTHS OF LIGAND DIHEDRALS'}=-1;
  }
 
- if($model eq "AA"){
+ if($model eq "AA" || $model eq "AA-match" ){
   if($NonstackingE !=0 && $stackingE !=0){
    my $CR=$NonstackingE/$stackingE;
    if($CR < $MAXTHR and  $CR > $MINTHR){
@@ -2568,7 +2564,7 @@ sub checkvalues
   }else{
    smogcheck_error("Unable to generate angles ($theta_gen_N), or dihedrals ($phi_gen_N)...");
   }
- }elsif($model eq "AA"){
+ }elsif($model eq "AA" || $model eq "AA-match"){
   if($theta_gen_N > 0 and $phi_gen_N > 0 and $improper_gen_N > 0){
    $FAIL{'GENERATION OF ANGLES/DIHEDRALS'}=0;
 
