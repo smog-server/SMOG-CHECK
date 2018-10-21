@@ -5,10 +5,10 @@
  	<defaults gen-pairs="0"/>
 
 	<!-- GENERAL NONBONDS -->
-	<nonbond mass="1.00"  charge="-0.200" ptype="A"  c6="0.0"  c12="1.2">
+	<nonbond mass="1.00"  charge="-1" ptype="A"  c6="0.0"  c12="1.2">
 	<nbType>Y</nbType>
 	</nonbond>
-	<nonbond mass="1.10"  charge="0.300" ptype="A"  c6="0.0"  c12="0.167772160e-04">
+	<nonbond mass="1.10"  charge="1" ptype="A"  c6="0.0"  c12="0.167772160e-04">
 	<nbType>Y1</nbType>
 	</nonbond>
 	
