@@ -14,11 +14,11 @@
 	<!-- ENERGY/CONTACT GROUPS -->
 <Groups>
 	<!-- AMINO ENERGY GROUPS --> 
-	<energyGroup residueType="amino" name="bb" normalize="0"/>
-	<energyGroup residueType="amino" name="sc" normalize="0"/>
+	<energyGroup residueType="amino" name="bb" normalize="1" intraRelativeStrength="1"/>
+	<energyGroup residueType="amino" name="sc" normalize="1" intraRelativeStrength="1"/>
 
  <!-- Global Contacts Settings -->
-	<contactGroup name="c" normalize="0"/>
+	<contactGroup name="c" normalize="1" intraRelativeStrength="1"/>
 
  <!-- Contact/Dihedral Group ratio: This is only used if normalization is turned on-->
        <groupRatios contacts="1" dihedrals="1"/>
