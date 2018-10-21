@@ -581,7 +581,7 @@ sub runsmog
   }elsif($model eq "AA" &&  $gaussian eq "yes"){
    $ARGS .= " -AAgaussian";
   }else{
-   smogcheck_error("unrecognized model.");
+   smogcheck_error("Unrecognized model when preparing default smog 2 flags.");
   }
  }else{
   if($model eq "CA"){
@@ -591,7 +591,7 @@ sub runsmog
   }elsif($model eq "AA-match"){
    $ARGS .= " -t $TEMPLATE_DIR_AA_MATCH ";
   }else{
-   smogcheck_error("unrecognized model.");
+   smogcheck_error("Unrecognized model when preparing non-default smog 2 flags.");
   }
  }
  if($usermap eq "yes"){
@@ -2108,7 +2108,7 @@ sub readtop
        $fail_log .= failed_message("A contact appears to be the wrong distance.  From the .gro (or .contact) file, we found r=$CALCD, and from the .top r=$Cdist.\n\t$LINE");
       }
      }else{
-      smogcheck_error("unrecognized model.");
+      smogcheck_error("Gaussian-model combination not recognized.");
      }
      # so long as the contacts are not with ligands, then we add the sum
      if($model eq "CA"){
@@ -2124,7 +2124,7 @@ sub readtop
        $LONGCONT++;
       }else{
        $fail_log .= failed_message("long contact. distance $Cdist nm.\n\t$LINE");
-     }
+      }
       ## so long as the contacts are not with ligands, then we add the sum
       if($MOLTYPE[$A[0]] ne "LIGAND" and $MOLTYPE[$A[1]] ne "LIGAND"){
        $CONTENERGY+=$W;
@@ -2148,7 +2148,7 @@ sub readtop
        }
       }
      }else{
-      smogcheck_error("unrecognized model.");
+      smogcheck_error("Model not recognized.");
      }
      # truncate the epsilon, for comparison purposes later.
      $W=int(($W * $PRECISION))/($PRECISION*1.0);
@@ -2206,7 +2206,7 @@ sub readtop
      $FAIL{'STACKING CONTACT WEIGHTS'}=-1;	
      $FAIL{'NON-STACKING CONTACT WEIGHTS'}=-1;	
     }else{
-     smogcheck_error("unrecognized model.");
+     smogcheck_error("Unrecognized model when checking contacts.");
     }
      if($freepair ==0){
       $FAIL{'FREE PAIRS APPEAR IN CONTACTS'}=0;	
@@ -2576,7 +2576,7 @@ sub checkvalues
     smogcheck_error("Unable to generate angles ($theta_gen_N), dihedrals ($phi_gen_N), or impropers ($improper_gen_N)...");
   }
  }else{
-  smogcheck_error("unrecognized model. Quitting...");
+  smogcheck_error("Unrecognized model when checking values.");
  }
  ## check the energy per dihedral and where the dihedral is SC/BB NA/AMINO
  if($DISP_MAX == 0){
