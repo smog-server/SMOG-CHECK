@@ -20,6 +20,7 @@ export BIFSIF_CA_DEFAULT=$SMOG_PATH/SBM_calpha
 export BIFSIF_AA_TESTING=`pwd`/share/templates/SBM_AA
 export BIFSIF_CA_TESTING=`pwd`/share/templates/SBM_calpha
 export BIFSIF_STATIC_TESTING=`pwd`/share/templates/SBM_AA_STATIC
+export BIFSIF_AA_MATCH=`pwd`/share/templates/SBM_match
 export TOLERANCE=0.001
 export PRECISION=10000
 

@@ -1,4 +1,5 @@
 DNA.terminal AA	default-gaussian 
+2ci2_v2.CB AA-match shadow-match  10.0 2.0
 DNA.terminal.BMG AA default 
 1AKEapo_v2 AA default-gaussian 
 1AKEapo_v2 CA default-gaussian 

@@ -81,6 +81,7 @@ our $BIFSIF_CA=$ENV{'BIFSIF_CA_DEFAULT'};
 our $TEMPLATE_DIR_AA=$ENV{'BIFSIF_AA_TESTING'};
 our $TEMPLATE_DIR_AA_STATIC=$ENV{'BIFSIF_STATIC_TESTING'};
 our $TEMPLATE_DIR_CA=$ENV{'BIFSIF_CA_TESTING'};
+our $TEMPLATE_DIR_AA_MATCH=$ENV{'BIFSIF_AA_MATCH'};
 
 # before testing anything, make sure this version of smog-check is compatible with the version of smog2
 my $smogversion=`$EXEC_NAME -v | tail -n 1`;
@@ -205,7 +206,7 @@ while(<LIGAND>){
  $LIGANDn++;
 }
 
-my %numfield = ( 'default' => '2', 'default-userC' => '2', 'default-gaussian' => '2', 'default-gaussian-userC' => '2','cutoff' => '19', 'shadow' => '20',  'shadow-free' => '20', 'shadow-gaussian' => '20', 'cutoff-gaussian' => '19');
+my %numfield = ( 'default' => '2', 'default-userC' => '2', 'default-gaussian' => '2', 'default-gaussian-userC' => '2','cutoff' => '19', 'shadow' => '20',  'shadow-free' => '20', 'shadow-gaussian' => '20', 'cutoff-gaussian' => '19' , 'shadow-match' => '4');
 
 #ions
 open(ION,"share/residues/ions") or internal_error("no ion file");
@@ -340,6 +341,14 @@ while(<PARMS>){
   undef  $epsilonCAC;
   undef  $epsilonCAD;
   undef  $sigmaCA;
+  undef  %massNB;
+  undef  %chargeNB;
+  undef  %C6NB;
+  undef  %C12NB;
+  undef  $chargeAT;
+
+
+
   # default is that we are not testing free
   $free="no";
   # default is to not read a contact map
@@ -381,6 +390,10 @@ while(<PARMS>){
   print "Will use gaussian contacts\n";
   $default="no";
   $gaussian="yes";
+ }elsif($A[2] =~ m/^shadow-match$/){
+  print "Will use shadow contacts\n";
+  $default="no";
+  $gaussian="no";
  }else{
   smogcheck_error("Unknown contact option: \"$A[2]\"");
  }
@@ -435,75 +448,58 @@ while(<PARMS>){
   # map type
   $CONTTYPE=$A[$ARG];
   $ARG++;
-  if($CONTTYPE =~ m/^shadow$/){
+  if($CONTTYPE =~ m/^shadow$/ || $CONTTYPE =~ m/^shadow-free$/ || $CONTTYPE =~ m/^shadow-match$/ || $CONTTYPE =~ m/^shadow-gaussian$/ ){
    print "Will generate and use a shadow map\n";
    $CONTD=$A[$ARG];
    $ARG++;
    $CONTR=$A[$ARG];
    $ARG++;
    $BBRAD=0.5;
-  }elsif($CONTTYPE =~ m/^shadow-free$/){
-   print "Will generate and use a shadow map\n";
-   $CONTD=$A[$ARG];
-   $ARG++;
-   $CONTR=$A[$ARG];
-   $ARG++;
-   $BBRAD=0.5;
-  }elsif($CONTTYPE =~ m/^cutoff$/){
+  }elsif($CONTTYPE =~ m/^cutoff$/ || $CONTTYPE =~ m/^cutoff-gaussian$/){
    print "Will generate and use a cutoff map\n";
    $CONTD=$A[$ARG];
    $ARG++;
    $CONTR=0.0;
    $BBRAD=0.0;
-  }elsif($CONTTYPE =~ m/^cutoff-gaussian$/){
-   print "Will generate and use a cutoff map and gaussian contacts\n";
-   $CONTD=$A[$ARG];
-   $ARG++;
-   $CONTR=0.0;
-   $BBRAD=0.0;
-  }elsif($CONTTYPE =~ m/^shadow-gaussian$/){
-   print "Will generate and use a shadow map and gaussian contacts\n";
-   $CONTD=$A[$ARG];
-   $ARG++;
-   $CONTR=$A[$ARG];
-   $ARG++;
-   $BBRAD=0.5;
   }else{
    smogcheck_error("Contact scheme $CONTTYPE is not supported. Is there a typo in $PDB_DIR/$PDB.pdb?");
   }
-
-  $R_CD=$A[$ARG];
-   $ARG++;
-  $R_P_BB_SC=$A[$ARG];
-   $ARG++;
-  $R_N_SC_BB=$A[$ARG];
-   $ARG++;
-  $PRO_DIH=$A[$ARG];
-   $ARG++;
-  $NA_DIH=$A[$ARG];
-   $ARG++;
-  $LIGAND_DIH=$A[$ARG];
-   $ARG++;
-  # excluded volumes
-  $sigma=$A[$ARG];
-   $ARG++;
-  $epsilon=$A[$ARG];
-   $ARG++;
-  $epsilonCAC=$A[$ARG];
-   $ARG++;
-  $epsilonCAD=$A[$ARG];
-   $ARG++;
-  $sigmaCA=$A[$ARG];
-   $ARG++;
-  $massNB{'NB_2'}=$A[$ARG];
-   $ARG++;
-  $chargeNB{'NB_2'}=$A[$ARG];
-   $ARG++;
-  $C6NB{'NB_2'}=$A[$ARG];
-   $ARG++;
-  $C12NB{'NB_2'}=$A[$ARG];
-   $ARG++;
-  $chargeAT=$A[$ARG];
+  if($CONTTYPE =~ m/match/){
+   # if we are using a "match" template, then read corresponding expected values
+  }else{
+   $R_CD=$A[$ARG];
+    $ARG++;
+   $R_P_BB_SC=$A[$ARG];
+    $ARG++;
+   $R_N_SC_BB=$A[$ARG];
+    $ARG++;
+   $PRO_DIH=$A[$ARG];
+    $ARG++;
+   $NA_DIH=$A[$ARG];
+    $ARG++;
+   $LIGAND_DIH=$A[$ARG];
+    $ARG++;
+   # excluded volumes
+   $sigma=$A[$ARG];
+    $ARG++;
+   $epsilon=$A[$ARG];
+    $ARG++;
+   $epsilonCAC=$A[$ARG];
+    $ARG++;
+   $epsilonCAD=$A[$ARG];
+    $ARG++;
+   $sigmaCA=$A[$ARG];
+    $ARG++;
+   $massNB{'NB_2'}=$A[$ARG];
+    $ARG++;
+   $chargeNB{'NB_2'}=$A[$ARG];
+    $ARG++;
+   $C6NB{'NB_2'}=$A[$ARG];
+    $ARG++;
+   $C12NB{'NB_2'}=$A[$ARG];
+    $ARG++;
+   $chargeAT=$A[$ARG];
+  }
  }
 
  if($model =~ m/CA/){
@@ -749,12 +745,23 @@ sub preparesettings
  my $templateAA="AA-whitford09";
  my $templateCA="CA-clementi00";
 my $string = <<"EOT";
-Here are the settings used for this test
+Here were the settings used for this test
 $PDB.pdb
 $PDB.top
 $PDB.gro
 $PDB.ndx
-All-Atom
+EOT
+
+ if($model =~ m/AA/){
+  $string .= "All-Atom\n";
+ }else{
+  $string .= "Coarse-Grained\n";
+ }	
+ 
+ if($model =~ m/match/){
+  $string .= "atom, bond and angle matching will be applied\n";
+ }else{
+$string .= <<"EOT";
 R_CD 	   $R_CD
 R_P_BB_SC  $R_P_BB_SC
 R_N_SC_BB  $R_N_SC_BB
@@ -767,6 +774,7 @@ epsilonCAC $epsilonCAC
 epsilonCAD $epsilonCAD
 sigmaCA    $sigmaCA
 EOT
+}
  open(READSET,">$PDB.settings") or internal_error("can not open settings file");
  print READSET "$string";
  close(READSET);
@@ -792,6 +800,11 @@ EOT
   $massNB{$defname}=1.0;
   $chargeNB{$defname}=0.0;
   $sigma=$sigma*10;
+ }elsif($model eq "AA-match"){
+  print "will using \"matching\" template.  Variables will be read from...\n"; 
+
+
+
  }else{
   smogcheck_error("unknown model type.");
  }
