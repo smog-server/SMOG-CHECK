@@ -373,110 +373,10 @@ while(<PARMS>){
  $model=$A[1];
  my $contactmodel=$A[2];
 
- ($default,$gaussian,$usermap,$free)=setmodelflags($model,$contactmodel,\%numfield,$#A);
+ ($default,$gaussian,$usermap,$free)=setmodelflags($model,$contactmodel,\%numfield,\@A);
 
  # clean up the tracking for the next test
  %FAIL=resettests(\%FAIL,\@FAILLIST);
-
- if($default eq "yes"){
-  print "Checking default parameters\n";
-  # energy distributions
-  ## Settings relevant for the default model
-  $CONTTYPE="shadow";
-  $CONTD=6.0;
-  $CONTR=1.0;
-  $BBRAD=0.5;
-  $R_CD=2.0;
-  $R_P_BB_SC=2.0;
-  $R_N_SC_BB=1.0;
-  $PRO_DIH=1.0;
-  $NA_DIH=1.0;
-  $LIGAND_DIH=1.0;
-  $sigma=2.5;
-  $epsilon=0.1;
-  $epsilonCAC=1.0;
-  $epsilonCAD=1.0;
-  $sigmaCA=4.0;
- }else{
-  print "Checking non-default parameters for SMOG models\n";
-  my $ARG=2;
-  # energy distributions
-  # map type
-  $CONTTYPE=$A[$ARG];
-  $ARG++;
-  if($CONTTYPE =~ m/^shadow$/ || $CONTTYPE =~ m/^shadow-free$/ || $CONTTYPE =~ m/^shadow-match$/ || $CONTTYPE =~ m/^shadow-gaussian$/ ){
-   print "Will generate and use a shadow map\n";
-   $CONTD=$A[$ARG];
-   $ARG++;
-   $CONTR=$A[$ARG];
-   $ARG++;
-   $BBRAD=0.5;
-  }elsif($CONTTYPE =~ m/^cutoff$/ || $CONTTYPE =~ m/^cutoff-gaussian$/){
-   print "Will generate and use a cutoff map\n";
-   $CONTD=$A[$ARG];
-   $ARG++;
-   $CONTR=0.0;
-   $BBRAD=0.0;
-  }else{
-   smogcheck_error("Contact scheme $CONTTYPE is not supported. Is there a typo in $PDB_DIR/$PDB.pdb?");
-  }
-  if($CONTTYPE =~ m/match/){
-   # if we are using a "match" template, then read corresponding expected values
-   $R_CD=1.0; # using a default value with the match templates
-  }else{
-   $R_CD=$A[$ARG];
-    $ARG++;
-   $R_P_BB_SC=$A[$ARG];
-    $ARG++;
-   $R_N_SC_BB=$A[$ARG];
-    $ARG++;
-   $PRO_DIH=$A[$ARG];
-    $ARG++;
-   $NA_DIH=$A[$ARG];
-    $ARG++;
-   $LIGAND_DIH=$A[$ARG];
-    $ARG++;
-   # excluded volumes
-   $sigma=$A[$ARG];
-    $ARG++;
-   $epsilon=$A[$ARG];
-    $ARG++;
-   $epsilonCAC=$A[$ARG];
-    $ARG++;
-   $epsilonCAD=$A[$ARG];
-    $ARG++;
-   $sigmaCA=$A[$ARG];
-    $ARG++;
-   $massNB{'NB_2'}=$A[$ARG];
-    $ARG++;
-   $chargeNB{'NB_2'}=$A[$ARG];
-    $ARG++;
-   $C6NB{'NB_2'}=$A[$ARG];
-    $ARG++;
-   $C12NB{'NB_2'}=$A[$ARG];
-    $ARG++;
-   $chargeAT=$A[$ARG];
-  }
- }
-
- if($model eq "CA"){
-  $bondEps=20000;
-  $angleEps=40;
- }elsif($model eq "AA"){
-  $bondEps=10000;
-  $angleEps=80;
- }elsif($model eq "AA-match"){
-  undef $bondEps;
-  undef $angleEps;
-  $dihmatch=0;
- }else{
-  smogcheck_error("Model name $model, not understood. Only CA and AA models are supported by the test script.");
- }
-
- $bondMG=200;
- $ringEps=40;
- $omegaEps=10;
- $impEps=10;
 
  &smogchecker;
 
@@ -560,8 +460,10 @@ sub runsmog
 }
 
 sub setmodelflags{
- my ($model,$contactmodel,$numfield,$NA)=@_;
+ my ($model,$contactmodel,$numfield,$A)=@_;
+ my @A=@{$A};
  my %numfield=%{$numfield};
+ my $NA=$#A;
  # default is that we are not testing free
  $free="no";
  # default is to not read a contact map
@@ -625,6 +527,104 @@ sub setmodelflags{
  }else{
   smogcheck_error("Model name $model, not understood. Only CA and AA models are supported by the test script.");
  }
+
+ if($default eq "yes"){
+  print "Checking default parameters\n";
+  # energy distributions
+  ## Settings relevant for the default model
+  $CONTTYPE="shadow";
+  $CONTD=6.0;
+  $CONTR=1.0;
+  $BBRAD=0.5;
+  $R_CD=2.0;
+  $R_P_BB_SC=2.0;
+  $R_N_SC_BB=1.0;
+  $PRO_DIH=1.0;
+  $NA_DIH=1.0;
+  $LIGAND_DIH=1.0;
+  $sigma=2.5;
+  $epsilon=0.1;
+  $epsilonCAC=1.0;
+  $epsilonCAD=1.0;
+  $sigmaCA=4.0;
+ }else{
+  print "Checking non-default parameters for SMOG models\n";
+  my $ARG=2;
+  # energy distributions
+  # map type
+  $CONTTYPE=$A[$ARG];
+  $ARG++;
+  if($CONTTYPE =~ m/^shadow$/ || $CONTTYPE =~ m/^shadow-free$/ || $CONTTYPE =~ m/^shadow-match$/ || $CONTTYPE =~ m/^shadow-gaussian$/ ){
+   print "Will generate and use a shadow map\n";
+   $CONTD=$A[$ARG];
+   $ARG++;
+   $CONTR=$A[$ARG];
+   $ARG++;
+   $BBRAD=0.5;
+  }elsif($CONTTYPE =~ m/^cutoff$/ || $CONTTYPE =~ m/^cutoff-gaussian$/){
+   print "Will generate and use a cutoff map\n";
+   $CONTD=$A[$ARG];
+   $ARG++;
+   $CONTR=0.0;
+   $BBRAD=0.0;
+  }else{
+   smogcheck_error("Contact scheme $CONTTYPE is not supported. Is there a typo in $PDB_DIR/$PDB.pdb?");
+  }
+  if($CONTTYPE =~ m/match/){
+   # if we are using a "match" template, then read corresponding expected values
+   $R_CD=1.0; # using a default value with the match templates
+  }else{
+   $R_CD=$A[$ARG];
+    $ARG++;
+   $R_P_BB_SC=$A[$ARG];
+    $ARG++;
+   $R_N_SC_BB=$A[$ARG];
+    $ARG++;
+   $PRO_DIH=$A[$ARG];
+    $ARG++;
+   $NA_DIH=$A[$ARG];
+    $ARG++;
+   $LIGAND_DIH=$A[$ARG];
+    $ARG++;
+   # excluded volumes
+   $sigma=$A[$ARG];
+    $ARG++;
+   $epsilon=$A[$ARG];
+    $ARG++;
+   $epsilonCAC=$A[$ARG];
+    $ARG++;
+   $epsilonCAD=$A[$ARG];
+    $ARG++;
+   $sigmaCA=$A[$ARG];
+    $ARG++;
+   $massNB{'NB_2'}=$A[$ARG];
+    $ARG++;
+   $chargeNB{'NB_2'}=$A[$ARG];
+    $ARG++;
+   $C6NB{'NB_2'}=$A[$ARG];
+    $ARG++;
+   $C12NB{'NB_2'}=$A[$ARG];
+    $ARG++;
+   $chargeAT=$A[$ARG];
+  }
+ }
+ if($model eq "CA"){
+  $bondEps=20000;
+  $angleEps=40;
+ }elsif($model eq "AA"){
+  $bondEps=10000;
+  $angleEps=80;
+ }elsif($model eq "AA-match"){
+  undef $bondEps;
+  undef $angleEps;
+  $dihmatch=0;
+ }else{
+  smogcheck_error("Model name $model, not understood. Only CA and AA models are supported by the test script.");
+ }
+ $bondMG=200;
+ $ringEps=40;
+ $omegaEps=10;
+ $impEps=10;
  return ($default,$gaussian,$usermap,$free);
 }
 
