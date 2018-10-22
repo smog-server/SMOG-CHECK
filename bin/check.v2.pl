@@ -1626,7 +1626,7 @@ sub readtop
     undef %improper_gen_as;
     $improper_gen_N=0;
     $#improper_gen=-1;
-    my ($phi1,$phi2,$phi3,$phi4,$AIJ,$AIK,$A1,$A2,$A3,$B1,$B2,$B3);
+    my ($formed,$phi1,$phi2,$phi3,$phi4,$AIJ,$AIK,$A1,$A2,$A3,$B1,$B2,$B3);
     for(my $i=1;$i<=$NUMATOMS;$i++){
     # go through the atoms.  For each atom, check all of the angles it is involved in, and see if we can make an angle out of it.
      for(my $j=0;$j<$NangleWatom[$i];$j++){
@@ -1640,60 +1640,8 @@ sub readtop
         $B1=$angles2[$AIK][0];
         $B2=$angles2[$AIK][1];
         $B3=$angles2[$AIK][2];
-        # find all the dihedral angles that can be made with these angles
-        my $formed='not';
-        if($A2 == $B1 && $A3 == $B2){
-         $phi1=$A1;
-         $phi2=$A2;
-         $phi3=$A3;
-         $phi4=$B3;
-         $formed='proper';
-        }elsif($A2 == $B3 && $A3 == $B2){
-         $phi1=$A1;
-         $phi2=$A2;
-         $phi3=$A3;
-         $phi4=$B1;
-         $formed='proper';
-        }elsif($A2 == $B1  && $A1 == $B2){
-         $phi1=$A3;
-         $phi2=$A2;
-         $phi3=$A1;
-         $phi4=$B3;
-         $formed='proper';
-        }elsif($A2 == $B3 && $A1 == $B2){
-         $phi1=$A3;
-         $phi2=$A2;
-         $phi3=$A1;
-         $phi4=$B1;
-         $formed='proper';
-        }elsif($A2 == $B2 && $A1 == $B3){
-         $phi1=$A1;
-         $phi2=$A2;
-         $phi3=$A3;
-         $phi4=$B1;
-         $formed='improper';
-        }elsif($A2 == $B2 && $A3 == $B1){
-         $phi1=$B1;
-         $phi2=$B2;
-         $phi3=$B3;
-         $phi4=$A1;
-         $formed='improper';
-        }elsif($A2 == $B2 && $A1 == $B1){
-         $phi1=$A1;
-         $phi2=$A2;
-         $phi3=$A3;
-         $phi4=$B3;
-         $formed='improper';
-        }elsif($A2 == $B2 && $A3 == $B3){
-         $phi1=$A3;
-         $phi2=$A2;
-         $phi3=$A1;
-         $phi4=$B1;
-         $formed='improper';
-        }else{
-         $formed="not";
-        }
-  
+        # find any dihedral angle that can be made with these two angles
+	($formed,$phi1,$phi2,$phi3,$phi4)=identifydih($A1,$A2,$A3,$B1,$B2,$B3);
         if($formed eq "proper" ){
          if($phi1 < $phi4){
           $string=sprintf("%i-%i-%i-%i", $phi1, $phi2, $phi3, $phi4);
@@ -2523,11 +2471,11 @@ sub readtop
  }elsif(! $AMINO_PRESENT || $NOMEGA==0){
    $FAIL{'STRENGTHS OF OMEGA DIHEDRALS'}=-1;
  }
- if($NPBB>0 && $free eq "no"){
+ if($NPBB>0 && $free eq "no" && ! defined $dihmatch){
   if($NPBB == $NPBBC){
    $FAIL{'STRENGTHS OF PROTEIN BB DIHEDRALS'}=0;
   }
- }elsif(! $AMINO_PRESENT || $free eq "yes"){
+ }elsif(! $AMINO_PRESENT || $free eq "yes" || defined $dihmatch){
    $FAIL{'STRENGTHS OF PROTEIN BB DIHEDRALS'}=-1;
  }
  if($NPSC>0 && $free eq "no"){
@@ -2646,7 +2594,7 @@ sub readtop
    $FAIL{'NONZERO DIHEDRAL ENERGY'}=0;
    if($MAXTHR*$R_CD > $CD_ratio and $MINTHR*$R_CD < $CD_ratio){
    $FAIL{'CONTACT/DIHEDRAL RATIO'}=0;
-   }elsif($free eq "yes"){
+   }elsif($free eq "yes" or defined $dihmatch){
     $FAIL{'CONTACT/DIHEDRAL RATIO'}=-1;
    }else{
     $fail_log .=failed_message("Contact/Dihedral ratio is off. Expected $R_CD, found $CD_ratio.");
@@ -2703,6 +2651,66 @@ sub readtop
  if(scalar keys %supported_directives == $NFIELDC){
   $FAIL{'TOP FIELDS FOUND'}=0;
  }
+}
+
+sub identifydih
+{
+ my ($A1,$A2,$A3,$B1,$B2,$B3)=@_;
+ my ($phi1,$phi2,$phi3,$phi4);
+ # find all the dihedral angles that can be made with these angles
+ my $formed='not';
+ if($A2 == $B1 && $A3 == $B2){
+  $phi1=$A1;
+  $phi2=$A2;
+  $phi3=$A3;
+  $phi4=$B3;
+  $formed='proper';
+ }elsif($A2 == $B3 && $A3 == $B2){
+  $phi1=$A1;
+  $phi2=$A2;
+  $phi3=$A3;
+  $phi4=$B1;
+  $formed='proper';
+ }elsif($A2 == $B1  && $A1 == $B2){
+  $phi1=$A3;
+  $phi2=$A2;
+  $phi3=$A1;
+  $phi4=$B3;
+  $formed='proper';
+ }elsif($A2 == $B3 && $A1 == $B2){
+  $phi1=$A3;
+  $phi2=$A2;
+  $phi3=$A1;
+  $phi4=$B1;
+  $formed='proper';
+ }elsif($A2 == $B2 && $A1 == $B3){
+  $phi1=$A1;
+  $phi2=$A2;
+  $phi3=$A3;
+  $phi4=$B1;
+  $formed='improper';
+ }elsif($A2 == $B2 && $A3 == $B1){
+  $phi1=$B1;
+  $phi2=$B2;
+  $phi3=$B3;
+  $phi4=$A1;
+  $formed='improper';
+ }elsif($A2 == $B2 && $A1 == $B1){
+  $phi1=$A1;
+  $phi2=$A2;
+  $phi3=$A3;
+  $phi4=$B3;
+  $formed='improper';
+ }elsif($A2 == $B2 && $A3 == $B3){
+  $phi1=$A3;
+  $phi2=$A2;
+  $phi3=$A1;
+  $phi4=$B1;
+  $formed='improper';
+ }else{
+  $formed="not";
+ }
+ return($formed,$phi1,$phi2,$phi3,$phi4); 
 }
 
 

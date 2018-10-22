@@ -39,35 +39,33 @@
 <!-- DIHEDRALS -->
 <dihedrals>																															
 <!-- AMINO DIHEDRALS -->
-	<dihedral func="dihedral_cosine(?,1,1)+dihedral_cosine(?,0.5,3)" energyGroup="bb">
-	<bType>*</bType>
+	<dihedral func="dihedral_cosine(1,0.1,1)+dihedral_cosine(1,0.05,3)" energyGroup="bb">
 	<bType>X1</bType>
+	<bType>X</bType>
 	<bType>X</bType>
 	<bType>*</bType>
 	</dihedral>
-
-	<dihedral func="dihedral_cosine(?,1,1)+dihedral_cosine(?,0.5,3)" energyGroup="bb">
+	<dihedral func="dihedral_cosine(10,7,1)+dihedral_cosine(10,3.5,3)" energyGroup="bb">
 	<bType>X</bType>
-	<bType>*</bType>
+	<bType>X</bType>
 	<bType>X</bType>
 	<bType>X</bType>
 	</dihedral>
-
-	<dihedral func="dihedral_cosine(?,1,1)+dihedral_cosine(?,0.5,3)" energyGroup="bb">
+	<dihedral func="dihedral_cosine(1,100,1)+dihedral_cosine(1,50,3)" energyGroup="bb">
+	<bType>*</bType>
 	<bType>X1</bType>
 	<bType>X1</bType>
 	<bType>*</bType>
-	<bType>X1</bType>
 	</dihedral>
-
-	<dihedral func="dihedral_cosine(?,1,1)+dihedral_cosine(?,0.5,3)" energyGroup="bb">
+	<dihedral func="dihedral_cosine(1,1,1)+dihedral_cosine(1,0.5,3)" energyGroup="bb">
 	<bType>*</bType>
 	<bType>*</bType>
 	<bType>*</bType>
 	<bType>*</bType>
 	</dihedral>
 
-	<dihedral func="dihedral_cosine(?,1,1)+dihedral_cosine(?,0.5,3)" energyGroup="sc">
+
+	<dihedral func="dihedral_cosine(1,1,1)+dihedral_cosine(1,0.5,3)" energyGroup="sc">
 	<bType>*</bType>
 	<bType>*</bType>
 	<bType>*</bType>
