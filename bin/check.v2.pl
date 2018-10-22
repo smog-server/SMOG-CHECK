@@ -180,7 +180,6 @@ while(<AMINO>){
  $AAn++;
 }
 
-
 #nucleic acids
 open(NUCLEIC,"share/residues/nucleicacids") or internal_error("no nucleic acid file");
 my $NUCLEICn=0;
@@ -207,8 +206,6 @@ while(<LIGAND>){
  $LIGANDn++;
 }
 
-my %numfield = ( 'default' => '2', 'default-userC' => '2', 'default-gaussian' => '2', 'default-gaussian-userC' => '2','cutoff' => '19', 'shadow' => '20',  'shadow-free' => '20', 'shadow-gaussian' => '20', 'cutoff-gaussian' => '19' , 'shadow-match' => '4');
-
 #ions
 open(ION,"share/residues/ions") or internal_error("no ion file");
 my $IONn=0;
@@ -222,11 +219,12 @@ while(<ION>){
  $IONn++;
 }
 
+my %numfield = ( 'default' => '2', 'default-userC' => '2', 'default-gaussian' => '2', 'default-gaussian-userC' => '2','cutoff' => '19', 'shadow' => '20',  'shadow-free' => '20', 'shadow-gaussian' => '20', 'cutoff-gaussian' => '19' , 'shadow-match' => '4');
+
 ## READ IN THE LIST OF TEST PDBs.
 ## We will generate SMOG2 models and then check to see if the top files are correct for the default model
 # we are a bit lazy, and will just use global variables
 my $FAIL_SYSTEM=0;
- 
 
 # a number of global variables.
 our $default;
@@ -312,88 +310,96 @@ my $SETTINGS_FILE=<STDIN>;
 chomp($SETTINGS_FILE);
 open(PARMS,"$SETTINGS_FILE") or internal_error("The settings file is missing...");
 my $TESTNUM=0;
-## Run tests for each pdb
-while(<PARMS>){
- my $LINE=$_;
- chomp($LINE);
- $LINE =~ s/\s+/ /g;
- $LINE =~ s/\s+$//;
- $LINE =~ s/^\s+//;
- $fail_log="";
- $FAILED=0;
- my @A=split(/ /,$LINE);
- $PDB=$A[0];
- $TESTNUM++;
- if($RETEST>0 && ($RETEST > $TESTNUM || $RETESTEND < $TESTNUM)){
-  next;
+
+&runalltests;
+
+
+#*****************************SUBROUTINES**************************
+
+sub runalltests{
+ ## Run tests for each pdb
+ while(<PARMS>){
+  my $LINE=$_;
+  chomp($LINE);
+  $LINE =~ s/\s+/ /g;
+  $LINE =~ s/\s+$//;
+  $LINE =~ s/^\s+//;
+  $fail_log="";
+  $FAILED=0;
+  my @A=split(/ /,$LINE);
+  $PDB=$A[0];
+  $TESTNUM++;
+  if($RETEST>0 && ($RETEST > $TESTNUM || $RETESTEND < $TESTNUM)){
+   next;
+  }
+  $NUMTESTED++;
+ 
+  print "\n*************************************************************\n";
+  print "                 STARTING TEST $TESTNUM ($PDB)\n";
+  print "*************************************************************\n";
+  undef  $CONTTYPE;
+  undef  $CONTD;
+  undef  $CONTR;
+  undef  $BBRAD;
+  undef  $R_CD;
+  undef  $R_P_BB_SC;
+  undef  $R_N_SC_BB;
+  undef  $PRO_DIH;
+  undef  $NA_DIH;
+  undef  $LIGAND_DIH;
+  undef  $sigma;
+  undef  $epsilon;
+  undef  $epsilonCAC;
+  undef  $epsilonCAD;
+  undef  $sigmaCA;
+  undef  %massNB;
+  undef  %atombondedtypes;
+  undef  @atombondedtype;
+  undef  %chargeNB;
+  undef  %C6NB;
+  undef  %C12NB;
+  undef  %matchbond_val;
+  undef  %matchbond_weight;
+  undef  %matchangle_val;
+  undef  %matchangle_weight;
+  undef  %matchdihedral_val;
+  undef  %matchdihedral_weight;
+  undef  $chargeAT;
+  undef  $bondEps;
+  undef  $angleEps;
+  undef  $dihmatch;
+ 
+  if(! -e "$PDB_DIR/$PDB.pdb"){
+   $fail_log .= failed_message("Unable to find PDB file $PDB_DIR/$PDB.pdb for testing.  Skipping this test.");
+   $FAIL_SYSTEM++;
+   next;
+  }
+ 
+  $model=$A[1];
+  my $contactmodel=$A[2];
+ 
+  ($default,$gaussian,$usermap,$free)=setmodelflags($model,$contactmodel,\%numfield,\@A);
+ 
+  # clean up the tracking for the next test
+  %FAIL=resettests(\%FAIL,\@FAILLIST);
+ 
+  &smogchecker;
+ 
  }
- $NUMTESTED++;
-
- print "\n*************************************************************\n";
- print "                 STARTING TEST $TESTNUM ($PDB)\n";
- print "*************************************************************\n";
- undef  $CONTTYPE;
- undef  $CONTD;
- undef  $CONTR;
- undef  $BBRAD;
- undef  $R_CD;
- undef  $R_P_BB_SC;
- undef  $R_N_SC_BB;
- undef  $PRO_DIH;
- undef  $NA_DIH;
- undef  $LIGAND_DIH;
- undef  $sigma;
- undef  $epsilon;
- undef  $epsilonCAC;
- undef  $epsilonCAD;
- undef  $sigmaCA;
- undef  %massNB;
- undef  %atombondedtypes;
- undef  @atombondedtype;
- undef  %chargeNB;
- undef  %C6NB;
- undef  %C12NB;
- undef  %matchbond_val;
- undef  %matchbond_weight;
- undef  %matchangle_val;
- undef  %matchangle_weight;
- undef  %matchdihedral_val;
- undef  %matchdihedral_weight;
- undef  $chargeAT;
- undef  $bondEps;
- undef  $angleEps;
- undef  $dihmatch;
-
- if(! -e "$PDB_DIR/$PDB.pdb"){
-  $fail_log .= failed_message("Unable to find PDB file $PDB_DIR/$PDB.pdb for testing.  Skipping this test.");
-  $FAIL_SYSTEM++;
-  next;
+ 
+ # check to see if every possible test has been checked, at least one time.
+ my $nottested="";
+ foreach my $name(keys %FAIL){
+  if(!exists $CHECKED{$name}){
+   $nottested .= "$name\n";
+  }
  }
-
- $model=$A[1];
- my $contactmodel=$A[2];
-
- ($default,$gaussian,$usermap,$free)=setmodelflags($model,$contactmodel,\%numfield,\@A);
-
- # clean up the tracking for the next test
- %FAIL=resettests(\%FAIL,\@FAILLIST);
-
- &smogchecker;
-
-}
-# check to see if every possible test has been checked, at least one time.
-my $nottested="";
-foreach my $name(keys %FAIL){
- if(!exists $CHECKED{$name}){
-  $nottested .= "$name\n";
+ if($nottested ne ""){
+  print "NOTE: Not all possible tests have been checked.  Unchecked tests include:\n$nottested";
  }
-}
-if($nottested ne ""){
- print "NOTE: Not all possible tests have been checked.  Unchecked tests include:\n$nottested";
-}
-# If any systems failed, output message
-if($FAIL_SYSTEM > 0){
- print <<EOT;
+ # If any systems failed, output message
+ if($FAIL_SYSTEM > 0){
+  print <<EOT;
 *************************************************************
              TESTS FAILED: CHECK MESSAGES ABOVE  !!!
 ************************************************************* 
@@ -420,8 +426,9 @@ if($RETESTEND != -1){
                  PASSED TESTS $RETEST to $RETESTEND  !!!
 *************************************************************
 EOT
+  }
+  exit(0);
  }
- exit(0);
 }
 
 sub runsmog
