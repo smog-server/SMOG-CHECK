@@ -328,116 +328,56 @@ while(<PARMS>){
   next;
  }
  $NUMTESTED++;
- unless(-e "$PDB_DIR/$PDB.pdb"){
-  print "Unable to find PDB file $PDB_DIR/$PDB.pdb for testing.  Skipping this test\n\n";
+
+ print "\n*************************************************************\n";
+ print "                 STARTING TEST $TESTNUM ($PDB)\n";
+ print "*************************************************************\n";
+ undef  $CONTTYPE;
+ undef  $CONTD;
+ undef  $CONTR;
+ undef  $BBRAD;
+ undef  $R_CD;
+ undef  $R_P_BB_SC;
+ undef  $R_N_SC_BB;
+ undef  $PRO_DIH;
+ undef  $NA_DIH;
+ undef  $LIGAND_DIH;
+ undef  $sigma;
+ undef  $epsilon;
+ undef  $epsilonCAC;
+ undef  $epsilonCAD;
+ undef  $sigmaCA;
+ undef  %massNB;
+ undef  %atombondedtypes;
+ undef  @atombondedtype;
+ undef  %chargeNB;
+ undef  %C6NB;
+ undef  %C12NB;
+ undef  %matchbond_val;
+ undef  %matchbond_weight;
+ undef  %matchangle_val;
+ undef  %matchangle_weight;
+ undef  %matchdihedral_val;
+ undef  %matchdihedral_weight;
+ undef  $chargeAT;
+ undef  $bondEps;
+ undef  $angleEps;
+ undef  $dihmatch;
+
+ if(! -e "$PDB_DIR/$PDB.pdb"){
+  $fail_log .= failed_message("Unable to find PDB file $PDB_DIR/$PDB.pdb for testing.  Skipping this test.");
   $FAIL_SYSTEM++;
   next;
  }
 
-  print "\n*************************************************************\n";
-  print "                 STARTING TEST $TESTNUM ($PDB)\n";
-  print "*************************************************************\n";
-  undef  $CONTTYPE;
-  undef  $CONTD;
-  undef  $CONTR;
-  undef  $BBRAD;
-  undef  $R_CD;
-  undef  $R_P_BB_SC;
-  undef  $R_N_SC_BB;
-  undef  $PRO_DIH;
-  undef  $NA_DIH;
-  undef  $LIGAND_DIH;
-  undef  $sigma;
-  undef  $epsilon;
-  undef  $epsilonCAC;
-  undef  $epsilonCAD;
-  undef  $sigmaCA;
-  undef  %massNB;
-  undef  %atombondedtypes;
-  undef  @atombondedtype;
-  undef  %chargeNB;
-  undef  %C6NB;
-  undef  %C12NB;
-  undef  %matchbond_val;
-  undef  %matchbond_weight;
-  undef  %matchangle_val;
-  undef  %matchangle_weight;
-  undef  %matchdihedral_val;
-  undef  %matchdihedral_weight;
-  undef  $chargeAT;
-  undef  $bondEps;
-  undef  $angleEps;
-  undef  $dihmatch;
-
-
-  # default is that we are not testing free
-  $free="no";
-  # default is to not read a contact map
-  $usermap="no";
-
  $model=$A[1];
- if($A[2] =~ m/^default$/){
-  $default="yes";
-  $gaussian="no";
- }elsif($A[2] =~ m/^default-gaussian$/){
-  print "Will use gaussian contacts\n";
-  $default="yes";
-  $gaussian="yes";
- }elsif($A[2] =~ m/^default-gaussian-userC$/){
-  print "Will use gaussian contacts with user-provided distances\n";
-  $default="yes";
-  $gaussian="yes";
-  $usermap="yes";
- }elsif($A[2] =~ m/^default-userC$/){
-  print "Will use default settings with user-provided contact and distances\n";
-  $default="yes";
-  $gaussian="no";
-  $usermap="yes";
- }elsif($A[2] =~ m/^cutoff$/){
-  print "Will use cutoff contacts\n";
-  $default="no";
-  $gaussian="no";
- }elsif($A[2] =~ m/^shadow$/ || $A[2] =~ m/^shadow-match$/){
-  print "Will use shadow contacts\n";
-  $default="no";
-  $gaussian="no";
- }elsif($A[2] =~ m/^shadow-free$/){
-  print "Will use shadow contacts\n";
-  print "Checking use of \"free\" interactions\n";
-  $default="no";
-  $gaussian="no";
-  $free="yes";
- }elsif($A[2] =~ m/^shadow-gaussian$/ || $A[2] =~ m/^cutoff-gaussian$/){
-  print "Will use gaussian contacts\n";
-  $default="no";
-  $gaussian="yes";
- }else{
-  smogcheck_error("Unknown contact option: \"$A[2]\"");
- }
- if(!exists $numfield{$A[2]}){
-  internal_error("model $A[2] in all.pdbs is not recognized");
- }
- if($numfield{$A[2]} != $#A){
-  internal_error("all.pdbs has wrong number of entries for model $A[2]. Expected $numfield{$A[2]}, found $#A");
- }
- if($usermap eq "yes"){
-  unless(-e "$PDB_DIR/$PDB.contacts"){
-   print "Unable to find PDB file $PDB_DIR/$PDB.contacts for testing.  Skipping this test\n\n";
-   $FAIL_SYSTEM++;
-   next;
-  }
- }
+ my $contactmodel=$A[2];
 
+ ($default,$gaussian,$usermap,$free)=setmodelflags($model,$contactmodel,\%numfield,$#A);
 
- if($model =~ m/CA/){
-  print "Testing CA model\n";
- }elsif($model =~ m/AA/){
-  print "Testing AA model\n";
- }else{
-  smogcheck_error("Model name $model, not understood. Only CA and AA models are supported by the test script.");
- }
-# clean up the tracking for the next test
+ # clean up the tracking for the next test
  %FAIL=resettests(\%FAIL,\@FAILLIST);
+
  if($default eq "yes"){
   print "Checking default parameters\n";
   # energy distributions
@@ -617,6 +557,75 @@ sub runsmog
  }
 # run smog2
  `$EXEC_NAME $ARGS &> $PDB.output`;
+}
+
+sub setmodelflags{
+ my ($model,$contactmodel,$numfield,$NA)=@_;
+ my %numfield=%{$numfield};
+ # default is that we are not testing free
+ $free="no";
+ # default is to not read a contact map
+ $usermap="no";
+
+ if($contactmodel =~ m/^default$/){
+  $default="yes";
+  $gaussian="no";
+ }elsif($contactmodel =~ m/^default-gaussian$/){
+  print "Will use gaussian contacts\n";
+  $default="yes";
+  $gaussian="yes";
+ }elsif($contactmodel =~ m/^default-gaussian-userC$/){
+  print "Will use gaussian contacts with user-provided distances\n";
+  $default="yes";
+  $gaussian="yes";
+  $usermap="yes";
+ }elsif($contactmodel =~ m/^default-userC$/){
+  print "Will use default settings with user-provided contact and distances\n";
+  $default="yes";
+  $gaussian="no";
+  $usermap="yes";
+ }elsif($contactmodel =~ m/^cutoff$/){
+  print "Will use cutoff contacts\n";
+  $default="no";
+  $gaussian="no";
+ }elsif($contactmodel =~ m/^shadow$/ || $contactmodel =~ m/^shadow-match$/){
+  print "Will use shadow contacts\n";
+  $default="no";
+  $gaussian="no";
+ }elsif($contactmodel =~ m/^shadow-free$/){
+  print "Will use shadow contacts\n";
+  print "Checking use of \"free\" interactions\n";
+  $default="no";
+  $gaussian="no";
+  $free="yes";
+ }elsif($contactmodel =~ m/^shadow-gaussian$/ || $contactmodel =~ m/^cutoff-gaussian$/){
+  print "Will use gaussian contacts\n";
+  $default="no";
+  $gaussian="yes";
+ }else{
+  smogcheck_error("Unknown contact option: \"$contactmodel\"");
+ }
+ if(!exists $numfield{$contactmodel}){
+  internal_error("model $contactmodel in all.pdbs is not recognized");
+ }
+ if($numfield{$contactmodel} != $NA){
+  internal_error("all.pdbs has wrong number of entries for model $contactmodel. Expected $numfield{contactmodel}, found $NA");
+ }
+ if($usermap eq "yes"){
+  unless(-e "$PDB_DIR/$PDB.contacts"){
+   print "Unable to find PDB file $PDB_DIR/$PDB.contacts for testing.  Skipping this test\n\n";
+   $FAIL_SYSTEM++;
+   next;
+  }
+ }
+ if($model =~ m/CA/){
+  print "Testing CA model\n";
+ }elsif($model =~ m/AA/){
+  print "Testing AA model\n";
+ }else{
+  smogcheck_error("Model name $model, not understood. Only CA and AA models are supported by the test script.");
+ }
+ return ($default,$gaussian,$usermap,$free);
 }
 
 
