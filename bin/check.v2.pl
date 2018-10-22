@@ -240,7 +240,6 @@ sub readresiduetypes
   }
   $TYPE{$LINE}= "ION";
  }
-
 }
 
 sub runalltests{
@@ -562,7 +561,6 @@ sub setmodelflags{
  return ($default,$gaussian,$usermap,$free);
 }
 
-
 sub checkSCM
 {
  if($model eq "AA"){
@@ -612,7 +610,6 @@ sub checkSCM
 
 sub smogchecker
 {
-
  &cleanoldfiles;
  &preparesettings;
  print "Running SMOG 2\n";
@@ -919,7 +916,6 @@ EOT
  }
 }
 
-
 sub checkndx
 {
  open(NDX,"$PDB.ndx") or internal_error(" $PDB.ndx can not be opened...");
@@ -959,7 +955,6 @@ sub checkndx
    $CID[$LINE]=$CHAIN; 
   }
  }
-
 }
 
 sub readtop
@@ -2663,7 +2658,6 @@ sub identifydih
  return($formed,$phi1,$phi2,$phi3,$phi4); 
 }
 
-
 sub checkvalues
 {
  if($model eq "CA"){
@@ -2773,7 +2767,6 @@ sub getdist
   return $dist;
  }
 }
-
 
 sub summary
 {
