@@ -20,8 +20,8 @@ DNA.terminal AA shadow 5.0 1.4 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0 0.2 
 2ci2_v2 AA default-gaussian-userC
 2ci2_v2 CA default
 2ci2_v2.CB AA-match shadow-match 10.0 2.0
-1AKEapo_v2.CB AA-match shadow-match 15.0 2.0
-3IZH_v2.CB AA-match shadow-match 12.0 2.0
+1AKEapo_v2.CB AA-match shadow-match 10.0 2.0
+3IZH_v2.CB AA-match shadow-match 10.0 2.0
 1AKEapo_v2 AA shadow-free 5.0 1.4 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0 0.2 -1 1E-6 3E-9 1.0 
 2ci2_v2 AA cutoff 5.0 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0 0.2 -1 1E-6 3E-9 1.0 
 2ci2_v2 AA shadow 5.0 1.4 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0 0.2 -1 1E-6 3E-9 1.0 

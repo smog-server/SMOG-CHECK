@@ -591,7 +591,6 @@ sub checkSCM
   }else{
    internal_error('SCM CA DEFAULT TESTING');
   }
-
   # run SCM to get map
   `java -jar $SCM $SHADOWARGS &> $PDB.meta3.output`;
  }
@@ -602,6 +601,8 @@ sub checkSCM
   $FAIL{'SCM CONTACT COMPARISON'}=0;
  }elsif($usermap eq "yes"){
   $FAIL{'SCM CONTACT COMPARISON'}=-1;
+ }else{
+  $fail_log .= failed_message("smog-check could not generate identical SCM map. Check $PDB.contacts and $PDB.contacts.SCM");
  }
  if(! -e "$PDB.contacts.SCM"){
   smogcheck_error("Unable to re-generate contact map");
@@ -2348,7 +2349,7 @@ sub readtop
     }
    }
  
-   if(exists $ED_T[$i][$j]){
+   if(exists $ED_T[$i][$j] && ! defined $dihmatch){
     $ED_T[$i][$j]= int(($ED_T[$i][$j] * $PRECISION))/($PRECISION*1.0) ;
     if($MOLTYPE[$i] eq "AMINO"){
      if($ATOMTYPE[$i] eq "BACKBONE" and  $ATOMTYPE[$i+$j] eq "BACKBONE"){
