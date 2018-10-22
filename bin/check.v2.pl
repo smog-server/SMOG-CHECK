@@ -66,7 +66,8 @@ if($RETEST == 0 || $RETEST == 1 ){
 }
 
 &checkForModules;
- 
+
+# a number of global variables. This is a bit sloppy, since most of them do not need to be global.  Maybe later we'll convert some back to my declarations.
 our $EXEC_NAME=$ENV{'smog_exec'};
 our $SMOGDIR=$ENV{'SMOG_PATH'};
 our $SCM="$SMOGDIR/tools/SCM.jar";
@@ -82,7 +83,23 @@ our $TEMPLATE_DIR_AA=$ENV{'BIFSIF_AA_TESTING'};
 our $TEMPLATE_DIR_AA_STATIC=$ENV{'BIFSIF_STATIC_TESTING'};
 our $TEMPLATE_DIR_CA=$ENV{'BIFSIF_CA_TESTING'};
 our $TEMPLATE_DIR_AA_MATCH=$ENV{'BIFSIF_AA_MATCH'};
+# FAILLIST is a list of all the tests.
+# If you are developing and testing your own forcefield, which may not need to conform to certain checks, then you may want to disable some tests by  removing the test name from this list. However, do so at your own risk.
 
+our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','TOP FIELDS FOUND','TOP FIELDS RECOGNIZED','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'BOND LENGTHS','ANGLE TYPES', 'ANGLE WEIGHTS', 'ANGLE VALUES','DUPLICATE BONDS', 'DUPLICATE ANGLES', 'GENERATED ANGLE COUNT','GENERATED ANGLE IN TOP','ANGLES IN TOP GENERATED', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','MATCH DIH WEIGHTS','MATCH DIH ANGLES','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL IN TOP GENERATED','GENERATED DIHEDRAL IN TOP','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','GAUSSIAN CONTACT EXCLUDED VOLUME','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY','TYPE6 ATOMS','UNINITIALIZED VARIABLES','CLASSIFYING DIHEDRALS','NON-ZERO EXIT','ATOM FIELDS','ATOM CHARGES','FREE PAIRS APPEAR IN CONTACTS','EXTRAS ADDED');
+# default location of test PDBs
+our $PDB_DIR="share/PDB.files";
+# where should data from failed tests be written
+our $FAILDIR="FAILED";
+# are we testing files with free interactions?
+our $free;
+# will add free-specific hashes, here
+our @FILETYPES=("top","gro","ndx","settings","contacts","output","contacts.SCM", "contacts.CG");
+
+# bunch of global vars.  A bit sloppy.  Many could be local.
+our ($AMINO_PRESENT,$angleEps,@atombondedtype,%atombondedtypes,@ATOMNAME,@ATOMTYPE,$BBRAD,%BBTYPE,$bondEps,$bondMG,$bondtype6,%C12NB,%C6NB,$chargeAT,%chargeNB,%CHECKED,@CID,$CONTD,$CONTENERGY,$CONTR,$CONTTYPE,$default,%defcharge,$defname,$DENERGY,$dihmatch,$DIH_MAX,$DIH_MIN,$DISP_MAX,@EDrig_T,@ED_T,$epsilon,$epsilonCAC,$epsilonCAD,%FAIL,$FAILED,$fail_log,@FIELDS,$gaussian,@GRODATA,$impEps,$improper_gen_N,$ION_PRESENT,$LIGAND_DIH,$LIGAND_PRESENT,%massNB,%matchangle_val,%matchangle_weight,%matchbond_val,%matchbond_weight,%matchdihedral_val,%matchdihedral_weight,$model,@MOLTYPE,%MOLTYPEBYRES,$NA_DIH,$NCONTACTS,$NUCLEIC_PRESENT,$NUMATOMS,$NUMATOMS_LIGAND,$omegaEps,$PDB,$phi_gen_N,$PRO_DIH,$R_CD,$rep_s12,@RESNUM,%restypecount,$ringEps,$R_N_SC_BB,$R_P_BB_SC,$sigma,$sigmaCA,$theta_gen_N,%TYPE,$type6count,$usermap,@XT,@YT,@ZT);
+
+$DISP_MAX=0;
 # before testing anything, make sure this version of smog-check is compatible with the version of smog2
 my $smogversion=`$EXEC_NAME -v | tail -n 1`;
 chomp($smogversion);
@@ -91,11 +108,6 @@ $smogversion=~/^\s+|\s+$/;
 if($VERSION ne $smogversion){
  smogcheck_error("Incompatible versions of SMOG ($smogversion) and SMOG-CHECK ($VERSION)");	
 }
-
-# FAILLIST is a list of all the tests.
-# If you are developing and testing your own forcefield, which may not need to conform to certain checks, then you may want to disable some tests by  removing the test name from this list. However, do so at your own risk.
-
-our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','TOP FIELDS FOUND','TOP FIELDS RECOGNIZED','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'BOND LENGTHS','ANGLE TYPES', 'ANGLE WEIGHTS', 'ANGLE VALUES','DUPLICATE BONDS', 'DUPLICATE ANGLES', 'GENERATED ANGLE COUNT','GENERATED ANGLE IN TOP','ANGLES IN TOP GENERATED', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','MATCH DIH WEIGHTS','MATCH DIH ANGLES','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL IN TOP GENERATED','GENERATED DIHEDRAL IN TOP','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','GAUSSIAN CONTACT EXCLUDED VOLUME','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY','TYPE6 ATOMS','UNINITIALIZED VARIABLES','CLASSIFYING DIHEDRALS','NON-ZERO EXIT','ATOM FIELDS','ATOM CHARGES','FREE PAIRS APPEAR IN CONTACTS','EXTRAS ADDED');
 
 my %supported_directives = ( 'defaults' => '1',
         'atomtypes' => '1',
@@ -126,184 +138,21 @@ my %free_pair_defs=('ASN-MET' =>'1',
 	   	    'MET-MET' =>'1'
 		   );
 
-
 unless(-d $BIFSIF_AA && -d $BIFSIF_CA && -d $TEMPLATE_DIR_AA && -d $TEMPLATE_DIR_AA_STATIC && -d $TEMPLATE_DIR_CA ){
  smogcheck_error("Can\'t find the template directories. Something is wrong with the configurations of this script.\nYour intallation of SMOG2 may be ok, but we can\'t tell\nGiving up...");
 }
 
-# default location of test PDBs
-our $PDB_DIR="share/PDB.files";
 print "environment variables read\n";
 print "EXEC_NAME $EXEC_NAME\n";
-
-# where should data from failed tests be written
-our $FAILDIR="FAILED";
-# are we testing files with free interactions?
-our $free;
-# will add free-specific hashes, here
-
-
-our @FILETYPES=("top","gro","ndx","settings","contacts","output","contacts.SCM", "contacts.CG");
 
 unless( -e $SCM){
  smogcheck_error("Can\'t find Shadow!");
 }
-our %BBTYPE;
-## read in the backbone atom types.  Remember, CA and C1* can be involved in sidechain dihedrals
-open(BBAMINO,"share/backboneatoms/aminoacids") or internal_error("no amino acid file");
-while(<BBAMINO>){
- my $LINE=$_;
- chomp($LINE);
- $LINE =~ s/\s+$//;
- $BBTYPE{$LINE}= "BACKBONE";
-}
-
-open(BBNUCLEIC,"share/backboneatoms/nucleicacids") or internal_error("no amino acid file");
-while(<BBNUCLEIC>){
- my $LINE=$_;
- chomp($LINE);
- $LINE =~ s/\s+$//;
- $BBTYPE{$LINE}= "BACKBONE";
-}
-our %TYPE;
-my @AA;
-## LOAD INFORMATION ABOUT WHAT TYPES OF RESIDUES ARE RECOGNIZED BY SMOG2
-#amino acids
-open(AMINO,"share/residues/aminoacids") or internal_error("no amino acid file");
-my $AAn=0;
-while(<AMINO>){
- my $LINE=$_;
- chomp($LINE);
- $LINE =~ s/\s+$//;
- $TYPE{$LINE}= "AMINO";
- $AA[$AAn]=$LINE;
- $AAn++;
-}
-
-#nucleic acids
-open(NUCLEIC,"share/residues/nucleicacids") or internal_error("no nucleic acid file");
-my $NUCLEICn=0;
-my @NUCLEIC;
-while(<NUCLEIC>){
- my $LINE=$_;
- chomp($LINE);
- $LINE =~ s/\s+$//;
- $NUCLEIC[$NUCLEICn]=$LINE;
- $NUCLEICn++;
- $TYPE{$LINE}= "NUCLEIC";
-}
-
-#ligands
-open(LIGAND,"share/residues/ligands") or internal_error("no nucleic acid file");
-my $LIGANDn=0;
-my @LIGANDS;
-while(<LIGAND>){
- my $LINE=$_;
- chomp($LINE);
- $LINE =~ s/\s+$//;
- $TYPE{$LINE}= "LIGAND";
- $LIGANDS[$LIGANDn]=$LINE;
- $LIGANDn++;
-}
-
-#ions
-open(ION,"share/residues/ions") or internal_error("no ion file");
-my $IONn=0;
-my @IONS;
-while(<ION>){
- my $LINE=$_;
- chomp($LINE);
- $LINE =~ s/\s+$//;
- $TYPE{$LINE}= "ION";
- $IONS[$IONn]=$LINE;
- $IONn++;
-}
 
 my %numfield = ( 'default' => '2', 'default-userC' => '2', 'default-gaussian' => '2', 'default-gaussian-userC' => '2','cutoff' => '19', 'shadow' => '20',  'shadow-free' => '20', 'shadow-gaussian' => '20', 'cutoff-gaussian' => '19' , 'shadow-match' => '4');
 
-## READ IN THE LIST OF TEST PDBs.
-## We will generate SMOG2 models and then check to see if the top files are correct for the default model
-# we are a bit lazy, and will just use global variables
 my $FAIL_SYSTEM=0;
 
-# a number of global variables.
-our $default;
-our $usermap;
-our $gaussian;
-our $model;
-our $PDB;
-our $CONTTYPE;
-our $CONTD;
-our $CONTR;
-our $BBRAD;
-our $R_CD;
-our $R_P_BB_SC;
-our $R_N_SC_BB;
-our $PRO_DIH;
-our $NA_DIH;
-our $LIGAND_DIH;
-our $sigma;
-our $epsilon;
-our $epsilonCAC;
-our $epsilonCAD;
-our $sigmaCA;
-our %massNB;
-our %atombondedtypes;
-our @atombondedtype;
-our %chargeNB;
-our %C6NB;
-our %C12NB;
-our %matchbond_val;
-our %matchbond_weight;
-our %matchangle_val;
-our %matchangle_weight;
-our %matchdihedral_val;
-our %matchdihedral_weight;
-our $chargeAT;
-our $FAILED;
-our @CID;
-our $DIH_MIN;
-our $DIH_MAX;
-our $NCONTACTS;
-our $NUMATOMS;
-our $NUMATOMS_LIGAND;
-our $NUCLEIC_PRESENT;
-our $AMINO_PRESENT;
-our $LIGAND_PRESENT;
-our $ION_PRESENT;
-our @FIELDS;
-our %FAIL;
-our %CHECKED;
-our $rep_s12;
-our @ATOMNAME;
-our @GRODATA;
-our @ATOMTYPE;
-our @RESNUM;
-our @MOLTYPE;
-our %MOLTYPEBYRES;
-our %restypecount;
-our $bondEps;
-our $bondMG;
-our $angleEps;
-our $dihmatch;
-our $ringEps;
-our $omegaEps;
-our $impEps;
-our $DENERGY;
-our @ED_T;
-our @EDrig_T;
-our $DISP_MAX=0;
-our $defname;
-our %defcharge;
-our $CONTENERGY;
-our ($theta_gen_N,$phi_gen_N,$improper_gen_N);
-#our ($NonstackingE,$stackingE);
-our @XT;
-our @YT;
-our @ZT;
-our $bondtype6;
-our $type6count;
-our $fail_log;
 %defcharge = ('GLY-N' => "0.3", 'GLY-C' => "0.2", 'GLY-O' => "-0.5");
 my $NUMTESTED=0;
 my $SETTINGS_FILE=<STDIN>;
@@ -311,10 +160,88 @@ chomp($SETTINGS_FILE);
 open(PARMS,"$SETTINGS_FILE") or internal_error("The settings file is missing...");
 my $TESTNUM=0;
 
+
+&readbackbonetypes;
+&readresiduetypes;
 &runalltests;
+
+#*************************END OF MAIN ROUTINE**********************
 
 
 #*****************************SUBROUTINES**************************
+
+sub readbackbonetypes
+{
+ ## read in the backbone atom types.  Remember, CA and C1* can be involved in sidechain dihedrals
+ open(BBAMINO,"share/backboneatoms/aminoacids") or internal_error("no amino acid file");
+ while(<BBAMINO>){
+  my $LINE=$_;
+  chomp($LINE);
+  $LINE =~ s/\s+$//;
+  $BBTYPE{$LINE}= "BACKBONE";
+ }
+ 
+ open(BBNUCLEIC,"share/backboneatoms/nucleicacids") or internal_error("no amino acid file");
+ while(<BBNUCLEIC>){
+  my $LINE=$_;
+  chomp($LINE);
+  $LINE =~ s/\s+$//;
+  $BBTYPE{$LINE}= "BACKBONE";
+ }
+}
+
+sub readresiduetypes
+{
+ ## LOAD INFORMATION ABOUT WHAT TYPES OF RESIDUES ARE RECOGNIZED BY SMOG2
+ #amino acids
+ open(AMINO,"share/residues/aminoacids") or internal_error("no amino acid file");
+ while(<AMINO>){
+  my $LINE=$_;
+  chomp($LINE);
+  $LINE =~ s/\s+$//;
+  if(defined $TYPE{$LINE}){
+   smogcheck_error("$LINE given more than once in share/residues files");
+  }
+  $TYPE{$LINE}= "AMINO";
+ }
+ #nucleic acids
+ open(NUCLEIC,"share/residues/nucleicacids") or internal_error("no nucleic acid file");
+ my @NUCLEIC;
+ while(<NUCLEIC>){
+  my $LINE=$_;
+  chomp($LINE);
+  $LINE =~ s/\s+$//;
+  if(defined $TYPE{$LINE}){
+   smogcheck_error("$LINE given more than once in share/residues files");
+  }
+  $TYPE{$LINE}= "NUCLEIC";
+ }
+ #ligands
+ open(LIGAND,"share/residues/ligands") or internal_error("no nucleic acid file");
+ my @LIGANDS;
+ while(<LIGAND>){
+  my $LINE=$_;
+  chomp($LINE);
+  $LINE =~ s/\s+$//;
+  if(defined $TYPE{$LINE}){
+   smogcheck_error("$LINE given more than once in share/residues files");
+  }
+  $TYPE{$LINE}= "LIGAND";
+ }
+ #ions
+ open(ION,"share/residues/ions") or internal_error("no ion file");
+ my @IONS;
+ while(<ION>){
+  my $LINE=$_;
+  chomp($LINE);
+  $LINE =~ s/\s+$//;
+  if(defined $TYPE{$LINE}){
+   smogcheck_error("$LINE given more than once in share/residues files");
+  }
+  $TYPE{$LINE}= "ION";
+ }
+
+}
 
 sub runalltests{
  ## Run tests for each pdb
@@ -2404,8 +2331,6 @@ sub readtop
  my $NUM_NONZERO=0;
  my $LIGdvalue=0;
 
-
-
  for(my $i=0;$i<$NUMATOMS+1;$i++){
   for(my $j=0;$j<=$DISP_MAX;$j++){
    if(exists $EDrig_T[$i][$j]){
@@ -2627,17 +2552,17 @@ sub readtop
    }
   }
  }else{
-    $FAIL{'STRENGTHS OF RIGID DIHEDRALS'}=-1;
-    $FAIL{'STRENGTHS OF OMEGA DIHEDRALS'}=-1;
-    $FAIL{'STRENGTHS OF PROTEIN BB DIHEDRALS'}=-1;
-    $FAIL{'STACK-NONSTACK RATIO'}=-1;
-    $FAIL{'PROTEIN BB/SC RATIO'}=-1;
-    $FAIL{'NUCLEIC SC/BB RATIO'}=-1;
-    $FAIL{'AMINO/NUCLEIC DIHEDRAL RATIO'}=-1;
-    $FAIL{'AMINO/LIGAND DIHEDRAL RATIO'}=-1;
-    $FAIL{'NUCLEIC/LIGAND DIHEDRAL RATIO'}=-1;
-   $FAIL{'NONZERO DIHEDRAL ENERGY'}=-1;
-   $FAIL{'CONTACT/DIHEDRAL RATIO'}=-1;
+  $FAIL{'STRENGTHS OF RIGID DIHEDRALS'}=-1;
+  $FAIL{'STRENGTHS OF OMEGA DIHEDRALS'}=-1;
+  $FAIL{'STRENGTHS OF PROTEIN BB DIHEDRALS'}=-1;
+  $FAIL{'STACK-NONSTACK RATIO'}=-1;
+  $FAIL{'PROTEIN BB/SC RATIO'}=-1;
+  $FAIL{'NUCLEIC SC/BB RATIO'}=-1;
+  $FAIL{'AMINO/NUCLEIC DIHEDRAL RATIO'}=-1;
+  $FAIL{'AMINO/LIGAND DIHEDRAL RATIO'}=-1;
+  $FAIL{'NUCLEIC/LIGAND DIHEDRAL RATIO'}=-1;
+  $FAIL{'NONZERO DIHEDRAL ENERGY'}=-1;
+  $FAIL{'CONTACT/DIHEDRAL RATIO'}=-1;
  } 
 
  unless($NUCLEIC_PRESENT){
@@ -2647,7 +2572,6 @@ sub readtop
   $FAIL{'CONTACTS PROTEIN i-j=4'}=-1;
  }
  my $cf=0;
- my $NFIELDFOUND=scalar keys %FOUND;
  foreach my $ffields(keys %FOUND)
  {
   if(exists $supported_directives{$ffields}){
