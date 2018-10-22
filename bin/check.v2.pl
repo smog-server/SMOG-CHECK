@@ -94,6 +94,7 @@ if($VERSION ne $smogversion){
 
 # FAILLIST is a list of all the tests.
 # If you are developing and testing your own forcefield, which may not need to conform to certain checks, then you may want to disable some tests by  removing the test name from this list. However, do so at your own risk.
+
 our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','TOP FIELDS FOUND','TOP FIELDS RECOGNIZED','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'BOND LENGTHS','ANGLE TYPES', 'ANGLE WEIGHTS', 'ANGLE VALUES','DUPLICATE BONDS', 'DUPLICATE ANGLES', 'GENERATED ANGLE COUNT','GENERATED ANGLE IN TOP','ANGLES IN TOP GENERATED', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','MATCH DIH WEIGHTS','MATCH DIH ANGLES','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL IN TOP GENERATED','GENERATED DIHEDRAL IN TOP','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','GAUSSIAN CONTACT EXCLUDED VOLUME','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY','TYPE6 ATOMS','UNINITIALIZED VARIABLES','CLASSIFYING DIHEDRALS','NON-ZERO EXIT','ATOM FIELDS','ATOM CHARGES','FREE PAIRS APPEAR IN CONTACTS','EXTRAS ADDED');
 
 my %supported_directives = ( 'defaults' => '1',
@@ -274,6 +275,7 @@ our $LIGAND_PRESENT;
 our $ION_PRESENT;
 our @FIELDS;
 our %FAIL;
+our %CHECKED;
 our $rep_s12;
 our @ATOMNAME;
 our @GRODATA;
@@ -435,7 +437,6 @@ while(<PARMS>){
   smogcheck_error("Model name $model, not understood. Only CA and AA models are supported by the test script.");
  }
 # clean up the tracking for the next test
-## %FAIL=%{
  %FAIL=resettests(\%FAIL,\@FAILLIST);
  if($default eq "yes"){
   print "Checking default parameters\n";
@@ -540,39 +541,48 @@ while(<PARMS>){
  &smogchecker;
 
 }
-
- # If any systems failed, output message
- if($FAIL_SYSTEM > 0){
-  print <<EOT;
+# check to see if every possible test has been checked, at least one time.
+my $nottested="";
+foreach my $name(keys %FAIL){
+ if(!exists $CHECKED{$name}){
+  $nottested .= "$name\n";
+ }
+}
+if($nottested ne ""){
+ print "NOTE: Not all possible tests have been checked.  Unchecked tests include:\n$nottested";
+}
+# If any systems failed, output message
+if($FAIL_SYSTEM > 0){
+ print <<EOT;
 *************************************************************
              TESTS FAILED: CHECK MESSAGES ABOVE  !!!
 ************************************************************* 
 EOT
-  exit(1);
- }elsif($NUMTESTED == 0){
-  print <<EOT;
+ exit(1);
+}elsif($NUMTESTED == 0){
+ print <<EOT;
 *************************************************************
                       NO TESTS PERFORMED !!!
 *************************************************************
 EOT
-  exit(1);
- }elsif($RETEST < 0){
-  print <<EOT;
+ exit(1);
+}elsif($RETEST < 0){
+ print <<EOT;
 *************************************************************
                       PASSED ALL TESTS  !!!
 *************************************************************
 EOT
-  exit(0);
- }elsif($RETEST > 0){
-  if($RETESTEND != -1){
-  print <<EOT;
+ exit(0);
+}elsif($RETEST > 0){
+if($RETESTEND != -1){
+ print <<EOT;
 *************************************************************
                  PASSED TESTS $RETEST to $RETESTEND  !!!
 *************************************************************
 EOT
-  }
-  exit(0);
  }
+ exit(0);
+}
 
 sub runsmog
 {
@@ -2827,6 +2837,11 @@ sub getdist
 
 sub summary
 {
+ foreach my $name(keys %FAIL){
+  if($FAIL{$name} != -1){
+   $CHECKED{$name}=1;
+  }
+ }
 
  my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
  if($FAILED > 0){
