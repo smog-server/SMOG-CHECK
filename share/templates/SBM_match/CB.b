@@ -72,16 +72,4 @@
 	<bType>*</bType>
 	</dihedral>
 </dihedrals>
-<!-- IMPROPERS -->
-<impropers>
-	<improper func="notused(?,?)">
-	<bType>*</bType>
-	<bType>*</bType>
-	<bType>*</bType>
-	<bType>*</bType>
-	</improper>
-</impropers>
-
-
-
 </b>
