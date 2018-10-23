@@ -2545,7 +2545,7 @@ sub readtop
    }elsif($free eq "yes" or defined $dihmatch){
     $FAIL{'CONTACT/DIHEDRAL RATIO'}=-1;
    }else{
-    $fail_log .=failed_message("Contact/Dihedral ratio is off. Expected $R_CD, found $CD_ratio.");
+    $fail_log .=failed_message("Contact/Dihedral ratio is off. Expected $R_CD, found $CD_ratio (contacts=$CONTENERGY, dihedrals=$DENERGY");
    }
   }
  }else{
