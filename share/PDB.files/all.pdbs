@@ -4,6 +4,10 @@
 1A01-ADP AA default-gaussian
 1A01-ATP AA default
 1A01-ATP AA default-gaussian
+2FP4-GDP AA default
+2FP4-GDP AA default-gaussian
+2FP4-GTP AA default
+2FP4-GTP AA default-gaussian
 DNA.terminal AA	default-gaussian 
 DNA.terminal.BMG AA default 
 1AKEapo_v2 AA default-gaussian 
