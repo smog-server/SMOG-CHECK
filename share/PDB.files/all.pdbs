@@ -4,6 +4,8 @@
 1A01-ADP AA default-gaussian
 1A01-ATP AA default
 1A01-ATP AA default-gaussian
+1A01-ADP+RNA AA default
+1A01-ADP+RNA AA default-gaussian
 2FP4-GDP AA default
 2FP4-GDP AA default-gaussian
 2FP4-GTP AA default
