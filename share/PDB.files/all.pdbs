@@ -35,7 +35,7 @@ DNA.terminal AA shadow 5.0 1.4 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0 0.2 
 3IZH_v2 AA shadow 5.0 1.4 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0 0.2 -1 1E-6 3E-9 1.0 
 3IZH_v2 CA cutoff 5.0 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0 0.2 -1 1E-6 3E-9 1.0 
 3IZH_v2 CA shadow 5.0 1.4 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0 0.2 -1 1E-6 3E-9 1.0 
-terminaltest AA default
+terminaltest.BOND AA default
 terminaltest CA default
 terminaltest AA cutoff 5.0 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0 0.2 -1 1E-6 3E-9 1.0 
 terminaltest AA shadow 5.0 1.4 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0 0.2 -1 1E-6 3E-9 1.0 

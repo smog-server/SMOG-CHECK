@@ -309,7 +309,11 @@ sub runalltests{
  
   # clean up the tracking for the next test
   %FAIL=resettests(\%FAIL,\@FAILLIST);
- 
+
+  if($PDB =~ m/BOND$/){
+   # BOND in name means disable check
+   $FAIL{'GENERATED DIHEDRAL IN TOP'}=-1; 
+  }
   &smogchecker;
  
  }
