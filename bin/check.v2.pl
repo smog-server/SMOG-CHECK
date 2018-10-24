@@ -86,7 +86,7 @@ our $TEMPLATE_DIR_AA_MATCH=$ENV{'BIFSIF_AA_MATCH'};
 # FAILLIST is a list of all the tests.
 # If you are developing and testing your own forcefield, which may not need to conform to certain checks, then you may want to disable some tests by  removing the test name from this list. However, do so at your own risk.
 
-our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','TOP FIELDS FOUND','TOP FIELDS RECOGNIZED','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'BOND LENGTHS','ANGLE TYPES', 'ANGLE WEIGHTS', 'ANGLE VALUES','DUPLICATE BONDS', 'DUPLICATE ANGLES', 'GENERATED ANGLE COUNT','GENERATED ANGLE IN TOP','ANGLES IN TOP GENERATED', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','MATCH DIH WEIGHTS','MATCH DIH ANGLES','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL IN TOP GENERATED','GENERATED DIHEDRAL IN TOP','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','GAUSSIAN CONTACT EXCLUDED VOLUME','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY','TYPE6 ATOMS','UNINITIALIZED VARIABLES','CLASSIFYING DIHEDRALS','NON-ZERO EXIT','ATOM FIELDS','ATOM CHARGES','FREE PAIRS APPEAR IN CONTACTS','EXTRAS ADDED','NONZERO LIGAND DIHEDRAL VALUE');
+our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','TOP FIELDS FOUND','TOP FIELDS RECOGNIZED','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'BOND LENGTHS','ANGLE TYPES', 'ANGLE WEIGHTS', 'ANGLE VALUES','DUPLICATE BONDS', 'DUPLICATE ANGLES', 'GENERATED ANGLE COUNT','GENERATED ANGLE IN TOP','ANGLES IN TOP GENERATED', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','MATCH DIH WEIGHTS','MATCH DIH ANGLES','ALL POSSIBLE MATCHED DIHEDRALS PRESENT','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL IN TOP GENERATED','GENERATED DIHEDRAL IN TOP','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','GAUSSIAN CONTACT EXCLUDED VOLUME','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY','TYPE6 ATOMS','UNINITIALIZED VARIABLES','CLASSIFYING DIHEDRALS','NON-ZERO EXIT','ATOM FIELDS','ATOM CHARGES','FREE PAIRS APPEAR IN CONTACTS','EXTRAS ADDED','NONZERO LIGAND DIHEDRAL VALUE');
 # default location of test PDBs
 our $PDB_DIR="share/PDB.files";
 # where should data from failed tests be written
@@ -97,7 +97,7 @@ our $free;
 our @FILETYPES=("top","gro","ndx","settings","contacts","output","contacts.SCM", "contacts.CG");
 
 # bunch of global vars.  A bit sloppy.  Many could be local.
-our ($AMINO_PRESENT,$angleEps,@atombondedtype,%atombondedtypes,@ATOMNAME,@ATOMTYPE,$BBRAD,%BBTYPE,$bondEps,$bondMG,$bondtype6,%C12NB,%C6NB,$chargeAT,%chargeNB,%CHECKED,@CID,$CONTD,$CONTENERGY,$CONTR,$CONTTYPE,$default,%defcharge,$defname,$DENERGY,$dihmatch,$DIH_MAX,$DIH_MIN,$DISP_MAX,@EDrig_T,@ED_T,$epsilon,$epsilonCAC,$epsilonCAD,%FAIL,$FAILED,$fail_log,@FIELDS,$gaussian,@GRODATA,$impEps,$improper_gen_N,$ION_PRESENT,$LIGAND_DIH,$LIGAND_PRESENT,%massNB,%matchangle_val,%matchangle_weight,%matchbond_val,%matchbond_weight,%matchdihedral_val,%matchdihedral_weight,$model,@MOLTYPE,%MOLTYPEBYRES,$NA_DIH,$NCONTACTS,$NUCLEIC_PRESENT,$NUMATOMS,$NUMATOMS_LIGAND,$omegaEps,$PDB,$phi_gen_N,$PRO_DIH,$R_CD,$rep_s12,@RESNUM,%restypecount,$ringEps,$R_N_SC_BB,$R_P_BB_SC,$sigma,$sigmaCA,$theta_gen_N,%TYPE,$type6count,$usermap,@XT,@YT,@ZT);
+our ($AMINO_PRESENT,$angleEps,@atombondedtype,%atombondedtypes,%atombondedtypes2,@ATOMNAME,@ATOMTYPE,$BBRAD,%BBTYPE,$bondEps,$bondMG,$bondtype6,%C12NB,%C6NB,$chargeAT,%chargeNB,%CHECKED,@CID,$CONTD,$CONTENERGY,$CONTR,$CONTTYPE,$default,%defcharge,$defname,$DENERGY,$dihmatch,$DIH_MAX,$DIH_MIN,$DISP_MAX,@EDrig_T,@ED_T,$epsilon,$epsilonCAC,$epsilonCAD,%FAIL,$FAILED,$fail_log,@FIELDS,$gaussian,@GRODATA,$impEps,$improper_gen_N,$ION_PRESENT,$LIGAND_DIH,$LIGAND_PRESENT,%massNB,%matchangle_val,%matchangle_weight,%matchbond_val,%matchbond_weight,%matchdihedral_val,%matchdihedral_weight,$model,@MOLTYPE,%MOLTYPEBYRES,$NA_DIH,$NCONTACTS,$NUCLEIC_PRESENT,$NUMATOMS,$NUMATOMS_LIGAND,$omegaEps,$PDB,$phi_gen_N,$PRO_DIH,$R_CD,$rep_s12,@RESNUM,%restypecount,$ringEps,$R_N_SC_BB,$R_P_BB_SC,$sigma,$sigmaCA,$theta_gen_N,%TYPE,$type6count,$usermap,@XT,@YT,@ZT);
 
 $DISP_MAX=0;
 # before testing anything, make sure this version of smog-check is compatible with the version of smog2
@@ -280,6 +280,7 @@ sub runalltests{
   undef  $sigmaCA;
   undef  %massNB;
   undef  %atombondedtypes;
+  undef  %atombondedtypes2;
   undef  @atombondedtype;
   undef  %chargeNB;
   undef  %C6NB;
@@ -790,9 +791,10 @@ EOT
    }
    my $ttype="$A[0]-$A[1]";
    if(exists $atombondedtypes{$ttype}){
-    smogcheck_error("$A[1] defined more than once in atomtype file. Offending line:\n\t$data\n");
+    smogcheck_error("$ttype defined more than once in atomtype file. Offending line:\n\t$data\n");
    }
    $atombondedtypes{$ttype}=$A[2];
+   $atombondedtypes2{$A[2]}=0;
   }
   close(ATF);
   my $compare="$TEMPLATE_DIR_AA_MATCH/comparelist";
@@ -818,8 +820,14 @@ EOT
      smogcheck_error("wrong number of fields if compare file. Offending line:\n\t$data\n");
     }
     my $bondname="$A[1]-$A[2]";
+    if(!exists $atombondedtypes2{$A[1]}){
+     smogcheck_error("bond $bondname defined, but bonded type $A[1] not defined. Offending line:\n\t$data\n");
+    }
+    if(!exists $atombondedtypes2{$A[2]}){
+     smogcheck_error("bond $bondname defined, but bonded type $A[2] not defined. Offending line:\n\t$data\n");
+    }
     if(exists $matchbond_val{$bondname}){
-     smogcheck_error("bone $bondname defined more than once in compare file. Offending line:\n\t$data\n");
+     smogcheck_error("bond $bondname defined more than once in compare file. Offending line:\n\t$data\n");
     }
     $matchbond_val{$bondname}=$A[3];
     $matchbond_weight{$bondname}=$A[4];
@@ -997,6 +1005,8 @@ sub readtop
  my $finalres;
  my %revData;
  my @resindex;
+ my %seen;
+ my %seendihedrals;
  foreach(keys %supported_directives){
   $FOUND{$_}=0;
  }
@@ -1048,7 +1058,6 @@ sub readtop
     $#A = -1;
     $LINE=$topdata[$LN];$LN++;
     @A=split(/ /,$LINE);
-    my %seen;
     my $numtypes=0;
     my $mass1=0;
     my $typesunique=0;
@@ -1063,8 +1072,7 @@ sub readtop
       $seen{$A[0]}=1;
       $typesunique++;
      }else{
-      my $T=$A[0];
-      smogcheck_error("atomtype name $T appears more than once.");
+      smogcheck_error("atomtype name $A[0] appears more than once.");
      }
      if($A[0] =~ /^[a-zA-Z0-9_]+$/){
       $acceptablenames++;
@@ -1156,7 +1164,11 @@ sub readtop
      $ATOMNAME[$A[0]]=$A[4];
      # if we are matching hetergeneous parameters, we need to store the smog-internal bonded types
      if($model eq "AA-match"){
-      $atombondedtype[$A[0]]=$atombondedtypes{"$A[3]-$A[4]"};
+      if(exists $atombondedtypes{"$A[3]-$A[4]"}){
+       $atombondedtype[$A[0]]=$atombondedtypes{"$A[3]-$A[4]"};
+      }else{
+       smogcheck_error('Test broken. Not all atom types in the system have a reference bonded type provided.');
+      }
      }
      for(my $J=0;$J<5;$J++){
       $A[$J] =~ s/^\s+|\s+$//g;
@@ -1739,6 +1751,7 @@ sub readtop
         my $at3=$atombondedtype[$A[2]];
         my $at4=$atombondedtype[$A[3]];
         my $dname="$at1-$at2-$at3-$at4";
+        $seendihedrals{$dname}=0;
         if(exists $matchdihedral_weight{"$dname"}){
          # check for the expected values of the weight, if defined 
          my $dweight=$matchdihedral_weight{"$dname"};
@@ -2304,7 +2317,30 @@ sub readtop
    }
   }
  }
-
+ if(defined $dihmatch){
+  my $c1=0; 
+  my $c2=0; 
+  foreach my $T1(keys %atombondedtypes2){
+   foreach my $T2(keys %atombondedtypes2){
+    foreach my $T3(keys %atombondedtypes2){
+     foreach my $T4(keys %atombondedtypes2){
+      my $dihetmp="$T1-$T2-$T2-$T3";
+      $c1++;
+      if(! exists $seendihedrals{$dihetmp}){;
+       $fail_log .= failed_message("Did not find dihedral with bonded types $dihetmp");
+      }else{
+      $c2++;
+      }
+     }
+    }
+   }
+  }
+  if($c1==$c2){
+   $FAIL{'ALL POSSIBLE MATCHED DIHEDRALS PRESENT'}=0;
+  }
+ }else{
+   $FAIL{'ALL POSSIBLE MATCHED DIHEDRALS PRESENT'}=-1;
+ }
  # check the dihedrals...
  my $NRIGID=0;
  my $NOMEGA=0;
