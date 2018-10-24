@@ -325,16 +325,6 @@ sub runalltests{
  
  }
  
- # check to see if every possible test has been checked, at least one time.
- my $nottested="";
- foreach my $name(keys %FAIL){
-  if(!exists $CHECKED{$name}){
-   $nottested .= "$name\n";
-  }
- }
- if($nottested ne ""){
-  print "NOTE: Not all possible tests have been checked.  Unchecked tests include:\n$nottested";
- }
  # If any systems failed, output message
  if($FAIL_SYSTEM > 0){
   print <<EOT;
@@ -351,12 +341,22 @@ EOT
 EOT
  exit(1);
 }elsif($RETEST < 0){
+ my $nottested=alltested(\%CHECKED,\%FAIL);
+ if($nottested eq ""){
  print <<EOT;
 *************************************************************
                       PASSED ALL TESTS  !!!
 *************************************************************
 EOT
  exit(0);
+}else{
+  print <<EOT;
+*************************************************************
+$nottested
+*************************************************************
+EOT
+ exit(1);
+ }
 }elsif($RETEST > 0){
 if($RETESTEND != -1){
  print <<EOT;
@@ -367,6 +367,24 @@ EOT
   }
   exit(0);
  }
+}
+
+sub alltested
+{
+ my ($CH,$FA)=@_;
+ %CHECKED=%{$CH}; 
+ %FAIL=%{$FA};
+# check to see if every possible test has been checked, at least one time.
+ my $nottested="";
+ foreach my $name(keys %FAIL){
+  if(!exists $CHECKED{$name}){
+   $nottested .= "$name\n";
+  }
+ }
+ if($nottested ne ""){
+  $nottested = "Not all possible tests have been checked.  Unchecked tests include:\n$nottested";
+ }
+ return $nottested;
 }
 
 sub runsmog
