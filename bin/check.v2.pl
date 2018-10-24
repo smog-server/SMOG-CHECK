@@ -173,22 +173,31 @@ my $TESTNUM=0;
 sub readbackbonetypes
 {
  ## read in the backbone atom types.  Remember, CA and C1* can be involved in sidechain dihedrals
- open(BBAMINO,"share/backboneatoms/aminoacids") or internal_error("no amino acid file");
+ open(BBAMINO,"share/backboneatoms/aminoacids") or internal_error("no amino acid BB file");
  while(<BBAMINO>){
   my $LINE=$_;
   chomp($LINE);
   $LINE =~ s/\s+$//;
-  $BBTYPE{$LINE}= "BACKBONE";
+  $BBTYPE{"AMINO-$LINE"}= "BACKBONE";
  }
  
- open(BBNUCLEIC,"share/backboneatoms/nucleicacids") or internal_error("no amino acid file");
+ open(BBNUCLEIC,"share/backboneatoms/nucleicacids") or internal_error("no nucleic acid BB file");
  while(<BBNUCLEIC>){
   my $LINE=$_;
   chomp($LINE);
   $LINE =~ s/\s+$//;
-  $BBTYPE{$LINE}= "BACKBONE";
+  $BBTYPE{"NUCLEIC-$LINE"}= "BACKBONE";
+ }
+ 
+ open(BBLIG,"share/backboneatoms/ligands") or internal_error("no ligand BB file");
+ while(<BBLIG>){
+  my $LINE=$_;
+  chomp($LINE);
+  $LINE =~ s/\s+$//;
+  $BBTYPE{"LIGAND-$LINE"}= "BACKBONE";
  }
 }
+
 
 sub readresiduetypes
 {
@@ -1202,8 +1211,9 @@ sub readtop
       $FAIL_GROTOP++;
      }
      # check if it is a backbone atom. This list does not include CA and C1* because this classification is only used for determining which bonds are backbone and which are sidechain
-     if(exists $BBTYPE{$A[4]}){
-      $ATOMTYPE[$A[0]]=$BBTYPE{$A[4]};
+     my $atomt="$TYPE{$A[3]}-$A[4]";
+     if(exists $BBTYPE{$atomt}){
+      $ATOMTYPE[$A[0]]=$BBTYPE{$atomt};
      }else{
       $ATOMTYPE[$A[0]]="NOTBB";
      }
@@ -2379,6 +2389,11 @@ sub readtop
      }
     }else{
      $NOMEGA++;
+     # make sure that, if the dihedral is in a ligand (ANP, GNP), it must not involve the backbone
+     if($MOLTYPE[$i] eq "LIGAND" && ($ATOMTYPE[$i] eq "BACKBONE" or  $ATOMTYPE[$i+$j] eq "BACKBONE")){
+      $fail_log .= failed_message("Rigid dihedral assigned to ligand backbone. script expects these to be flexible. \n\t$i $j $EDrig_T[$i][$j]\n\t$ATOMNAME[$i] $ATOMNAME[$i+$j]\n\t$RESNUM[$i] $RESNUM[$i+$j]");
+      next; # by going to next, this will automatically flag errors with regards to number of rigids
+     }
      if(abs($EDrig_T[$i][$j]-$ringEps) > $TOLERANCE ){
       $fail_log .= failed_message("weird ring dihedral...\n\t$i $j $EDrig_T[$i][$j]\n\t$ATOMNAME[$i] $ATOMNAME[$i+$j]\n\t$RESNUM[$i] $RESNUM[$i+$j]");
      }else{
@@ -2426,12 +2441,18 @@ sub readtop
      }
     }elsif($MOLTYPE[$i] eq "LIGAND"){
      $NLIG++;
+     if( $ATOMTYPE[$i] ne "BACKBONE" && $ATOMTYPE[$i+$j] ne "BACKBONE"){
+      $fail_log .= failed_message("Flexible dihedral assigned to ligand non-backbone. script expects these to be rigid. \n\t$i $j $EDrig_T[$i][$j]\n\t$ATOMNAME[$i] $ATOMNAME[$i+$j]\n\t$RESNUM[$i] $RESNUM[$i+$j]");
+      next; # by going to next, this will automatically flag errors with regards to number of rigids
+     }
      if($LIGdvalue !=$ED_T[$i][$j] && $LIGdvalue != 0 ){
       $fail_log .= failed_message("backbone atom $i $j\n\t$LIGdvalue is before\n\t$ED_T[$i][$j] is the bad one...");
      }else{
       $NLIGC++;
      }
      $LIGdvalue=$ED_T[$i][$j];
+    }else{
+     internal_error("Unassigned molecule type");
     }
    }
   }
