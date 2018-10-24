@@ -297,9 +297,7 @@ sub runalltests{
   undef  $dihmatch;
  
   if(! -e "$PDB_DIR/$PDB.pdb"){
-   $fail_log .= failed_message("Unable to find PDB file $PDB_DIR/$PDB.pdb for testing.  Skipping this test.");
-   $FAIL_SYSTEM++;
-   next;
+   smogcheck_error("Unable to find PDB file $PDB_DIR/$PDB.pdb for testing.");
   }
  
   $model=$A[1];
