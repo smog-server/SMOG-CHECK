@@ -617,7 +617,7 @@ sub smogchecker
   $fail_log .= failed_message("SMOG 2 exited with non-zero exit code when trying to process this PDB file.");
   $FAIL_SYSTEM++;
  }
- &summary; 
+ &singletestsummary; 
 }
 
 sub checkgro
@@ -950,6 +950,7 @@ sub checkndx
 
 sub readtop
 {
+# this routine will be cleaned up later.  It's functional, but not very organized.
  my %FOUND;
  $DIH_MIN=100000000;
  $DIH_MAX=-100000000;
@@ -2752,7 +2753,6 @@ sub checkvalues
  }else{
    $FAIL{'TOTAL ENERGY'}=-1;
  }
-
 }
 
 sub cleanoldfiles
@@ -2780,7 +2780,6 @@ sub CheckTemplatesCreated
  if($model eq "AA" && $default eq "no" && ! -e "$dir/extras"){
   internal_error(" $dir/extras not created");
  }	
-
 }
 
 sub getdist
@@ -2800,7 +2799,7 @@ sub getdist
  }
 }
 
-sub summary
+sub singletestsummary
 {
  foreach my $name(keys %FAIL){
   if($FAIL{$name} != -1){
@@ -2820,8 +2819,7 @@ Note: Will save files with names FAILED/$PDB.fail$TESTNUM.X
 *************************************************************
 EOT
 
-print $printbuffer;
-
+  print $printbuffer;
   `cp share/PDB.files/$PDB.pdb $FAILDIR/$PDB.fail$TESTNUM.pdb`;
   open(FAILLOG,">$FAILDIR/$PDB.fail$TESTNUM.log") or smogcheck_error("unable to open log file for writing");
   print FAILLOG "$printbuffer\nSee possible additional messages below\n$fail_log";
