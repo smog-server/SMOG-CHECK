@@ -611,8 +611,8 @@ sub smogchecker
   &checkSCM;
   &checkgro; 
   &checkndx;
-  &readtop;
-  &checkvalues;
+  &checktop;
+  &finalchecks;
  }else{
   $fail_log .= failed_message("SMOG 2 exited with non-zero exit code when trying to process this PDB file.");
   $FAIL_SYSTEM++;
@@ -948,7 +948,7 @@ sub checkndx
  }
 }
 
-sub readtop
+sub checktop
 {
 # this routine will be cleaned up later.  It's functional, but not very organized.
  my (@topdata,%seen,%FOUND,@theta_gen,@PAIRS,$finalres,%revData,@resindex,%theta_gen_as,%phi_gen_as,@phi_gen,%improper_gen_as,@improper_gen,@A);
@@ -2749,7 +2749,7 @@ sub identifydih
  return($formed,$phi1,$phi2,$phi3,$phi4); 
 }
 
-sub checkvalues
+sub finalchecks
 {
  if($model eq "CA"){
   if($theta_gen_N > 0 and $phi_gen_N > 0 ){
