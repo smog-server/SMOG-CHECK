@@ -992,6 +992,7 @@ sub checktop
    }
   }
  }
+
  while($LN<$topNlines){
   my $LINE=$topdata[$LN];$LN++;
   @A=split(/ /,$LINE);
@@ -1040,208 +1041,10 @@ sub checktop
    @improper_gen=@{$r6};
   } 
   
-  if(exists $A[1]){
-   # check values for contact energy
-   if($A[1] eq "pairs"){
-   # reset all the values because we can analyze multiple settings, and we want to make sure we always start at 0 and with arrays cleared.
-    $CONTENERGY=0;
-    my $FAIL_STACK=0;
-    my $FAIL_NONSTACK=0;
-    my $LONGCONT=0;
-    my $CONTACT_W_CA=0;
-    my $ContactDist=0;
-    my $GaussianContactWidth=0;
-    my $GaussianEXVOL=0;
-    my $NOTSHORTSEQ=0;
-    my $freepair=0;
-    $#A = -1;
-    $LINE=$topdata[$LN];$LN++;
-    @A=split(/ /,$LINE);
-    my $W;
-    my $Cdist;
-    my $CALCD;
-    if($usermap eq "yes"){
-     open(CMAP,"$PDB_DIR/$PDB.contacts") or internal_error("can not open $PDB_DIR/$PDB.contacts");
-    }
-    until($A[0] eq "["){
-     $PAIRS[$NCONTACTS][0]=$A[0];
-     $PAIRS[$NCONTACTS][1]=$A[1];
-     $NCONTACTS++;
-     my $R0=$GRODATA[$A[0]-1][1];
-     my $R1=$GRODATA[$A[1]-1][1];
-     if($free eq "yes" && (exists $free_pair_defs{"$R0-$R1"} || exists $free_pair_defs{"$R0-$R1"})){
-      $freepair=1;
-      $fail_log .= failed_message("Free contacts defined, but a contact between $R0 and $R1 was found in the contacts. Atoms $A[0] and $A[1]\n");
-     }
-     unless($CID[$A[0]] == $CID[$A[1]] && $MOLTYPE[$A[0]] eq "AMINO" &&  abs($resindex[$A[0]]-$resindex[$A[1]]) <4 ){
-	$NOTSHORTSEQ++;
-     }
-
-     if($CID[$A[0]] == $CID[$A[1]] && $MOLTYPE[$A[0]] eq "AMINO" && $MOLTYPE[$A[1]] eq "AMINO" &&  abs($resindex[$A[0]]-$resindex[$A[1]]) ==4 ){
-	$FAIL{'CONTACTS PROTEIN i-j=4'}=0;
-     }elsif($CID[$A[0]] == $CID[$A[1]] && $MOLTYPE[$A[0]] eq "NUCLEIC" && $MOLTYPE[$A[1]] eq "NUCLEIC" &&  abs($resindex[$A[0]]-$resindex[$A[1]]) ==1 ){
-        $FAIL{'CONTACTS NUCLEIC i-j=1'}=0;
-     }
-
-     # determine the epsilon of the contact
-     if($A[4] == 0){
-      $fail_log .= failed_message("A divide by zero was encountered during testing. This typically means the top file is incomplete");
-      $FAILED++; 
-      last;
-     }
-     # the order of these if statements is important.
-     if($gaussian eq "yes"){
-      $W=$A[3];
-      $Cdist=$A[4];
-      $CALCD=getdist(\*CMAP,$A[0],$A[1]);
-      if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0) ){
-       $ContactDist++;
-      }else{
-       $fail_log .= failed_message("A contact appears to be the wrong distance.  From the .gro (or .contact) file, we found r=$CALCD, and from the .top r=$Cdist.\n\t$LINE");
-      }
-      # check width of gaussian
-      my $sigmagaussian=$A[5];
-      my $sigmagaussianCALC=-1;
-      if($model eq "CA"){
-       $sigmagaussianCALC=0.05;
-      }elsif($model eq "AA"){
-       $sigmagaussianCALC=$A[4]/sqrt(50.0*log(2.0));
-      }
-      if(abs($sigmagaussian-$sigmagaussianCALC) < 100.0/($PRECISION*1.0) ){
-       $GaussianContactWidth++;
-      }else{
-       $fail_log .= failed_message("A gaussian contact appears to have the wrong width.  From the .top file, we found sigma=$sigmagaussian, but based on the native distance, we expect sigma=$sigmagaussianCALC.\n\t$LINE");
-      }
-      if(abs($rep_s12-$A[6]) < 100.0/($PRECISION*1.0) ){
-       $GaussianEXVOL++;
-      }else{
-       $fail_log .= failed_message("A gaussian contact appears to have the wrong excluded volume.  From the .top file, we found a=$A[6], but expect a=$rep_s12.\n\t$LINE");
-      }
-     }elsif($model eq "CA"){
-      $W=5.0**5.0/6.0**6.0*($A[3]**6.0)/($A[4]**5.0);
-      $Cdist=(6*$A[4]/(5*$A[3]))**(1.0/2.0);
-      $CALCD=getdist(\*CMAP,$A[0],$A[1]);
-      if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0) ){
-       $ContactDist++;
-      }else{
-       $fail_log .= failed_message("A contact appears to be the wrong distance.  From the .gro (or .contact) file, we found r=$CALCD, and from the .top r=$Cdist.\n\t$LINE");
-      }
-     }elsif($model eq "AA" || $model eq "AA-match"){
-      $W=($A[3]*$A[3])/(4*$A[4]);
-      $Cdist=(2.0*$A[4]/($A[3]))**(1.0/6.0);
-      $CALCD=getdist(\*CMAP,$A[0],$A[1]);
-      if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0)){
-       $ContactDist++;
-      }else{
-       $fail_log .= failed_message("A contact appears to be the wrong distance.  From the .gro (or .contact) file, we found r=$CALCD, and from the .top r=$Cdist.\n\t$LINE");
-      }
-     }else{
-      smogcheck_error("Contact-model combination not recognized.");
-     }
-     # so long as the contacts are not with ligands, then we add the sum
-     if($model eq "CA"){
-      $CONTENERGY+=$W;
-      if($W > $MINTHR*$epsilonCAC and $W < $MAXTHR*$epsilonCAC){
-       $CONTACT_W_CA++;
-      }else{
-       $fail_log .= failed_message("EpsilonC values\n\tValue: Target\n\t$W $epsilonCAC\n\tline:\n\t$LINE");
-      }
-     }elsif($model eq "AA" || $model eq "AA-match" ){
-      $Cdist = int(($Cdist * $PRECISION)/10.0)/($PRECISION*10.0);
-      if($Cdist <= $CONTD/10.0){
-       $LONGCONT++;
-      }else{
-       $fail_log .= failed_message("long contact. distance $Cdist nm.\n\t$LINE");
-      }
-      ## so long as the contacts are not with ligands, then we add the sum
-      if($MOLTYPE[$A[0]] ne "LIGAND" and $MOLTYPE[$A[1]] ne "LIGAND"){
-       $CONTENERGY+=$W;
-      }
-      if($MOLTYPE[$A[0]] eq "NUCLEIC" and $MOLTYPE[$A[1]] eq "NUCLEIC" and $ATOMTYPE[$A[0]] ne "BACKBONE" and  $ATOMTYPE[$A[1]] ne "BACKBONE" and $ATOMNAME[$A[0]] ne "C1\*" and $ATOMNAME[$A[1]] ne "C1\*" and abs($RESNUM[$A[0]]-$RESNUM[$A[1]]) == 1 and $CID[$A[0]] == $CID[$A[1]]){
-       # if we haven't assigned a value to stacking interactions, then let's save it
-       # if we have saved it, check to see that this value is the same as the previous ones.
-       if($stackingE == 0 ){
-        $stackingE=$W;
-       }elsif(abs($stackingE - $W) > 10.0/($PRECISION*1.0) ){
-        $FAIL_STACK++;
-        $fail_log .= failed_message("stacking energies: $stackingE  $W $A[0] $A[1]");
-        }
-      }else{
-      # it is not a stacking contact.  Do the same checks for non-stacking interactions
-       if($NonstackingE == 0 ){
-        $NonstackingE=$W;
-       }elsif(abs($NonstackingE - $W) > 10.0/($PRECISION*1.0) ){
-        $FAIL_NONSTACK++;
-        $fail_log .= failed_message("non-stacking contacts: $NonstackingE $W\n\tline:\n\t$LINE");
-       }
-      }
-     }else{
-      smogcheck_error("Model not recognized.");
-     }
-     # truncate the epsilon, for comparison purposes later.
-     $W=int(($W * $PRECISION))/($PRECISION*1.0);
-     # check to see if the contact is nucleic acids, adjacent residues and not backbone atoms.  These should be rescaled by a factor of 1/3
-     # read the next line
-     $#A = -1;
-     $LINE=$topdata[$LN];$LN++;
-     @A=split(/ /,$LINE);
-    }
-    if($NOTSHORTSEQ == $NCONTACTS){
-     $FAIL{'CONTACTS PROTEIN i-j!<4'}=0;
-    }elsif($usermap eq "yes"){
-     $FAIL{'CONTACTS PROTEIN i-j!<4'}=-1;
-    }
-    if($ContactDist == $NCONTACTS){
-     $FAIL{'CONTACT DISTANCES'}=0;
-    }
-    if($gaussian eq "yes"){
-     if($GaussianContactWidth == $NCONTACTS){
-      $FAIL{'GAUSSIAN CONTACT WIDTHS'}=0;
-     }
-     if($GaussianEXVOL == $NCONTACTS){
-      $FAIL{'GAUSSIAN CONTACT EXCLUDED VOLUME'}=0;
-     }
-    }else{
-      $FAIL{'GAUSSIAN CONTACT EXCLUDED VOLUME'}=-1;
-      $FAIL{'GAUSSIAN CONTACT WIDTHS'}=-1;
-    }
-    if($model eq "AA" || $model eq "AA-match"){
-     if($LONGCONT == $NCONTACTS){
-      $FAIL{'LONG CONTACTS'}=0;
-     }
-     if($NUCLEIC_PRESENT){
-      if($FAIL_NONSTACK == 0 and $NonstackingE != 0){
-       $FAIL{'NON-STACKING CONTACT WEIGHTS'}=0;	
-      }
-      if($FAIL_STACK == 0 and $stackingE != 0 ){
-       $FAIL{'STACKING CONTACT WEIGHTS'}=0;	
-      }
-     }else{
-       $FAIL{'STACKING CONTACT WEIGHTS'}=-1;	
-      if($FAIL_NONSTACK == 0 and $NonstackingE != 0 ){
-       $FAIL{'NON-STACKING CONTACT WEIGHTS'}=0;	
-      }
-     } 
-     $FAIL{'CA CONTACT WEIGHTS'}=-1;	
-    }elsif($model eq "CA"){
-     if($NCONTACTS == $CONTACT_W_CA){
-       $FAIL{'CA CONTACT WEIGHTS'}=0;	
-     }
-     $FAIL{'LONG CONTACTS'}=-1;
-     $FAIL{'STACKING CONTACT WEIGHTS'}=-1;	
-     $FAIL{'NON-STACKING CONTACT WEIGHTS'}=-1;	
-    }elsif(($model eq "AA" || $model eq "AA-match") and !$NUCLEIC_PRESENT){
-     $FAIL{'STACKING CONTACT WEIGHTS'}=-1;	
-     $FAIL{'NON-STACKING CONTACT WEIGHTS'}=-1;	
-    }else{
-     smogcheck_error("Unrecognized model when checking contacts.");
-    }
-    if($freepair ==0){
-     $FAIL{'FREE PAIRS APPEAR IN CONTACTS'}=0;	
-    }else{
-     $FAIL{'FREE PAIRS APPEAR IN CONTACTS'}=1;	
-    }
-   }
+  if(exists $A[1] &&$A[1] eq "pairs"){
+    my ($r1,$r2);
+   ($LN,$A[1],$r1,$stackingE,$NonstackingE)=checkpairs($LN,\@topdata,\@resindex,\@PAIRS,$stackingE,$NonstackingE);
+   @PAIRS=@{$r1};
   } 
   if(exists $A[1]){ 
    if($A[1] eq "exclusions"){
@@ -1598,7 +1401,8 @@ sub checktop
   $FAIL{'TOP FIELDS FOUND'}=0;
  }
 }
-#******************** core routines that check distinct directives*******************
+
+#******************** core routines that check individual directives*******************
 sub checkdefaults
 {
  my ($LN,$N1)=@_;
@@ -2693,6 +2497,210 @@ sub checkdihedrals
  return ($LN,$A[1],\%revData,\%phi_gen_as,\@phi_gen,\%improper_gen_as,\@improper_gen);
 }
 
+sub checkpairs
+{
+ my ($LN,$N1,$N2,$N3,$stackingE,$NonstackingE)=@_;
+ my @topdata=@{$N1};
+ my @resindex=@{$N2};
+ my @PAIRS=@{$N3};
+ $CONTENERGY=0;
+ my $FAIL_STACK=0;
+ my $FAIL_NONSTACK=0;
+ my $LONGCONT=0;
+ my $CONTACT_W_CA=0;
+ my $ContactDist=0;
+ my $GaussianContactWidth=0;
+ my $GaussianEXVOL=0;
+ my $NOTSHORTSEQ=0;
+ my $freepair=0;
+ my $LINE=$topdata[$LN];$LN++;
+ my @A=split(/ /,$LINE);
+ my $W;
+ my $Cdist;
+ my $CALCD;
+ if($usermap eq "yes"){
+  open(CMAP,"$PDB_DIR/$PDB.contacts") or internal_error("can not open $PDB_DIR/$PDB.contacts");
+ }
+ until($A[0] eq "["){
+  $PAIRS[$NCONTACTS][0]=$A[0];
+  $PAIRS[$NCONTACTS][1]=$A[1];
+  $NCONTACTS++;
+  my $R0=$GRODATA[$A[0]-1][1];
+  my $R1=$GRODATA[$A[1]-1][1];
+  if($free eq "yes" && (exists $free_pair_defs{"$R0-$R1"} || exists $free_pair_defs{"$R0-$R1"})){
+   $freepair=1;
+   $fail_log .= failed_message("Free contacts defined, but a contact between $R0 and $R1 was found in the contacts. Atoms $A[0] and $A[1]\n");
+  }
+  unless($CID[$A[0]] == $CID[$A[1]] && $MOLTYPE[$A[0]] eq "AMINO" &&  abs($resindex[$A[0]]-$resindex[$A[1]]) <4 ){
+     $NOTSHORTSEQ++;
+  }
+
+  if($CID[$A[0]] == $CID[$A[1]] && $MOLTYPE[$A[0]] eq "AMINO" && $MOLTYPE[$A[1]] eq "AMINO" &&  abs($resindex[$A[0]]-$resindex[$A[1]]) ==4 ){
+     $FAIL{'CONTACTS PROTEIN i-j=4'}=0;
+  }elsif($CID[$A[0]] == $CID[$A[1]] && $MOLTYPE[$A[0]] eq "NUCLEIC" && $MOLTYPE[$A[1]] eq "NUCLEIC" &&  abs($resindex[$A[0]]-$resindex[$A[1]]) ==1 ){
+     $FAIL{'CONTACTS NUCLEIC i-j=1'}=0;
+  }
+
+  # determine the epsilon of the contact
+  if($A[4] == 0){
+   $fail_log .= failed_message("A divide by zero was encountered during testing. This typically means the top file is incomplete");
+   $FAILED++; 
+   last;
+  }
+  # the order of these if statements is important.
+  if($gaussian eq "yes"){
+   $W=$A[3];
+   $Cdist=$A[4];
+   $CALCD=getdist(\*CMAP,$A[0],$A[1]);
+   if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0) ){
+    $ContactDist++;
+   }else{
+    $fail_log .= failed_message("A contact appears to be the wrong distance.  From the .gro (or .contact) file, we found r=$CALCD, and from the .top r=$Cdist.\n\t$LINE");
+   }
+   # check width of gaussian
+   my $sigmagaussian=$A[5];
+   my $sigmagaussianCALC=-1;
+   if($model eq "CA"){
+    $sigmagaussianCALC=0.05;
+   }elsif($model eq "AA"){
+    $sigmagaussianCALC=$A[4]/sqrt(50.0*log(2.0));
+   }
+   if(abs($sigmagaussian-$sigmagaussianCALC) < 100.0/($PRECISION*1.0) ){
+    $GaussianContactWidth++;
+   }else{
+    $fail_log .= failed_message("A gaussian contact appears to have the wrong width.  From the .top file, we found sigma=$sigmagaussian, but based on the native distance, we expect sigma=$sigmagaussianCALC.\n\t$LINE");
+   }
+   if(abs($rep_s12-$A[6]) < 100.0/($PRECISION*1.0) ){
+    $GaussianEXVOL++;
+   }else{
+    $fail_log .= failed_message("A gaussian contact appears to have the wrong excluded volume.  From the .top file, we found a=$A[6], but expect a=$rep_s12.\n\t$LINE");
+   }
+  }elsif($model eq "CA"){
+   $W=5.0**5.0/6.0**6.0*($A[3]**6.0)/($A[4]**5.0);
+   $Cdist=(6*$A[4]/(5*$A[3]))**(1.0/2.0);
+   $CALCD=getdist(\*CMAP,$A[0],$A[1]);
+   if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0) ){
+    $ContactDist++;
+   }else{
+    $fail_log .= failed_message("A contact appears to be the wrong distance.  From the .gro (or .contact) file, we found r=$CALCD, and from the .top r=$Cdist.\n\t$LINE");
+   }
+  }elsif($model eq "AA" || $model eq "AA-match"){
+   $W=($A[3]*$A[3])/(4*$A[4]);
+   $Cdist=(2.0*$A[4]/($A[3]))**(1.0/6.0);
+   $CALCD=getdist(\*CMAP,$A[0],$A[1]);
+   if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0)){
+    $ContactDist++;
+   }else{
+    $fail_log .= failed_message("A contact appears to be the wrong distance.  From the .gro (or .contact) file, we found r=$CALCD, and from the .top r=$Cdist.\n\t$LINE");
+   }
+  }else{
+   smogcheck_error("Contact-model combination not recognized.");
+  }
+  # so long as the contacts are not with ligands, then we add the sum
+  if($model eq "CA"){
+   $CONTENERGY+=$W;
+   if($W > $MINTHR*$epsilonCAC and $W < $MAXTHR*$epsilonCAC){
+    $CONTACT_W_CA++;
+   }else{
+    $fail_log .= failed_message("EpsilonC values\n\tValue: Target\n\t$W $epsilonCAC\n\tline:\n\t$LINE");
+   }
+  }elsif($model eq "AA" || $model eq "AA-match" ){
+   $Cdist = int(($Cdist * $PRECISION)/10.0)/($PRECISION*10.0);
+   if($Cdist <= $CONTD/10.0){
+    $LONGCONT++;
+   }else{
+    $fail_log .= failed_message("long contact. distance $Cdist nm.\n\t$LINE");
+   }
+   ## so long as the contacts are not with ligands, then we add the sum
+   if($MOLTYPE[$A[0]] ne "LIGAND" and $MOLTYPE[$A[1]] ne "LIGAND"){
+    $CONTENERGY+=$W;
+   }
+   if($MOLTYPE[$A[0]] eq "NUCLEIC" and $MOLTYPE[$A[1]] eq "NUCLEIC" and $ATOMTYPE[$A[0]] ne "BACKBONE" and  $ATOMTYPE[$A[1]] ne "BACKBONE" and $ATOMNAME[$A[0]] ne "C1\*" and $ATOMNAME[$A[1]] ne "C1\*" and abs($RESNUM[$A[0]]-$RESNUM[$A[1]]) == 1 and $CID[$A[0]] == $CID[$A[1]]){
+    # if we haven't assigned a value to stacking interactions, then let's save it
+    # if we have saved it, check to see that this value is the same as the previous ones.
+    if($stackingE == 0 ){
+     $stackingE=$W;
+    }elsif(abs($stackingE - $W) > 10.0/($PRECISION*1.0) ){
+     $FAIL_STACK++;
+     $fail_log .= failed_message("stacking energies: $stackingE  $W $A[0] $A[1]");
+     }
+   }else{
+   # it is not a stacking contact.  Do the same checks for non-stacking interactions
+    if($NonstackingE == 0 ){
+     $NonstackingE=$W;
+    }elsif(abs($NonstackingE - $W) > 10.0/($PRECISION*1.0) ){
+     $FAIL_NONSTACK++;
+     $fail_log .= failed_message("non-stacking contacts: $NonstackingE $W\n\tline:\n\t$LINE");
+    }
+   }
+  }else{
+   smogcheck_error("Model not recognized.");
+  }
+  # truncate the epsilon, for comparison purposes later.
+  $W=int(($W * $PRECISION))/($PRECISION*1.0);
+  # check to see if the contact is nucleic acids, adjacent residues and not backbone atoms.  These should be rescaled by a factor of 1/3
+  # read the next line
+  $#A = -1;
+  $LINE=$topdata[$LN];$LN++;
+  @A=split(/ /,$LINE);
+ }
+ if($NOTSHORTSEQ == $NCONTACTS){
+  $FAIL{'CONTACTS PROTEIN i-j!<4'}=0;
+ }elsif($usermap eq "yes"){
+  $FAIL{'CONTACTS PROTEIN i-j!<4'}=-1;
+ }
+ if($ContactDist == $NCONTACTS){
+  $FAIL{'CONTACT DISTANCES'}=0;
+ }
+ if($gaussian eq "yes"){
+  if($GaussianContactWidth == $NCONTACTS){
+   $FAIL{'GAUSSIAN CONTACT WIDTHS'}=0;
+  }
+  if($GaussianEXVOL == $NCONTACTS){
+   $FAIL{'GAUSSIAN CONTACT EXCLUDED VOLUME'}=0;
+  }
+ }else{
+   $FAIL{'GAUSSIAN CONTACT EXCLUDED VOLUME'}=-1;
+   $FAIL{'GAUSSIAN CONTACT WIDTHS'}=-1;
+ }
+ if($model eq "AA" || $model eq "AA-match"){
+  if($LONGCONT == $NCONTACTS){
+   $FAIL{'LONG CONTACTS'}=0;
+  }
+  if($NUCLEIC_PRESENT){
+   if($FAIL_NONSTACK == 0 and $NonstackingE != 0){
+    $FAIL{'NON-STACKING CONTACT WEIGHTS'}=0;	
+   }
+   if($FAIL_STACK == 0 and $stackingE != 0 ){
+    $FAIL{'STACKING CONTACT WEIGHTS'}=0;	
+   }
+  }else{
+    $FAIL{'STACKING CONTACT WEIGHTS'}=-1;	
+   if($FAIL_NONSTACK == 0 and $NonstackingE != 0 ){
+    $FAIL{'NON-STACKING CONTACT WEIGHTS'}=0;	
+   }
+  } 
+  $FAIL{'CA CONTACT WEIGHTS'}=-1;	
+ }elsif($model eq "CA"){
+  if($NCONTACTS == $CONTACT_W_CA){
+    $FAIL{'CA CONTACT WEIGHTS'}=0;	
+  }
+  $FAIL{'LONG CONTACTS'}=-1;
+  $FAIL{'STACKING CONTACT WEIGHTS'}=-1;	
+  $FAIL{'NON-STACKING CONTACT WEIGHTS'}=-1;	
+ }elsif(($model eq "AA" || $model eq "AA-match") and !$NUCLEIC_PRESENT){
+  $FAIL{'STACKING CONTACT WEIGHTS'}=-1;	
+  $FAIL{'NON-STACKING CONTACT WEIGHTS'}=-1;	
+ }else{
+  smogcheck_error("Unrecognized model when checking contacts.");
+ }
+ if($freepair ==0){
+  $FAIL{'FREE PAIRS APPEAR IN CONTACTS'}=0;	
+ }else{
+  $FAIL{'FREE PAIRS APPEAR IN CONTACTS'}=1;	
+ }
+ return ($LN,$A[1],\@PAIRS,$stackingE,$NonstackingE);
+}
 
 #******************** END of core routines that check distinct directives*******************
 
