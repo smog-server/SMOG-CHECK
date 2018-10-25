@@ -152,7 +152,7 @@ my $TESTNUM=0;
 &readbackbonetypes;
 &readresiduetypes;
 &runalltests;
-
+&finalreport;
 #*************************END OF MAIN ROUTINE**********************
 
 
@@ -235,7 +235,10 @@ sub runalltests{
   &smogchecker;
  
  }
- 
+}
+
+sub finalreport
+{ 
  # If any systems failed, output message
  if($FAIL_SYSTEM > 0){
   print <<EOT;
