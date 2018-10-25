@@ -1022,118 +1022,11 @@ sub readtop
   if(exists $A[1] && $A[1] eq "moleculetype"){
    ($LN,$A[1])=checkmoleculetype($LN,\@topdata,\%seen);
   } 
-  if(exists $A[1]){
-   # read the atoms, and store information about them
-    my $FAIL_GROTOP=0;
-   if($A[1] eq "atoms"){
-    $NUMATOMS=0;
-    my $fieldnum=0;
-    my $atomcharge=0;
-    $NUMATOMS_LIGAND=0;
-    $#A = -1;
-    $LINE=$topdata[$LN];$LN++;
-    @A=split(/ /,$LINE);
-    until($A[0] eq "["){
-    # atom name
-     $ATOMNAME[$A[0]]=$A[4];
-     # if we are matching hetergeneous parameters, we need to store the smog-internal bonded types
-     if($model eq "AA-match"){
-      if(exists $atombondedtypes{"$A[3]-$A[4]"}){
-       $atombondedtype[$A[0]]=$atombondedtypes{"$A[3]-$A[4]"};
-      }else{
-       smogcheck_error('Test broken. Not all atom types in the system have a reference bonded type provided.');
-      }
-     }
-     for(my $J=0;$J<5;$J++){
-      $A[$J] =~ s/^\s+|\s+$//g;
-     }
-     for(my $J=0;$J<4;$J++){
-      $GRODATA[$NUMATOMS][$J] =~ s/^\s+|\s+$//g;
-     }
-     if($A[0] != $GRODATA[$NUMATOMS][3]){
-      $FAIL_GROTOP++;
-     }
-     if(exists $defcharge{"$A[3]-$A[4]"} && $#A==6){
-      $fieldnum++;
-      # check charge
-      if($defcharge{"$A[3]-$A[4]"} == $A[6]){
-       $atomcharge++;
-      }else{
-       $fail_log .= failed_message("atom has wrong charge\t$LINE");
-      }
-     }elsif(!exists $defcharge{"$A[3]-$A[4]"} && $#A==5){
-      $fieldnum++;
-      $atomcharge++;
-     }elsif($default eq "yes" && $#A==5){
-      $fieldnum++;
-     }else{
-      $fail_log .= failed_message("atom has wrong number of fields\t$LINE");
-     }
-
-     if($A[4] ne $GRODATA[$NUMATOMS][2]){
-      $FAIL_GROTOP++;
-     }
-     # check if it is a backbone atom. This list does not include CA and C1* because this classification is only used for determining which bonds are backbone and which are sidechain
-     my $atomt="$TYPE{$A[3]}-$A[4]";
-     if(exists $BBTYPE{$atomt}){
-      $ATOMTYPE[$A[0]]=$BBTYPE{$atomt};
-     }else{
-      $ATOMTYPE[$A[0]]="NOTBB";
-     }
-     # residue number
-     $RESNUM[$A[0]]=$A[2];
-     if($A[2] != $GRODATA[$NUMATOMS][0]){
-      $FAIL_GROTOP++;
-     }
-     # residue name
-     if($A[3] ne $GRODATA[$NUMATOMS][1]){
-      $FAIL_GROTOP++;
-     }
-     $resindex[$A[0]]=$A[2];
-     $finalres=$A[2];
-     my $label=sprintf("%i-%s", $A[2], $A[4]);
-     $revData{$label}=$A[0];
-    # nucleic acid, protein, ligand
-     if(defined $TYPE{$A[3]}){
-      $MOLTYPE[$A[0]]=$TYPE{$A[3]};
-      $MOLTYPEBYRES{$A[2]}=$TYPE{$A[3]};
-     }else{
-      internal_error("there is an unrecognized residue name at $A[0] $A[3]");
-     }
-     # see if there are any amino acids, na, or ligands in the system.
-     if($MOLTYPE[$A[0]] eq "AMINO"){
-      $AMINO_PRESENT=1;
-      $NUMATOMS_LIGAND++;
-     }elsif($MOLTYPE[$A[0]] eq "NUCLEIC"){
-      $NUCLEIC_PRESENT=1;
-      $NUMATOMS_LIGAND++;
-     }elsif($MOLTYPE[$A[0]] eq "LIGAND"){
-      $LIGAND_PRESENT=1;
-     }elsif($MOLTYPE[$A[0]] eq "ION"){
-      $ION_PRESENT=1;
-     }
-     $NUMATOMS++;
-     $#A = -1;
-     $LINE=$topdata[$LN];$LN++;
-     @A=split(/ /,$LINE);
-    }
-    if($FAIL_GROTOP ==0){
-     $FAIL{'GRO-TOP CONSISTENCY'}=0;
-    }
-    if($fieldnum == $NUMATOMS){
-     $FAIL{'ATOM FIELDS'}=0;
-    }
-    if($atomcharge == $NUMATOMS){
-     $FAIL{'ATOM CHARGES'}=0;
-    }
-    if($default eq "yes"){
-     $FAIL{'ATOM CHARGES'}=-1;
-    }
-   # count the number of amino residue, nucleic residues, ligand residues and ions
-    foreach my $rest(keys %MOLTYPEBYRES){
-     $restypecount{$MOLTYPEBYRES{$rest}}++;
-    }
-   }
+  if(exists $A[1] && $A[1] eq "atoms"){
+   my ($r1,$r2);
+   ($LN,$A[1],$finalres,$r1,$r2)=checkatoms($LN,\@topdata,\%seen,\%revData,\@resindex);
+   %revData=%{$r1};
+   @resindex=@{$r2};
   }
   if(exists $A[1]){  
    # read the bonds.  Make sure they are not assigned twice.  Also, save the bonds, so we can generate all possible bond angles later.
@@ -2604,7 +2497,8 @@ sub checkatomtypes
 }
 
 
-sub checkmoleculetype{
+sub checkmoleculetype
+{
  my ($LN,$N1,$N2)=@_;
  my @topdata=@{$N1};
  my %seen=%{$N2};
@@ -2622,6 +2516,125 @@ sub checkmoleculetype{
  }
  return ($LN,$A[1]);
 }
+
+sub checkatoms
+{
+ my ($LN,$N1,$N2,$revData,$resindex)=@_;
+ my @topdata=@{$N1};
+ my %seen=%{$N2};
+ my %revData=%{$revData};
+ my @resindex=@{$resindex};
+ my $FAIL_GROTOP=0;
+ $NUMATOMS=0;
+ my $finalres;
+ my $fieldnum=0;
+ my $atomcharge=0;
+ $NUMATOMS_LIGAND=0;
+ my $LINE=$topdata[$LN];$LN++;
+ my @A=split(/ /,$LINE);
+ until($A[0] eq "["){
+ # atom name
+  $ATOMNAME[$A[0]]=$A[4];
+  # if we are matching hetergeneous parameters, we need to store the smog-internal bonded types
+  if($model eq "AA-match"){
+   if(exists $atombondedtypes{"$A[3]-$A[4]"}){
+    $atombondedtype[$A[0]]=$atombondedtypes{"$A[3]-$A[4]"};
+   }else{
+    smogcheck_error('Test broken. Not all atom types in the system have a reference bonded type provided.');
+   }
+  }
+  for(my $J=0;$J<5;$J++){
+   $A[$J] =~ s/^\s+|\s+$//g;
+  }
+  for(my $J=0;$J<4;$J++){
+   $GRODATA[$NUMATOMS][$J] =~ s/^\s+|\s+$//g;
+  }
+  if($A[0] != $GRODATA[$NUMATOMS][3]){
+   $FAIL_GROTOP++;
+  }
+  if(exists $defcharge{"$A[3]-$A[4]"} && $#A==6){
+   $fieldnum++;
+   # check charge
+   if($defcharge{"$A[3]-$A[4]"} == $A[6]){
+    $atomcharge++;
+   }else{
+    $fail_log .= failed_message("atom has wrong charge\t$LINE");
+   }
+  }elsif(!exists $defcharge{"$A[3]-$A[4]"} && $#A==5){
+   $fieldnum++;
+   $atomcharge++;
+  }elsif($default eq "yes" && $#A==5){
+   $fieldnum++;
+  }else{
+   $fail_log .= failed_message("atom has wrong number of fields\t$LINE");
+  }
+
+  if($A[4] ne $GRODATA[$NUMATOMS][2]){
+   $FAIL_GROTOP++;
+  }
+  # check if it is a backbone atom. This list does not include CA and C1* because this classification is only used for determining which bonds are backbone and which are sidechain
+  my $atomt="$TYPE{$A[3]}-$A[4]";
+  if(exists $BBTYPE{$atomt}){
+   $ATOMTYPE[$A[0]]=$BBTYPE{$atomt};
+  }else{
+   $ATOMTYPE[$A[0]]="NOTBB";
+  }
+  # residue number
+  $RESNUM[$A[0]]=$A[2];
+  if($A[2] != $GRODATA[$NUMATOMS][0]){
+   $FAIL_GROTOP++;
+  }
+  # residue name
+  if($A[3] ne $GRODATA[$NUMATOMS][1]){
+   $FAIL_GROTOP++;
+  }
+  $resindex[$A[0]]=$A[2];
+  $finalres=$A[2];
+  my $label=sprintf("%i-%s", $A[2], $A[4]);
+  $revData{$label}=$A[0];
+ # nucleic acid, protein, ligand
+  if(defined $TYPE{$A[3]}){
+   $MOLTYPE[$A[0]]=$TYPE{$A[3]};
+   $MOLTYPEBYRES{$A[2]}=$TYPE{$A[3]};
+  }else{
+   internal_error("there is an unrecognized residue name at $A[0] $A[3]");
+  }
+  # see if there are any amino acids, na, or ligands in the system.
+  if($MOLTYPE[$A[0]] eq "AMINO"){
+   $AMINO_PRESENT=1;
+   $NUMATOMS_LIGAND++;
+  }elsif($MOLTYPE[$A[0]] eq "NUCLEIC"){
+   $NUCLEIC_PRESENT=1;
+   $NUMATOMS_LIGAND++;
+  }elsif($MOLTYPE[$A[0]] eq "LIGAND"){
+   $LIGAND_PRESENT=1;
+  }elsif($MOLTYPE[$A[0]] eq "ION"){
+   $ION_PRESENT=1;
+  }
+  $NUMATOMS++;
+  $#A = -1;
+  $LINE=$topdata[$LN];$LN++;
+  @A=split(/ /,$LINE);
+ }
+ if($FAIL_GROTOP ==0){
+  $FAIL{'GRO-TOP CONSISTENCY'}=0;
+ }
+ if($fieldnum == $NUMATOMS){
+  $FAIL{'ATOM FIELDS'}=0;
+ }
+ if($atomcharge == $NUMATOMS){
+  $FAIL{'ATOM CHARGES'}=0;
+ }
+ if($default eq "yes"){
+  $FAIL{'ATOM CHARGES'}=-1;
+ }
+# count the number of amino residue, nucleic residues, ligand residues and ions
+ foreach my $rest(keys %MOLTYPEBYRES){
+  $restypecount{$MOLTYPEBYRES{$rest}}++;
+ }
+ return ($LN,$A[1],$finalres,\%revData,\@resindex);
+}
+
 
 sub identifydih
 {
