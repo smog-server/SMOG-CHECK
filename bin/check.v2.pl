@@ -173,31 +173,21 @@ my $TESTNUM=0;
 sub readbackbonetypes
 {
  ## read in the backbone atom types.  Remember, CA and C1* can be involved in sidechain dihedrals
- open(BBAMINO,"share/backboneatoms/aminoacids") or internal_error("no amino acid BB file");
- while(<BBAMINO>){
-  my $LINE=$_;
-  chomp($LINE);
-  $LINE =~ s/\s+$//;
-  $BBTYPE{"AMINO-$LINE"}= "BACKBONE";
- }
- 
- open(BBNUCLEIC,"share/backboneatoms/nucleicacids") or internal_error("no nucleic acid BB file");
- while(<BBNUCLEIC>){
-  my $LINE=$_;
-  chomp($LINE);
-  $LINE =~ s/\s+$//;
-  $BBTYPE{"NUCLEIC-$LINE"}= "BACKBONE";
- }
- 
- open(BBLIG,"share/backboneatoms/ligands") or internal_error("no ligand BB file");
- while(<BBLIG>){
-  my $LINE=$_;
-  chomp($LINE);
-  $LINE =~ s/\s+$//;
-  $BBTYPE{"LIGAND-$LINE"}= "BACKBONE";
+ my %files = ( 'aminoacids' => 'AMINO','nucleicacids'=>'NUCLEIC','ligands'=>'LIGAND');
+ foreach my $f(keys %files){
+  open(FF,"share/backboneatoms/$f") or internal_error("can not open share/backboneatoms/$f");
+  while(<FF>){
+   my $LINE=$_;
+   chomp($LINE);
+   $LINE =~ s/\s+$//;
+   if(defined $TYPE{$LINE}){
+    smogcheck_error("$LINE given more than once in share/residues files");
+   }
+   $BBTYPE{"$files{$f}-$LINE"}= "BACKBONE";
+  }
+  close(FF);
  }
 }
-
 
 sub readresiduetypes
 {
