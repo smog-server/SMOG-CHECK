@@ -1016,27 +1016,11 @@ sub readtop
     }
    }
   }
-  if(exists $A[1]){
-   if($A[1] eq "atomtypes"){
-    ($LN,$A[1])=checkatomtypes($LN,\@topdata,\%seen);
-   }
+  if(exists $A[1] && $A[1] eq "atomtypes"){
+   ($LN,$A[1])=checkatomtypes($LN,\@topdata,\%seen);
   } 
-  if(exists $A[1]){
-   # check the excluded volume is consistent with the settings.
-   if($A[1] eq "moleculetype"){
-    $LINE=$topdata[$LN];$LN++;
-    @A=split(/ /,$LINE);
-    if($A[0] eq "Macromolecule"){
-     $FAIL{'moleculetype=Macromolecule'}=0;
-    }else{
-     $fail_log .= failed_message("default molecule name is different than expected");
-    }
-    if($A[1] == 3){
-     $FAIL{'nrexcl=3'}=0;
-    }else{
-     $fail_log .=failed_message("nrexcl is not set to 3.");
-    }
-   }
+  if(exists $A[1] && $A[1] eq "moleculetype"){
+   ($LN,$A[1])=checkmoleculetype($LN,\@topdata,\%seen);
   } 
   if(exists $A[1]){
    # read the atoms, and store information about them
@@ -2619,6 +2603,25 @@ sub checkatomtypes
  return ($LN,$A[1]);
 }
 
+
+sub checkmoleculetype{
+ my ($LN,$N1,$N2)=@_;
+ my @topdata=@{$N1};
+ my %seen=%{$N2};
+ my $LINE=$topdata[$LN];$LN++;
+ my @A=split(/ /,$LINE);
+ if($A[0] eq "Macromolecule"){
+  $FAIL{'moleculetype=Macromolecule'}=0;
+ }else{
+  $fail_log .= failed_message("default molecule name is different than expected");
+ }
+ if($A[1] == 3){
+  $FAIL{'nrexcl=3'}=0;
+ }else{
+  $fail_log .=failed_message("nrexcl is not set to 3.");
+ }
+ return ($LN,$A[1]);
+}
 
 sub identifydih
 {
