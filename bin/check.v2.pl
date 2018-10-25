@@ -109,19 +109,7 @@ if($VERSION ne $smogversion){
  smogcheck_error("Incompatible versions of SMOG ($smogversion) and SMOG-CHECK ($VERSION)");	
 }
 
-my %supported_directives = ( 'defaults' => '1',
-        'atomtypes' => '1',
-        'moleculetype' => '1',
-        'nonbond_params' => '0',
-        'atoms' => '1',
-        'bonds' => '1',
-        'angles' => '1',
-        'dihedrals' => '1',
-        'pairs' => '1',
-        'exclusions' => '1',
-        'system' => '1',
-        'molecules' => '1'
-        );
+my %supported_directives = ( 'defaults' => '1','atomtypes' => '1','moleculetype' => '1','nonbond_params' => '0','atoms' => '1','bonds' => '1','angles' => '1','dihedrals' => '1','pairs' => '1','exclusions' => '1','system' => '1','molecules' => '1');
 
 # list the bonds that are free in the free-templates
 my %free_bond_defs=('TRP-CG-CD1' =>'1');
@@ -229,43 +217,13 @@ sub runalltests{
   print "\n*************************************************************\n";
   print "                 STARTING TEST $TESTNUM ($PDB)\n";
   print "*************************************************************\n";
-  undef  $CONTTYPE;
-  undef  $CONTD;
-  undef  $CONTR;
-  undef  $BBRAD;
-  undef  $R_CD;
-  undef  $R_P_BB_SC;
-  undef  $R_N_SC_BB;
-  undef  $PRO_DIH;
-  undef  $NA_DIH;
-  undef  $LIGAND_DIH;
-  undef  $sigma;
-  undef  $epsilon;
-  undef  $epsilonCAC;
-  undef  $epsilonCAD;
-  undef  $sigmaCA;
-  undef  %massNB;
-  undef  %atombondedtypes;
-  undef  %atombondedtypes2;
-  undef  @atombondedtype;
-  undef  %chargeNB;
-  undef  %C6NB;
-  undef  %C12NB;
-  undef  %matchbond_val;
-  undef  %matchbond_weight;
-  undef  %matchangle_val;
-  undef  %matchangle_weight;
-  undef  %matchdihedral_val;
-  undef  %matchdihedral_weight;
-  undef  $chargeAT;
-  undef  $bondEps;
-  undef  $angleEps;
-  undef  $dihmatch;
- 
+
   if(! -e "$PDB_DIR/$PDB.pdb"){
    smogcheck_error("Unable to find PDB file $PDB_DIR/$PDB.pdb for testing.");
   }
- 
+
+  &resetvars; 
+
   $model=$A[1];
   my $contactmodel=$A[2];
  
@@ -274,10 +232,6 @@ sub runalltests{
   # clean up the tracking for the next test
   %FAIL=resettests(\%FAIL,\@FAILLIST);
 
-  if($PDB =~ m/BOND$/){
-   # BOND in name means disable check
-   $FAIL{'GENERATED DIHEDRAL IN TOP'}=-1; 
-  }
   &smogchecker;
  
  }
@@ -324,6 +278,42 @@ EOT
   }
   exit(0);
  }
+}
+
+sub resetvars
+{
+ undef  $CONTTYPE;
+ undef  $CONTD;
+ undef  $CONTR;
+ undef  $BBRAD;
+ undef  $R_CD;
+ undef  $R_P_BB_SC;
+ undef  $R_N_SC_BB;
+ undef  $PRO_DIH;
+ undef  $NA_DIH;
+ undef  $LIGAND_DIH;
+ undef  $sigma;
+ undef  $epsilon;
+ undef  $epsilonCAC;
+ undef  $epsilonCAD;
+ undef  $sigmaCA;
+ undef  %massNB;
+ undef  %atombondedtypes;
+ undef  %atombondedtypes2;
+ undef  @atombondedtype;
+ undef  %chargeNB;
+ undef  %C6NB;
+ undef  %C12NB;
+ undef  %matchbond_val;
+ undef  %matchbond_weight;
+ undef  %matchangle_val;
+ undef  %matchangle_weight;
+ undef  %matchdihedral_val;
+ undef  %matchdihedral_weight;
+ undef  $chargeAT;
+ undef  $bondEps;
+ undef  $angleEps;
+ undef  $dihmatch;
 }
 
 sub alltested
@@ -608,7 +598,10 @@ sub smogchecker
  if($FAIL{'UNINITIALIZED VARIABLES'} == 1){
   $fail_log .= failed_message("SMOG 2 encountered uninitialized variables.");
  }
-
+ if($PDB =~ m/BOND$/){
+  # BOND in name means disable check
+  $FAIL{'GENERATED DIHEDRAL IN TOP'}=-1; 
+ }
  if($FAIL{'NON-ZERO EXIT'} == 0){
   print "SMOG 2 exited without an error.\nAssessing generated files...\n";
   # CHECK THE OUTPUT
