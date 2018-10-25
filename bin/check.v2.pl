@@ -1028,183 +1028,11 @@ sub readtop
    %revData=%{$r1};
    @resindex=@{$r2};
   }
-  if(exists $A[1]){  
-   # read the bonds.  Make sure they are not assigned twice.  Also, save the bonds, so we can generate all possible bond angles later.
-   if($A[1] eq "bonds"){
-    $#A = -1;
-    my @bonds;
-    $#bonds = -1;
-    my @bondWatom;
-    $#bondWatom = -1;
-    my @NbondWatom;
-    $#NbondWatom = -1;
-    my $doublebond=0;
-    $bondtype6=0;
-    $type6count=0;
-    my $Nbonds=0;
-    my %bond_array;
-    undef %bond_array;
-    my $string;
-    my $NBONDS=0;
-    my $RECOGNIZEDBTYPES=0;
-    my $CORRECTBONDWEIGHTS=0;
-    my $CORRECTBONDLENGTHS=0;
-    for (my $I=1;$I<=$NUMATOMS;$I++){
-       $NbondWatom[$I]=0;
-    }
-    $LINE=$topdata[$LN];$LN++;
-    @A=split(/ /,$LINE);
-    until($A[0] eq "["){
-     $NBONDS++;
-     if($A[2] == 1){
-      $RECOGNIZEDBTYPES++;
-      my $bweight;
-      my $bval;
-      if(defined  $bondEps){
-       # there is a homogeneous value used
-       $bweight=$bondEps;
-      }else{
-       # heterogeneous bonds need to be checked (obtained from compare file).
-       my $bt1=$atombondedtype[$A[0]];
-       my $bt2=$atombondedtype[$A[1]];
-       if(exists $matchbond_weight{"$bt1-$bt2"}){
-        # check for the expected values of the weight, if defined 
-        $bweight=$matchbond_weight{"$bt1-$bt2"};
-        $bval=$matchbond_val{"$bt1-$bt2"};
-        if(abs($A[3]- $bval) > 10E-10){
-         $fail_log .= failed_message("bond has incorrect length. Expected $bval. Found:\n\t$LINE");
-        }else{
-         $CORRECTBONDLENGTHS++;
-        }	
-       }else{
-	# since one only needs to provide weights that are used, 
-	# we verify here, as opposed to checking all possible combinations earlier
-        smogcheck_error("Bonded types $bt1 $bt2 don\'t have a defined reference weight.")
-       }
-      }
-      if(abs($A[4] - $bweight) > 10E-10){
-       $fail_log .= failed_message("bond has incorrect weight. Expected $bweight. Found:\n\t$LINE");
-      }else{
-       $CORRECTBONDWEIGHTS++;
-      }		
-      ##check if bond has already appeared in the .top file
-      if($A[0] < $A[1]){
-       $string=sprintf("%i-%i", $A[0], $A[1]);
-      }else{
-       $string=sprintf("%i-%i", $A[1], $A[0]);
-      }
-      if(!exists $bond_array{$string}){
-       ## bond was not assigned.
-       $bond_array{$string}=1;
-       $bonds[$Nbonds][0]=$A[0];
-       $bonds[$Nbonds][1]=$A[1];
-       # this organization is strange, but it will make sense later...
-       $bondWatom[$A[0]][$NbondWatom[$A[0]]]= $Nbonds;
-       $bondWatom[$A[1]][$NbondWatom[$A[1]]]= $Nbonds;
-       $NbondWatom[$A[0]]++;
-       $NbondWatom[$A[1]]++;
-       $Nbonds++;
-      }else{
-      ## bond has already been assigned.
-       $doublebond++;
-      }
-     }elsif($A[2] == 6){
-      $RECOGNIZEDBTYPES++;
-      $bondtype6++;
-      if($ATOMNAME[$A[0]] eq "BMG" or $ATOMNAME[$A[1]] eq "BMG"){
-       $type6count++; 
-      }else{
-       $fail_log .= failed_message("type 6 bond between non-BMG atoms: $ATOMNAME[$A[0]] $A[0], and $ATOMNAME[$A[1]] $A[1].");
-      } 
-       if($A[4] != $bondMG){
-        $fail_log .= failed_message("BMG bond has incorrect weight\n\t$LINE");
-       }else{
-       $CORRECTBONDWEIGHTS++;
-      }		
-     }else{
-      $fail_log .= failed_message("unknown function type for bond\n\t$LINE");
-     }
-     $LINE=$topdata[$LN];$LN++;
-     @A=split(/ /,$LINE);
-    }
-
-    if($doublebond ==0){
-     $FAIL{'DUPLICATE BONDS'}=0;
-    }
-    if($bondtype6 == 0){
-     $FAIL{'TYPE6 ATOMS'}=-1;
-    }elsif($bondtype6 == $type6count){
-     $FAIL{'TYPE6 ATOMS'}=0;
-    }
-    if($RECOGNIZEDBTYPES == $NBONDS && $NBONDS !=0){
-     $FAIL{'SUPPORTED BOND TYPES'}=0;
-    }
-    if($CORRECTBONDWEIGHTS == $NBONDS && $NBONDS !=0){
-     $FAIL{'BOND STRENGTHS'}=0;
-    } 
-    if(defined  $bondEps){
-     # not checking values
-     $FAIL{'BOND LENGTHS'}=-1; 
-    }elsif($CORRECTBONDLENGTHS == $NBONDS && $NBONDS !=0){
-     $FAIL{'BOND LENGTHS'}=0;
-    }
-
-    # generate the angles
-    # generate all possible bond angles based on bonds
-    undef %theta_gen_as;
-    $theta_gen_N=0;
-    $#theta_gen=-1;
-    for(my $i=1;$i<=$NUMATOMS;$i++){
-    # go through the atoms.  For each atom, check all of the bonds it is involved in, and see if we can make a bond angle out of it.
-     for(my $j=0;$j<$NbondWatom[$i];$j++){
-      for(my $k=$j+1;$k<$NbondWatom[$i];$k++){
-       if($j!=$k){
-        my $A1=$bonds[$bondWatom[$i][$j]][0];
-        my $A2=$bonds[$bondWatom[$i][$j]][1];
-        my $B1=$bonds[$bondWatom[$i][$k]][0];
-        my $B2=$bonds[$bondWatom[$i][$k]][1];
-        my ($theta1,$theta2,$theta3);
-        # check the bond angles that can be made
-        if($A1 == $B1){
-         $theta1=$A2;
-         $theta2=$A1;
-         $theta3=$B2;
-        }elsif($A1 == $B2){
-         $theta1=$A2;
-         $theta2=$A1;
-         $theta3=$B1;
-        }elsif($A2 == $B1){
-         $theta1=$A1;
-         $theta2=$A2;
-         $theta3=$B2;
-        }elsif($A2 == $B2){
-         $theta1=$A1;
-         $theta2=$A2;
-         $theta3=$B1;
-        }
-        if($theta1 < $theta3){
-         $string=sprintf("%i-%i-%i", $theta1, $theta2, $theta3);
-        }else{
-         $string=sprintf("%i-%i-%i", $theta3, $theta2, $theta1);
-        }
-        if($free eq "yes"){
-	 # if the residue-atom-atom-atom pair matches something that we defined as free, then don't generate it.
-	 my $RESTMP=$GRODATA[$theta1-1][1];
-	 my $A1=$GRODATA[$theta1-1][2];
-	 my $A2=$GRODATA[$theta2-1][2];
-	 my $A3=$GRODATA[$theta3-1][2];
-         if(exists $free_angle_defs{"$RESTMP-$A1-$A2-$A3"} || exists $free_angle_defs{"$RESTMP-$A3-$A2-$A1"} ){
-          next;
-         }
-        }
-        $theta_gen_as{$string} = 1;
-        $theta_gen[$theta_gen_N]="$string";
-        $theta_gen_N++;
-       }
-      }
-     }
-    }
-   }
+  if(exists $A[1] && $A[1] eq "bonds"){
+   my ($r1,$r2);
+   ($LN,$A[1],$r1,$r2)=checkbonds($LN,\@topdata,\@theta_gen,\%theta_gen_as);
+   @theta_gen=@{$r1};
+   %theta_gen_as=%{$r2};
   } 
   if(exists $A[1]){ 
    if($A[1] eq "angles"){
@@ -2414,7 +2242,7 @@ sub readtop
   $FAIL{'TOP FIELDS FOUND'}=0;
  }
 }
-
+#******************** core routines that check distinct directives*******************
 sub checkatomtypes
 {
  my ($LN,$N1,$N2)=@_;
@@ -2635,6 +2463,188 @@ sub checkatoms
  return ($LN,$A[1],$finalres,\%revData,\@resindex);
 }
 
+sub checkbonds
+{
+ my ($LN,$N1,$theta_gen,$theta_gen_as)=@_;
+ my @theta_gen=@{$theta_gen};
+ my %theta_gen_as=%{$theta_gen_as};
+ my @topdata=@{$N1};
+ my @bonds;
+ $#bonds = -1;
+ my @bondWatom;
+ $#bondWatom = -1;
+ my @NbondWatom;
+ $#NbondWatom = -1;
+ my $doublebond=0;
+ $bondtype6=0;
+ $type6count=0;
+ my $Nbonds=0;
+ my %bond_array;
+ undef %bond_array;
+ my $string;
+ my $NBONDS=0;
+ my $RECOGNIZEDBTYPES=0;
+ my $CORRECTBONDWEIGHTS=0;
+ my $CORRECTBONDLENGTHS=0;
+ for (my $I=1;$I<=$NUMATOMS;$I++){
+    $NbondWatom[$I]=0;
+ }
+ my $LINE=$topdata[$LN];$LN++;
+ my @A=split(/ /,$LINE);
+ until($A[0] eq "["){
+  $NBONDS++;
+  if($A[2] == 1){
+   $RECOGNIZEDBTYPES++;
+   my $bweight;
+   my $bval;
+   if(defined  $bondEps){
+    # there is a homogeneous value used
+    $bweight=$bondEps;
+   }else{
+    # heterogeneous bonds need to be checked (obtained from compare file).
+    my $bt1=$atombondedtype[$A[0]];
+    my $bt2=$atombondedtype[$A[1]];
+    if(exists $matchbond_weight{"$bt1-$bt2"}){
+     # check for the expected values of the weight, if defined 
+     $bweight=$matchbond_weight{"$bt1-$bt2"};
+     $bval=$matchbond_val{"$bt1-$bt2"};
+     if(abs($A[3]- $bval) > 10E-10){
+      $fail_log .= failed_message("bond has incorrect length. Expected $bval. Found:\n\t$LINE");
+     }else{
+      $CORRECTBONDLENGTHS++;
+     }	
+    }else{
+     # since one only needs to provide weights that are used, 
+     # we verify here, as opposed to checking all possible combinations earlier
+     smogcheck_error("Bonded types $bt1 $bt2 don\'t have a defined reference weight.")
+    }
+   }
+   if(abs($A[4] - $bweight) > 10E-10){
+    $fail_log .= failed_message("bond has incorrect weight. Expected $bweight. Found:\n\t$LINE");
+   }else{
+    $CORRECTBONDWEIGHTS++;
+   }		
+   ##check if bond has already appeared in the .top file
+   if($A[0] < $A[1]){
+    $string=sprintf("%i-%i", $A[0], $A[1]);
+   }else{
+    $string=sprintf("%i-%i", $A[1], $A[0]);
+   }
+   if(!exists $bond_array{$string}){
+    ## bond was not assigned.
+    $bond_array{$string}=1;
+    $bonds[$Nbonds][0]=$A[0];
+    $bonds[$Nbonds][1]=$A[1];
+    # this organization is strange, but it will make sense later...
+    $bondWatom[$A[0]][$NbondWatom[$A[0]]]= $Nbonds;
+    $bondWatom[$A[1]][$NbondWatom[$A[1]]]= $Nbonds;
+    $NbondWatom[$A[0]]++;
+    $NbondWatom[$A[1]]++;
+    $Nbonds++;
+   }else{
+   ## bond has already been assigned.
+    $doublebond++;
+   }
+  }elsif($A[2] == 6){
+   $RECOGNIZEDBTYPES++;
+   $bondtype6++;
+   if($ATOMNAME[$A[0]] eq "BMG" or $ATOMNAME[$A[1]] eq "BMG"){
+    $type6count++; 
+   }else{
+    $fail_log .= failed_message("type 6 bond between non-BMG atoms: $ATOMNAME[$A[0]] $A[0], and $ATOMNAME[$A[1]] $A[1].");
+   } 
+    if($A[4] != $bondMG){
+     $fail_log .= failed_message("BMG bond has incorrect weight\n\t$LINE");
+    }else{
+    $CORRECTBONDWEIGHTS++;
+   }		
+  }else{
+   $fail_log .= failed_message("unknown function type for bond\n\t$LINE");
+  }
+  $LINE=$topdata[$LN];$LN++;
+  @A=split(/ /,$LINE);
+ }
+
+ if($doublebond ==0){
+  $FAIL{'DUPLICATE BONDS'}=0;
+ }
+ if($bondtype6 == 0){
+  $FAIL{'TYPE6 ATOMS'}=-1;
+ }elsif($bondtype6 == $type6count){
+  $FAIL{'TYPE6 ATOMS'}=0;
+ }
+ if($RECOGNIZEDBTYPES == $NBONDS && $NBONDS !=0){
+  $FAIL{'SUPPORTED BOND TYPES'}=0;
+ }
+ if($CORRECTBONDWEIGHTS == $NBONDS && $NBONDS !=0){
+  $FAIL{'BOND STRENGTHS'}=0;
+ } 
+ if(defined  $bondEps){
+  # not checking values
+  $FAIL{'BOND LENGTHS'}=-1; 
+ }elsif($CORRECTBONDLENGTHS == $NBONDS && $NBONDS !=0){
+  $FAIL{'BOND LENGTHS'}=0;
+ }
+
+ # generate the angles
+ # generate all possible bond angles based on bonds
+ undef %theta_gen_as;
+ $theta_gen_N=0;
+ $#theta_gen=-1;
+ for(my $i=1;$i<=$NUMATOMS;$i++){
+ # go through the atoms.  For each atom, check all of the bonds it is involved in, and see if we can make a bond angle out of it.
+  for(my $j=0;$j<$NbondWatom[$i];$j++){
+   for(my $k=$j+1;$k<$NbondWatom[$i];$k++){
+    if($j!=$k){
+     my $A1=$bonds[$bondWatom[$i][$j]][0];
+     my $A2=$bonds[$bondWatom[$i][$j]][1];
+     my $B1=$bonds[$bondWatom[$i][$k]][0];
+     my $B2=$bonds[$bondWatom[$i][$k]][1];
+     my ($theta1,$theta2,$theta3);
+     # check the bond angles that can be made
+     if($A1 == $B1){
+      $theta1=$A2;
+      $theta2=$A1;
+      $theta3=$B2;
+     }elsif($A1 == $B2){
+      $theta1=$A2;
+      $theta2=$A1;
+      $theta3=$B1;
+     }elsif($A2 == $B1){
+      $theta1=$A1;
+      $theta2=$A2;
+      $theta3=$B2;
+     }elsif($A2 == $B2){
+      $theta1=$A1;
+      $theta2=$A2;
+      $theta3=$B1;
+     }
+     if($theta1 < $theta3){
+      $string=sprintf("%i-%i-%i", $theta1, $theta2, $theta3);
+     }else{
+      $string=sprintf("%i-%i-%i", $theta3, $theta2, $theta1);
+     }
+     if($free eq "yes"){
+      # if the residue-atom-atom-atom pair matches something that we defined as free, then don't generate it.
+      my $RESTMP=$GRODATA[$theta1-1][1];
+      my $A1=$GRODATA[$theta1-1][2];
+      my $A2=$GRODATA[$theta2-1][2];
+      my $A3=$GRODATA[$theta3-1][2];
+      if(exists $free_angle_defs{"$RESTMP-$A1-$A2-$A3"} || exists $free_angle_defs{"$RESTMP-$A3-$A2-$A1"} ){
+       next;
+      }
+     }
+     $theta_gen_as{$string} = 1;
+     $theta_gen[$theta_gen_N]="$string";
+     $theta_gen_N++;
+    }
+   }
+  }
+ }
+ return ($LN,$A[1],\@theta_gen,\%theta_gen_as);
+}
+
+#******************** END of core routines that check distinct directives*******************
 
 sub identifydih
 {
