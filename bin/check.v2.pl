@@ -995,26 +995,8 @@ sub checktop
  while($LN<$topNlines){
   my $LINE=$topdata[$LN];$LN++;
   @A=split(/ /,$LINE);
-  if(exists $A[1]){
-   if($A[1] eq "defaults"){
-    $LINE=$topdata[$LN];$LN++;
-    @A=split(/ /,$LINE);
-    if($A[0] == 1){
-     $FAIL{'DEFAULTS, nbfunc'}=0; 
-    }else{
-     $fail_log .= failed_message("default nbfunc is not correctly set.");
-    }
-    if($A[1] == 1){
-     $FAIL{'DEFAULTS, comb-rule'}=0; 
-    }else{
-     $fail_log .= failed_message("default comb-rule is not correctly set.");
-    }
-    if($A[2] eq "no"){
-     $FAIL{'DEFAULTS, gen-pairs'}=0; 
-    }else{
-     $fail_log .= failed_message("default gen-pairs is not correctly set.");
-    }
-   }
+  if(exists $A[1] && $A[1] eq "defaults"){
+   ($LN,$A[1])=checkdefaults($LN,\@topdata);
   }
 
   if(exists $A[1] && $A[1] eq "atomtypes"){
@@ -1617,6 +1599,31 @@ sub checktop
  }
 }
 #******************** core routines that check distinct directives*******************
+sub checkdefaults
+{
+ my ($LN,$N1)=@_;
+ my @topdata = @{$N1};
+ my $LINE=$topdata[$LN];$LN++;
+ my @A=split(/ /,$LINE);
+ if($A[0] == 1){
+  $FAIL{'DEFAULTS, nbfunc'}=0; 
+ }else{
+  $fail_log .= failed_message("default nbfunc is not correctly set.");
+ }
+ if($A[1] == 1){
+  $FAIL{'DEFAULTS, comb-rule'}=0; 
+ }else{
+  $fail_log .= failed_message("default comb-rule is not correctly set.");
+ }
+ if($A[2] eq "no"){
+  $FAIL{'DEFAULTS, gen-pairs'}=0; 
+ }else{
+  $fail_log .= failed_message("default gen-pairs is not correctly set.");
+ }
+ return ($LN,$A[1]);
+}
+
+
 sub checkatomtypes
 {
  my ($LN,$N1,$N2)=@_;
