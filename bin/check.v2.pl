@@ -951,14 +951,19 @@ sub checkndx
 sub readtop
 {
 # this routine will be cleaned up later.  It's functional, but not very organized.
- my %FOUND;
+ my (@topdata,%seen,%FOUND,@theta_gen,@PAIRS,%dihedral_array1,%dihedral_array2,%dihedral_array3,%dihedral_array1_W,%dihedral_array3_W,%dihedral_array1_A,%dihedral_array3_A,$finalres,%revData,@resindex,%seendihedrals,%theta_gen_as,%phi_gen_as,@phi_gen,%improper_gen_as,@improper_gen,@A);
+ undef %MOLTYPEBYRES;
+ undef %restypecount;
+ my $stackingE=0;
+ my $NonstackingE=0;
+ my $LN=0;
+ my $topNlines=0;
  $DIH_MIN=100000000;
  $DIH_MAX=-100000000;
  $NCONTACTS=0;
+
  # clean up top file for easy parsing later
  open(TOP,"$PDB.top") or internal_error(" $PDB.top can not be opened...");
- my $topNlines=0;
- my @topdata;
  while(<TOP>){
   my $LINE=$_;
   chomp($LINE);
@@ -974,34 +979,10 @@ sub readtop
  $AMINO_PRESENT=0;
  $LIGAND_PRESENT=0;
  $ION_PRESENT=0;
- undef %MOLTYPEBYRES;
- undef %restypecount;
- my @theta_gen;
- my @PAIRS;
- my %dihedral_array1;
- my %dihedral_array2;
- my %dihedral_array3;
- my %dihedral_array1_W;
- my %dihedral_array3_W;
- my %dihedral_array1_A;
- my %dihedral_array3_A;
- my $finalres;
- my %revData;
- my @resindex;
- my %seen;
- my %seendihedrals;
  foreach(keys %supported_directives){
   $FOUND{$_}=0;
  }
 
- my %theta_gen_as;
- my %phi_gen_as;
- my @phi_gen;
- my %improper_gen_as;
- my @improper_gen;
- my @A;
- my $stackingE=0;
- my $NonstackingE=0;
  for(my $N=0;$N<$topNlines;$N++){
   my $LINE=$topdata[$N];
   if(substr($LINE,0,1) eq "["){
@@ -1011,7 +992,6 @@ sub readtop
    }
   }
  }
- my $LN=0;
  while($LN<$topNlines){
   my $LINE=$topdata[$LN];$LN++;
   @A=split(/ /,$LINE);
@@ -1038,80 +1018,7 @@ sub readtop
   }
   if(exists $A[1]){
    if($A[1] eq "atomtypes"){
-    $#A = -1;
-    $LINE=$topdata[$LN];$LN++;
-    @A=split(/ /,$LINE);
-    my $numtypes=0;
-    my $mass1=0;
-    my $typesunique=0;
-    my $acceptablenames=0;
-    my $charge1=0;
-    my $particle1=0;
-    my $c61=0;
-    my $excl1=0;
-    until($A[0] eq "["){
-     $numtypes++;
-     if(!exists $seen{$A[0]}){
-      $seen{$A[0]}=1;
-      $typesunique++;
-     }else{
-      smogcheck_error("atomtype name $A[0] appears more than once.");
-     }
-     if($A[0] =~ /^[a-zA-Z0-9_]+$/){
-      $acceptablenames++;
-     }else{
-      my $T=$A[0];
-      smogcheck_error("Only letters, numbers and _ can appear in atomtype names. atomtype $T found.");
-     }
-     if(defined $massNB{$A[0]} && $A[1] > $MINTHR*$massNB{$A[0]} && $A[1] < $MAXTHR*$massNB{$A[0]}){
-      $mass1++;
-     }
-     if(defined $chargeNB{$A[0]} && $A[2] >= $MINTHR*$chargeNB{$A[0]} && $A[2] <= $MAXTHR*$chargeNB{$A[0]} && $chargeNB{$A[0]} >= 0){
-      $charge1++;
-     }elsif(defined $chargeNB{$A[0]} && $A[2] <= $MINTHR*$chargeNB{$A[0]} && $A[2] >= $MAXTHR*$chargeNB{$A[0]} && $chargeNB{$A[0]} < 0){
-      $charge1++;
-     }
-     if($A[3] eq "A"){
-      $particle1++;
-     }
-     if(defined $C6NB{$A[0]} && $A[4] >= $MINTHR*$C6NB{$A[0]} && $A[4] <= $MAXTHR*$C6NB{$A[0]}){
-      $c61++
-     }
-     if(defined $C12NB{$A[0]} && $A[5] > $MINTHR*$C12NB{$A[0]} && $A[5] < $MAXTHR*$C12NB{$A[0]}){
-      $excl1++;
-     }
-     $#A = -1;
-     $LINE=$topdata[$LN];$LN++;
-     @A=split(/ /,$LINE);
-    }
-    if($numtypes == $mass1 and $mass1 !=0){
-     $FAIL{'MASS'}=0;
-    }
-    if($numtypes == $charge1 and $charge1 !=0){
-     $FAIL{'CHARGE'}=0;
-    }
-    if($numtypes == $particle1 and $particle1 !=0){
-     $FAIL{'PARTICLE'}=0;
-    }
-    if($numtypes == $c61 and $c61 !=0){
-     $FAIL{'C6 VALUES'}=0;
-    }
-    if($numtypes == $excl1 and $excl1 !=0){
-     $FAIL{'C12 VALUES'}=0;
-    }
-    if($numtypes == $typesunique and $typesunique !=0){
-     $FAIL{'ATOMTYPES UNIQUE'}=0;
-    }
-    if($numtypes == $acceptablenames and $acceptablenames !=0){
-     $FAIL{'ALPHANUMERIC ATOMTYPES'}=0;
-    }
-    if($model eq "AA" && $default ne "yes"){
-     if(exists $seen{"extratype"}){
-      $FAIL{'EXTRAS ADDED'}=0;
-     }
-    }else{
-     $FAIL{'EXTRAS ADDED'}=-1;
-    }
+    ($LN,$A[1])=checkatomtypes($LN,\@topdata,\%seen);
    }
   } 
   if(exists $A[1]){
@@ -2630,6 +2537,88 @@ sub readtop
   $FAIL{'TOP FIELDS FOUND'}=0;
  }
 }
+
+sub checkatomtypes
+{
+ my ($LN,$N1,$N2)=@_;
+ my @topdata = @{$N1};
+ my %seen=%{$N2};
+ my $LINE=$topdata[$LN];$LN++;
+ my @A=split(/ /,$LINE);
+ my $numtypes=0;
+ my $mass1=0;
+ my $typesunique=0;
+ my $acceptablenames=0;
+ my $charge1=0;
+ my $particle1=0;
+ my $c61=0;
+ my $excl1=0;
+ until($A[0] eq "["){
+  $numtypes++;
+  if(!exists $seen{$A[0]}){
+   $seen{$A[0]}=1;
+   $typesunique++;
+  }else{
+   smogcheck_error("atomtype name $A[0] appears more than once.");
+  }
+  if($A[0] =~ /^[a-zA-Z0-9_]+$/){
+   $acceptablenames++;
+  }else{
+   my $T=$A[0];
+   smogcheck_error("Only letters, numbers and _ can appear in atomtype names. atomtype $T found.");
+  }
+  if(defined $massNB{$A[0]} && $A[1] > $MINTHR*$massNB{$A[0]} && $A[1] < $MAXTHR*$massNB{$A[0]}){
+   $mass1++;
+  }
+  if(defined $chargeNB{$A[0]} && $A[2] >= $MINTHR*$chargeNB{$A[0]} && $A[2] <= $MAXTHR*$chargeNB{$A[0]} && $chargeNB{$A[0]} >= 0){
+   $charge1++;
+  }elsif(defined $chargeNB{$A[0]} && $A[2] <= $MINTHR*$chargeNB{$A[0]} && $A[2] >= $MAXTHR*$chargeNB{$A[0]} && $chargeNB{$A[0]} < 0){
+   $charge1++;
+  }
+  if($A[3] eq "A"){
+   $particle1++;
+  }
+  if(defined $C6NB{$A[0]} && $A[4] >= $MINTHR*$C6NB{$A[0]} && $A[4] <= $MAXTHR*$C6NB{$A[0]}){
+   $c61++
+  }
+  if(defined $C12NB{$A[0]} && $A[5] > $MINTHR*$C12NB{$A[0]} && $A[5] < $MAXTHR*$C12NB{$A[0]}){
+   $excl1++;
+  }
+  $#A = -1;
+  $LINE=$topdata[$LN];$LN++;
+  @A=split(/ /,$LINE);
+ }
+ if($numtypes == $mass1 and $mass1 !=0){
+  $FAIL{'MASS'}=0;
+ }
+ if($numtypes == $charge1 and $charge1 !=0){
+  $FAIL{'CHARGE'}=0;
+ }
+ if($numtypes == $particle1 and $particle1 !=0){
+  $FAIL{'PARTICLE'}=0;
+ }
+ if($numtypes == $c61 and $c61 !=0){
+  $FAIL{'C6 VALUES'}=0;
+ }
+ if($numtypes == $excl1 and $excl1 !=0){
+  $FAIL{'C12 VALUES'}=0;
+ }
+ if($numtypes == $typesunique and $typesunique !=0){
+  $FAIL{'ATOMTYPES UNIQUE'}=0;
+ }
+ if($numtypes == $acceptablenames and $acceptablenames !=0){
+  $FAIL{'ALPHANUMERIC ATOMTYPES'}=0;
+ }
+ if($model eq "AA" && $default ne "yes"){
+  if(exists $seen{"extratype"}){
+   $FAIL{'EXTRAS ADDED'}=0;
+  }
+ }else{
+  $FAIL{'EXTRAS ADDED'}=-1;
+ }
+ return ($LN,$A[1]);
+}
+
 
 sub identifydih
 {
