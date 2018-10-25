@@ -1053,7 +1053,7 @@ sub checktop
   }
 
   if(exists $A[1] && $A[1] eq "system"){
-   ($LN,$A[1])=checksystem($LN,\@topdata);
+   &checksystem($LN,\@topdata);
   }
 
   if(exists $A[1] && $A[1] eq "molecules"){
@@ -2707,7 +2707,6 @@ sub checksystem
  }else{
   $fail_log .= failed_message("Default system name is ($A[0]) non-standard");
  }
- return ($LN,$A[1]);
 }
 
 sub checkmolecules
