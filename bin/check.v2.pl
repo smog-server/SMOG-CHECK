@@ -983,6 +983,7 @@ sub checktop
   $FOUND{$_}=0;
  }
 
+#*************** read in and check the top file ********************
  for(my $N=0;$N<$topNlines;$N++){
   my $LINE=$topdata[$N];
   if(substr($LINE,0,1) eq "["){
@@ -1051,34 +1052,16 @@ sub checktop
    ($LN,$A[1])=checkexclusions($LN,\@topdata,\@PAIRS);
   }
 
-  if(exists $A[1]){
-   if($A[1] eq "system"){
-    $LINE=$topdata[$LN];$LN++;
-    @A=split(/ /,$LINE);
-    if($A[0] eq "Macromolecule"){
-     $FAIL{'NAME'}=0;
-    }else{
-     $fail_log .= failed_message("Default system name is ($A[0]) non-standard");
-    }
-   }
+  if(exists $A[1] && $A[1] eq "system"){
+   ($LN,$A[1])=checksystem($LN,\@topdata);
   }
 
-  if(exists $A[1]){
-   if($A[1] eq "molecules"){
-    $LINE=$topdata[$LN];$LN++;
-    @A=split(/ /,$LINE);
-    if($A[0] eq "Macromolecule"){
-     $FAIL{'NAME'}=0;
-     if($A[1] == 1){
-      $FAIL{'1 MOLECULE'}=0;
-     }else{
-      $fail_log .= failed_message("wrong number of molecules");
-     }
-    }
-   }
+  if(exists $A[1] && $A[1] eq "molecules"){
+   ($LN,$A[1])=checkmolecules($LN,\@topdata);
   }
  }
  # done reading the top file
+
 
  # make various comparisons
  my $NRIGID=0;
@@ -2711,6 +2694,37 @@ sub checkexclusions
   $FAIL{'NUMBER OF EXCLUSIONS'}=0;
  }
  return ($LN,$A[1]);
+}
+
+sub checksystem
+{
+ my ($LN,$N1)=@_;
+ my @topdata=@{$N1};
+ my $LINE=$topdata[$LN];$LN++;
+ my @A=split(/ /,$LINE);
+ if($A[0] eq "Macromolecule"){
+  $FAIL{'NAME'}=0;
+ }else{
+  $fail_log .= failed_message("Default system name is ($A[0]) non-standard");
+ }
+ return ($LN,$A[1]);
+}
+
+sub checkmolecules
+{
+ my ($LN,$N1)=@_;
+ my @topdata=@{$N1};
+ my $LINE=$topdata[$LN];$LN++;
+ my @A=split(/ /,$LINE);
+ if($A[0] eq "Macromolecule"){
+  $FAIL{'NAME'}=0;
+  if($A[1] == 1){
+   $FAIL{'1 MOLECULE'}=0;
+  }else{
+   $fail_log .= failed_message("wrong number of molecules");
+  }
+ return ($LN,$A[1]);
+ }
 }
 
 #******************** END of core routines that check distinct directives*******************
