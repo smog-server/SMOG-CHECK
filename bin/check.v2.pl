@@ -951,7 +951,7 @@ sub checkndx
 sub readtop
 {
 # this routine will be cleaned up later.  It's functional, but not very organized.
- my (@topdata,%seen,%FOUND,@theta_gen,@PAIRS,%dihedral_array1,%dihedral_array2,%dihedral_array3,%dihedral_array1_W,%dihedral_array3_W,%dihedral_array1_A,%dihedral_array3_A,$finalres,%revData,@resindex,%seendihedrals,%theta_gen_as,%phi_gen_as,@phi_gen,%improper_gen_as,@improper_gen,@A);
+ my (@topdata,%seen,%FOUND,@theta_gen,@PAIRS,$finalres,%revData,@resindex,%theta_gen_as,%phi_gen_as,@phi_gen,%improper_gen_as,@improper_gen,@A);
  undef %MOLTYPEBYRES;
  undef %restypecount;
  my $stackingE=0;
@@ -1016,436 +1016,46 @@ sub readtop
     }
    }
   }
+
   if(exists $A[1] && $A[1] eq "atomtypes"){
    ($LN,$A[1])=checkatomtypes($LN,\@topdata,\%seen);
   } 
+
   if(exists $A[1] && $A[1] eq "moleculetype"){
    ($LN,$A[1])=checkmoleculetype($LN,\@topdata,\%seen);
   } 
+
   if(exists $A[1] && $A[1] eq "atoms"){
    my ($r1,$r2);
    ($LN,$A[1],$finalres,$r1,$r2)=checkatoms($LN,\@topdata,\%seen,\%revData,\@resindex);
    %revData=%{$r1};
    @resindex=@{$r2};
   }
+
   if(exists $A[1] && $A[1] eq "bonds"){
    my ($r1,$r2);
    ($LN,$A[1],$r1,$r2)=checkbonds($LN,\@topdata,\@theta_gen,\%theta_gen_as);
    @theta_gen=@{$r1};
    %theta_gen_as=%{$r2};
   } 
+
   if(exists $A[1] && $A[1] eq "angles"){
-   my ($r1,$r2,$r3,$r4,$r5,$r6);
-   ($LN,$A[1],$r1,$r2,$r3,$r4,$r5,$r6)=checkangles($LN,\@topdata,\@theta_gen,\%theta_gen_as,\%phi_gen_as,\@phi_gen,\%improper_gen_as,\@improper_gen);
-   @theta_gen=@{$r1};
-   %theta_gen_as=%{$r2};
+   my ($r3,$r4,$r5,$r6);
+   ($LN,$A[1],$r3,$r4,$r5,$r6)=checkangles($LN,\@topdata,\@theta_gen,\%theta_gen_as,\%phi_gen_as,\@phi_gen,\%improper_gen_as,\@improper_gen);
    %phi_gen_as=%{$r3};
    @phi_gen=@{$r4};
    %improper_gen_as=%{$r5};
    @improper_gen=@{$r6};
-  } 
-  if(exists $A[1]){
-   if($A[1] eq "dihedrals"){
-    my $CORIMP=0;
-    if($model ne "CA" ){
-     $FAIL{'CA DIHEDRAL WEIGHTS'}=-1;
-    }
-    $DENERGY=0;
-    my $doubledih1=0;
-    my $doubledih2=0;
-    my $doubledih3=0;
-    my $Nphi=0;
-    my $solitary3=0;
-    my $S3_match=0;
-    my $string;
-    my @phi;
-    my $LAST_W;
-    my $string_last;
-    my $DANGLE_LAST;
-    my $LAST_N=0;
-    my $DIHSW=0;
-    my $accounted=0;
-    my $accounted1=0;
-    my $CORRECTDIHEDRALANGLES=0;
-    my $CORRECTDIHEDRALWEIGHTS=0;
-    $#A = -1;
-    $#ED_T = -1;
-    $#EDrig_T = -1;
-    $LINE=$topdata[$LN];$LN++;
-    @A=split(/ /,$LINE);
-    until($A[0] eq "["){
-     if($A[0] < $A[3]){
-      $string=sprintf("%i-%i-%i-%i", $A[0], $A[1], $A[2],  $A[3]);
-     }else{
-      $string=sprintf("%i-%i-%i-%i", $A[3], $A[2], $A[1], $A[0]);
-     }
-     # save the angles
-     $phi[$Nphi]="$string";
-     $Nphi++;
-
-     # #check if dihedral has been seen already...
-
-       # check duplicate type 3 
-       if(!exists $dihedral_array3{$string} and exists $A[7] and $A[7] == 3){
-        $dihedral_array3{$string}=1;
-        $dihedral_array3_W{$string}=$A[6];
-        $dihedral_array3_A{$string}=$A[5];
-        $accounted++;
-	if(!exists $dihedral_array3{$string}){
-         $solitary3++;
-         $fail_log .= failed_message("Type 3 dihedral appeared w/o a type 1...\n\t$LINE");
-        }
-       }elsif(exists $dihedral_array3{$string} and exists $A[7] and $A[7] == 3){
-        $doubledih3++; 
-        $fail_log .= failed_message("Duplicate dihedral\n\t$LINE");
-       }elsif(!exists $dihedral_array1{$string} and exists $A[7] and $A[7] == 1){
-	#check duplicate type 1 and 2
-        ## dihedral was not assigned.
-        $dihedral_array1{$string}=1;
-        $dihedral_array1_W{$string}=$A[6];
-        $dihedral_array1_A{$string}=$A[5];
-        $accounted++;
-        $accounted1++;
-       }elsif(exists $dihedral_array1{$string} and exists $A[7] and $A[7] == 1){
-        $doubledih1++;
-        $fail_log .= failed_message("Duplicate dihedral\n\t$LINE");
-       }elsif(!exists $dihedral_array2{$string} and $A[4] == 2){
-        $dihedral_array2{$string}=1;
-        $accounted++;
-       }elsif(exists $dihedral_array2{$string} and $A[4] == 2){
-        $doubledih2++;
-        $fail_log .= failed_message("Duplicate dihedral\n\t$LINE");
-       }else{
-        internal_error('DUPLICATE DIHEDRAL CHECKING')
-       }
-
-     ##if dihedral is type 1, then save the information, so we can make sure the next is n=3
-     if(exists $A[7]){
-      if($A[7] == 1){
-       $LAST_W=$A[6];
-       $string_last=$string;
-       $DANGLE_LAST=$A[5];
-     # only going to check the value for matching if type 1
-       my $dihweight;
-       my $dihval;
-       if(defined  $dihmatch){
-        # heterogeneous bonds need to be checked (obtained from compare file).
-        my $at1=$atombondedtype[$A[0]];
-        my $at2=$atombondedtype[$A[1]];
-        my $at3=$atombondedtype[$A[2]];
-        my $at4=$atombondedtype[$A[3]];
-        my $dname="$at1-$at2-$at3-$at4";
-        $seendihedrals{$dname}=0;
-        if(exists $matchdihedral_weight{"$dname"}){
-         # check for the expected values of the weight, if defined 
-         my $dweight=$matchdihedral_weight{"$dname"};
-         my $dval=$matchdihedral_val{"$dname"};
-         if(abs($A[5]- $dval) > 10E-10){
-          $fail_log .= failed_message("dihedral has incorrect angle. Expected $dval. Found:\n\t$LINE");
-         }else{
-          $CORRECTDIHEDRALANGLES++;
-         }	
-         if(abs($A[6]- $dweight) > 10E-10){
-          $fail_log .= failed_message("dihedral has incorrect weight. Expected $dweight. Found:\n\t$LINE");
-         }else{
-          $CORRECTDIHEDRALWEIGHTS++;
-         }	
-        }else{
-         # since one only needs to provide weights that are used, 
-         # we verify here, as opposed to checking all possible combinations earlier
-         smogcheck_error("Bonded types $at1 $at2 $at3 $at4 don\'t have a defined reference dihedral angle weight.")
-        }
-       }
-      }
-      $LAST_N=$A[7];
-      if($A[7] == 3 && ($string eq $string_last)){
-       $S3_match++; 
-      }
-      if($A[4] == 1 && $A[7] == 1 ){
-       my $F;
-       if($model eq "CA"){
-        if(($A[6] > $MINTHR*$epsilonCAD && $A[6] < $MAXTHR*$epsilonCAD)){
-         $DIHSW++;
-        }elsif(($A[6] < $MINTHR*$epsilonCAD || $A[6] > $MAXTHR*$epsilonCAD)){
-         $fail_log .= failed_message("error in dihedral strength on line:$LINE\n");
-        }
-       } 
-       if($MOLTYPE[$A[0]] ne "LIGAND" ){
-        $DENERGY+=$A[6];
-       }
-       if($A[6]<$DIH_MIN){
-        $DIH_MIN=$A[6];
-       }
-       if($A[6]>$DIH_MAX){
-        $DIH_MAX=$A[6];
-       }
-       ## sum energies by dihedral
-       if($A[1] > $A[2]){
-        $ED_T[$A[2]][$A[1]-$A[2]]+=$A[6];
-        $F=$A[2]-$A[1];
-        if($F > $DISP_MAX){
-         $DISP_MAX=$F;
-        }
-       }else{
-        $ED_T[$A[1]][$A[2]-$A[1]]+=$A[6];
-        $F=$A[2]-$A[1];
-        if($F > $DISP_MAX){
-         $DISP_MAX=$F;
-        }
-       }
-      }
-     }
-     if($A[4] == 2 && !exists $improper_gen_as{$string}){
-      my $F;
-      if($A[1] > $A[2]){
-       $F=$A[1]-$A[2];
-       if(!exists $EDrig_T[$A[2]][$F]){
-        $EDrig_T[$A[2]][$F]=$A[6];
-       }else{
-        $EDrig_T[$A[2]][$F]+=$A[6];
-       }
-      }else{
-       $F=$A[2]-$A[1];
-       if(!exists $EDrig_T[$A[1]][$F]){
-	$EDrig_T[$A[1]][$F]=$A[6];
-       }else{
-        $EDrig_T[$A[1]][$F]+=$A[6];
-       }
-      }
-     
-      if($F > $DISP_MAX){
-       $DISP_MAX=$F;
-      }
-     }
-     if($A[4] == 2 && exists $improper_gen_as{$string} ){
-       $CORIMP++;
-      if($impEps == $A[6]){
-       $CORIMP--;
-      }else{
-       $fail_log .= failed_message("improper dihedral has wrong weight\n\t$LINE");
-      }
-     }
-
-     $#A = -1;
-     $LINE=$topdata[$LN];$LN++;
-     @A=split(/ /,$LINE);
-    }
-
-
-    # All dihedrals read in.  Now do checking
-
-    my $CONdihedrals=0;
-    # check to see if all top angles are present in the generate list.
-    for(my $i=0;$i<$Nphi;$i++){
-     if(exists $phi_gen_as{$phi[$i]} or exists $improper_gen_as{$phi[$i]} ){
-      $CONdihedrals++;
-     }else{
-      $fail_log .= failed_message("dihedral appearing in top, but does not match a proper/improper generated by script: $phi[$i]");
-     }
-    }
-     if($CONdihedrals == $Nphi){
-     $FAIL{'DIHEDRAL IN TOP GENERATED'}=0;
-    }else{
-     $FAIL{'DIHEDRAL IN TOP GENERATED'}=1;
-    }
-
-    my $gen_match=0;
-    # check to see if all the generated dihedrals (from this script) are present in the top file
-    for(my $i=0;$i<$phi_gen_N;$i++){
-     if(exists $dihedral_array1{$phi_gen[$i]}  or exists $dihedral_array2{$phi_gen[$i]} ){
-      $gen_match++;
-     }else{
-      $fail_log .= failed_message("Generated dihedral $phi_gen[$i] is not in the list of included dihedrals...");
-     }
-    }
-    if($gen_match==$phi_gen_N){
-     $FAIL{'GENERATED DIHEDRAL IN TOP'}=0;
-    }
-
-    if($CORIMP == 0){
-     $FAIL{'IMPROPER WEIGHTS'}=0;
-    } 
-    if($model eq "CA"){
-     if($Nphi/2 == $DIHSW){
-      $FAIL{'CA DIHEDRAL WEIGHTS'}=0;
-     }else{
-      $fail_log .= failed_message("ISSUE with CA dihedral weights\n\t$Nphi $DIHSW");
-     }
-    }
-    if($Nphi == $accounted and $Nphi != 0){
-     $FAIL{'CLASSIFYING DIHEDRALS'}=0;
-    }else{
-     $fail_log .= failed_message("ISSUE classifying dihedrals\n\t$Nphi $DIHSW");
-    }
-    if($doubledih1 == 0){
-     $FAIL{'DUPLICATE TYPE 1 DIHEDRALS'}=0;
-    }
-    if($doubledih2 == 0){
-     $FAIL{'DUPLICATE TYPE 2 DIHEDRALS'}=0;
-    }
-    if($doubledih3 == 0){
-     $FAIL{'DUPLICATE TYPE 3 DIHEDRALS'}=0;
-    }
-    if($solitary3 == 0){
-     $FAIL{'3-1 DIHEDRAL PAIRS'}=0;
-    }
-    my $matchingpairs=0;
-    my $matchingpairs_W=0;
-    my $matchingpairs_A=0;
-    my $tt1;
-    my $tt2;
-    foreach my $pair (keys %dihedral_array1){
-     if(exists $dihedral_array3{$pair}){
-      $matchingpairs++;
-      if($dihedral_array3_W{$pair}  > $MINTHR*0.5*$dihedral_array1_W{$pair} and $dihedral_array3_W{$pair}  < $MAXTHR*0.5*$dihedral_array1_W{$pair}  ){
-       $matchingpairs_W++;
-      }else{
-       $fail_log .= failed_message("Relative weight between a N=1 and N=3 dihedral is not consistent: $pair, $dihedral_array1_W{$pair}, $dihedral_array3_W{$pair}");
-      }
-      my $angle1=$dihedral_array1_A{$pair};
-      my $angle3=$dihedral_array3_A{$pair};
-      if((($angle3 % 360.0) > $MINTHR*(3*$angle1 % 360.0) and ($angle3 % 360.0) < $MAXTHR*(3*$angle1 % 360.0)) or (($angle3 % 360.0) < ($MAXTHR-1) and (3*$angle1 % 360.0) < ($MAXTHR-1) )){
-       $matchingpairs_A++;
-      }else{
-       $fail_log .= failed_message("Relative angles between a N=1 and N=3 dihedral is not consistent: $pair,$angle1,$angle3");
-      }
-     }
-    }
-    if($matchingpairs == $accounted1){
-     $FAIL{'1-3 DIHEDRAL PAIRS'}=0;
-    }
-    if(defined  $dihmatch){
-     if($CORRECTDIHEDRALANGLES == $accounted1){
-      $FAIL{'MATCH DIH ANGLES'}=0;
-     }
-     if($CORRECTDIHEDRALWEIGHTS == $accounted1){
-      $FAIL{'MATCH DIH WEIGHTS'}=0;
-     }
-    }else{
-      $FAIL{'MATCH DIH WEIGHTS'}=-1;
-      $FAIL{'MATCH DIH ANGLES'}=-1;
-
-    }
-    if($S3_match == $accounted1){
-     $FAIL{'1-3 ORDERING OF DIHEDRALS'}=0
-    }
-    if($matchingpairs_W == $accounted1){
-     $FAIL{'1-3 DIHEDRAL RELATIVE WEIGHTS'}=0
-    }
-    if($matchingpairs_A == $accounted1){
-     $FAIL{'1-3 DIHEDRAL ANGLE VALUES'}=0
-    }
-    # check that all impropers are assigned about all CA atoms
-    if($model eq "AA" && $AMINO_PRESENT){
-     my $impCAfound=0;
-     my $impCApossible=0;
-     my $impOMEfound=0;
-     my $impOMEpossible=0;
-     my $impSCfound=0;
-     my $impSCpossible=0;
-     for(my $I=1;$I<=$finalres;$I++){
-      if(exists $revData{"$I-CA"}){
-       #check improper about CA  (CB-CA-C-N)
-       if(exists $revData{"$I-CB"}){
-        $impCApossible++;
-        my $string;
-        if($revData{"$I-CB"} < $revData{"$I-N"}){
-         $string=sprintf("%i-%i-%i-%i",$revData{"$I-CB"} ,$revData{"$I-CA"} ,$revData{"$I-C"} ,$revData{"$I-N"});
-        }else{
-         $string=sprintf("%i-%i-%i-%i",$revData{"$I-N"} ,$revData{"$I-C"} ,$revData{"$I-CA"} ,$revData{"$I-CB"});
-        }
-        if($dihedral_array2{$string}){
-         $impCAfound++;
-        }else{
-         $fail_log .= failed_message("Improper about CA atom not found: expected dihedral formed by atoms $string");
-        }
-        # check for expected side-chain impropers
-        if($GRODATA[$revData{"$I-CA"}][1] !~  m/^TYR|^PHE|^TRP/){
-         if(exists $revData{"$I-OG1"} && exists $revData{"$I-CG2"}){
-          $impSCpossible++;
-          my $string;
-          if($revData{"$I-CA"} < $revData{"$I-CG2"}){
-           $string=sprintf("%i-%i-%i-%i",$revData{"$I-CA"} ,$revData{"$I-CB"} ,$revData{"$I-OG1"} ,$revData{"$I-CG2"});
-          }else{
-           $string=sprintf("%i-%i-%i-%i",$revData{"$I-CG1"} ,$revData{"$I-OG1"} ,$revData{"$I-CB"} ,$revData{"$I-CA"});
-          }
-          if($dihedral_array2{$string}){
-           $impSCfound++;
-          }elsif($free eq "no"){
-           $fail_log .= failed_message("Sidechain Improper not found: expected dihedral formed by atoms $string");
-          }
-         }
-         if(exists $revData{"$I-CG1"} && exists $revData{"$I-CG2"}){
-          $impSCpossible++;
-          my $string;
-          if($revData{"$I-CA"} < $revData{"$I-CG2"}){
-           $string=sprintf("%i-%i-%i-%i",$revData{"$I-CA"} ,$revData{"$I-CB"} ,$revData{"$I-CG1"} ,$revData{"$I-CG2"});
-          }else{
-           $string=sprintf("%i-%i-%i-%i",$revData{"$I-CG1"} ,$revData{"$I-CG1"} ,$revData{"$I-CB"} ,$revData{"$I-CA"});
-          }
-          if($dihedral_array2{$string}){
-           $impSCfound++;
-          }elsif($free eq "no"){
-           $fail_log .= failed_message("Sidechain Improper not found: expected dihedral formed by atoms $string");
-          }
-         }
-         if(exists $revData{"$I-CG"} && exists $revData{"$I-CD1"} && exists $revData{"$I-CD2"}){
-          $impSCpossible++;
-          my $string;
-          if($revData{"$I-CB"} < $revData{"$I-CD2"}){
-           $string=sprintf("%i-%i-%i-%i",$revData{"$I-CB"} ,$revData{"$I-CG"} ,$revData{"$I-CD1"} ,$revData{"$I-CD2"});
-          }else{
-           $string=sprintf("%i-%i-%i-%i",$revData{"$I-CD2"} ,$revData{"$I-CD1"} ,$revData{"$I-CG"} ,$revData{"$I-CB"});
-          }
-          if($dihedral_array2{$string}){
-           $impSCfound++;
-          }elsif($free eq "no"){
-           $fail_log .= failed_message("Sidechain Improper not found: expected dihedral formed by atoms $string");
-          }
-         }
-        }
-       }
-       my $nextres=$I+1;
-       if(exists $revData{"$nextres-N"} && $CID[$revData{"$nextres-N"}] == $CID[$revData{"$I-CA"}]){
-        $impOMEpossible++;
-        #they are adjacent, and in the same chain, check improper about omega (O-CA-C-N+)
-	my $string;
-        if($revData{"$I-O"} < $revData{"$nextres-N"}){
-         $string=sprintf("%i-%i-%i-%i",$revData{"$I-O"} ,$revData{"$I-CA"} ,$revData{"$I-C"} ,$revData{"$nextres-N"});
-        }else{
-         $string=sprintf("%i-%i-%i-%i",$revData{"$nextres-N"} ,$revData{"$I-C"} ,$revData{"$I-CA"} ,$revData{"$I-O"});
-        }
-        if($dihedral_array2{$string}){
-         $impOMEfound++;
-        }else{
-         $fail_log .= failed_message("Improper about peptide bond not found: expected dihedral formed by atoms $string");
-        }
-       }
-      }
-     }
-     if($impCAfound == $impCApossible && $impCApossible != 0){
-      $FAIL{'CA IMPROPERS EXIST'}=0;
-     }else{
-      $fail_log .= failed_message("Only found $impCAfound improper dihedrals about CA atoms, out of an expected $impCApossible");
-     }
-     if($impOMEfound == $impOMEpossible){
-      $FAIL{'OMEGA IMPROPERS EXIST'}=0;
-     }else{
-      $fail_log .= failed_message("Only found $impOMEfound improper omega dihedrals, out of an expected $impOMEpossible");
-     }
-     if($free eq "yes"){
-      $FAIL{'SIDECHAIN IMPROPERS EXIST'}=-1;
-     }elsif($impSCfound == $impSCpossible){
-      $FAIL{'SIDECHAIN IMPROPERS EXIST'}=0;
-     }else{
-      $fail_log .= failed_message("Only found $impSCfound sidechain improper dihedrals, out of an expected $impSCpossible");
-     }
-    }else{
-     $FAIL{'CA IMPROPERS EXIST'}=-1;
-     $FAIL{'OMEGA IMPROPERS EXIST'}=-1;
-     $FAIL{'SIDECHAIN IMPROPERS EXIST'}=-1;
-    }
-   }
+  }
+ 
+  if(exists $A[1] && $A[1] eq "dihedrals"){
+   my ($r0,$r1,$r2,$r3,$r4,$r5,$r6);
+   ($LN,$A[1],$r0,$r3,$r4,$r5,$r6)=checkdihedrals($LN,\@topdata,\%revData,\@theta_gen,\%theta_gen_as,\%phi_gen_as,\@phi_gen,\%improper_gen_as,\@improper_gen,$finalres);
+   %revData=%{$r0};
+   %phi_gen_as=%{$r3};
+   @phi_gen=@{$r4};
+   %improper_gen_as=%{$r5};
+   @improper_gen=@{$r6};
   } 
   
   if(exists $A[1]){
@@ -1700,30 +1310,6 @@ sub readtop
     }
    }
   }
- }
- if(defined $dihmatch){
-  my $c1=0; 
-  my $c2=0; 
-  foreach my $T1(keys %atombondedtypes2){
-   foreach my $T2(keys %atombondedtypes2){
-    foreach my $T3(keys %atombondedtypes2){
-     foreach my $T4(keys %atombondedtypes2){
-      my $dihetmp="$T1-$T2-$T2-$T3";
-      $c1++;
-      if(! exists $seendihedrals{$dihetmp}){;
-       $fail_log .= failed_message("Did not find dihedral with bonded types $dihetmp");
-      }else{
-      $c2++;
-      }
-     }
-    }
-   }
-  }
-  if($c1==$c2){
-   $FAIL{'ALL POSSIBLE MATCHED DIHEDRALS PRESENT'}=0;
-  }
- }else{
-   $FAIL{'ALL POSSIBLE MATCHED DIHEDRALS PRESENT'}=-1;
  }
  # check the dihedrals...
  my $NRIGID=0;
@@ -2660,8 +2246,447 @@ sub checkangles
    }
   }
  }
- return ($LN,$A[1],\@theta_gen,\%theta_gen_as,\%phi_gen_as,\@phi_gen,\%improper_gen_as,\@improper_gen);
+ return ($LN,$A[1],\%phi_gen_as,\@phi_gen,\%improper_gen_as,\@improper_gen);
 }
+
+sub checkdihedrals
+{
+ my ($LN,$N1,$revData,$theta_gen,$theta_gen_as,$phi_gen_as,$phi_gen,$improper_gen_as,$improper_gen,$finalres)=@_;
+ my %revData=%{$revData};
+ my %phi_gen_as=%{$phi_gen_as};
+ my @phi_gen=@{$phi_gen};
+ my %improper_gen_as=%{$improper_gen_as};
+ my @improper_gen=@{$improper_gen};
+ my @theta_gen=@{$theta_gen};
+ my %theta_gen_as=%{$theta_gen_as};
+ my @topdata=@{$N1};
+ my (%dihedral_array1,%dihedral_array2,%dihedral_array3,%dihedral_array1_W,%dihedral_array3_W,%dihedral_array1_A,%dihedral_array3_A,%seendihedrals,);
+ my $CORIMP=0;
+ if($model ne "CA" ){
+  $FAIL{'CA DIHEDRAL WEIGHTS'}=-1;
+ }
+ $DENERGY=0;
+ my $doubledih1=0;
+ my $doubledih2=0;
+ my $doubledih3=0;
+ my $Nphi=0;
+ my $solitary3=0;
+ my $S3_match=0;
+ my $string;
+ my @phi;
+ my $LAST_W;
+ my $string_last;
+ my $DANGLE_LAST;
+ my $LAST_N=0;
+ my $DIHSW=0;
+ my $accounted=0;
+ my $accounted1=0;
+ my $CORRECTDIHEDRALANGLES=0;
+ my $CORRECTDIHEDRALWEIGHTS=0;
+ $#ED_T = -1;
+ $#EDrig_T = -1;
+ my $LINE=$topdata[$LN];$LN++;
+ my @A=split(/ /,$LINE);
+ until($A[0] eq "["){
+  if($A[0] < $A[3]){
+   $string=sprintf("%i-%i-%i-%i", $A[0], $A[1], $A[2],  $A[3]);
+  }else{
+   $string=sprintf("%i-%i-%i-%i", $A[3], $A[2], $A[1], $A[0]);
+  }
+  # save the angles
+  $phi[$Nphi]="$string";
+  $Nphi++;
+
+  # #check if dihedral has been seen already...
+
+    # check duplicate type 3 
+    if(!exists $dihedral_array3{$string} and exists $A[7] and $A[7] == 3){
+     $dihedral_array3{$string}=1;
+     $dihedral_array3_W{$string}=$A[6];
+     $dihedral_array3_A{$string}=$A[5];
+     $accounted++;
+     if(!exists $dihedral_array3{$string}){
+      $solitary3++;
+      $fail_log .= failed_message("Type 3 dihedral appeared w/o a type 1...\n\t$LINE");
+     }
+    }elsif(exists $dihedral_array3{$string} and exists $A[7] and $A[7] == 3){
+     $doubledih3++; 
+     $fail_log .= failed_message("Duplicate dihedral\n\t$LINE");
+    }elsif(!exists $dihedral_array1{$string} and exists $A[7] and $A[7] == 1){
+     #check duplicate type 1 and 2
+     ## dihedral was not assigned.
+     $dihedral_array1{$string}=1;
+     $dihedral_array1_W{$string}=$A[6];
+     $dihedral_array1_A{$string}=$A[5];
+     $accounted++;
+     $accounted1++;
+    }elsif(exists $dihedral_array1{$string} and exists $A[7] and $A[7] == 1){
+     $doubledih1++;
+     $fail_log .= failed_message("Duplicate dihedral\n\t$LINE");
+    }elsif(!exists $dihedral_array2{$string} and $A[4] == 2){
+     $dihedral_array2{$string}=1;
+     $accounted++;
+    }elsif(exists $dihedral_array2{$string} and $A[4] == 2){
+     $doubledih2++;
+     $fail_log .= failed_message("Duplicate dihedral\n\t$LINE");
+    }else{
+     internal_error('DUPLICATE DIHEDRAL CHECKING')
+    }
+
+  ##if dihedral is type 1, then save the information, so we can make sure the next is n=3
+  if(exists $A[7]){
+   if($A[7] == 1){
+    $LAST_W=$A[6];
+    $string_last=$string;
+    $DANGLE_LAST=$A[5];
+  # only going to check the value for matching if type 1
+    my $dihweight;
+    my $dihval;
+    if(defined  $dihmatch){
+     # heterogeneous bonds need to be checked (obtained from compare file).
+     my $at1=$atombondedtype[$A[0]];
+     my $at2=$atombondedtype[$A[1]];
+     my $at3=$atombondedtype[$A[2]];
+     my $at4=$atombondedtype[$A[3]];
+     my $dname="$at1-$at2-$at3-$at4";
+     $seendihedrals{$dname}=0;
+     if(exists $matchdihedral_weight{"$dname"}){
+      # check for the expected values of the weight, if defined 
+      my $dweight=$matchdihedral_weight{"$dname"};
+      my $dval=$matchdihedral_val{"$dname"};
+      if(abs($A[5]- $dval) > 10E-10){
+       $fail_log .= failed_message("dihedral has incorrect angle. Expected $dval. Found:\n\t$LINE");
+      }else{
+       $CORRECTDIHEDRALANGLES++;
+      }	
+      if(abs($A[6]- $dweight) > 10E-10){
+       $fail_log .= failed_message("dihedral has incorrect weight. Expected $dweight. Found:\n\t$LINE");
+      }else{
+       $CORRECTDIHEDRALWEIGHTS++;
+      }	
+     }else{
+      # since one only needs to provide weights that are used, 
+      # we verify here, as opposed to checking all possible combinations earlier
+      smogcheck_error("Bonded types $at1 $at2 $at3 $at4 don\'t have a defined reference dihedral angle weight.")
+     }
+    }
+   }
+   $LAST_N=$A[7];
+   if($A[7] == 3 && ($string eq $string_last)){
+    $S3_match++; 
+   }
+   if($A[4] == 1 && $A[7] == 1 ){
+    my $F;
+    if($model eq "CA"){
+     if(($A[6] > $MINTHR*$epsilonCAD && $A[6] < $MAXTHR*$epsilonCAD)){
+      $DIHSW++;
+     }elsif(($A[6] < $MINTHR*$epsilonCAD || $A[6] > $MAXTHR*$epsilonCAD)){
+      $fail_log .= failed_message("error in dihedral strength on line:$LINE\n");
+     }
+    } 
+    if($MOLTYPE[$A[0]] ne "LIGAND" ){
+     $DENERGY+=$A[6];
+    }
+    if($A[6]<$DIH_MIN){
+     $DIH_MIN=$A[6];
+    }
+    if($A[6]>$DIH_MAX){
+     $DIH_MAX=$A[6];
+    }
+    ## sum energies by dihedral
+    if($A[1] > $A[2]){
+     $ED_T[$A[2]][$A[1]-$A[2]]+=$A[6];
+     $F=$A[2]-$A[1];
+     if($F > $DISP_MAX){
+      $DISP_MAX=$F;
+     }
+    }else{
+     $ED_T[$A[1]][$A[2]-$A[1]]+=$A[6];
+     $F=$A[2]-$A[1];
+     if($F > $DISP_MAX){
+      $DISP_MAX=$F;
+     }
+    }
+   }
+  }
+  if($A[4] == 2 && !exists $improper_gen_as{$string}){
+   my $F;
+   if($A[1] > $A[2]){
+    $F=$A[1]-$A[2];
+    if(!exists $EDrig_T[$A[2]][$F]){
+     $EDrig_T[$A[2]][$F]=$A[6];
+    }else{
+     $EDrig_T[$A[2]][$F]+=$A[6];
+    }
+   }else{
+    $F=$A[2]-$A[1];
+    if(!exists $EDrig_T[$A[1]][$F]){
+     $EDrig_T[$A[1]][$F]=$A[6];
+    }else{
+     $EDrig_T[$A[1]][$F]+=$A[6];
+    }
+   }
+  
+   if($F > $DISP_MAX){
+    $DISP_MAX=$F;
+   }
+  }
+  if($A[4] == 2 && exists $improper_gen_as{$string} ){
+    $CORIMP++;
+   if($impEps == $A[6]){
+    $CORIMP--;
+   }else{
+    $fail_log .= failed_message("improper dihedral has wrong weight\n\t$LINE");
+   }
+  }
+
+  $#A = -1;
+  $LINE=$topdata[$LN];$LN++;
+  @A=split(/ /,$LINE);
+ }
+
+
+ # All dihedrals read in.  Now do checking
+
+ my $CONdihedrals=0;
+ # check to see if all top angles are present in the generate list.
+ for(my $i=0;$i<$Nphi;$i++){
+  if(exists $phi_gen_as{$phi[$i]} or exists $improper_gen_as{$phi[$i]} ){
+   $CONdihedrals++;
+  }else{
+   $fail_log .= failed_message("dihedral appearing in top, but does not match a proper/improper generated by script: $phi[$i]");
+  }
+ }
+  if($CONdihedrals == $Nphi){
+  $FAIL{'DIHEDRAL IN TOP GENERATED'}=0;
+ }else{
+  $FAIL{'DIHEDRAL IN TOP GENERATED'}=1;
+ }
+
+ my $gen_match=0;
+ # check to see if all the generated dihedrals (from this script) are present in the top file
+ for(my $i=0;$i<$phi_gen_N;$i++){
+  if(exists $dihedral_array1{$phi_gen[$i]}  or exists $dihedral_array2{$phi_gen[$i]} ){
+   $gen_match++;
+  }else{
+   $fail_log .= failed_message("Generated dihedral $phi_gen[$i] is not in the list of included dihedrals...");
+  }
+ }
+ if($gen_match==$phi_gen_N){
+  $FAIL{'GENERATED DIHEDRAL IN TOP'}=0;
+ }
+
+ if($CORIMP == 0){
+  $FAIL{'IMPROPER WEIGHTS'}=0;
+ } 
+ if($model eq "CA"){
+  if($Nphi/2 == $DIHSW){
+   $FAIL{'CA DIHEDRAL WEIGHTS'}=0;
+  }else{
+   $fail_log .= failed_message("ISSUE with CA dihedral weights\n\t$Nphi $DIHSW");
+  }
+ }
+ if($Nphi == $accounted and $Nphi != 0){
+  $FAIL{'CLASSIFYING DIHEDRALS'}=0;
+ }else{
+  $fail_log .= failed_message("ISSUE classifying dihedrals\n\t$Nphi $DIHSW");
+ }
+ if($doubledih1 == 0){
+  $FAIL{'DUPLICATE TYPE 1 DIHEDRALS'}=0;
+ }
+ if($doubledih2 == 0){
+  $FAIL{'DUPLICATE TYPE 2 DIHEDRALS'}=0;
+ }
+ if($doubledih3 == 0){
+  $FAIL{'DUPLICATE TYPE 3 DIHEDRALS'}=0;
+ }
+ if($solitary3 == 0){
+  $FAIL{'3-1 DIHEDRAL PAIRS'}=0;
+ }
+ my $matchingpairs=0;
+ my $matchingpairs_W=0;
+ my $matchingpairs_A=0;
+ my $tt1;
+ my $tt2;
+ foreach my $pair (keys %dihedral_array1){
+  if(exists $dihedral_array3{$pair}){
+   $matchingpairs++;
+   if($dihedral_array3_W{$pair}  > $MINTHR*0.5*$dihedral_array1_W{$pair} and $dihedral_array3_W{$pair}  < $MAXTHR*0.5*$dihedral_array1_W{$pair}  ){
+    $matchingpairs_W++;
+   }else{
+    $fail_log .= failed_message("Relative weight between a N=1 and N=3 dihedral is not consistent: $pair, $dihedral_array1_W{$pair}, $dihedral_array3_W{$pair}");
+   }
+   my $angle1=$dihedral_array1_A{$pair};
+   my $angle3=$dihedral_array3_A{$pair};
+   if((($angle3 % 360.0) > $MINTHR*(3*$angle1 % 360.0) and ($angle3 % 360.0) < $MAXTHR*(3*$angle1 % 360.0)) or (($angle3 % 360.0) < ($MAXTHR-1) and (3*$angle1 % 360.0) < ($MAXTHR-1) )){
+    $matchingpairs_A++;
+   }else{
+    $fail_log .= failed_message("Relative angles between a N=1 and N=3 dihedral is not consistent: $pair,$angle1,$angle3");
+   }
+  }
+ }
+ if($matchingpairs == $accounted1){
+  $FAIL{'1-3 DIHEDRAL PAIRS'}=0;
+ }
+ if(defined  $dihmatch){
+  if($CORRECTDIHEDRALANGLES == $accounted1){
+   $FAIL{'MATCH DIH ANGLES'}=0;
+  }
+  if($CORRECTDIHEDRALWEIGHTS == $accounted1){
+   $FAIL{'MATCH DIH WEIGHTS'}=0;
+  }
+ }else{
+   $FAIL{'MATCH DIH WEIGHTS'}=-1;
+   $FAIL{'MATCH DIH ANGLES'}=-1;
+
+ }
+ if($S3_match == $accounted1){
+  $FAIL{'1-3 ORDERING OF DIHEDRALS'}=0
+ }
+ if($matchingpairs_W == $accounted1){
+  $FAIL{'1-3 DIHEDRAL RELATIVE WEIGHTS'}=0
+ }
+ if($matchingpairs_A == $accounted1){
+  $FAIL{'1-3 DIHEDRAL ANGLE VALUES'}=0
+ }
+ # check that all impropers are assigned about all CA atoms
+ if($model eq "AA" && $AMINO_PRESENT){
+  my $impCAfound=0;
+  my $impCApossible=0;
+  my $impOMEfound=0;
+  my $impOMEpossible=0;
+  my $impSCfound=0;
+  my $impSCpossible=0;
+  for(my $I=1;$I<=$finalres;$I++){
+   if(exists $revData{"$I-CA"}){
+    #check improper about CA  (CB-CA-C-N)
+    if(exists $revData{"$I-CB"}){
+     $impCApossible++;
+     my $string;
+     if($revData{"$I-CB"} < $revData{"$I-N"}){
+      $string=sprintf("%i-%i-%i-%i",$revData{"$I-CB"} ,$revData{"$I-CA"} ,$revData{"$I-C"} ,$revData{"$I-N"});
+     }else{
+      $string=sprintf("%i-%i-%i-%i",$revData{"$I-N"} ,$revData{"$I-C"} ,$revData{"$I-CA"} ,$revData{"$I-CB"});
+     }
+     if($dihedral_array2{$string}){
+      $impCAfound++;
+     }else{
+      $fail_log .= failed_message("Improper about CA atom not found: expected dihedral formed by atoms $string");
+     }
+     # check for expected side-chain impropers
+     if($GRODATA[$revData{"$I-CA"}][1] !~  m/^TYR|^PHE|^TRP/){
+      if(exists $revData{"$I-OG1"} && exists $revData{"$I-CG2"}){
+       $impSCpossible++;
+       my $string;
+       if($revData{"$I-CA"} < $revData{"$I-CG2"}){
+        $string=sprintf("%i-%i-%i-%i",$revData{"$I-CA"} ,$revData{"$I-CB"} ,$revData{"$I-OG1"} ,$revData{"$I-CG2"});
+       }else{
+        $string=sprintf("%i-%i-%i-%i",$revData{"$I-CG1"} ,$revData{"$I-OG1"} ,$revData{"$I-CB"} ,$revData{"$I-CA"});
+       }
+       if($dihedral_array2{$string}){
+        $impSCfound++;
+       }elsif($free eq "no"){
+        $fail_log .= failed_message("Sidechain Improper not found: expected dihedral formed by atoms $string");
+       }
+      }
+      if(exists $revData{"$I-CG1"} && exists $revData{"$I-CG2"}){
+       $impSCpossible++;
+       my $string;
+       if($revData{"$I-CA"} < $revData{"$I-CG2"}){
+        $string=sprintf("%i-%i-%i-%i",$revData{"$I-CA"} ,$revData{"$I-CB"} ,$revData{"$I-CG1"} ,$revData{"$I-CG2"});
+       }else{
+        $string=sprintf("%i-%i-%i-%i",$revData{"$I-CG1"} ,$revData{"$I-CG1"} ,$revData{"$I-CB"} ,$revData{"$I-CA"});
+       }
+       if($dihedral_array2{$string}){
+        $impSCfound++;
+       }elsif($free eq "no"){
+        $fail_log .= failed_message("Sidechain Improper not found: expected dihedral formed by atoms $string");
+       }
+      }
+      if(exists $revData{"$I-CG"} && exists $revData{"$I-CD1"} && exists $revData{"$I-CD2"}){
+       $impSCpossible++;
+       my $string;
+       if($revData{"$I-CB"} < $revData{"$I-CD2"}){
+        $string=sprintf("%i-%i-%i-%i",$revData{"$I-CB"} ,$revData{"$I-CG"} ,$revData{"$I-CD1"} ,$revData{"$I-CD2"});
+       }else{
+        $string=sprintf("%i-%i-%i-%i",$revData{"$I-CD2"} ,$revData{"$I-CD1"} ,$revData{"$I-CG"} ,$revData{"$I-CB"});
+       }
+       if($dihedral_array2{$string}){
+        $impSCfound++;
+       }elsif($free eq "no"){
+        $fail_log .= failed_message("Sidechain Improper not found: expected dihedral formed by atoms $string");
+       }
+      }
+     }
+    }
+    my $nextres=$I+1;
+    if(exists $revData{"$nextres-N"} && $CID[$revData{"$nextres-N"}] == $CID[$revData{"$I-CA"}]){
+     $impOMEpossible++;
+     #they are adjacent, and in the same chain, check improper about omega (O-CA-C-N+)
+     my $string;
+     if($revData{"$I-O"} < $revData{"$nextres-N"}){
+      $string=sprintf("%i-%i-%i-%i",$revData{"$I-O"} ,$revData{"$I-CA"} ,$revData{"$I-C"} ,$revData{"$nextres-N"});
+     }else{
+      $string=sprintf("%i-%i-%i-%i",$revData{"$nextres-N"} ,$revData{"$I-C"} ,$revData{"$I-CA"} ,$revData{"$I-O"});
+     }
+     if($dihedral_array2{$string}){
+      $impOMEfound++;
+     }else{
+      $fail_log .= failed_message("Improper about peptide bond not found: expected dihedral formed by atoms $string");
+     }
+    }
+   }
+  }
+  if($impCAfound == $impCApossible && $impCApossible != 0){
+   $FAIL{'CA IMPROPERS EXIST'}=0;
+  }else{
+   $fail_log .= failed_message("Only found $impCAfound improper dihedrals about CA atoms, out of an expected $impCApossible");
+  }
+  if($impOMEfound == $impOMEpossible){
+   $FAIL{'OMEGA IMPROPERS EXIST'}=0;
+  }else{
+   $fail_log .= failed_message("Only found $impOMEfound improper omega dihedrals, out of an expected $impOMEpossible");
+  }
+  if($free eq "yes"){
+   $FAIL{'SIDECHAIN IMPROPERS EXIST'}=-1;
+  }elsif($impSCfound == $impSCpossible){
+   $FAIL{'SIDECHAIN IMPROPERS EXIST'}=0;
+  }else{
+   $fail_log .= failed_message("Only found $impSCfound sidechain improper dihedrals, out of an expected $impSCpossible");
+  }
+ }else{
+  $FAIL{'CA IMPROPERS EXIST'}=-1;
+  $FAIL{'OMEGA IMPROPERS EXIST'}=-1;
+  $FAIL{'SIDECHAIN IMPROPERS EXIST'}=-1;
+ }
+ if(defined $dihmatch){
+  my $c1=0; 
+  my $c2=0; 
+  foreach my $T1(keys %atombondedtypes2){
+   foreach my $T2(keys %atombondedtypes2){
+    foreach my $T3(keys %atombondedtypes2){
+     foreach my $T4(keys %atombondedtypes2){
+      my $dihetmp="$T1-$T2-$T2-$T3";
+      $c1++;
+      if(! exists $seendihedrals{$dihetmp}){;
+       $fail_log .= failed_message("Did not find dihedral with bonded types $dihetmp");
+      }else{
+      $c2++;
+      }
+     }
+    }
+   }
+  }
+  if($c1==$c2){
+    $FAIL{'ALL POSSIBLE MATCHED DIHEDRALS PRESENT'}=0;
+  }
+ }else{
+   $FAIL{'ALL POSSIBLE MATCHED DIHEDRALS PRESENT'}=-1;
+ }
+ return ($LN,$A[1],\%revData,\%phi_gen_as,\@phi_gen,\%improper_gen_as,\@improper_gen);
+}
+
+
 #******************** END of core routines that check distinct directives*******************
 
 sub identifydih
