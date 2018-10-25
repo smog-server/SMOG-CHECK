@@ -1045,30 +1045,12 @@ sub checktop
     my ($r1,$r2);
    ($LN,$A[1],$r1,$stackingE,$NonstackingE)=checkpairs($LN,\@topdata,\@resindex,\@PAIRS,$stackingE,$NonstackingE);
    @PAIRS=@{$r1};
-  } 
-  if(exists $A[1]){ 
-   if($A[1] eq "exclusions"){
-    $#A = -1;
-    $LINE=$topdata[$LN];$LN++;
-    @A=split(/ /,$LINE);
-    my $NEXCL=0;
-    my $NEXCLUSIONS=0;
-    until($A[0] eq "["){
-     if($PAIRS[$NEXCL][0] != $A[0] || $PAIRS[$NEXCL][1] != $A[1]){
-      $NEXCLUSIONS++;
-      $fail_log .= failed_message("mis-match between pairs and exclusions (pair $NEXCL)\n\tpair: $PAIRS[$NEXCL][0] $PAIRS[$NEXCL][1]\n\texcl: $A[0] $A[1]");
-     }
-     $NEXCL++;
-     # read the next line
-     $#A = -1;
-     $LINE=$topdata[$LN];$LN++;
-     @A=split(/ /,$LINE);
-    }
-    if($NEXCL == $NCONTACTS){
-     $FAIL{'NUMBER OF EXCLUSIONS'}=0;
-    }
-   }
   }
+ 
+  if(exists $A[1] && $A[1] eq "exclusions"){
+   ($LN,$A[1])=checkexclusions($LN,\@topdata,\@PAIRS);
+  }
+
   if(exists $A[1]){
    if($A[1] eq "system"){
     $LINE=$topdata[$LN];$LN++;
@@ -1096,7 +1078,9 @@ sub checktop
    }
   }
  }
- # check the dihedrals...
+ # done reading the top file
+
+ # make various comparisons
  my $NRIGID=0;
  my $NOMEGA=0;
  my $NRIGIDC=0;
@@ -2700,6 +2684,33 @@ sub checkpairs
   $FAIL{'FREE PAIRS APPEAR IN CONTACTS'}=1;	
  }
  return ($LN,$A[1],\@PAIRS,$stackingE,$NonstackingE);
+}
+
+
+sub checkexclusions
+{
+ my ($LN,$N1,$N2)=@_;
+ my @topdata=@{$N1};
+ my @PAIRS=@{$N2};
+ my $LINE=$topdata[$LN];$LN++;
+ my @A=split(/ /,$LINE);
+ my $NEXCL=0;
+ my $NEXCLUSIONS=0;
+ until($A[0] eq "["){
+  if($PAIRS[$NEXCL][0] != $A[0] || $PAIRS[$NEXCL][1] != $A[1]){
+   $NEXCLUSIONS++;
+   $fail_log .= failed_message("mis-match between pairs and exclusions (pair $NEXCL)\n\tpair: $PAIRS[$NEXCL][0] $PAIRS[$NEXCL][1]\n\texcl: $A[0] $A[1]");
+  }
+  $NEXCL++;
+  # read the next line
+  $#A = -1;
+  $LINE=$topdata[$LN];$LN++;
+  @A=split(/ /,$LINE);
+ }
+ if($NEXCL == $NCONTACTS){
+  $FAIL{'NUMBER OF EXCLUSIONS'}=0;
+ }
+ return ($LN,$A[1]);
 }
 
 #******************** END of core routines that check distinct directives*******************
