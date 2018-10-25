@@ -202,52 +202,19 @@ sub readbackbonetypes
 sub readresiduetypes
 {
  ## LOAD INFORMATION ABOUT WHAT TYPES OF RESIDUES ARE RECOGNIZED BY SMOG2
- #amino acids
- open(AMINO,"share/residues/aminoacids") or internal_error("no amino acid file");
- while(<AMINO>){
-  my $LINE=$_;
-  chomp($LINE);
-  $LINE =~ s/\s+$//;
-  if(defined $TYPE{$LINE}){
-   smogcheck_error("$LINE given more than once in share/residues files");
+ my %files = ( 'aminoacids' => 'AMINO','nucleicacids'=>'NUCLEIC','ligands'=>'LIGAND','ions'=>'ION');
+ foreach my $f(keys %files){
+  open(FF,"share/residues/$f") or internal_error("can not open share/residues/$f");
+  while(<FF>){
+   my $LINE=$_;
+   chomp($LINE);
+   $LINE =~ s/\s+$//;
+   if(defined $TYPE{$LINE}){
+    smogcheck_error("$LINE given more than once in share/residues files");
+   }
+   $TYPE{$LINE}= $files{$f};
   }
-  $TYPE{$LINE}= "AMINO";
- }
- #nucleic acids
- open(NUCLEIC,"share/residues/nucleicacids") or internal_error("no nucleic acid file");
- my @NUCLEIC;
- while(<NUCLEIC>){
-  my $LINE=$_;
-  chomp($LINE);
-  $LINE =~ s/\s+$//;
-  if(defined $TYPE{$LINE}){
-   smogcheck_error("$LINE given more than once in share/residues files");
-  }
-  $TYPE{$LINE}= "NUCLEIC";
- }
- #ligands
- open(LIGAND,"share/residues/ligands") or internal_error("no nucleic acid file");
- my @LIGANDS;
- while(<LIGAND>){
-  my $LINE=$_;
-  chomp($LINE);
-  $LINE =~ s/\s+$//;
-  if(defined $TYPE{$LINE}){
-   smogcheck_error("$LINE given more than once in share/residues files");
-  }
-  $TYPE{$LINE}= "LIGAND";
- }
- #ions
- open(ION,"share/residues/ions") or internal_error("no ion file");
- my @IONS;
- while(<ION>){
-  my $LINE=$_;
-  chomp($LINE);
-  $LINE =~ s/\s+$//;
-  if(defined $TYPE{$LINE}){
-   smogcheck_error("$LINE given more than once in share/residues files");
-  }
-  $TYPE{$LINE}= "ION";
+  close(FF);
  }
 }
 
