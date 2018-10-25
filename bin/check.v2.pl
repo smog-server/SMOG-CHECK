@@ -1034,227 +1034,15 @@ sub readtop
    @theta_gen=@{$r1};
    %theta_gen_as=%{$r2};
   } 
-  if(exists $A[1]){ 
-   if($A[1] eq "angles"){
-    $#A = -1;
-    my $doubleangle=0;
-    my $Nangles=0;
-    my (@angles1,@angles2); 
-    $#angles1 =-1;
-    my @angleWatom;
-    my @NangleWatom;
-    $#angleWatom = -1;
-    $#NangleWatom = -1;
-    $Nangles=0;
-    my $CORRECTAT=0;
-    my $CORRECTAW=0;
-    my $CORRECTBONDANGLES=0;
-    for (my $I=1;$I<=$NUMATOMS;$I++){
-       $NangleWatom[$I]=0;
-    }
-
-    my %angle_array;
-    my $string;
-    $LINE=$topdata[$LN];$LN++;
-    @A=split(/ /,$LINE);
-    until($A[0] eq "["){
-     if($A[3] == 1){
-      $CORRECTAT++;
-     }
-     my $aweight;
-     my $aval;
-     if(defined  $angleEps){
-      # there is a homogeneous value used
-      $aweight=$angleEps;
-     }else{
-      # heterogeneous bonds need to be checked (obtained from compare file).
-      my $at1=$atombondedtype[$A[0]];
-      my $at2=$atombondedtype[$A[1]];
-      my $at3=$atombondedtype[$A[2]];
-      if(exists $matchangle_weight{"$at1-$at2-$at3"}){
-       # check for the expected values of the weight, if defined 
-       $aweight=$matchangle_weight{"$at1-$at2-$at3"};
-       $aval=$matchangle_val{"$at1-$at2-$at3"};
-       if(abs($A[4]- $aval) > 10E-10){
-        $fail_log .= failed_message("bond has incorrect angle. Expected $aval. Found:\n\t$LINE");
-       }else{
-        $CORRECTBONDANGLES++;
-       }	
-      }else{
-       # since one only needs to provide weights that are used, 
-       # we verify here, as opposed to checking all possible combinations earlier
-       smogcheck_error("Bonded types $at1 $at2 $at3 don\'t have a defined reference angle weight.")
-      }
-     }
-     if(abs($A[5] - $aweight) > 10E-10){
-      $fail_log .= failed_message("bond angle has incorrect weight. Expected $aweight. Found:\n\t$LINE");
-     }else{
-      $CORRECTAW++;
-     }
-     if($A[0] < $A[2]){
-      $string=sprintf("%i-%i-%i", $A[0], $A[1], $A[2]);
-     }else{
-      $string=sprintf("%i-%i-%i", $A[2], $A[1], $A[0]);
-     }
-     # save the angles
-     $angles1[$Nangles]="$string";
-     #check if bond has been seen already...
-     if(!exists $angle_array{$string} ){
-      ## bond was not assigned.
-      $angle_array{$string}=1;
-      my $A0=$A[0];
-      my $A1=$A[1];
-      my $A2=$A[2];
-      $angles2[$Nangles][0]=$A0;
-      $angles2[$Nangles][1]=$A1;
-      $angles2[$Nangles][2]=$A2;
-      # this organization is also strange, but it will make sense later...
-      $angleWatom[$A0][$NangleWatom[$A0]]= $Nangles;
-      $angleWatom[$A1][$NangleWatom[$A1]]= $Nangles;
-      $angleWatom[$A2][$NangleWatom[$A2]]= $Nangles;
-      $NangleWatom[$A0]++;
-      $NangleWatom[$A1]++;
-      $NangleWatom[$A2]++;
-      $Nangles++;
-     }else{
-      ## bond has already been assigned.
-      $doubleangle++;
-     }
-     $LINE=$topdata[$LN];$LN++;
-     @A=split(/ /,$LINE);
-    }
-    if($doubleangle ==0){
-     $FAIL{'DUPLICATE ANGLES'}=0;
-    } 
-    if($Nangles == $CORRECTAT && $Nangles > 0){
-     $FAIL{'ANGLE TYPES'}=0;
-    }
-    if($Nangles == $CORRECTAW && $Nangles > 0){
-     $FAIL{'ANGLE WEIGHTS'}=0;
-    }
-
-    ## cross-check the angles
-    if($theta_gen_N == $Nangles){
-     $FAIL{'GENERATED ANGLE COUNT'}=0;
-    }else{
-     $fail_log .= failed_message("The number of generated angles is inconsistent with the number of angles in the top file\n\tgenerated: $theta_gen_N, found: $Nangles");
-     $FAIL{'GENERATED ANGLE COUNT'}=1;
-    }
-    my $CONangles=0;
-    # check to see if all the generated angles (from this script) are present in the top file
-    for(my $i=0;$i<$theta_gen_N;$i++){
-     if(exists $angle_array{$theta_gen[$i]} ){
-       $CONangles++;
-      }else{
-       $fail_log .= failed_message("angle generated, but not in top: $theta_gen[$i]");
-     }
-    }
-    if($CONangles == $theta_gen_N){
-     $FAIL{'GENERATED ANGLE IN TOP'}=0;
-    }else{
-     $FAIL{'GENERATED ANGLE IN TOP'}=1;
-    }
-
-    $CONangles=0;
-    # check to see if all top angles are present in the generate list.
-    for(my $i=0;$i<$Nangles;$i++){
-     if(exists $theta_gen_as{$angles1[$i]}){
-      $CONangles++;
-     }else{
-      $fail_log .= failed_message("angle in top, but not generated: $angles1[$i]");
-     }
-    }
-     if($CONangles == $Nangles){
-     $FAIL{'ANGLES IN TOP GENERATED'}=0;
-    }else{
-     $FAIL{'ANGLES IN TOP GENERATED'}=1;
-    }
-    if(defined  $angleEps){
-     # not checking values
-     $FAIL{'ANGLE VALUES'}=-1; 
-    }elsif($CORRECTBONDANGLES == $Nangles && $Nangles !=0){
-     $FAIL{'ANGLE VALUES'}=0;
-    }
- 
-    # generate all possible dihedral angles based on bond angles
-    undef %phi_gen_as;
-    $phi_gen_N=0;
-    $#phi_gen=-1;
-    undef %improper_gen_as;
-    $improper_gen_N=0;
-    $#improper_gen=-1;
-    my ($formed,$phi1,$phi2,$phi3,$phi4,$AIJ,$AIK,$A1,$A2,$A3,$B1,$B2,$B3);
-    for(my $i=1;$i<=$NUMATOMS;$i++){
-    # go through the atoms.  For each atom, check all of the angles it is involved in, and see if we can make an angle out of it.
-     for(my $j=0;$j<$NangleWatom[$i];$j++){
-      $AIJ=$angleWatom[$i][$j];
-      $A1=$angles2[$AIJ][0];
-      $A2=$angles2[$AIJ][1];
-      $A3=$angles2[$AIJ][2];
-      for(my $k=$j+1;$k<$NangleWatom[$i];$k++){
-       if($j!=$k){
-        $AIK=$angleWatom[$i][$k];
-        $B1=$angles2[$AIK][0];
-        $B2=$angles2[$AIK][1];
-        $B3=$angles2[$AIK][2];
-        # find any dihedral angle that can be made with these two angles
-	($formed,$phi1,$phi2,$phi3,$phi4)=identifydih($A1,$A2,$A3,$B1,$B2,$B3);
-        if($formed eq "proper" ){
-         if($phi1 < $phi4){
-          $string=sprintf("%i-%i-%i-%i", $phi1, $phi2, $phi3, $phi4);
-         }else{
-          $string=sprintf("%i-%i-%i-%i", $phi4, $phi3, $phi2, $phi1);
-         }
-         if($free eq "yes"){
-	  # if the residue-atom-atom pair matches something that we defined as free, then don't generate it.
-	  my $RESTMP=$GRODATA[$phi2-1][1];
-	  my $A1=$GRODATA[$phi2-1][2];
-	  my $A2=$GRODATA[$phi3-1][2];
-          if(exists $free_dihedrals_defs{"$RESTMP-$A1-$A2"} || exists $free_dihedrals_defs{"$RESTMP-$A2-$A1"} ){
-           next;
-          }
-         }
-         $phi_gen_as{$string} = 1;
-         $phi_gen[$phi_gen_N]="$string";
-         $phi_gen_N++;
-        }elsif($formed eq "improper"){
-         my @phit;
-         $phit[0]=$phi1;
-         $phit[1]=$phi2;
-         $phit[2]=$phi3;
-         $phit[3]=$phi4;
-         for(my $ii=0;$ii<4;$ii++){
-          $phi1=$phit[$ii];
-          for(my $jj=0;$jj<4;$jj++){
-           if($ii != $jj){
-            $phi2=$phit[$jj];
-            for(my$kk=0;$kk<4;$kk++){
-             if($kk != $jj && $kk != $ii){
-              $phi3=$phit[$kk];
-              for(my $ll=0;$ll<4;$ll++){
-               if($ll != $kk && $ll != $jj && $ll != $ii){
-                $phi4=$phit[$ll];
-                if($phi1 < $phi4){
-                 $string=sprintf("%i-%i-%i-%i", $phi1, $phi2, $phi3, $phi4);
-                }else{
-                 $string=sprintf("%i-%i-%i-%i", $phi4, $phi3, $phi2, $phi1);
-                }
-                $improper_gen_as{$string} = 1;
-                $improper_gen[$phi_gen_N]="$string";
-                $improper_gen_N++;
-               }
-              }
-             }
-            }
-           }
-          }
-         }
-        }
-       }
-      }
-     }
-    }
-   }
+  if(exists $A[1] && $A[1] eq "angles"){
+   my ($r1,$r2,$r3,$r4,$r5,$r6);
+   ($LN,$A[1],$r1,$r2,$r3,$r4,$r5,$r6)=checkangles($LN,\@topdata,\@theta_gen,\%theta_gen_as,\%phi_gen_as,\@phi_gen,\%improper_gen_as,\@improper_gen);
+   @theta_gen=@{$r1};
+   %theta_gen_as=%{$r2};
+   %phi_gen_as=%{$r3};
+   @phi_gen=@{$r4};
+   %improper_gen_as=%{$r5};
+   @improper_gen=@{$r6};
   } 
   if(exists $A[1]){
    if($A[1] eq "dihedrals"){
@@ -2644,6 +2432,236 @@ sub checkbonds
  return ($LN,$A[1],\@theta_gen,\%theta_gen_as);
 }
 
+
+sub checkangles
+{
+ my ($LN,$N1,$theta_gen,$theta_gen_as,$phi_gen_as,$phi_gen,$improper_gen_as,$improper_gen)=@_;
+ my %phi_gen_as=%{$phi_gen_as};
+ my @phi_gen=@{$phi_gen};
+ my %improper_gen_as=%{$improper_gen_as};
+ my @improper_gen=@{$improper_gen};
+ my @theta_gen=@{$theta_gen};
+ my %theta_gen_as=%{$theta_gen_as};
+ my @topdata=@{$N1};
+ my $doubleangle=0;
+ my $Nangles=0;
+ my (@angles1,@angles2); 
+ $#angles1 =-1;
+ my @angleWatom;
+ my @NangleWatom;
+ $#angleWatom = -1;
+ $#NangleWatom = -1;
+ $Nangles=0;
+ my $CORRECTAT=0;
+ my $CORRECTAW=0;
+ my $CORRECTBONDANGLES=0;
+ for (my $I=1;$I<=$NUMATOMS;$I++){
+    $NangleWatom[$I]=0;
+ }
+
+ my %angle_array;
+ my $string;
+ my $LINE=$topdata[$LN];$LN++;
+ my @A=split(/ /,$LINE);
+ until($A[0] eq "["){
+  if($A[3] == 1){
+   $CORRECTAT++;
+  }
+  my $aweight;
+  my $aval;
+  if(defined  $angleEps){
+   # there is a homogeneous value used
+   $aweight=$angleEps;
+  }else{
+   # heterogeneous bonds need to be checked (obtained from compare file).
+   my $at1=$atombondedtype[$A[0]];
+   my $at2=$atombondedtype[$A[1]];
+   my $at3=$atombondedtype[$A[2]];
+   if(exists $matchangle_weight{"$at1-$at2-$at3"}){
+    # check for the expected values of the weight, if defined 
+    $aweight=$matchangle_weight{"$at1-$at2-$at3"};
+    $aval=$matchangle_val{"$at1-$at2-$at3"};
+    if(abs($A[4]- $aval) > 10E-10){
+     $fail_log .= failed_message("bond has incorrect angle. Expected $aval. Found:\n\t$LINE");
+    }else{
+     $CORRECTBONDANGLES++;
+    }	
+   }else{
+    # since one only needs to provide weights that are used, 
+    # we verify here, as opposed to checking all possible combinations earlier
+    smogcheck_error("Bonded types $at1 $at2 $at3 don\'t have a defined reference angle weight.")
+   }
+  }
+  if(abs($A[5] - $aweight) > 10E-10){
+   $fail_log .= failed_message("bond angle has incorrect weight. Expected $aweight. Found:\n\t$LINE");
+  }else{
+   $CORRECTAW++;
+  }
+  if($A[0] < $A[2]){
+   $string=sprintf("%i-%i-%i", $A[0], $A[1], $A[2]);
+  }else{
+   $string=sprintf("%i-%i-%i", $A[2], $A[1], $A[0]);
+  }
+  # save the angles
+  $angles1[$Nangles]="$string";
+  #check if bond has been seen already...
+  if(!exists $angle_array{$string} ){
+   ## bond was not assigned.
+   $angle_array{$string}=1;
+   my $A0=$A[0];
+   my $A1=$A[1];
+   my $A2=$A[2];
+   $angles2[$Nangles][0]=$A0;
+   $angles2[$Nangles][1]=$A1;
+   $angles2[$Nangles][2]=$A2;
+   # this organization is also strange, but it will make sense later...
+   $angleWatom[$A0][$NangleWatom[$A0]]= $Nangles;
+   $angleWatom[$A1][$NangleWatom[$A1]]= $Nangles;
+   $angleWatom[$A2][$NangleWatom[$A2]]= $Nangles;
+   $NangleWatom[$A0]++;
+   $NangleWatom[$A1]++;
+   $NangleWatom[$A2]++;
+   $Nangles++;
+  }else{
+   ## bond has already been assigned.
+   $doubleangle++;
+  }
+  $LINE=$topdata[$LN];$LN++;
+  @A=split(/ /,$LINE);
+ }
+ if($doubleangle ==0){
+  $FAIL{'DUPLICATE ANGLES'}=0;
+ } 
+ if($Nangles == $CORRECTAT && $Nangles > 0){
+  $FAIL{'ANGLE TYPES'}=0;
+ }
+ if($Nangles == $CORRECTAW && $Nangles > 0){
+  $FAIL{'ANGLE WEIGHTS'}=0;
+ }
+
+ ## cross-check the angles
+ if($theta_gen_N == $Nangles){
+  $FAIL{'GENERATED ANGLE COUNT'}=0;
+ }else{
+  $fail_log .= failed_message("The number of generated angles is inconsistent with the number of angles in the top file\n\tgenerated: $theta_gen_N, found: $Nangles");
+  $FAIL{'GENERATED ANGLE COUNT'}=1;
+ }
+ my $CONangles=0;
+ # check to see if all the generated angles (from this script) are present in the top file
+ for(my $i=0;$i<$theta_gen_N;$i++){
+  if(exists $angle_array{$theta_gen[$i]} ){
+    $CONangles++;
+   }else{
+    $fail_log .= failed_message("angle generated, but not in top: $theta_gen[$i]");
+  }
+ }
+ if($CONangles == $theta_gen_N){
+  $FAIL{'GENERATED ANGLE IN TOP'}=0;
+ }else{
+  $FAIL{'GENERATED ANGLE IN TOP'}=1;
+ }
+
+ $CONangles=0;
+ # check to see if all top angles are present in the generate list.
+ for(my $i=0;$i<$Nangles;$i++){
+  if(exists $theta_gen_as{$angles1[$i]}){
+   $CONangles++;
+  }else{
+   $fail_log .= failed_message("angle in top, but not generated: $angles1[$i]");
+  }
+ }
+  if($CONangles == $Nangles){
+  $FAIL{'ANGLES IN TOP GENERATED'}=0;
+ }else{
+  $FAIL{'ANGLES IN TOP GENERATED'}=1;
+ }
+ if(defined  $angleEps){
+  # not checking values
+  $FAIL{'ANGLE VALUES'}=-1; 
+ }elsif($CORRECTBONDANGLES == $Nangles && $Nangles !=0){
+  $FAIL{'ANGLE VALUES'}=0;
+ }
+
+ # generate all possible dihedral angles based on bond angles
+ undef %phi_gen_as;
+ $phi_gen_N=0;
+ $#phi_gen=-1;
+ undef %improper_gen_as;
+ $improper_gen_N=0;
+ $#improper_gen=-1;
+ my ($formed,$phi1,$phi2,$phi3,$phi4,$AIJ,$AIK,$A1,$A2,$A3,$B1,$B2,$B3);
+ for(my $i=1;$i<=$NUMATOMS;$i++){
+ # go through the atoms.  For each atom, check all of the angles it is involved in, and see if we can make an angle out of it.
+  for(my $j=0;$j<$NangleWatom[$i];$j++){
+   $AIJ=$angleWatom[$i][$j];
+   $A1=$angles2[$AIJ][0];
+   $A2=$angles2[$AIJ][1];
+   $A3=$angles2[$AIJ][2];
+   for(my $k=$j+1;$k<$NangleWatom[$i];$k++){
+    if($j!=$k){
+     $AIK=$angleWatom[$i][$k];
+     $B1=$angles2[$AIK][0];
+     $B2=$angles2[$AIK][1];
+     $B3=$angles2[$AIK][2];
+     # find any dihedral angle that can be made with these two angles
+     ($formed,$phi1,$phi2,$phi3,$phi4)=identifydih($A1,$A2,$A3,$B1,$B2,$B3);
+     if($formed eq "proper" ){
+      if($phi1 < $phi4){
+       $string=sprintf("%i-%i-%i-%i", $phi1, $phi2, $phi3, $phi4);
+      }else{
+       $string=sprintf("%i-%i-%i-%i", $phi4, $phi3, $phi2, $phi1);
+      }
+      if($free eq "yes"){
+       # if the residue-atom-atom pair matches something that we defined as free, then don't generate it.
+       my $RESTMP=$GRODATA[$phi2-1][1];
+       my $A1=$GRODATA[$phi2-1][2];
+       my $A2=$GRODATA[$phi3-1][2];
+       if(exists $free_dihedrals_defs{"$RESTMP-$A1-$A2"} || exists $free_dihedrals_defs{"$RESTMP-$A2-$A1"} ){
+        next;
+       }
+      }
+      $phi_gen_as{$string} = 1;
+      $phi_gen[$phi_gen_N]="$string";
+      $phi_gen_N++;
+     }elsif($formed eq "improper"){
+      my @phit;
+      $phit[0]=$phi1;
+      $phit[1]=$phi2;
+      $phit[2]=$phi3;
+      $phit[3]=$phi4;
+      for(my $ii=0;$ii<4;$ii++){
+       $phi1=$phit[$ii];
+       for(my $jj=0;$jj<4;$jj++){
+        if($ii != $jj){
+         $phi2=$phit[$jj];
+         for(my$kk=0;$kk<4;$kk++){
+          if($kk != $jj && $kk != $ii){
+           $phi3=$phit[$kk];
+           for(my $ll=0;$ll<4;$ll++){
+            if($ll != $kk && $ll != $jj && $ll != $ii){
+             $phi4=$phit[$ll];
+             if($phi1 < $phi4){
+              $string=sprintf("%i-%i-%i-%i", $phi1, $phi2, $phi3, $phi4);
+             }else{
+              $string=sprintf("%i-%i-%i-%i", $phi4, $phi3, $phi2, $phi1);
+             }
+             $improper_gen_as{$string} = 1;
+             $improper_gen[$phi_gen_N]="$string";
+             $improper_gen_N++;
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+ return ($LN,$A[1],\@theta_gen,\%theta_gen_as,\%phi_gen_as,\@phi_gen,\%improper_gen_as,\@improper_gen);
+}
 #******************** END of core routines that check distinct directives*******************
 
 sub identifydih
