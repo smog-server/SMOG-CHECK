@@ -24,6 +24,8 @@ sub check_scale
  my ($SMOGFATAL,$smt)=checkoutput("output.smog");
  unless($SMOGFATAL == 0){
   internal_error("SMOG 2 crashed.  Fix SMOG 2 before testing smog_ions.");
+ }else{
+  clearfiles("output.smog");
  }
 
  print "Checking smog_scale-energies with all-atom model\n";

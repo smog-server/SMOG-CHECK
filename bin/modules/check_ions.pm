@@ -32,7 +32,10 @@ sub check_ions
  my ($SMOGFATAL,$smt)=checkoutput("output.smog");
  unless($SMOGFATAL == 0){
   internal_error("SMOG 2 crashed.  Fix SMOG 2 before testing smog_ions.");
+ }else{
+  clearfiles("output.smog");
  }
+
  for(my $i=0;$i<=$#PARAMS;$i++){
   print "Checking smog_ions with all-atom model: parameter set $i\n";
 
@@ -62,7 +65,10 @@ sub check_ions
  ($SMOGFATAL,$smt)=checkoutput("output.smog");
  unless($SMOGFATAL == 0){
   internal_error("SMOG 2 crashed.  Fix SMOG 2 before testing smog_ions.");
+ }else{
+  clearfiles("output.smog");
  }
+
  for(my $i=0;$i<=$#PARAMS;$i++){
   print "Checking smog_ions with C-alpha model: parameter set $i\n";
 

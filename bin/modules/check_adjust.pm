@@ -79,10 +79,10 @@ sub check_adjust
  my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
  $FAILSUM += $FAILED;
  if($FAILED !=0){
-  savefailed(2,("$newpdb","output.$tool"));
+  savefailed(2,("adjusted.pdb","$newpdb","output.$tool"));
   print "$printbuffer\n";
  }else{
-  clearfiles(("$newpdb","output.$tool"));
+  clearfiles(("adjusted.pdb","$newpdb","output.$tool"));
  }
 
  return ($FAILSUM, $printbuffer);

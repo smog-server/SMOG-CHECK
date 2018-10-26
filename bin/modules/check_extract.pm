@@ -28,6 +28,8 @@ sub check_extract
  my ($SMOGFATAL,$smt)=checkoutput("output.smog");
  unless($SMOGFATAL == 0){
   internal_error("SMOG 2 crashed.  Fix SMOG 2 before testing smog_extract.");
+ }else{
+  clearfiles("output.smog");
  }
   print "Checking smog_extract with all-atom model: no restaints\n";
   for(my $group=0;$group<3;$group++){
