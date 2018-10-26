@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 echo Detecting configured version of SMOG2
 # grab all of the environment settings used when running smog2
 export smog_exec=`which smog2`
