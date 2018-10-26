@@ -50,10 +50,10 @@ sub check_adjust
  my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
  $FAILSUM += $FAILED;
  if($FAILED !=0){
-  savefailed(1,("adjusted.pdb"));
+  savefailed(1,("adjusted.pdb","output.$tool"));
   print "$printbuffer\n";
  }else{
-  clearfiles(("adjusted.pdb"));
+  clearfiles(("adjusted.pdb","output.$tool"));
  }
 
  print "Checking smog_adjustPDB with user-specified file name.\n";
@@ -79,10 +79,10 @@ sub check_adjust
  my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
  $FAILSUM += $FAILED;
  if($FAILED !=0){
-  savefailed(2,("$newpdb"));
+  savefailed(2,("$newpdb","output.$tool"));
   print "$printbuffer\n";
  }else{
-  clearfiles(("$newpdb"));
+  clearfiles(("$newpdb","output.$tool"));
  }
 
  return ($FAILSUM, $printbuffer);

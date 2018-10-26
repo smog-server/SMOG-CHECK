@@ -63,7 +63,6 @@ sub check_extract
     print "$printbuffer\n";
    }else{
     clearfiles(("output.$tool","extracted.top","extracted.gro","atomindex.map"));
-    `rm output.$tool extracted.top extracted.gro`;
    }
   } 
 

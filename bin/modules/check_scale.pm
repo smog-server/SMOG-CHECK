@@ -38,12 +38,10 @@ sub check_scale
  ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
  $FAILSUM += $FAILED;
  if($FAILED !=0){
-  `mv output.$tool FAILED.tools/output.$tool.resnonst.test1`;
-  `mv extracted.top FAILED.tools/smog.ions.top.resnonst.test1`;
-  `mv extracted.gro FAILED.tools/smog.ions.gro.resnonst.test1`;
+  savefailed(1,("output.$tool","smog.rescaled.top"));
   print "$printbuffer\n";
  }else{
-  `rm output.$tool extracted.top extracted.gro`;
+  clearfiles(("output.$tool","smog.rescaled.top"));
  }
  return ($FAILSUM, $printbuffer);
 

@@ -72,6 +72,7 @@ my $TESTNUM=0;
 # 	check correct file names
 #
 
+($FAILED,$message,$TESTNUM)=check_scale($EXEC_SCALE,$PDB_DIR,$TESTNUM);
 print "\nTesting smog_tablegen\n";
 ($FAILED,$message,$TESTNUM)=check_table($EXEC_TABLE,$PDB_DIR,$TESTNUM);
 if($FAILED >0){$FAILSUM++};
