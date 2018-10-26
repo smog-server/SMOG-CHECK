@@ -48,7 +48,7 @@ sub check_extract
     clearfiles(("output.$tool","extracted.top","extracted.gro","atomindex.map"));
    }
   } 
-  clearfiles(("AA.tmp.top","AA.tmp.gro"));
+  clearfiles(("AA.tmp.top","AA.tmp.gro","AA.tmp.ndx","AA.tmp.contacts"));
 
   print "Checking smog_extract with all-atom model: no restaints: non-standard fields\n";
   for(my $group=0;$group<2;$group++){

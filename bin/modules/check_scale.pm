@@ -43,7 +43,7 @@ sub check_scale
   savefailed(1,("output.$tool","smog.rescaled.top"));
   print "$printbuffer\n";
  }else{
-  clearfiles(("output.$tool","smog.rescaled.top"));
+  clearfiles(("output.$tool","smog.rescaled.top","AA.tmp.contacts" , "AA.tmp.gro","AA.tmp.ndx", "AA.tmp.top"));
  }
  return ($FAILSUM, $printbuffer);
 
