@@ -16,7 +16,7 @@ sub check_ions
  my $FATAL;
  my $UNINIT;
  my @FAILLIST = ('NON-ZERO EXIT','UNINITIALIZED VARIABLES','OUTPUT GRO NAME','OUTPUT TOP NAME');
- my $FAILED;
+ my $FAILSUM=0;
  my $printbuffer;
  my $tool="ions";
 # init arrays of things to check
@@ -46,8 +46,15 @@ sub check_ions
    $FAIL{"UNINITIALIZED VARIABLES"}=$UNINIT;
 
   ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
-  print "$printbuffer\n";
+  $FAILSUM += $FAILED;
+  if($FAILED !=0){
+   savefailed("AA.$i",("output.$tool","smog.ions.top","smog.ions.gro"));
+   print "$printbuffer\n";
+  }else{
+   clearfiles(("output.$tool","smog.ions.top","smog.ions.gro"));
+  }
  }
+ clearfiles(("AA.tmp.contacts", "AA.tmp.contacts.CG", "AA.tmp.gro" , "AA.tmp.ndx" , "AA.tmp.top"));
 
 
 # perform checks for CA model protein 
@@ -67,10 +74,17 @@ sub check_ions
    if(-e "smog.ions.gro"){$FAIL{"OUTPUT GRO NAME"}=0;}
 
   ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
-  print "$printbuffer\n";
+  $FAILSUM += $FAILED;
+  if($FAILED !=0){
+   savefailed("CA.$i",("output.$tool","smog.ions.top","smog.ions.gro"));
+   print "$printbuffer\n";
+  }else{
+   clearfiles(("output.$tool","smog.ions.top","smog.ions.gro"));
+  }
  }
+ clearfiles(("CA.tmp.contacts", "CA.tmp.contacts.CG", "CA.tmp.gro" , "CA.tmp.ndx" , "CA.tmp.top"));
  
- return ($FAILED, $printbuffer);
+ return ($FAILSUM, $printbuffer);
 
 }
 

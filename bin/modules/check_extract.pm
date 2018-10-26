@@ -13,6 +13,7 @@ sub check_extract
  my $MESSAGE="";
  my %FAIL;
  my $FAILED;
+ my $FAILSUM=0;
  my $FATAL;
  my $UNINIT;
  my $printbuffer;
@@ -37,8 +38,15 @@ sub check_extract
    ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
 
    ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
-   print "$printbuffer\n";
+   $FAILSUM += $FAILED;
+   if($FAILED !=0){
+    savefailed("AA.nores.$group",("output.$tool","extracted.top","extracted.gro","atomindex.map", "restrained.map"));
+    print "$printbuffer\n";
+   }else{
+    clearfiles(("output.$tool","extracted.top","extracted.gro","atomindex.map", "restrained.map"));
+   }
   } 
+  clearfiles(("AA.tmp.top","AA.tmp.gro"));
 
   print "Checking smog_extract with all-atom model: no restaints: non-standard fields\n";
   for(my $group=0;$group<2;$group++){
@@ -49,7 +57,16 @@ sub check_extract
    ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
 
    ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
-   print "$printbuffer\n";
+   $FAILSUM += $FAILED;
+   if($FAILED !=0){
+    `mv output.$tool FAILED.tools/output.$tool.noresnonst.test$group`;
+    `mv extracted.top FAILED.tools/extracted.top.noresnonst.test$group`;
+    `mv extracted.gro FAILED.tools/extracted.gro.noresnonst.test$group`;
+    `mv atomindex.map FAILED.tools/atomindex.map.resnonst.test$group`;
+    print "$printbuffer\n";
+   }else{
+    `rm output.$tool extracted.top extracted.gro`;
+   }
   } 
 
   print "Checking smog_extract with all-atom model: restaints: non-standard fields\n";
@@ -61,10 +78,20 @@ sub check_extract
    ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
 
    ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
-   print "$printbuffer\n";
+   $FAILSUM += $FAILED;
+   if($FAILED !=0){
+    `mv output.$tool FAILED.tools/output.$tool.resnonst.test$group`;
+    `mv extracted.top FAILED.tools/extracted.top.resnonst.test$group`;
+    `mv extracted.gro FAILED.tools/extracted.gro.resnonst.test$group`;
+    `mv atomindex.map FAILED.tools/atomindex.map.resnonst.test$group`;
+    `mv restrained.map FAILED.tools/restrained.map.resnonst.test$group`;
+    print "$printbuffer\n";
+   }else{
+    `rm output.$tool extracted.top extracted.gro`;
+   }
   } 
 
- return ($FAILED, $printbuffer);
+ return ($FAILSUM, $printbuffer);
 
 }
 

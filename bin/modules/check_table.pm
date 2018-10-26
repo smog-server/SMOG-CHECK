@@ -25,10 +25,10 @@ sub check_table
  my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
  $FAILSUM += $FAILED;
  if($FAILED !=0){
-  `mv table.xvg FAILED.tools/table.test1.xvg`;
+  savefailed(1,("table.xvg"));
   print "$printbuffer\n";
  }else{
-  `rm table.xvg`;
+  clearfiles(("table.xvg"));
  }
 
  %FAIL=resettests(\%FAIL,\@FAILLIST);
@@ -38,10 +38,10 @@ sub check_table
  $FAIL{"CORRECT VALUES"}=compare_table("table.2.xvg","share/refs/table.2.xvg");
  my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
  if($FAILED !=0){
-  `mv table.2.xvg FAILED.tools/table.test2.xvg`;
+  savefailed(2,("table.2.xvg"));
   print "$printbuffer\n";
  }else{
-  `rm table.2.xvg`;
+  clearfiles(("table.2.xvg"));
  }
 
  $FAILSUM += $FAILED;

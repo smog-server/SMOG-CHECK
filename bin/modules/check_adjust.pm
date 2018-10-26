@@ -13,6 +13,7 @@ sub check_adjust
  my $MESSAGE="";
  my %FAIL;
  my $FAILED;
+ my $FAILSUM=0;
  my $UNINIT;
  my $LINESorig=0;
  my $origpdb="$pdbdir/3PTA.preadjust.pdb";
@@ -47,7 +48,14 @@ sub check_adjust
   $FAIL{"FILE LENGTH"}=0;
  }
  my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
- print "$printbuffer\n";
+ $FAILSUM += $FAILED;
+ if($FAILED !=0){
+  savefailed(1,("adjusted.pdb"));
+  print "$printbuffer\n";
+ }else{
+  clearfiles(("adjusted.pdb"));
+ }
+
  print "Checking smog_adjustPDB with user-specified file name.\n";
  %FAIL=resettests(\%FAIL,\@FAILLIST);
  if(-e "$newpdb"){
@@ -69,9 +77,15 @@ sub check_adjust
   $FAIL{"FILE LENGTH"}=0;
  }
  my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
- print "$printbuffer\n";
- 
- return ($FAILED, $printbuffer);
+ $FAILSUM += $FAILED;
+ if($FAILED !=0){
+  savefailed(2,("$newpdb"));
+  print "$printbuffer\n";
+ }else{
+  clearfiles(("$newpdb"));
+ }
+
+ return ($FAILSUM, $printbuffer);
 
 }
 

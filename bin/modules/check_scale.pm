@@ -13,6 +13,7 @@ sub check_scale
  my $MESSAGE="";
  my %FAIL;
  my $FAILED;
+ my $FAILSUM=0;
  my $tool="scale";
  my $printbuffer="";
  my @FAILLIST = ('NON-ZERO EXIT','UNINITIALIZED VARIABLES');
@@ -35,8 +36,16 @@ sub check_scale
 #check with different output names
 #verify that if 
  ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
- print "$printbuffer\n";
- return ($FAILED, $printbuffer);
+ $FAILSUM += $FAILED;
+ if($FAILED !=0){
+  `mv output.$tool FAILED.tools/output.$tool.resnonst.test1`;
+  `mv extracted.top FAILED.tools/smog.ions.top.resnonst.test1`;
+  `mv extracted.gro FAILED.tools/smog.ions.gro.resnonst.test1`;
+  print "$printbuffer\n";
+ }else{
+  `rm output.$tool extracted.top extracted.gro`;
+ }
+ return ($FAILSUM, $printbuffer);
 
 }
 
