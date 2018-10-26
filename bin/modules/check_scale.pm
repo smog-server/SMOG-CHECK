@@ -28,7 +28,7 @@ sub check_scale
   clearfiles("output.smog");
  }
 
- print "Checking smog_scale-energies with all-atom model\n";
+ print "\tChecking smog_scale-energies with all-atom model\n";
 
  %FAIL=resettests(\%FAIL,\@FAILLIST);
  `$exec -f AA.tmp.top -n share/PDB.files/sample.AA.ndx -rc 1.5 -rd 1.2 < $pdbdir/in.groups &> output.$tool`;

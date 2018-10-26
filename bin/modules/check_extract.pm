@@ -31,7 +31,7 @@ sub check_extract
  }else{
   clearfiles("output.smog");
  }
-  print "Checking smog_extract with all-atom model: no restaints\n";
+  print "\tChecking smog_extract with all-atom model: no restaints\n";
   for(my $group=0;$group<3;$group++){
 
    %FAIL=resettests(\%FAIL,\@FAILLIST);
@@ -50,7 +50,7 @@ sub check_extract
   } 
   clearfiles(("AA.tmp.top","AA.tmp.gro","AA.tmp.ndx","AA.tmp.contacts"));
 
-  print "Checking smog_extract with all-atom model: no restaints: non-standard fields\n";
+  print "\tChecking smog_extract with all-atom model: no restaints: non-standard fields\n";
   for(my $group=0;$group<2;$group++){
 
    %FAIL=resettests(\%FAIL,\@FAILLIST);
@@ -68,7 +68,7 @@ sub check_extract
    }
   } 
 
-  print "Checking smog_extract with all-atom model: restaints: non-standard fields\n";
+  print "\tChecking smog_extract with all-atom model: restaints: non-standard fields\n";
   for(my $group=0;$group<2;$group++){
 
    %FAIL=resettests(\%FAIL,\@FAILLIST);

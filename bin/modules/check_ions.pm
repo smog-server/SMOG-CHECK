@@ -37,7 +37,7 @@ sub check_ions
  }
 
  for(my $i=0;$i<=$#PARAMS;$i++){
-  print "Checking smog_ions with all-atom model: parameter set $i\n";
+  print "\tChecking smog_ions with all-atom model: parameter set $i\n";
 
   %FAIL=resettests(\%FAIL,\@FAILLIST);
 
@@ -70,7 +70,7 @@ sub check_ions
  }
 
  for(my $i=0;$i<=$#PARAMS;$i++){
-  print "Checking smog_ions with C-alpha model: parameter set $i\n";
+  print "\tChecking smog_ions with C-alpha model: parameter set $i\n";
 
   %FAIL=resettests(\%FAIL,\@FAILLIST);
 

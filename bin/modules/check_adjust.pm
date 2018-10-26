@@ -26,7 +26,7 @@ sub check_adjust
  my @FAILLIST = ('NON-ZERO EXIT','UNINITIALIZED VARIABLES','OUTPUT NAME','FILE LENGTH');
 
 
- print "Checking smog_adjustPDB with default naming.\n";
+ print "\tChecking smog_adjustPDB with default naming.\n";
  %FAIL=resettests(\%FAIL,\@FAILLIST);
 
  if(-e "adjusted.pdb"){
@@ -56,7 +56,7 @@ sub check_adjust
   clearfiles(("adjusted.pdb","output.$tool"));
  }
 
- print "Checking smog_adjustPDB with user-specified file name.\n";
+ print "\tChecking smog_adjustPDB with user-specified file name.\n";
  %FAIL=resettests(\%FAIL,\@FAILLIST);
  if(-e "$newpdb"){
   `rm $newpdb`;

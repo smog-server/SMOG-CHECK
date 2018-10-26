@@ -101,13 +101,13 @@ sub failsum
   $FAILED=1;
   $printbuffer = sprintf ("\tFATAL ERROR ENCOUNTERED\n");
  }
- print "\ntest results\n";
- print "\t passed : $NPASSED\n";
+ print "\ttest results\n";
+ print "\tpassed : $NPASSED\n";
  if($NFAILED != 0){
   
- print "\t failed : $NFAILED\n";
+ print "\tfailed : $NFAILED\n";
  }
- print "\t N/A    : $NNA\n";
+ print "\tN/A    : $NNA\n";
 
  return ($FAILED,$printbuffer);
 
