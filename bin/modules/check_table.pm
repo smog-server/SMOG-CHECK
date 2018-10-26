@@ -23,6 +23,7 @@ sub check_table
  $FAIL{"CORRECT VALUES"}=compare_table("table.xvg","share/refs/table_def.xvg");
  my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
 
+ %FAIL=resettests(\%FAIL,\@FAILLIST);
  print "Checking custom table\n"; 
  `$exec -M 10 -n 6 -ic 150 -tl 3 -sd 0.8 -sc 1.2 -table table.2.xvg &> output.$tool`;
  ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");

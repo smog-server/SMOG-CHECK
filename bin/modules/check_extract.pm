@@ -26,7 +26,7 @@ sub check_extract
  `smog2 -i $pdbdir/tRNA.pdb -AA -dname AA.tmp > output.smog`;
  my ($SMOGFATAL,$smt)=checkoutput("output.smog");
  unless($SMOGFATAL == 0){
-  internal_error("SMOG 2 crashed.  Fix SMOG 2 before testing smog_ions.");
+  internal_error("SMOG 2 crashed.  Fix SMOG 2 before testing smog_extract.");
  }
   print "Checking smog_extract with all-atom model: no restaints\n";
   for(my $group=0;$group<3;$group++){
@@ -63,9 +63,6 @@ sub check_extract
    ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
    print "$printbuffer\n";
   } 
-
-
-
 
  return ($FAILED, $printbuffer);
 

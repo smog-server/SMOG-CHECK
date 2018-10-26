@@ -25,20 +25,17 @@ sub check_scale
   internal_error("SMOG 2 crashed.  Fix SMOG 2 before testing smog_ions.");
  }
 
-  print "Checking smog_scale-energies with all-atom model\n";
+ print "Checking smog_scale-energies with all-atom model\n";
 
-  %FAIL=resettests(\%FAIL,\@FAILLIST);
-   `$exec -f AA.tmp.top -n share/PDB.files/sample.AA.ndx -rc 1.5 -rd 1.2 < $pdbdir/in.groups &> output.$tool`;
-   ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
-
+ %FAIL=resettests(\%FAIL,\@FAILLIST);
+ `$exec -f AA.tmp.top -n share/PDB.files/sample.AA.ndx -rc 1.5 -rd 1.2 < $pdbdir/in.groups &> output.$tool`;
+ ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
 
 ## add checks here
 #check with different output names
 #verify that if 
-
-   ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
-   print "$printbuffer\n";
-
+ ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
+ print "$printbuffer\n";
  return ($FAILED, $printbuffer);
 
 }
