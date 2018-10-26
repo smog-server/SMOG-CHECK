@@ -5,7 +5,7 @@ use Exporter;
 our $PDB_DIR;
 our @ISA = 'Exporter';
 our @EXPORT =
-qw(internal_error smogcheck_error failed_message failsum checkoutput filediff resettests compare_table timediff);
+qw(internal_error smogcheck_error savefailed clearfiles failed_message failsum checkoutput filediff resettests compare_table timediff);
 
 sub internal_error
 {
@@ -32,6 +32,28 @@ sub failed_message
  chomp($MESSAGE);
  $MESSAGE=sprintf ("FAILED TEST: %s\n\n", $MESSAGE);
  return $MESSAGE;
+}
+
+sub savefailed
+{
+ my ($suffix,@A)=@_;
+ foreach my $name (@A)
+ {
+  if(-e $name){
+   `mv $name FAILED.tools/$name.$suffix`;
+  }
+ }
+}
+
+sub clearfiles
+{
+ my (@A)=@_;
+ foreach my $name (@A)
+ {
+  if(-e $name){
+   `rm $name`;
+  }
+ }
 }
 
 sub failsum

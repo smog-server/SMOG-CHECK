@@ -13,6 +13,7 @@ sub check_scale
  my $MESSAGE="";
  my %FAIL;
  my $FAILED;
+ my $FAILSUM=0;
  my $tool="scale";
  my $printbuffer="";
  my @FAILLIST = ('NON-ZERO EXIT','UNINITIALIZED VARIABLES');
@@ -23,23 +24,28 @@ sub check_scale
  my ($SMOGFATAL,$smt)=checkoutput("output.smog");
  unless($SMOGFATAL == 0){
   internal_error("SMOG 2 crashed.  Fix SMOG 2 before testing smog_ions.");
+ }else{
+  clearfiles("output.smog");
  }
 
-  print "Checking smog_scale-energies with all-atom model\n";
+ print "Checking smog_scale-energies with all-atom model\n";
 
-  %FAIL=resettests(\%FAIL,\@FAILLIST);
-   `$exec -f AA.tmp.top -n share/PDB.files/sample.AA.ndx -rc 1.5 -rd 1.2 < $pdbdir/in.groups &> output.$tool`;
-   ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
-
+ %FAIL=resettests(\%FAIL,\@FAILLIST);
+ `$exec -f AA.tmp.top -n share/PDB.files/sample.AA.ndx -rc 1.5 -rd 1.2 < $pdbdir/in.groups &> output.$tool`;
+ ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
 
 ## add checks here
 #check with different output names
 #verify that if 
-
-   ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
-   print "$printbuffer\n";
-
- return ($FAILED, $printbuffer);
+ ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
+ $FAILSUM += $FAILED;
+ if($FAILED !=0){
+  savefailed(1,("output.$tool","smog.rescaled.top"));
+  print "$printbuffer\n";
+ }else{
+  clearfiles(("output.$tool","smog.rescaled.top","AA.tmp.contacts" , "AA.tmp.gro","AA.tmp.ndx", "AA.tmp.top"));
+ }
+ return ($FAILSUM, $printbuffer);
 
 }
 

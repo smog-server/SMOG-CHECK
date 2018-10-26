@@ -1,3 +1,15 @@
+1A01-AMP AA default
+1A01-AMP AA default-gaussian
+1A01-ADP AA default
+1A01-ADP AA default-gaussian
+1A01-ATP AA default
+1A01-ATP AA default-gaussian
+1A01-ADP+RNA AA default
+1A01-ADP+RNA AA default-gaussian
+2FP4-GDP AA default
+2FP4-GDP AA default-gaussian
+2FP4-GTP AA default
+2FP4-GTP AA default-gaussian
 DNA.terminal AA	default-gaussian 
 DNA.terminal.BMG AA default 
 1AKEapo_v2 AA default-gaussian 
@@ -19,18 +31,23 @@ DNA.terminal AA shadow 5.0 1.4 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0 0.2 
 2ci2_v2 AA default-userC
 2ci2_v2 AA default-gaussian-userC
 2ci2_v2 CA default
+2ci2_v2.CB AA-match shadow-match 10.0 2.0
+1AKEapo_v2.CB AA-match shadow-match 10.0 2.0
+3IZH_v2.CB AA-match shadow-match 10.0 2.0
 1AKEapo_v2 AA shadow-free 5.0 1.4 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0 0.2 -1 1E-6 3E-9 1.0 
 2ci2_v2 AA cutoff 5.0 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0 0.2 -1 1E-6 3E-9 1.0 
 2ci2_v2 AA shadow 5.0 1.4 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0 0.2 -1 1E-6 3E-9 1.0 
 2ci2_v2 CA cutoff 5.0 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0 0.2 -1 1E-6 3E-9 1.0 
 2ci2_v2 CA shadow 5.0 1.4 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0 0.2 -1 1E-6 3E-9 1.0 
+4gvy AA default 
+4gvy AA default-gaussian
 3IZH_v2 AA default
 3IZH_v2 CA default
 3IZH_v2 AA cutoff 5.0 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0 0.2 -1 1E-6 3E-9 1.0 
 3IZH_v2 AA shadow 5.0 1.4 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0 0.2 -1 1E-6 3E-9 1.0 
 3IZH_v2 CA cutoff 5.0 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0 0.2 -1 1E-6 3E-9 1.0 
 3IZH_v2 CA shadow 5.0 1.4 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0 0.2 -1 1E-6 3E-9 1.0 
-terminaltest AA default
+terminaltest.BOND AA default
 terminaltest CA default
 terminaltest AA cutoff 5.0 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0 0.2 -1 1E-6 3E-9 1.0 
 terminaltest AA shadow 5.0 1.4 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0 0.2 -1 1E-6 3E-9 1.0 

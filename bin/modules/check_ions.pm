@@ -16,7 +16,7 @@ sub check_ions
  my $FATAL;
  my $UNINIT;
  my @FAILLIST = ('NON-ZERO EXIT','UNINITIALIZED VARIABLES','OUTPUT GRO NAME','OUTPUT TOP NAME');
- my $FAILED;
+ my $FAILSUM=0;
  my $printbuffer;
  my $tool="ions";
 # init arrays of things to check
@@ -32,7 +32,10 @@ sub check_ions
  my ($SMOGFATAL,$smt)=checkoutput("output.smog");
  unless($SMOGFATAL == 0){
   internal_error("SMOG 2 crashed.  Fix SMOG 2 before testing smog_ions.");
+ }else{
+  clearfiles("output.smog");
  }
+
  for(my $i=0;$i<=$#PARAMS;$i++){
   print "Checking smog_ions with all-atom model: parameter set $i\n";
 
@@ -46,8 +49,15 @@ sub check_ions
    $FAIL{"UNINITIALIZED VARIABLES"}=$UNINIT;
 
   ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
-  print "$printbuffer\n";
+  $FAILSUM += $FAILED;
+  if($FAILED !=0){
+   savefailed("AA.$i",("output.$tool","smog.ions.top","smog.ions.gro"));
+   print "$printbuffer\n";
+  }else{
+   clearfiles(("output.$tool","smog.ions.top","smog.ions.gro"));
+  }
  }
+ clearfiles(("AA.tmp.contacts", "AA.tmp.contacts.CG", "AA.tmp.gro" , "AA.tmp.ndx" , "AA.tmp.top"));
 
 
 # perform checks for CA model protein 
@@ -55,7 +65,10 @@ sub check_ions
  ($SMOGFATAL,$smt)=checkoutput("output.smog");
  unless($SMOGFATAL == 0){
   internal_error("SMOG 2 crashed.  Fix SMOG 2 before testing smog_ions.");
+ }else{
+  clearfiles("output.smog");
  }
+
  for(my $i=0;$i<=$#PARAMS;$i++){
   print "Checking smog_ions with C-alpha model: parameter set $i\n";
 
@@ -67,10 +80,17 @@ sub check_ions
    if(-e "smog.ions.gro"){$FAIL{"OUTPUT GRO NAME"}=0;}
 
   ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
-  print "$printbuffer\n";
+  $FAILSUM += $FAILED;
+  if($FAILED !=0){
+   savefailed("CA.$i",("output.$tool","smog.ions.top","smog.ions.gro"));
+   print "$printbuffer\n";
+  }else{
+   clearfiles(("output.$tool","smog.ions.top","smog.ions.gro"));
+  }
  }
+ clearfiles(("CA.tmp.contacts", "CA.tmp.contacts.CG", "CA.tmp.gro" , "CA.tmp.ndx" , "CA.tmp.top"));
  
- return ($FAILED, $printbuffer);
+ return ($FAILSUM, $printbuffer);
 
 }
 

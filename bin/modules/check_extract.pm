@@ -13,6 +13,7 @@ sub check_extract
  my $MESSAGE="";
  my %FAIL;
  my $FAILED;
+ my $FAILSUM=0;
  my $FATAL;
  my $UNINIT;
  my $printbuffer;
@@ -26,7 +27,9 @@ sub check_extract
  `smog2 -i $pdbdir/tRNA.pdb -AA -dname AA.tmp > output.smog`;
  my ($SMOGFATAL,$smt)=checkoutput("output.smog");
  unless($SMOGFATAL == 0){
-  internal_error("SMOG 2 crashed.  Fix SMOG 2 before testing smog_ions.");
+  internal_error("SMOG 2 crashed.  Fix SMOG 2 before testing smog_extract.");
+ }else{
+  clearfiles("output.smog");
  }
   print "Checking smog_extract with all-atom model: no restaints\n";
   for(my $group=0;$group<3;$group++){
@@ -37,8 +40,15 @@ sub check_extract
    ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
 
    ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
-   print "$printbuffer\n";
+   $FAILSUM += $FAILED;
+   if($FAILED !=0){
+    savefailed("AA.nores.$group",("output.$tool","extracted.top","extracted.gro","atomindex.map"));
+    print "$printbuffer\n";
+   }else{
+    clearfiles(("output.$tool","extracted.top","extracted.gro","atomindex.map"));
+   }
   } 
+  clearfiles(("AA.tmp.top","AA.tmp.gro","AA.tmp.ndx","AA.tmp.contacts"));
 
   print "Checking smog_extract with all-atom model: no restaints: non-standard fields\n";
   for(my $group=0;$group<2;$group++){
@@ -49,7 +59,13 @@ sub check_extract
    ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
 
    ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
-   print "$printbuffer\n";
+   $FAILSUM += $FAILED;
+   if($FAILED !=0){
+    savefailed("AA.nores.nonstandard.$group",("output.$tool","extracted.top","extracted.gro","atomindex.map"));
+    print "$printbuffer\n";
+   }else{
+    clearfiles(("output.$tool","extracted.top","extracted.gro","atomindex.map"));
+   }
   } 
 
   print "Checking smog_extract with all-atom model: restaints: non-standard fields\n";
@@ -61,13 +77,16 @@ sub check_extract
    ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
 
    ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
-   print "$printbuffer\n";
+   $FAILSUM += $FAILED;
+   if($FAILED !=0){
+    savefailed("AA.res.nonstandard.$group",("output.$tool","extracted.top","extracted.gro","atomindex.map","restrained.map"));
+    print "$printbuffer\n";
+   }else{
+    clearfiles(("output.$tool","extracted.top","extracted.gro","atomindex.map","restrained.map"));
+   }
   } 
 
-
-
-
- return ($FAILED, $printbuffer);
+ return ($FAILSUM, $printbuffer);
 
 }
 

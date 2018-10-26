@@ -8,9 +8,7 @@ use check_ions;
 use check_scale;
 use check_extract;
 
-# This is the main script that runs SMOG2 and then checks to see if the generated files are correct.
-# This is intended to be a brute-force evaluation of everything that should appear. Since this is
-# a testing script, it is not designed to be efficient, but to be thorough, and foolproof...
+# This is the main script that runs SMOG2 tools and then checks to see if the generated files are correct.
 print <<EOT;
 *****************************************************************************************
                                    smog-tools-check                                   
@@ -24,8 +22,6 @@ print <<EOT;
             For questions regarding this script, contact info\@smog-server.org              
 *****************************************************************************************
 EOT
-
-# rerun rend
 
 &checkForModules;
  
@@ -46,7 +42,7 @@ our $PDB_DIR="share/PDB.files";
 my $FAILED;
 my $message;
 my $FAILSUM=0;
-
+my $TESTNUM=0;
 #things to check
 #all: check for unitialized variables
 #	check that they don't crash with FATAL error.
@@ -76,21 +72,21 @@ my $FAILSUM=0;
 # 	check correct file names
 #
 
-print "Testing smog_tablegen\n";
-($FAILED,$message)=check_table($EXEC_TABLE,$PDB_DIR);
-if($FAILED eq "ALL" or $FAILED >0){$FAILSUM++};
-print "Testing smog_adjustPDB\n";
-($FAILED,$message)=check_adjust($EXEC_ADJUST,$PDB_DIR);
-if($FAILED eq "ALL" or $FAILED >0){$FAILSUM++};
-print "Testing smog_ions\n";
-($FAILED,$message)=check_ions($EXEC_IONS,$PDB_DIR);
-if($FAILED eq "ALL" or $FAILED >0){$FAILSUM++};
-print "Testing smog_extract\n";
-($FAILED,$message)=check_extract($EXEC_EXTRACT,$PDB_DIR);
-if($FAILED eq "ALL" or $FAILED >0){$FAILSUM++};
-print "Testing smog_scale-energies\n";
-($FAILED,$message)=check_scale($EXEC_SCALE,$PDB_DIR);
-if($FAILED eq "ALL" or $FAILED >0){$FAILSUM++};
+print "\nTesting smog_tablegen\n";
+($FAILED,$message,$TESTNUM)=check_table($EXEC_TABLE,$PDB_DIR,$TESTNUM);
+if($FAILED >0){$FAILSUM++};
+print "\nTesting smog_adjustPDB\n";
+($FAILED,$message,$TESTNUM)=check_adjust($EXEC_ADJUST,$PDB_DIR,$TESTNUM);
+if($FAILED >0){$FAILSUM++};
+print "\nTesting smog_ions\n";
+($FAILED,$message,$TESTNUM)=check_ions($EXEC_IONS,$PDB_DIR,$TESTNUM);
+if($FAILED >0){$FAILSUM++};
+print "\nTesting smog_extract\n";
+($FAILED,$message,$TESTNUM)=check_extract($EXEC_EXTRACT,$PDB_DIR,$TESTNUM);
+if($FAILED >0){$FAILSUM++};
+print "\nTesting smog_scale-energies\n";
+($FAILED,$message,$TESTNUM)=check_scale($EXEC_SCALE,$PDB_DIR,$TESTNUM);
+if($FAILED >0){$FAILSUM++};
 
 if($FAILSUM>0){
 	print "\n\nSOME TESTS FAILED.  SEE EARLIER MESSAGES\n\n";	
