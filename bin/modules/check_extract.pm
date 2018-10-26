@@ -40,10 +40,10 @@ sub check_extract
    ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
    $FAILSUM += $FAILED;
    if($FAILED !=0){
-    savefailed("AA.nores.$group",("output.$tool","extracted.top","extracted.gro","atomindex.map", "restrained.map"));
+    savefailed("AA.nores.$group",("output.$tool","extracted.top","extracted.gro","atomindex.map"));
     print "$printbuffer\n";
    }else{
-    clearfiles(("output.$tool","extracted.top","extracted.gro","atomindex.map", "restrained.map"));
+    clearfiles(("output.$tool","extracted.top","extracted.gro","atomindex.map"));
    }
   } 
   clearfiles(("AA.tmp.top","AA.tmp.gro"));
@@ -59,12 +59,10 @@ sub check_extract
    ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
    $FAILSUM += $FAILED;
    if($FAILED !=0){
-    `mv output.$tool FAILED.tools/output.$tool.noresnonst.test$group`;
-    `mv extracted.top FAILED.tools/extracted.top.noresnonst.test$group`;
-    `mv extracted.gro FAILED.tools/extracted.gro.noresnonst.test$group`;
-    `mv atomindex.map FAILED.tools/atomindex.map.resnonst.test$group`;
+    savefailed("AA.nores.nonstandard.$group",("output.$tool","extracted.top","extracted.gro","atomindex.map"));
     print "$printbuffer\n";
    }else{
+    clearfiles(("output.$tool","extracted.top","extracted.gro","atomindex.map"));
     `rm output.$tool extracted.top extracted.gro`;
    }
   } 
@@ -80,14 +78,10 @@ sub check_extract
    ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
    $FAILSUM += $FAILED;
    if($FAILED !=0){
-    `mv output.$tool FAILED.tools/output.$tool.resnonst.test$group`;
-    `mv extracted.top FAILED.tools/extracted.top.resnonst.test$group`;
-    `mv extracted.gro FAILED.tools/extracted.gro.resnonst.test$group`;
-    `mv atomindex.map FAILED.tools/atomindex.map.resnonst.test$group`;
-    `mv restrained.map FAILED.tools/restrained.map.resnonst.test$group`;
+    savefailed("AA.res.nonstandard.$group",("output.$tool","extracted.top","extracted.gro","atomindex.map","restrained.map"));
     print "$printbuffer\n";
    }else{
-    `rm output.$tool extracted.top extracted.gro`;
+    clearfiles(("output.$tool","extracted.top","extracted.gro","atomindex.map","restrained.map"));
    }
   } 
 
