@@ -97,3 +97,4 @@ bin/cleanup.bash
 smog-check
 README
 quick-check
+share/PDB.files/in.groups
