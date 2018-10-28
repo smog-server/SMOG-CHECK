@@ -57,6 +57,31 @@ sub check_ions
    clearfiles(("output.$tool","smog.ions.top","smog.ions.gro"));
   }
  }
+
+# verify that smog_ion works with the -t flag
+ my $tdir="share/templates/SBM_AA";
+
+ foreach my $IONNAME ("K","CL","MG"){
+ print "\tChecking smog_ions with all-atom model and $IONNAME: parameter set read from $tdir\n";
+
+  %FAIL=resettests(\%FAIL,\@FAILLIST);
+
+   `$exec -f AA.tmp.top -g AA.tmp.gro -ionnm $IONNAME -ionn 100 -t $tdir  &> output.$tool`;
+   if(-e "smog.ions.top"){$FAIL{"OUTPUT TOP NAME"}=0;}
+   if(-e "smog.ions.gro"){$FAIL{"OUTPUT GRO NAME"}=0;}
+   ($FATAL,$UNINIT)=checkoutput("output.$tool");
+   $FAIL{"NON-ZERO EXIT"}=$FATAL;
+   $FAIL{"UNINITIALIZED VARIABLES"}=$UNINIT;
+
+  ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
+  $FAILSUM += $FAILED;
+  if($FAILED !=0){
+   savefailed("AA.$IONNAME",("output.$tool","smog.ions.top","smog.ions.gro"));
+   print "$printbuffer\n";
+  }else{
+   clearfiles(("output.$tool","smog.ions.top","smog.ions.gro"));
+  }
+ }
  clearfiles(("AA.tmp.contacts", "AA.tmp.contacts.CG", "AA.tmp.gro" , "AA.tmp.ndx" , "AA.tmp.top"));
 
 

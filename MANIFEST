@@ -27,6 +27,7 @@ share/templates/SBM_AA/AA-whitford09.nb
 share/templates/SBM_AA/extras
 share/templates/SBM_AA/.citation
 share/templates/SBM_AA/AA-whitford09.bif
+share/templates/SBM_AA/ions.def
 share/templates/SBM_calpha/CA-clementi00.b
 share/templates/SBM_calpha/CA-clementi00.nb
 share/templates/SBM_calpha/CA-clementi00.sif
