@@ -5,7 +5,7 @@ use Exporter;
 our $PDB_DIR;
 our @ISA = 'Exporter';
 our @EXPORT =
-qw(internal_error smogcheck_error savefailed clearfiles failed_message failsum checkoutput filediff resettests compare_table timediff);
+qw(internal_error smogcheck_error savefailed clearfiles failed_message failsum checkoutput filediff resettests compare_table timediff checkrestraintfile);
 
 sub internal_error
 {
@@ -247,13 +247,24 @@ sub compare_table
 
 sub timediff
 {
-	my ($time_last)=@_;
-	my $time=time-$time_last;
-	print "$time seconds\n";
-	$time_last=time;
-	return $time_last;
+ my ($time_last)=@_;
+ my $time=time-$time_last;
+ print "$time seconds\n";
+ $time_last=time;
+ return $time_last;
 }
 
+sub checkrestraintfile
+{
+ my ($FIND,$NAME)=@_;
+ if ($FIND == 0 && -e "$NAME"){
+  return 0;
+ } 
+ if ($FIND == 1 && ! -e "$NAME"){
+  return 0;
+ } 
+ return 1;
+}
 
 return 1;
 

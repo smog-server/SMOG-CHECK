@@ -18,7 +18,7 @@ sub check_extract
  my $UNINIT;
  my $printbuffer;
  my $tool="extract";
- my @FAILLIST = ('NON-ZERO EXIT','UNINITIALIZED VARIABLES');
+ my @FAILLIST = ('NON-ZERO EXIT','UNINITIALIZED VARIABLES','EXTRA MAP FILE GENERATED');
 
 
  %FAIL=resettests(\%FAIL,\@FAILLIST);
@@ -37,7 +37,9 @@ sub check_extract
    %FAIL=resettests(\%FAIL,\@FAILLIST);
    print "\tChecking with index group $group\n";
    `echo $group | $exec -f AA.tmp.top -g AA.tmp.gro -n $pdbdir/sample.AA.ndx  &> output.$tool`;
+
    ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
+   $FAIL{"EXTRA MAP FILE GENERATED"} = checkrestraintfile(1,"restrained.map");
 
    ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
    $FAILSUM += $FAILED;
@@ -56,7 +58,9 @@ sub check_extract
    %FAIL=resettests(\%FAIL,\@FAILLIST);
    print "\tChecking with index group $group\n";
    `echo $group | $exec -f $pdbdir/large.top -g $pdbdir/large.gro -n $pdbdir/large.ndx  &> output.$tool`;
+
    ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
+   $FAIL{"EXTRA MAP FILE GENERATED"} = checkrestraintfile(1,"restrained.map");
 
    ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
    $FAILSUM += $FAILED;
@@ -74,7 +78,9 @@ sub check_extract
    %FAIL=resettests(\%FAIL,\@FAILLIST);
    print "\tChecking with index group $group\n";
    `echo $group | $exec -f $pdbdir/large.top -g $pdbdir/large.gro -n $pdbdir/large.ndx -restraints 100 &> output.$tool`;
+
    ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
+   $FAIL{"EXTRA MAP FILE GENERATED"} = checkrestraintfile(0,"restrained.map");
 
    ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
    $FAILSUM += $FAILED;

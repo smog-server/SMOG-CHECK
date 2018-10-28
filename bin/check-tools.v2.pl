@@ -72,6 +72,9 @@ my $TESTNUM=0;
 # 	check correct file names
 #
 
+print "\nTesting smog_extract\n";
+($FAILED,$message,$TESTNUM)=check_extract($EXEC_EXTRACT,$PDB_DIR,$TESTNUM);
+if($FAILED >0){$FAILSUM++};
 print "\nTesting smog_tablegen\n";
 ($FAILED,$message,$TESTNUM)=check_table($EXEC_TABLE,$PDB_DIR,$TESTNUM);
 if($FAILED >0){$FAILSUM++};
@@ -80,9 +83,6 @@ print "\nTesting smog_adjustPDB\n";
 if($FAILED >0){$FAILSUM++};
 print "\nTesting smog_ions\n";
 ($FAILED,$message,$TESTNUM)=check_ions($EXEC_IONS,$PDB_DIR,$TESTNUM);
-if($FAILED >0){$FAILSUM++};
-print "\nTesting smog_extract\n";
-($FAILED,$message,$TESTNUM)=check_extract($EXEC_EXTRACT,$PDB_DIR,$TESTNUM);
 if($FAILED >0){$FAILSUM++};
 print "\nTesting smog_scale-energies\n";
 ($FAILED,$message,$TESTNUM)=check_scale($EXEC_SCALE,$PDB_DIR,$TESTNUM);
