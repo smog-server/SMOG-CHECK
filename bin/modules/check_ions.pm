@@ -41,6 +41,7 @@ sub check_ions
  my @PARAMS = (
  ['K', '10', '1.0', '1.0', '4E-9', '3E-4'],
  ['K+', '4', '-1.1', '1.3', '4.498E-2', '1E-3'],
+ ['CL', '2', '-0.1', '1.2', '1.498E-2', '3E-3'],
  );
 
 # perform checks for AA model RNA 
@@ -57,7 +58,9 @@ sub check_ions
 
   %FAIL=resettests(\%FAIL,\@FAILLIST);
 
-   `$exec -f AA.tmp.top -g AA.tmp.gro -ionnm $PARAMS[$i][0] -ionn  $PARAMS[$i][1] -ionq $PARAMS[$i][2] -ionm $PARAMS[$i][3] -ionC12 $PARAMS[$i][4] -ionC6 $PARAMS[$i][5]   &> output.$tool`;
+  `$exec -f AA.tmp.top -g AA.tmp.gro -ionnm $PARAMS[$i][0] -ionn  $PARAMS[$i][1] -ionq $PARAMS[$i][2] -ionm $PARAMS[$i][3] -ionC12 $PARAMS[$i][4] -ionC6 $PARAMS[$i][5]   &> output.$tool`;
+  if($i>0){
+   # if not the first test, then check everything
    if(-e "smog.ions.top"){$FAIL{"OUTPUT TOP NAME"}=0;}
    if(-e "smog.ions.gro"){$FAIL{"OUTPUT GRO NAME"}=0;}
    ($FATAL,$UNINIT)=checkoutput("output.$tool");
@@ -65,14 +68,34 @@ sub check_ions
    $FAIL{"NON-ZERO EXIT"}=$FATAL;
    $FAIL{"UNINITIALIZED VARIABLES"}=$UNINIT;
    $FAIL{"CHECK TOP"}=checktopions("AA.tmp.top","smog.ions.top",$PARAMS[$i][0],$PARAMS[$i][1],$PARAMS[$i][2],$PARAMS[$i][3],$PARAMS[$i][4],$PARAMS[$i][5]);
-
-  ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
-  $FAILSUM += $FAILED;
-  if($FAILED !=0){
-   savefailed("AA.$i",("output.$tool","smog.ions.top","smog.ions.gro"));
-   print "$printbuffer\n";
+   ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
+   $FAILSUM += $FAILED;
+   if($FAILED !=0){
+    savefailed("AA.$i",("output.$tool","smog.ions.top","smog.ions.gro"));
+    print "$printbuffer\n";
+   }else{
+    clearfiles(("output.$tool","smog.ions.top","smog.ions.gro"));
+   }
   }else{
-   clearfiles(("output.$tool","smog.ions.top","smog.ions.gro"));
+   # for the first test, add a second set of ions.
+   $i=1;
+   print "\tChecking smog_ions with all-atom model: second set of ions: parameter set $i\n";
+   `$exec -f smog.ions.top -g smog.ions.gro -of smog.ions2.top -og smog.ions2.gro -ionnm $PARAMS[$i][0] -ionn  $PARAMS[$i][1] -ionq $PARAMS[$i][2] -ionm $PARAMS[$i][3] -ionC12 $PARAMS[$i][4] -ionC6 $PARAMS[$i][5]   &> output2.$tool`;
+   if(-e "smog.ions2.top"){$FAIL{"OUTPUT TOP NAME"}=0;}
+   if(-e "smog.ions2.gro"){$FAIL{"OUTPUT GRO NAME"}=0;}
+   ($FATAL,$UNINIT)=checkoutput("output.$tool");
+ 
+   $FAIL{"NON-ZERO EXIT"}=$FATAL;
+   $FAIL{"UNINITIALIZED VARIABLES"}=$UNINIT;
+   $FAIL{"CHECK TOP"}=checktopions("smog.ions.top","smog.ions2.top",$PARAMS[$i][0],$PARAMS[$i][1],$PARAMS[$i][2],$PARAMS[$i][3],$PARAMS[$i][4],$PARAMS[$i][5]);
+   ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
+   $FAILSUM += $FAILED;
+   if($FAILED !=0){
+    savefailed("AA.$i",("output.$tool","smog.ions.top","smog.ions.gro","output2.$tool","smog.ions2.top","smog.ions2.gro"));
+    print "$printbuffer\n";
+   }else{
+    clearfiles(("output.$tool","smog.ions.top","smog.ions.gro","output2.$tool","smog.ions2.top","smog.ions2.gro"));
+   }
   }
  }
 
