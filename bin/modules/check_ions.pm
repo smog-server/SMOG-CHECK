@@ -6,12 +6,12 @@ use check_common;
 our @ISA = 'Exporter';
 our @EXPORT = qw(check_ions);
 
-# in supported_directives, a value of 1 means is it required, 0 is not supported. >1 means optional
+# in supported_directives:0 = not supported. 1 = required once. 2=required (may appear more than once). 3=optional once.
 our %supported_directives = ( 'defaults' => '1',
         'atomtypes' => '1',
-        'moleculetype' => '1',
-        'nonbond_params' => '2',
-        'atoms' => '1',
+        'nonbond_params' => '3',
+        'moleculetype' => '2',
+        'atoms' => '2',
         'bonds' => '1',
         'angles' => '1',
         'dihedrals' => '1',
@@ -182,7 +182,8 @@ sub check_ions
 
 sub checktopions
 {
- my $error=11;
+ my %FOUND;
+ my $error=12;
  my ($file1,$file2,$ionnm,$ionn,$ionq,$ionm,$ionC12,$ionC6)=@_;
  my $string=loadfile($file1);
  my @D=split(/\n/,$string);
@@ -206,7 +207,10 @@ sub checktopions
   my ($LINE,$COM)=checkcomment($D[$i]);
   if(hascontent($LINE)){
    $FILE2[$N2]=$LINE;
-#  print "$FILE1[$N1]\n";
+   if(substr($LINE,0,1) eq "["){
+    my @B=split(/\s+/,$LINE);
+    $FOUND{$B[1]}++;
+   }
    $N2++;
   }
  }
@@ -310,8 +314,56 @@ sub checktopions
  if($error<0){
   internal_error("Issue in ions");
  }
+ if(checkdirectives(\%FOUND)==0){
+  $error--;
+ }
 return $error;
 }
 
+sub checkdirectives
+{
+	# compare the numbers of directives found and see if they conform.
+	my ($v1)=@_;
+	my %FOUND=%{$v1};
+	my $flag=0;
+	for my $dir(keys %supported_directives){
+
+		# do unsupported directives appear?
+		if($supported_directives{$dir} == 0){
+			if(exists $FOUND{$dir} ){
+				print "directive $dir found, but not supported\n";
+				$flag++;
+			}
+		}
+		# are required directives appearing once
+		if($supported_directives{$dir} == 1){
+			if(!exists $FOUND{$dir} || $FOUND{$dir} !=1){
+				print "directive $dir did not appear only once.  Appeared $FOUND{$dir} times\n";
+				$flag++;
+			}
+		}
+		# are required directives that can appear more than once appear at least once.
+		if($supported_directives{$dir} == 2){
+			if(!exists $FOUND{$dir} || $FOUND{$dir} <1){
+				print "directive $dir did not appear at least once.  Appeared $FOUND{$dir} times\n";
+				$flag++;
+			}
+		}
+		# does optional directives appear only once
+		if($supported_directives{$dir} == 3){
+			if(exists $FOUND{$dir} && $FOUND{$dir} !=1){
+				print "optional directive $dir did not appear only once.  Appeared $FOUND{$dir} times\n";
+				$flag++;
+			}
+		}
+
+	}
+	if($FOUND{"atoms"} != $FOUND{"moleculetype"}){
+		print "number of atoms directives does not match number of moleculetype directives\n";
+		$flag++;
+	}
+
+	return $flag;
+}
 
 return 1;
