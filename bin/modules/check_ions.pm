@@ -121,17 +121,17 @@ sub check_ions
   internal_error("Nothing read from ions.def file.")
  }
  foreach my $IONNAME (keys %idefsm){
- print "\tChecking smog_ions with all-atom model and $IONNAME: parameter set read from $tdir\n";
+  print "\tChecking smog_ions with all-atom model and $IONNAME: parameter set read from $tdir\n";
 
   %FAIL=resettests(\%FAIL,\@FAILLIST);
 
-   `$exec -f AA.tmp.top -g AA.tmp.gro -ionnm $IONNAME -ionn 100 -t $tdir  &> output.$tool`;
-   if(-e "smog.ions.top"){$FAIL{"OUTPUT TOP NAME"}=0;}
-   if(-e "smog.ions.gro"){$FAIL{"OUTPUT GRO NAME"}=0;}
-   ($FATAL,$UNINIT)=checkoutput("output.$tool");
-   $FAIL{"NON-ZERO EXIT"}=$FATAL;
-   $FAIL{"UNINITIALIZED VARIABLES"}=$UNINIT;
-   $FAIL{"CHECK TOP"}=checktopions("AA.tmp.top","smog.ions.top",$IONNAME,100,$idefsq{$IONNAME},$idefsm{$IONNAME},$idefs12{$IONNAME},$idefs6{$IONNAME});
+  `$exec -f AA.tmp.top -g AA.tmp.gro -ionnm $IONNAME -ionn 100 -t $tdir  &> output.$tool`;
+  if(-e "smog.ions.top"){$FAIL{"OUTPUT TOP NAME"}=0;}
+  if(-e "smog.ions.gro"){$FAIL{"OUTPUT GRO NAME"}=0;}
+  ($FATAL,$UNINIT)=checkoutput("output.$tool");
+  $FAIL{"NON-ZERO EXIT"}=$FATAL;
+  $FAIL{"UNINITIALIZED VARIABLES"}=$UNINIT;
+  $FAIL{"CHECK TOP"}=checktopions("AA.tmp.top","smog.ions.top",$IONNAME,100,$idefsq{$IONNAME},$idefsm{$IONNAME},$idefs12{$IONNAME},$idefs6{$IONNAME});
 
   ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
   $FAILSUM += $FAILED;
