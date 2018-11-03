@@ -131,7 +131,7 @@ sub check_ions
   ($FATAL,$UNINIT)=checkoutput("output.$tool");
   $FAIL{"NON-ZERO EXIT"}=$FATAL;
   $FAIL{"UNINITIALIZED VARIABLES"}=$UNINIT;
-  $FAIL{"CHECK TOP"}=checktopions("AA.tmp.top","smog.ions.top",$IONNAME,100,$idefsq{$IONNAME},$idefsm{$IONNAME},$idefs12{$IONNAME},$idefs6{$IONNAME});
+  $FAIL{"CHECK TOP"}=checktopions("AA.tmp.top","smog.ions.top",$IONNAME,100,$idefsq{$IONNAME},$idefsm{$IONNAME},$idefs12{$IONNAME},$idefs6{$IONNAME},"$tdir/extras");
 
   ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
   $FAILSUM += $FAILED;
@@ -183,8 +183,8 @@ sub check_ions
 sub checktopions
 {
  my %FOUND;
- my $error=12;
- my ($file1,$file2,$ionnm,$ionn,$ionq,$ionm,$ionC12,$ionC6)=@_;
+ my $error=13;
+ my ($file1,$file2,$ionnm,$ionn,$ionq,$ionm,$ionC12,$ionC6,$extras)=@_;
  my $string=loadfile($file1);
  my @D=split(/\n/,$string);
  # read in the two top files
@@ -259,7 +259,45 @@ sub checktopions
  until($FILE1[$ln1] ne $FILE2[$ln2]){
   $ln1++;
   $ln2++; 
- } 
+ }
+ 
+# check if extras exist and this ion will have a nonbonded param.  If it does, then make sure the data is present.
+ if(defined $extras && -e "$extras"){
+  open(TMP,"$extras") or internal_error("could not open $extras");
+  my $appear=0;
+  # very lazy way to see if the should be any definitions for this ion type
+  while(<TMP>){
+   my $line=$_;
+   if($line =~ $ionnm){
+    $appear++;
+   }
+  }
+  if($appear >0){
+   # should have information about this atom
+   # since extras name is defined and the file exists, we will make sure the data is ok.
+   if ($FILE2[$ln2] eq "[ nonbond_params ]"){
+    $error--;
+    $ln2++;
+   }else{
+    print "nonbond_params not found.  Expected [ nonbond_params ]: found $FILE2[$ln2]\n";
+   }
+   # read until we don't have any more nonbond_params for this ion type
+   while($FILE2[$ln2]  =~ /$ionnm/){
+    $ln2++; 
+   }
+   # resume looking for next diff 
+   until($FILE1[$ln1] ne $FILE2[$ln2] || $ln1== $N1){
+    $ln1++;
+    $ln2++; 
+   } 
+  }else{
+   # doesn't appear, omit the check
+   $error--;
+  }
+ }else{
+  $error--;
+ }
+
  # read and save FILE2 info, until the lines match again
  my @diffblock;
  my $NN=0;

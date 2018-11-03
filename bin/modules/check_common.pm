@@ -142,6 +142,8 @@ sub load_file
  if(open(FILE1,"$file1")){
   while(<FILE1>){
    $info[$I]=$_;
+   $info[$I] =~ s/\[/\[ /g;
+   $info[$I] =~ s/\]/ \]/g;
    $I++;
   }
   close(FILE1);
