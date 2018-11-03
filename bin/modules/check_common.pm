@@ -134,6 +134,23 @@ sub checkoutput
  return ($exitcode,$uninit);	
 }
 
+sub load_file
+{
+ my ($file1)=@_;
+ my @info;
+ my $I;
+ if(open(FILE1,"$file1")){
+  while(<FILE1>){
+   $info[$I]=$_;
+   $I++;
+  }
+  close(FILE1);
+  return ($I,\@info);
+ }else{
+  return (-1,1);
+ }
+}
+
 
 ###################################
 # check if two files are identical#
