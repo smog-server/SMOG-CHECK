@@ -66,24 +66,48 @@ my $TESTNUM=0;
 # 	correct ratios
 # 	same number of lines before and after 
 
-print "\nTesting smog_ions\n";
-($FAILED,$message,$TESTNUM)=check_ions($EXEC_IONS,$PDB_DIR,$TESTNUM);
-if($FAILED >0){$FAILSUM++};
-print "\nTesting smog_extract\n";
-($FAILED,$message,$TESTNUM)=check_extract($EXEC_EXTRACT,$PDB_DIR,$TESTNUM);
-if($FAILED >0){$FAILSUM++};
-print "\nTesting smog_tablegen\n";
-($FAILED,$message,$TESTNUM)=check_table($EXEC_TABLE,$PDB_DIR,$TESTNUM);
-if($FAILED >0){$FAILSUM++};
-print "\nTesting smog_adjustPDB\n";
-($FAILED,$message,$TESTNUM)=check_adjust($EXEC_ADJUST,$PDB_DIR,$TESTNUM);
-if($FAILED >0){$FAILSUM++};
-print "\nTesting smog_scale-energies\n";
-($FAILED,$message,$TESTNUM)=check_scale($EXEC_SCALE,$PDB_DIR,$TESTNUM);
-if($FAILED >0){$FAILSUM++};
-
+my $tested=0;
+my %checkthese;
+if(@ARGV>0){
+ foreach my $name(@ARGV){
+  $checkthese{$name}=0;
+ }
+}
+if(defined $checkthese{"ions"} || @ARGV==0){
+ print "\nTesting smog_ions\n";
+ ($FAILED,$message,$TESTNUM)=check_ions($EXEC_IONS,$PDB_DIR,$TESTNUM);
+ if($FAILED >0){$FAILSUM++};
+ $tested++;
+}
+if(defined $checkthese{"extract"} || @ARGV==0){
+ print "\nTesting smog_extract\n";
+ ($FAILED,$message,$TESTNUM)=check_extract($EXEC_EXTRACT,$PDB_DIR,$TESTNUM);
+ if($FAILED >0){$FAILSUM++};
+ $tested++;
+}
+if(defined $checkthese{"tablegen"} || @ARGV==0){
+ print "\nTesting smog_tablegen\n";
+ ($FAILED,$message,$TESTNUM)=check_table($EXEC_TABLE,$PDB_DIR,$TESTNUM);
+ if($FAILED >0){$FAILSUM++};
+ $tested++;
+}
+if(defined $checkthese{"adjustPDB"} || @ARGV==0){
+ print "\nTesting smog_adjustPDB\n";
+ ($FAILED,$message,$TESTNUM)=check_adjust($EXEC_ADJUST,$PDB_DIR,$TESTNUM);
+ if($FAILED >0){$FAILSUM++};
+ $tested++;
+}
+if(defined $checkthese{"scale-energies"} || @ARGV==0){
+ print "\nTesting smog_scale-energies\n";
+ ($FAILED,$message,$TESTNUM)=check_scale($EXEC_SCALE,$PDB_DIR,$TESTNUM);
+ if($FAILED >0){$FAILSUM++};
+ $tested++;
+}
 if($FAILSUM>0){
 	print "\n\nSOME TESTS FAILED.  SEE EARLIER MESSAGES\n\n";	
+	exit (1);
+}elsif($tested==0){
+	print "\n\nNo tests performed...\n\n"; 
 	exit (1);
 }else{
 	print "\n\nPassed all SMOG tool checks!\n\n"; 

@@ -44,7 +44,8 @@ sub check_adjust
  while(<NEW>){
   $LINESnew++;
  }
- if($LINESnew==$LINESorig){
+ if($LINESnew==$LINESorig+1){
+  # +1 because a comment is added at the top
   $FAIL{"FILE LENGTH"}=0;
  }
  my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);

@@ -30,5 +30,5 @@ export PRECISION=10000
 
 bin/cleanup.bash
 mkdir FAILED.tools
-$perl4smog bin/check-tools.v2.pl
+$perl4smog bin/check-tools.v2.pl "$@"
 
