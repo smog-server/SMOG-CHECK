@@ -58,6 +58,12 @@ To check that the smog tools are working properly, use:
 smog-tool-check is not very comprehensive, but it will 
 ensure basic functionality of the tools.
 
+If you would like to only test some tools, then indicate
+the tools to test on the command line.  For example, if
+you want to test smog_ions, only, then call
+
+./smog-tool-check ions
+
 These scripts have been tested on Linux and OSX 
 platforms. 
 
