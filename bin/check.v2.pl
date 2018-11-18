@@ -2061,6 +2061,7 @@ sub checkdihedrals
  my $accounted1=0;
  my $CORRECTDIHEDRALANGLES=0;
  my $CORRECTDIHEDRALWEIGHTS=0;
+ my $numberofdihedrals=0;
  $#ED_T = -1;
  $#EDrig_T = -1;
  my $LINE=$topdata[$LN];$LN++;
@@ -2114,6 +2115,7 @@ sub checkdihedrals
   ##if dihedral is type 1, then save the information, so we can make sure the next is n=3
   if(exists $A[7]){
    if($A[7] == 1){
+    $numberofdihedrals++;
     $LAST_W=$A[6];
     $string_last=$string;
     $DANGLE_LAST=$A[5];
@@ -2145,8 +2147,11 @@ sub checkdihedrals
      # if not matching based on sif, then calculate the dihedral angle
      $dihval=getdihangle(\@A);
     }
-    if(abs($A[5]- $dihval) > 1){
-     $fail_log .= failed_message("dihedral has incorrect angle. Expected $dihval. Found:\n\t$LINE");
+    my $diff=dihdelta($A[5],$dihval);
+    if($diff > 2.5){
+     # this is a somewhat generous threshold for comparing angles.  However, the reason is that 
+     # this script uses the gro file, whereas the .top was based on the pdb, which has higher precision.
+     $fail_log .= failed_message("dihedral has incorrect angle. Expected $dihval. Found:\n\t$LINE\n(diff=$diff)");
     }else{
      $CORRECTDIHEDRALANGLES++;
     }	
@@ -2154,6 +2159,7 @@ sub checkdihedrals
    $LAST_N=$A[7];
    if($A[7] == 3 && ($string eq $string_last)){
     $S3_match++; 
+    # we don't check anything at this point, so that we can compare n=1 and n=3 relative to each other 
    }
    if($A[4] == 1 && $A[7] == 1 ){
     my $F;
@@ -2217,6 +2223,20 @@ sub checkdihedrals
     $CORIMP--;
    }else{
     $fail_log .= failed_message("improper dihedral has wrong weight\n\t$LINE");
+   }
+  }
+
+  if($A[4] == 2){
+   $numberofdihedrals++;
+   # for some reason, 0 is different for impropers
+   my $dihval=getdihangle(\@A)+180;
+   my $diff=dihdelta($A[5],$dihval);
+   if($diff > 2.5){
+    # this is a somewhat generous threshold for comparing angles.  However, the reason is that 
+    # this script uses the gro file, whereas the .top was based on the pdb, which has higher precision.
+    $fail_log .= failed_message("dihedral has incorrect angle. Expected $dihval. Found:\n\t$LINE\n(diff=$diff)");
+   }else{
+    $CORRECTDIHEDRALANGLES++;
    }
   }
 
@@ -2308,7 +2328,7 @@ sub checkdihedrals
  if($matchingpairs == $accounted1){
   $FAIL{'1-3 DIHEDRAL PAIRS'}=0;
  }
- if($CORRECTDIHEDRALANGLES == $accounted1){
+ if($CORRECTDIHEDRALANGLES == $numberofdihedrals && $numberofdihedrals !=0){
   $FAIL{'DIHEDRAL ANGLES'}=0;
  }
  if(defined  $dihmatch){
@@ -2462,6 +2482,19 @@ sub checkdihedrals
    $FAIL{'ALL POSSIBLE MATCHED DIHEDRALS PRESENT'}=-1;
  }
  return ($LN,$A[1],\%revData,\%phi_gen_as,\@phi_gen,\%improper_gen_as,\@improper_gen);
+}
+
+sub dihdelta
+{
+ my ($a,$b)=@_;
+ my $diff=$a-$b;
+ until($diff<180.0){
+  $diff-=360.0;
+ }
+ until($diff>-180.0){
+  $diff+=360.0;
+ }
+ return abs($diff);
 }
 
 sub checkpairs
@@ -2942,7 +2975,7 @@ sub getdihangle
  my $l=$atoms[3];
  my $multiplicity;
  my $ftype=$atoms[4];
- if($ftype==2){
+ if($ftype==1){
   $multiplicity=$atoms[7];
  }else{
   $multiplicity=1.0;
@@ -3014,16 +3047,11 @@ sub getdihangle
  $cross[2]=$vec1[0]*$vec2[1]-$vec2[0]*$vec1[1];
  
  if($cross[0]*$V[0]+$cross[1]*$V[1]+$cross[2]*$V[2] <0){
-  $angle*=-1;
+  $angle*=-1.0;
  }
-
- until($angle>0){
-  $angle+=360;
- }
- $angle = $angle % 360;
+ $angle+=$multiplicity;
  return $angle
 }
-
 
 sub singletestsummary
 {
