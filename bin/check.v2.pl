@@ -1,5 +1,6 @@
 use strict;
 use warnings;
+use Math::Trig qw(acos_real rad2deg);
 use smog_common;
 use check_common;
 # This is the main script that runs SMOG2 and then checks to see if the generated files are correct.
@@ -1836,26 +1837,28 @@ sub checkangles
   if(defined  $angleEps){
    # there is a homogeneous value used
    $aweight=$angleEps;
+   $aval=getbondangle(\@A);
   }else{
    # heterogeneous bonds need to be checked (obtained from compare file).
    my $at1=$atombondedtype[$A[0]];
    my $at2=$atombondedtype[$A[1]];
    my $at3=$atombondedtype[$A[2]];
    if(exists $matchangle_weight{"$at1-$at2-$at3"}){
-    # check for the expected values of the weight, if defined 
+    # check for the expected values of the angles and weight, if defined explicitly in sif
     $aweight=$matchangle_weight{"$at1-$at2-$at3"};
     $aval=$matchangle_val{"$at1-$at2-$at3"};
-    if(abs($A[4]- $aval) > 10E-10){
-     $fail_log .= failed_message("bond has incorrect angle. Expected $aval. Found:\n\t$LINE");
-    }else{
-     $CORRECTBONDANGLES++;
-    }	
    }else{
     # since one only needs to provide weights that are used, 
     # we verify here, as opposed to checking all possible combinations earlier
     smogcheck_error("Bonded types $at1 $at2 $at3 don\'t have a defined reference angle weight.")
    }
   }
+  if(abs($A[4]- $aval) > 10E-6){
+   # check that it is within 0.000001 degrees of what is expected
+   $fail_log .= failed_message("bond has incorrect angle. Expected $aval. Found:\n\t$LINE");
+  }else{
+   $CORRECTBONDANGLES++;
+  }	
   if(abs($A[5] - $aweight) > 10E-10){
    $fail_log .= failed_message("bond angle has incorrect weight. Expected $aweight. Found:\n\t$LINE");
   }else{
@@ -1939,10 +1942,7 @@ sub checkangles
  }else{
   $FAIL{'ANGLES IN TOP GENERATED'}=1;
  }
- if(defined  $angleEps){
-  # not checking values
-  $FAIL{'ANGLE VALUES'}=-1; 
- }elsif($CORRECTBONDANGLES == $Nangles && $Nangles !=0){
+ if($CORRECTBONDANGLES == $Nangles && $Nangles !=0){
   $FAIL{'ANGLE VALUES'}=0;
  }
 
@@ -2894,6 +2894,42 @@ sub getdist
   $dist=(($XT[$A0]-$XT[$A1])**2+($YT[$A0]-$YT[$A1])**2+($ZT[$A0]-$ZT[$A1])**2)**(0.5);
   return $dist;
  }
+}
+
+sub getbondangle
+{
+ my ($A)=@_;
+ my @atoms=@{$A};
+ my $i=$atoms[0];
+ my $j=$atoms[1];
+ my $k=$atoms[2];
+ my $distV;
+ my $distW;
+ my @V;
+ my @W;
+ my $dot;
+ my $angle;
+ $V[0]=$XT[$i]-$XT[$j];
+ $V[1]=$YT[$i]-$YT[$j];
+ $V[2]=$ZT[$i]-$ZT[$j];
+
+ $W[0]=$XT[$k]-$XT[$j];
+ $W[1]=$YT[$k]-$YT[$j];
+ $W[2]=$ZT[$k]-$ZT[$j];
+
+ $distV=sqrt($V[0]**2+$V[1]**2+$V[2]**2);
+ $distW=sqrt($W[0]**2+$W[1]**2+$W[2]**2);
+
+ $V[0]/=$distV;
+ $V[1]/=$distV;
+ $V[2]/=$distV;
+ $W[0]/=$distW;
+ $W[1]/=$distW;
+ $W[2]/=$distW;
+
+ $dot=$V[0]*$W[0]+$V[1]*$W[1]+$V[2]*$W[2];
+ $angle=rad2deg(acos_real($dot));
+ return $angle
 }
 
 sub singletestsummary
