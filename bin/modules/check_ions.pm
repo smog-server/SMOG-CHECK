@@ -183,7 +183,7 @@ sub check_ions
 sub checktopions
 {
  my %FOUND;
- my $error=13;
+ my $error=14;
  my ($file1,$file2,$ionnm,$ionn,$ionq,$ionm,$ionC12,$ionC6,$extras)=@_;
  my $string=loadfile($file1);
  my @D=split(/\n/,$string);
@@ -262,6 +262,8 @@ sub checktopions
  }
  
 # check if extras exist and this ion will have a nonbonded param.  If it does, then make sure the data is present.
+ my %extrasdefined;
+ my %extrasfound;
  if(defined $extras && -e "$extras"){
   open(TMP,"$extras") or internal_error("could not open $extras");
   my $appear=0;
@@ -270,6 +272,13 @@ sub checktopions
    my $line=$_;
    if($line =~ $ionnm){
     $appear++;
+    chomp($line);
+    my @tmarr=split(/\s+/,$line);
+    my $tv=$tmarr[2];
+    for(my $I=3;$I<$#tmarr;$I++){
+     $tv .= " " . $tmarr[$I];
+    }
+    $extrasdefined{$tv}=0;
    }
   }
   if($appear >0){
@@ -283,7 +292,35 @@ sub checktopions
    }
    # read until we don't have any more nonbond_params for this ion type
    while($FILE2[$ln2]  =~ /$ionnm/){
+    my @tmarr=split(/\s+/,$FILE2[$ln2]);
+    my $tv=$tmarr[0];
+    for(my $I=1;$I<$#tmarr;$I++){
+     $tv .= " " . $tmarr[$I];
+    }
+    $extrasfound{$tv}=0;
     $ln2++; 
+   }
+   my $n1=0;
+   my $n2=0;
+   foreach my $key(keys %extrasdefined){
+    if(exists $extrasfound{$key}){
+     $n1++;
+    }else{
+     print "issue: extra line defined, but not found in .top.\n\texpected: $key\n";
+    }
+   }
+   foreach my $key(keys %extrasfound){
+    if(exists $extrasdefined{$key}){
+     $n2++;
+    }else{
+     print "issue: extra line not defined, but found in .top.\n\tfound: $key\n";
+    }
+   }
+   if($n1==$n2 && $n1 !=0){
+    # all extra information is correctly added
+    $error--;
+   }else{
+    print "issue: not all extras information added properly. expected \n";
    }
    # resume looking for next diff 
    until($FILE1[$ln1] ne $FILE2[$ln2] || $ln1== $N1){
@@ -293,8 +330,10 @@ sub checktopions
   }else{
    # doesn't appear, omit the check
    $error--;
+   $error--;
   }
  }else{
+  $error--;
   $error--;
  }
 
