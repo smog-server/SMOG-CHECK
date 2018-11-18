@@ -87,7 +87,7 @@ our $TEMPLATE_DIR_AA_MATCH=$ENV{'BIFSIF_AA_MATCH'};
 # FAILLIST is a list of all the tests.
 # If you are developing and testing your own forcefield, which may not need to conform to certain checks, then you may want to disable some tests by  removing the test name from this list. However, do so at your own risk.
 
-our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','TOP FIELDS FOUND','TOP FIELDS RECOGNIZED','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'BOND LENGTHS','ANGLE TYPES', 'ANGLE WEIGHTS', 'ANGLE VALUES','DUPLICATE BONDS', 'DUPLICATE ANGLES', 'GENERATED ANGLE COUNT','GENERATED ANGLE IN TOP','ANGLES IN TOP GENERATED', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','MATCH DIH WEIGHTS','MATCH DIH ANGLES','ALL POSSIBLE MATCHED DIHEDRALS PRESENT','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL IN TOP GENERATED','GENERATED DIHEDRAL IN TOP','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','GAUSSIAN CONTACT EXCLUDED VOLUME','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY','TYPE6 ATOMS','UNINITIALIZED VARIABLES','CLASSIFYING DIHEDRALS','NON-ZERO EXIT','ATOM FIELDS','ATOM CHARGES','FREE PAIRS APPEAR IN CONTACTS','EXTRAS ADDED','NONZERO LIGAND DIHEDRAL VALUE');
+our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','TOP FIELDS FOUND','TOP FIELDS RECOGNIZED','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'BOND LENGTHS','ANGLE TYPES', 'ANGLE WEIGHTS', 'ANGLE VALUES','DUPLICATE BONDS', 'DUPLICATE ANGLES', 'GENERATED ANGLE COUNT','GENERATED ANGLE IN TOP','ANGLES IN TOP GENERATED', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','MATCH DIH WEIGHTS','DIHEDRAL ANGLES','ALL POSSIBLE MATCHED DIHEDRALS PRESENT','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL IN TOP GENERATED','GENERATED DIHEDRAL IN TOP','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','GAUSSIAN CONTACT EXCLUDED VOLUME','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY','TYPE6 ATOMS','UNINITIALIZED VARIABLES','CLASSIFYING DIHEDRALS','NON-ZERO EXIT','ATOM FIELDS','ATOM CHARGES','FREE PAIRS APPEAR IN CONTACTS','EXTRAS ADDED','NONZERO LIGAND DIHEDRAL VALUE');
 # default location of test PDBs
 our $PDB_DIR="share/PDB.files";
 # where should data from failed tests be written
@@ -1853,8 +1853,8 @@ sub checkangles
     smogcheck_error("Bonded types $at1 $at2 $at3 don\'t have a defined reference angle weight.")
    }
   }
-  if(abs($A[4]- $aval) > 10E-6){
-   # check that it is within 0.000001 degrees of what is expected
+  if(abs($A[4]- $aval) > 1){
+   # check that it is within 1 degree of what is expected.  This is limited by the resolution of gro files
    $fail_log .= failed_message("bond has incorrect angle. Expected $aval. Found:\n\t$LINE");
   }else{
    $CORRECTBONDANGLES++;
@@ -2118,7 +2118,6 @@ sub checkdihedrals
     $string_last=$string;
     $DANGLE_LAST=$A[5];
   # only going to check the value for matching if type 1
-    my $dihweight;
     my $dihval;
     if(defined  $dihmatch){
      # heterogeneous bonds need to be checked (obtained from compare file).
@@ -2131,12 +2130,7 @@ sub checkdihedrals
      if(exists $matchdihedral_weight{"$dname"}){
       # check for the expected values of the weight, if defined 
       my $dweight=$matchdihedral_weight{"$dname"};
-      my $dval=$matchdihedral_val{"$dname"};
-      if(abs($A[5]- $dval) > 10E-10){
-       $fail_log .= failed_message("dihedral has incorrect angle. Expected $dval. Found:\n\t$LINE");
-      }else{
-       $CORRECTDIHEDRALANGLES++;
-      }	
+      $dihval=$matchdihedral_val{"$dname"};
       if(abs($A[6]- $dweight) > 10E-10){
        $fail_log .= failed_message("dihedral has incorrect weight. Expected $dweight. Found:\n\t$LINE");
       }else{
@@ -2147,7 +2141,15 @@ sub checkdihedrals
       # we verify here, as opposed to checking all possible combinations earlier
       smogcheck_error("Bonded types $at1 $at2 $at3 $at4 don\'t have a defined reference dihedral angle weight.")
      }
+    }else{
+     # if not matching based on sif, then calculate the dihedral angle
+     $dihval=getdihangle(\@A);
     }
+    if(abs($A[5]- $dihval) > 1){
+     $fail_log .= failed_message("dihedral has incorrect angle. Expected $dihval. Found:\n\t$LINE");
+    }else{
+     $CORRECTDIHEDRALANGLES++;
+    }	
    }
    $LAST_N=$A[7];
    if($A[7] == 3 && ($string eq $string_last)){
@@ -2306,17 +2308,15 @@ sub checkdihedrals
  if($matchingpairs == $accounted1){
   $FAIL{'1-3 DIHEDRAL PAIRS'}=0;
  }
+ if($CORRECTDIHEDRALANGLES == $accounted1){
+  $FAIL{'DIHEDRAL ANGLES'}=0;
+ }
  if(defined  $dihmatch){
-  if($CORRECTDIHEDRALANGLES == $accounted1){
-   $FAIL{'MATCH DIH ANGLES'}=0;
-  }
   if($CORRECTDIHEDRALWEIGHTS == $accounted1){
    $FAIL{'MATCH DIH WEIGHTS'}=0;
   }
  }else{
    $FAIL{'MATCH DIH WEIGHTS'}=-1;
-   $FAIL{'MATCH DIH ANGLES'}=-1;
-
  }
  if($S3_match == $accounted1){
   $FAIL{'1-3 ORDERING OF DIHEDRALS'}=0
@@ -2931,6 +2931,99 @@ sub getbondangle
  $angle=rad2deg(acos_real($dot));
  return $angle
 }
+
+sub getdihangle
+{
+ my ($A)=@_;
+ my @atoms=@{$A};
+ my $i=$atoms[0];
+ my $j=$atoms[1];
+ my $k=$atoms[2];
+ my $l=$atoms[3];
+ my $multiplicity;
+ my $ftype=$atoms[4];
+ if($ftype==2){
+  $multiplicity=$atoms[7];
+ }else{
+  $multiplicity=1.0;
+ }
+ my $distU;
+ my $distV;
+ my $distW;
+ my $dist1;
+ my $dist2;
+ my @U;
+ my @V;
+ my @W;
+ my @vec1;
+ my @vec2;
+ my $dot;
+ my @cross;
+ my $angle;
+ $U[0]=$XT[$i]-$XT[$j];
+ $U[1]=$YT[$i]-$YT[$j];
+ $U[2]=$ZT[$i]-$ZT[$j];
+
+ $V[0]=$XT[$k]-$XT[$j];
+ $V[1]=$YT[$k]-$YT[$j];
+ $V[2]=$ZT[$k]-$ZT[$j];
+
+ $W[0]=$XT[$l]-$XT[$k];
+ $W[1]=$YT[$l]-$YT[$k];
+ $W[2]=$ZT[$l]-$ZT[$k];
+
+ $distU=sqrt($U[0]**2+$U[1]**2+$U[2]**2);
+ $distV=sqrt($V[0]**2+$V[1]**2+$V[2]**2);
+ $distW=sqrt($W[0]**2+$W[1]**2+$W[2]**2);
+
+ $U[0]/=$distU;
+ $U[1]/=$distU;
+ $U[2]/=$distU;
+ $V[0]/=$distV;
+ $V[1]/=$distV;
+ $V[2]/=$distV;
+ $W[0]/=$distW;
+ $W[1]/=$distW;
+ $W[2]/=$distW;
+
+ $vec1[0]=$U[1]*$V[2]-$V[1]*$U[2];
+ $vec1[1]=$U[2]*$V[0]-$V[2]*$U[0];
+ $vec1[2]=$U[0]*$V[1]-$V[0]*$U[1];
+
+ $vec2[0]=$V[1]*$W[2]-$W[1]*$V[2];
+ $vec2[1]=$V[2]*$W[0]-$W[2]*$V[0];
+ $vec2[2]=$V[0]*$W[1]-$W[0]*$V[1];
+
+ $dist1=sqrt($vec1[0]**2+$vec1[1]**2+$vec1[2]**2);
+ $dist2=sqrt($vec2[0]**2+$vec2[1]**2+$vec2[2]**2);
+
+
+ $vec1[0]/=$dist1;
+ $vec1[1]/=$dist1;
+ $vec1[2]/=$dist1;
+ $vec2[0]/=$dist2;
+ $vec2[1]/=$dist2;
+ $vec2[2]/=$dist2;
+
+ $dot=$vec1[0]*$vec2[0]+$vec1[1]*$vec2[1]+$vec1[2]*$vec2[2];
+ $angle=rad2deg(acos_real($dot));
+
+
+ $cross[0]=$vec1[1]*$vec2[2]-$vec2[1]*$vec1[2];
+ $cross[1]=$vec1[2]*$vec2[0]-$vec2[2]*$vec1[0];
+ $cross[2]=$vec1[0]*$vec2[1]-$vec2[0]*$vec1[1];
+ 
+ if($cross[0]*$V[0]+$cross[1]*$V[1]+$cross[2]*$V[2] <0){
+  $angle*=-1;
+ }
+
+ until($angle>0){
+  $angle+=360;
+ }
+ $angle = $angle % 360;
+ return $angle
+}
+
 
 sub singletestsummary
 {
