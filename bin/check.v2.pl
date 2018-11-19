@@ -2148,7 +2148,7 @@ sub checkdihedrals
      $dihval=getdihangle(\@A);
     }
     my $diff=dihdelta($A[5],$dihval);
-    if($diff > 2.5){
+    if($diff > 3){
      # this is a somewhat generous threshold for comparing angles.  However, the reason is that 
      # this script uses the gro file, whereas the .top was based on the pdb, which has higher precision.
      $fail_log .= failed_message("dihedral has incorrect angle. Expected $dihval. Found:\n\t$LINE\n(diff=$diff)");
@@ -2231,7 +2231,7 @@ sub checkdihedrals
    # for some reason, 0 is different for impropers
    my $dihval=getdihangle(\@A)+180;
    my $diff=dihdelta($A[5],$dihval);
-   if($diff > 2.5){
+   if($diff > 3.0){
     # this is a somewhat generous threshold for comparing angles.  However, the reason is that 
     # this script uses the gro file, whereas the .top was based on the pdb, which has higher precision.
     $fail_log .= failed_message("dihedral has incorrect angle. Expected $dihval. Found:\n\t$LINE\n(diff=$diff)");
