@@ -209,18 +209,12 @@ sub comparetopsrescale
    if($A1[0]==$A2[0] && $A1[1]==$A2[1] && $A1[2]==$A2[2] && $A1[3]==$A2[3]){
     $sameatoms++;
    }else{
-    print "issue: atom numbers don\'t match:\nold $D1[$I]\nnew$D2[$I2]\n";
+    print "issue: atom numbers don\'t match:\nold $D1[$I]\nnew $D2[$I2]\n";
    } 
-   my $resc;
-   if($remove==4 && $A1[4] != 2){
-    $resc=$RD;
-   }else{
-    $resc=1.0
-   }
-   if(abs($A1[6]*$resc-$A2[6])<0.001){
+   if(abs($A1[6]-$A2[6])<0.001){
     $dscaled++;
    }else{
-    print "issue: dihedral not scaled properly. Should be scaled by $resc.\nold $D1[$I]\nnew $D2[$I2]\n";
+    print "issue: dihedral not set properly.\nold $D1[$I]\nnew $D2[$I2]\n";
    } 
    $I2++;
   }
@@ -258,11 +252,40 @@ sub comparetopsrescale
       print "issue: contact not scaled properly. Should be scaled by $resc.\nold $C1[$I]\nnew $C2[$I]\n";
      } 
     }else{
-     print "issue: atom numbers don\'t match:\nold $C1[$I]\nnew$C2[$I]\n";
+     print "issue: atom numbers don\'t match:\nold $C1[$I]\nnew $C2[$I]\n";
     } 
   }
  }else{
   # this means we should check if the contacts are removed.
+  $conlength=-1;
+  $connum=$#C1+1;
+  # rescaling contacts
+  my $I2=0;
+  for(my $I=0;$I<=$#C1;$I++){
+   my @A1=split(/\s+/,$C1[$I]); 
+   my @A2=split(/\s+/,$C2[$I2]);
+   my $remove=0;
+   if(exists $atomgroup{$CGROUP1}{$A1[0]} && exists $atomgroup{$CGROUP2}{$A1[1]}){
+    $remove=1; 
+   }elsif(exists $atomgroup{$CGROUP2}{$A1[0]} && exists $atomgroup{$CGROUP1}{$A1[1]}){
+    $remove=1; 
+   }
+   if($remove==1){
+    $connum--;
+    next;
+   }
+   if($A1[0]==$A2[0] && $A1[1]==$A2[1]){
+    $consameatoms++;
+    if(abs($A1[3]-$A2[3])<0.001 && abs($A1[4]-$A2[4])<0.001){
+     $cscaled++;
+    }else{
+     print "issue: contact not set properly.\nold $C1[$I]\nnew $C2[$I2]\n";
+    } 
+   }else{
+    print "issue: atom numbers don\'t match:\nold $C1[$I]\nnew $C2[$I2]\n";
+   } 
+  $I2++;
+  }
  }
 
  return ($samedirs,$dihlength,abs($dihnum-$dscaled),$conlength,abs($connum-$cscaled));
