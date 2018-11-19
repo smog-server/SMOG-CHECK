@@ -6,8 +6,8 @@ use check_common;
 our @ISA = 'Exporter';
 our @EXPORT = qw(check_ions);
 
-# in supported_directives:0 = not supported. 1 = required once. 2=required (may appear more than once). 3=optional once.
-our %supported_directives = ( 'defaults' => '1',
+# in supported_directives_ions:0 = not supported. 1 = required once. 2=required (may appear more than once). 3=optional once.
+my %supported_directives_ions = ( 'defaults' => '1',
         'atomtypes' => '1',
         'nonbond_params' => '3',
         'moleculetype' => '2',
@@ -403,40 +403,40 @@ sub checkdirectives
 	my ($v1)=@_;
 	my %FOUND=%{$v1};
 	my $flag=0;
-	for my $dir(keys %supported_directives){
+	for my $dir(keys %supported_directives_ions){
 
 		# do unsupported directives appear?
-		if($supported_directives{$dir} == 0){
+		if($supported_directives_ions{$dir} == 0){
 			if(exists $FOUND{$dir} ){
-				print "directive $dir found, but not supported\n";
+				print "\tissue: directive $dir found, but not supported\n";
 				$flag++;
 			}
 		}
 		# are required directives appearing once
-		if($supported_directives{$dir} == 1){
+		if($supported_directives_ions{$dir} == 1){
 			if(!exists $FOUND{$dir} || $FOUND{$dir} !=1){
-				print "directive $dir did not appear only once.  Appeared $FOUND{$dir} times\n";
+				print "\tissue: directive $dir did not appear only once.  Appeared $FOUND{$dir} times\n";
 				$flag++;
 			}
 		}
 		# are required directives that can appear more than once appear at least once.
-		if($supported_directives{$dir} == 2){
+		if($supported_directives_ions{$dir} == 2){
 			if(!exists $FOUND{$dir} || $FOUND{$dir} <1){
-				print "directive $dir did not appear at least once.  Appeared $FOUND{$dir} times\n";
+				print "\tissue: directive $dir did not appear at least once.  Appeared $FOUND{$dir} times\n";
 				$flag++;
 			}
 		}
 		# does optional directives appear only once
-		if($supported_directives{$dir} == 3){
+		if($supported_directives_ions{$dir} == 3){
 			if(exists $FOUND{$dir} && $FOUND{$dir} !=1){
-				print "optional directive $dir did not appear only once.  Appeared $FOUND{$dir} times\n";
+				print "\tissue: optional directive $dir did not appear only once.  Appeared $FOUND{$dir} times\n";
 				$flag++;
 			}
 		}
 
 	}
 	if($FOUND{"atoms"} != $FOUND{"moleculetype"}){
-		print "number of atoms directives does not match number of moleculetype directives\n";
+		print "\tissue: number of atoms directives does not match number of moleculetype directives\n";
 		$flag++;
 	}
 

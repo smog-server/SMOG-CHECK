@@ -68,7 +68,9 @@ my $TESTNUM=0;
 
 my $tested=0;
 my %checkthese;
+my $testall=0;
 if(@ARGV>0){
+ $testall=1;
  foreach my $name(@ARGV){
   $checkthese{$name}=0;
  }
@@ -104,13 +106,20 @@ if(defined $checkthese{"scale-energies"} || @ARGV==0){
  $tested++;
 }
 if($FAILSUM>0){
-	print "\n\nSOME TESTS FAILED.  SEE EARLIER MESSAGES\n\n";	
-	exit (1);
+ print "\n\nSOME TESTS FAILED.  SEE EARLIER MESSAGES\n\n";	
+ exit (1);
 }elsif($tested==0){
-	print "\n\nNo tests performed...\n\n"; 
-	exit (1);
+ print "\n\nNo tests performed...\n\n"; 
+ exit (1);
+}elsif($testall ==0){
+ print "\n\nPassed all SMOG tool checks!\n\n"; 
+ exit (0);
 }else{
-	print "\n\nPassed all SMOG tool checks!\n\n"; 
-	exit (0);
+ print "\n\nPassed the following checks: "; 
+ foreach my $test(keys %checkthese){
+  print "$test ";
+ }
+ print "\n\n";
+ exit (0);
 }
 
