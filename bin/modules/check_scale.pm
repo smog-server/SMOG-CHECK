@@ -84,7 +84,7 @@ sub check_scale
   savefailed(2,("output.$tool","smog.rescaled.top","smog.rescaled.top","AA.tmp.contacts" , "AA.tmp.gro","AA.tmp.ndx", "AA.tmp.top"));
   print "$printbuffer\n";
  }else{
-  clearfiles(("output.$tool","smog.rescaled.top","AA.tmp.contacts" , "AA.tmp.gro","AA.tmp.ndx", "AA.tmp.top"));
+  clearfiles(("output.$tool",$outfile,"AA.tmp.contacts" , "AA.tmp.gro","AA.tmp.ndx", "AA.tmp.top"));
  }
  return ($FAILSUM, $printbuffer);
 
@@ -188,6 +188,42 @@ sub comparetopsrescale
   }
  }else{
   # this means we should check if the dihedrals are removed.
+  $dihlength=-1;
+  $dihnum=$#D1+1;
+  # rescaling dihedrals
+  my $I2=0;
+  for(my $I=0;$I<=$#D1;$I++){
+   my @A1=split(/\s+/,$D1[$I]); 
+   my @A2=split(/\s+/,$D2[$I2]);
+   my $remove=0;
+   for(my $J=0;$J<4;$J++){
+    if(exists $atomgroup{$DGROUP}{$A1[$J]}){
+     $remove++; 
+    }     
+   }
+   if($remove==4 && $A1[4] == 1){
+    # this one should not be in the new file
+    $dihnum--;
+    next;
+   }
+   if($A1[0]==$A2[0] && $A1[1]==$A2[1] && $A1[2]==$A2[2] && $A1[3]==$A2[3]){
+    $sameatoms++;
+   }else{
+    print "issue: atom numbers don\'t match:\nold $D1[$I]\nnew$D2[$I2]\n";
+   } 
+   my $resc;
+   if($remove==4 && $A1[4] != 2){
+    $resc=$RD;
+   }else{
+    $resc=1.0
+   }
+   if(abs($A1[6]*$resc-$A2[6])<0.001){
+    $dscaled++;
+   }else{
+    print "issue: dihedral not scaled properly. Should be scaled by $resc.\nold $D1[$I]\nnew $D2[$I2]\n";
+   } 
+   $I2++;
+  }
  }
 
  # check contacts
@@ -228,8 +264,6 @@ sub comparetopsrescale
  }else{
   # this means we should check if the contacts are removed.
  }
-
-
 
  return ($samedirs,$dihlength,abs($dihnum-$dscaled),$conlength,abs($connum-$cscaled));
 }
