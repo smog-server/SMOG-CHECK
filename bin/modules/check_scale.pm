@@ -28,7 +28,7 @@ sub check_scale
   clearfiles("output.smog");
  }
 
- print "\tChecking smog_scale-energies with all-atom model\n";
+ print "\tChecking smog_scale-energies with all-atom model: rescaling terms\n";
 
  %FAIL=resettests(\%FAIL,\@FAILLIST);
  my $indexfile="share/PDB.files/sample.AA.ndx";
@@ -43,14 +43,45 @@ sub check_scale
  $FAIL{"N SCALED DIHEDRALS"}=$dihmatch;
  $FAIL{"N CONTACTS"}=$conlength;
  $FAIL{"N SCALED CONTACTS"}=$conmatch;
- 
-## add checks here
-#check with different output names
-#verify that if 
+
  ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
  $FAILSUM += $FAILED;
  if($FAILED !=0){
+  `mkdir tmp`;
+  foreach my $file("AA.tmp.contacts" , "AA.tmp.gro","AA.tmp.ndx", "AA.tmp.top"){
+   `cp $file tmp`;
+  }
   savefailed(1,("output.$tool","smog.rescaled.top","smog.rescaled.top","AA.tmp.contacts" , "AA.tmp.gro","AA.tmp.ndx", "AA.tmp.top"));
+  print "$printbuffer\n";
+  foreach my $file("AA.tmp.contacts" , "AA.tmp.gro","AA.tmp.ndx", "AA.tmp.top"){
+   `mv tmp/$file .`;
+  }
+  `rmdir tmp`;
+ }else{
+  clearfiles(("output.$tool","smog.rescaled.top"));
+ }
+
+ print "\tChecking smog_scale-energies with all-atom model: removing terms\n";
+
+ %FAIL=resettests(\%FAIL,\@FAILLIST);
+ my $indexfile="share/PDB.files/sample.AA.ndx";
+ my $grpsel="$pdbdir/in.groups";
+ my $outfile="test.top";
+ my $RC=0;
+ my $RD=0;
+ `$exec -f AA.tmp.top -of $outfile -n $indexfile -rc $RC -rd $RD < $grpsel &> output.$tool`;
+ ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
+ my ($samedirs,$dihlength,$dihmatch,$conlength,$conmatch)=comparetopsrescale("AA.tmp.top",$outfile,$indexfile,$grpsel,$RC,$RD);
+ $FAIL{"UNCHANGED DIRECTIVES"}=$samedirs;
+ $FAIL{"N DIHEDRALS"}=$dihlength;
+ $FAIL{"N SCALED DIHEDRALS"}=$dihmatch;
+ $FAIL{"N CONTACTS"}=$conlength;
+ $FAIL{"N SCALED CONTACTS"}=$conmatch;
+ 
+ ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
+ $FAILSUM += $FAILED;
+ if($FAILED !=0){
+  savefailed(2,("output.$tool","smog.rescaled.top","smog.rescaled.top","AA.tmp.contacts" , "AA.tmp.gro","AA.tmp.ndx", "AA.tmp.top"));
   print "$printbuffer\n";
  }else{
   clearfiles(("output.$tool","smog.rescaled.top","AA.tmp.contacts" , "AA.tmp.gro","AA.tmp.ndx", "AA.tmp.top"));
@@ -82,16 +113,23 @@ sub comparetopsrescale
  my $consameatoms=0; 
 
  # check that unchanged directives remain unchanged
- foreach my $DIR("defaults","atomtypes","moleculetype","atoms","bonds","angles","molecules","exclusions")
+ foreach my $DIR("defaults","atomtypes","moleculetype","atoms","bonds","angles","molecules")
  {
-	$samedirs++;
-	if($DATA[$DIRLIST{"$DIR"}] eq $DATA2[$DIRLIST2{"$DIR"}]){
-	 	$samedirs--;
-	}else{
-		print "issue: directive $DIR changed, but it shouldn\'t\n";
-	}
+  $samedirs++;
+  if($DATA[$DIRLIST{"$DIR"}] eq $DATA2[$DIRLIST2{"$DIR"}]){
+   $samedirs--;
+  }else{
+   print "issue: directive $DIR changed, but it shouldn\'t\n";
+  }
  }
-
+ if($RC!=0){
+  $samedirs++;
+  if($DATA[$DIRLIST{"exclusions"}] eq $DATA2[$DIRLIST2{"exclusions"}]){
+   $samedirs--;
+  }else{
+   print "issue: directive exclusions changed, but it shouldn\'t\n";
+  }
+ }
 
  # read in the ndx file
  print "\t";
