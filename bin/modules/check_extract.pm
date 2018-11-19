@@ -6,6 +6,24 @@ use check_common;
 our @ISA = 'Exporter';
 our @EXPORT = qw(check_extract);
 
+# in supported_directives:0 = not supported. 1 = required once. 2=required (may appear more than once). 3=optional once.
+our %supported_directives = ( 'defaults' => '1',
+        'atomtypes' => '1',
+        'nonbond_params' => '0',
+        'moleculetype' => '1',
+        'atoms' => '1',
+        'bonds' => '1',
+        'angles' => '1',
+        'dihedrals' => '1',
+        'pairs' => '1',
+        'exclusions' => '1',
+        'system' => '1',
+        'molecules' => '1',
+        'position_restraints' => '3'
+        );
+
+
+
 sub check_extract
 {
  my ($exec,$pdbdir)=@_;
@@ -40,6 +58,8 @@ sub check_extract
 
    ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
    $FAIL{"EXTRA MAP FILE GENERATED"} = checkrestraintfile(1,"restrained.map");
+   my $string=loadfile("extracted.top");
+   my ($DATA,$DIRLIST)=checkdirectives($string);
 
    ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
    $FAILSUM += $FAILED;
@@ -61,6 +81,8 @@ sub check_extract
 
    ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
    $FAIL{"EXTRA MAP FILE GENERATED"} = checkrestraintfile(1,"restrained.map");
+   my $string=loadfile("extracted.top");
+   my ($DATA,$DIRLIST)=checkdirectives($string);
 
    ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
    $FAILSUM += $FAILED;
@@ -81,6 +103,8 @@ sub check_extract
 
    ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
    $FAIL{"EXTRA MAP FILE GENERATED"} = checkrestraintfile(0,"restrained.map");
+   my $string=loadfile("extracted.top");
+   my ($DATA,$DIRLIST)=checkdirectives($string);
 
    ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
    $FAILSUM += $FAILED;
