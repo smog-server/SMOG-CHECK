@@ -16,7 +16,7 @@ sub check_scale
  my $FAILSUM=0;
  my $tool="scale";
  my $printbuffer="";
- my @FAILLIST = ('NON-ZERO EXIT','UNINITIALIZED VARIABLES','UNCHANGED DIRECTIVES');
+ my @FAILLIST = ('NON-ZERO EXIT','UNINITIALIZED VARIABLES','UNCHANGED DIRECTIVES','N DIHEDRALS','N SCALED DIHEDRALS','N CONTACTS','N SCALED CONTACTS');
  %FAIL=resettests(\%FAIL,\@FAILLIST);
 
 # generate an AA model RNA 
@@ -31,30 +31,19 @@ sub check_scale
  print "\tChecking smog_scale-energies with all-atom model\n";
 
  %FAIL=resettests(\%FAIL,\@FAILLIST);
- `$exec -f AA.tmp.top -n share/PDB.files/sample.AA.ndx -rc 1.5 -rd 1.2 < $pdbdir/in.groups &> output.$tool`;
+ my $indexfile="share/PDB.files/sample.AA.ndx";
+ my $grpsel="$pdbdir/in.groups";
+ my $RC=1.5;
+ my $RD=1.2;
+ `$exec -f AA.tmp.top -n $indexfile -rc $RC -rd $RD < $grpsel &> output.$tool`;
  ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
-
- # read in original
- my $string=loadfile("AA.tmp.top");
- my ($DATA,$DIRLIST)=checkdirectives($string);
- my %DIRLIST=%{$DIRLIST};
- my @DATA=@{$DATA};
- $string=loadfile("smog.rescaled.top");
- my ($DATA2,$DIRLIST2)=checkdirectives($string);
- my %DIRLIST2=%{$DIRLIST2};
- my @DATA2=@{$DATA2};
- my $samedirs=0; 
- foreach my $DIR("defaults","atomtypes","moleculetype","atoms","bonds","angles","molecules","exclusions")
- {
-	$samedirs++;
-	if($DATA[$DIRLIST{"$DIR"}] eq $DATA2[$DIRLIST2{"$DIR"}]){
-	 	$samedirs--;
-	}else{
-		print "issue: directive $DIR changed, but it shouldn\'t\n";
-	}
- }
+ my ($samedirs,$dihlength,$dihmatch,$conlength,$conmatch)=comparetopsrescale("AA.tmp.top","smog.rescaled.top",$indexfile,$grpsel,$RC,$RD);
  $FAIL{"UNCHANGED DIRECTIVES"}=$samedirs;
-
+ $FAIL{"N DIHEDRALS"}=$dihlength;
+ $FAIL{"N SCALED DIHEDRALS"}=$dihmatch;
+ $FAIL{"N CONTACTS"}=$conlength;
+ $FAIL{"N SCALED CONTACTS"}=$conmatch;
+ 
 ## add checks here
 #check with different output names
 #verify that if 
@@ -68,6 +57,143 @@ sub check_scale
  }
  return ($FAILSUM, $printbuffer);
 
+}
+
+sub comparetopsrescale
+{
+ my ($old,$new,$indexFile,$grpsel,$RC,$RD)=@_;
+ # read in original and new top files
+ my $string=loadfile("$old");
+ my ($DATA,$DIRLIST)=checkdirectives($string);
+ my %DIRLIST=%{$DIRLIST};
+ my @DATA=@{$DATA};
+ $string=loadfile("$new");
+ my ($DATA2,$DIRLIST2)=checkdirectives($string);
+ my %DIRLIST2=%{$DIRLIST2};
+ my @DATA2=@{$DATA2};
+ my $samedirs=0; 
+ my $dihlength=1;
+ my $dihnum=1;
+ my $dscaled=0; 
+ my $sameatoms=0; 
+ my $conlength=1;
+ my $connum=1;
+ my $cscaled=0; 
+ my $consameatoms=0; 
+
+ # check that unchanged directives remain unchanged
+ foreach my $DIR("defaults","atomtypes","moleculetype","atoms","bonds","angles","molecules","exclusions")
+ {
+	$samedirs++;
+	if($DATA[$DIRLIST{"$DIR"}] eq $DATA2[$DIRLIST2{"$DIR"}]){
+	 	$samedirs--;
+	}else{
+		print "issue: directive $DIR changed, but it shouldn\'t\n";
+	}
+ }
+
+
+ # read in the ndx file
+ print "\t";
+ my ($Ngrps,$grpnms,$groupnames,$atomgroup) = readindexfile($indexFile);
+ 
+ my @grpnms=@{$grpnms};
+ my %groupnames=%{$groupnames};
+ my %atomgroup=%{$atomgroup};
+
+ # read in grp selection list
+ open(GRPSEL,"$grpsel") or smog_quit("unable to open $grpsel");
+ my $DGROUP=<GRPSEL>;
+ chomp($DGROUP);
+ $DGROUP=$grpnms[$DGROUP];
+ my $CGROUP1=<GRPSEL>;
+ chomp($CGROUP1);
+ $CGROUP1=$grpnms[$CGROUP1];
+ my $CGROUP2=<GRPSEL>;
+ chomp($CGROUP2);
+ $CGROUP2=$grpnms[$CGROUP2];
+
+ # check dihedrals
+ my @D1 = split(/\n/,$DATA[$DIRLIST{"dihedrals"}]);
+ my @D2 = split(/\n/,$DATA2[$DIRLIST2{"dihedrals"}]);
+ if($RD != 0){
+  if($#D1 == $#D2){
+   $dihlength=0;
+  }
+  $dihnum=$#D1+1;
+  # rescaling dihedrals
+  for(my $I=0;$I<=$#D1;$I++){
+   my @A1=split(/\s+/,$D1[$I]); 
+   my @A2=split(/\s+/,$D2[$I]);
+    if($A1[0]==$A2[0] && $A1[1]==$A2[1] && $A1[2]==$A2[2] && $A1[3]==$A2[3]){
+     $sameatoms++;
+     my $rescale=0;
+     for(my $J=0;$J<4;$J++){
+      if(exists $atomgroup{$DGROUP}{$A1[$J]}){
+       $rescale++; 
+      }     
+     }
+     my $resc;
+     if($rescale==4 && $A1[4] != 2){
+      $resc=$RD;
+     }else{
+      $resc=1.0
+     }
+     if(abs($A1[6]*$resc-$A2[6])<0.001){
+      $dscaled++;
+     }else{
+      print "issue: dihedral not scaled properly. Should be scaled by $resc.\nold $D1[$I]\nnew $D2[$I]\n";
+     } 
+    }else{
+     print "issue: atom numbers don\'t match:\nold $D1[$I]\nnew$D2[$I]\n";
+    } 
+  }
+ }else{
+  # this means we should check if the dihedrals are removed.
+ }
+
+ # check contacts
+ my @C1 = split(/\n/,$DATA[$DIRLIST{"pairs"}]);
+ my @C2 = split(/\n/,$DATA2[$DIRLIST2{"pairs"}]);
+ if($RC != 0){
+  if($#C1 == $#C2){
+   $conlength=0;
+  }
+  $connum=$#C1+1;
+  # rescaling contacts
+  for(my $I=0;$I<=$#C1;$I++){
+   my @A1=split(/\s+/,$C1[$I]); 
+   my @A2=split(/\s+/,$C2[$I]);
+    if($A1[0]==$A2[0] && $A1[1]==$A2[1]){
+     $consameatoms++;
+     my $rescale=0;
+      if(exists $atomgroup{$CGROUP1}{$A1[0]} && exists $atomgroup{$CGROUP2}{$A1[1]}){
+       $rescale=1; 
+      }elsif(exists $atomgroup{$CGROUP2}{$A1[0]} && exists $atomgroup{$CGROUP1}{$A1[1]}){
+       $rescale=1; 
+      }
+     my $resc;
+     if($rescale==1 && $A1[2] == 1){
+      $resc=$RC;
+     }else{
+      $resc=1.0
+     }
+     if(abs($A1[3]*$resc-$A2[3])<0.001 && abs($A1[4]*$resc-$A2[4])<0.001){
+      $cscaled++;
+     }else{
+      print "issue: contact not scaled properly. Should be scaled by $resc.\nold $C1[$I]\nnew $C2[$I]\n";
+     } 
+    }else{
+     print "issue: atom numbers don\'t match:\nold $C1[$I]\nnew$C2[$I]\n";
+    } 
+  }
+ }else{
+  # this means we should check if the contacts are removed.
+ }
+
+
+
+ return ($samedirs,$dihlength,abs($dihnum-$dscaled),$conlength,abs($connum-$cscaled));
 }
 
 return 1;
