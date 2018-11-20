@@ -8,57 +8,69 @@ use check_common;
 # a testing script, it is not designed to be efficient, but to be thorough, and foolproof...
 
 my $VERSION="2.2beta";
-my $tmpstring = <<"EOS";
+&printopeningmessage;
 
-                    smog-check                                   
+# by default, we will not check for compatibility with gmx, since that is more involved.  However, we may turn on those tests by changing the following two lines to yes.
+my $CHECKGMX="no";
+my $CHECKGMXGAUSSIAN="no";
 
-       smog-check is part of the SMOG 2 distribution, available at smog-server.org     
+my $GMXPATH="";
+if(defined $ENV{"GMXPATH"}){
+ $GMXPATH=$ENV{"GMXPATH"}
+}
+my $GMXPATHGAUSSIAN="";
+if(defined $ENV{"GMXPATHGAUSSIAN"}){
+ $GMXPATH=$ENV{"GMXPATHGAUSSIAN"}
+}
 
-       This tool will check your installation of SMOG 2, to ensure 
-		that a number of models are being constructed properly.
+if($GMXPATH eq "" && $CHECKGMX eq "yes"){
+ smog_quit("In order to test compatibility with gmx, you must export GMXPATH.  This may be accomplished by issuing the command :\n\t\"export GMXPATH=<location of gmx directory>\"\n ");
+}elsif($CHECKGMX eq "no"){
+ print "Note: Will NOT test gmx for compatibility of output files\n";
+}elsif($CHECKGMX eq "yes"){
+ print "Note: Will test gmx for compatibility of output files\n";
+}
 
-                       See the SMOG manual for usage guidelines.
+if($GMXPATHGAUSSIAN eq "" && $CHECKGMXGAUSSIAN eq "yes"){
+ smog_quit("In order to test compatibility with gmx, you must export GMXPATHGAUSSIAN.  This may be accomplished by issuing the command :\n\t\"export GMXPATHGAUSSIAN=<location of gmx directory>\"\n ");
+}elsif($CHECKGMX eq "no"){
+ print "Note: Will NOT test gmx for compatibility of output files for gaussian potentials\n";
+}elsif($CHECKGMX eq "yes"){
+ print "Note: Will test gmx for compatibility of output files for gaussian potentials\n";
+}
 
-            For questions regarding this script, contact info\@smog-server.org              
 
-EOS
-
-my $wide=88;
-
-printdashed($wide);
-printcenter($wide,$tmpstring);
-printdashed($wide);
 
 # check if we are simply rerunning a single test, a few tests, or performing all
 my $RETEST=$#ARGV;
 my $RETESTEND=-1;
 if($RETEST == 0 || $RETEST == 1 ){
-	my $RETESTT;
-	if($ARGV[0] =~ /^\d+$/){
-		# is an integer
-		$RETESTT=$ARGV[0];
-		$RETESTEND=$RETESTT;
-	}else{
-		# is not an integer.  flag error
-		smogcheck_error("argument to smog-check can only be one, or two, integers. Found \"$ARGV[0]\"");
-	}
-
-	if($RETEST == 1 ){
-		if($ARGV[1] =~ /^\d+$/){
-			# is an integer
-			$RETESTEND=$ARGV[1];
-			print "\nWill run tests $ARGV[0] to $ARGV[1].\n\n";
-		}else{
-			# is not an integer.  flag error
-			smogcheck_error("argument to smog-check can only be one, or two, integers. Found \"$ARGV[0]\"");
-		}
-		if($ARGV[1] < $ARGV[0]){
-			smogcheck_error("Arguments must be first test, then last test. Last test number must be larger.");
-		}
-	}else{
-		print "\nWill only run test $ARGV[0].\n\n";
-	}
-	$RETEST=$RETESTT;
+ my $RETESTT;
+ if($ARGV[0] =~ /^\d+$/){
+  # is an integer
+  $RETESTT=$ARGV[0];
+  $RETESTEND=$RETESTT;
+ }else{
+  # is not an integer.  flag error
+  smogcheck_error("argument to smog-check can only be one, or two, integers. Found \"$ARGV[0]\"");
+ }
+ 
+ if($RETEST == 1 ){
+  if($ARGV[1] =~ /^\d+$/){
+   # is an integer
+   $RETESTEND=$ARGV[1];
+   print "\nWill run tests $ARGV[0] to $ARGV[1].\n\n";
+  }else{
+   # is not an integer.  flag error
+   smogcheck_error("argument to smog-check can only be one, or two, integers. Found \"$ARGV[0]\"");
+  }
+  if($ARGV[1] < $ARGV[0]){
+   smogcheck_error("Arguments must be first test, then last test. Last test number must be larger.");
+  }
+ }else{
+  print "\nWill only run test $ARGV[0].\n\n";
+ }
+ $RETEST=$RETESTT;
 
 }elsif($RETEST== -1){
 	print "\nWill run all tests (default).\n\n";
@@ -158,6 +170,32 @@ my $TESTNUM=0;
 
 
 #*****************************SUBROUTINES**************************
+
+sub printopeningmessage
+{
+
+my $tmpstring = <<"EOS";
+
+                    smog-check (for smog v$VERSION)                                  
+
+       smog-check is part of the SMOG 2 distribution, available at smog-server.org     
+
+       This tool will check your installation of SMOG 2, to ensure 
+		that a number of models are being constructed properly.
+
+                       See the SMOG manual for usage guidelines.
+
+            For questions regarding this script, contact info\@smog-server.org              
+
+EOS
+
+my $wide=88;
+
+printdashed($wide);
+printcenter($wide,$tmpstring);
+printdashed($wide);
+
+}
 
 sub readbackbonetypes
 {

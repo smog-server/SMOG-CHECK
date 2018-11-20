@@ -1,5 +1,6 @@
 #!/bin/bash
 
+echo Collecting information and cleaning up directory before launching smog-check
 echo Detecting configured version of SMOG2
 # grab all of the environment settings used when running smog2
 export smog_exec=`which smog2`
@@ -12,7 +13,7 @@ CURDIR=$CURDIR/bin
 export PERLLIB=$PERLLIB:$CURDIR/modules
 export PERL5LIB=$PERL5LIB:$CURDIR/modules
 
-echo "Using the files found in $SMOG_PATH"
+echo "Will use the scripts found in $SMOG_PATH"
 echo "This is set when running configure.smog2"
 export BIFSIF_AA_DEFAULT=$SMOG_PATH/SBM_AA
 export BIFSIF_CA_DEFAULT=$SMOG_PATH/SBM_calpha
@@ -24,5 +25,9 @@ export TOLERANCE=0.001
 export PRECISION=10000
 
 bin/cleanup.bash
+
+echo "preparation steps completed.  Will now launch smog-check"
+echo
+
 mkdir FAILED
 echo share/PDB.files/all.pdbs | $perl4smog bin/check.v2.pl "$@"
