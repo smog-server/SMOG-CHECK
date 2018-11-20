@@ -13,34 +13,11 @@ my $VERSION="2.2beta";
 # by default, we will not check for compatibility with gmx, since that is more involved.  However, we may turn on those tests by changing the following two lines to yes.
 my $CHECKGMX="no";
 my $CHECKGMXGAUSSIAN="no";
+my $GMXVER=5;
 
-my $GMXPATH="";
-if(defined $ENV{"GMXPATH"}){
- $GMXPATH=$ENV{"GMXPATH"}
-}
-my $GMXPATHGAUSSIAN="";
-if(defined $ENV{"GMXPATHGAUSSIAN"}){
- $GMXPATH=$ENV{"GMXPATHGAUSSIAN"}
-}
-
-if($GMXPATH eq "" && $CHECKGMX eq "yes"){
- smog_quit("In order to test compatibility with gmx, you must export GMXPATH.  This may be accomplished by issuing the command :\n\t\"export GMXPATH=<location of gmx directory>\"\n ");
-}elsif($CHECKGMX eq "no"){
- print "Note: Will NOT test gmx for compatibility of output files\n";
-}elsif($CHECKGMX eq "yes"){
- print "Note: Will test gmx for compatibility of output files\n";
-}
-
-if($GMXPATHGAUSSIAN eq "" && $CHECKGMXGAUSSIAN eq "yes"){
- smog_quit("In order to test compatibility with gmx, you must export GMXPATHGAUSSIAN.  This may be accomplished by issuing the command :\n\t\"export GMXPATHGAUSSIAN=<location of gmx directory>\"\n ");
-}elsif($CHECKGMX eq "no"){
- print "Note: Will NOT test gmx for compatibility of output files for gaussian potentials\n";
-}elsif($CHECKGMX eq "yes"){
- print "Note: Will test gmx for compatibility of output files for gaussian potentials\n";
-}
-
-
-
+my $GMXMDP;
+my $GMXMDPCA;
+my $GMXEXEC;
 # check if we are simply rerunning a single test, a few tests, or performing all
 my $RETEST=$#ARGV;
 my $RETESTEND=-1;
@@ -96,6 +73,59 @@ our $TEMPLATE_DIR_AA=$ENV{'BIFSIF_AA_TESTING'};
 our $TEMPLATE_DIR_AA_STATIC=$ENV{'BIFSIF_STATIC_TESTING'};
 our $TEMPLATE_DIR_CA=$ENV{'BIFSIF_CA_TESTING'};
 our $TEMPLATE_DIR_AA_MATCH=$ENV{'BIFSIF_AA_MATCH'};
+
+
+# get all of the gromacs paths in order.
+my $GMXPATH="";
+if(defined $ENV{"GMXPATH"}){
+ $GMXPATH=$ENV{"GMXPATH"};
+}
+my $GMXPATHGAUSSIAN="";
+if(defined $ENV{"GMXPATHGAUSSIAN"}){
+ $GMXPATH=$ENV{"GMXPATHGAUSSIAN"};
+}
+
+if($GMXVER !~ /^4$/){
+ $GMXEXEC="grompp";
+ $GMXMDP="$SMOGDIR/examples/gromacs4/all-atom/allatomForGromacs4.X.mdp";
+ $GMXMDPCA="$SMOGDIR/examples/gromacs4/calpha/calphaForGromacs4.X.mdp";
+}elsif($GMXVER !~ /^5$/){
+ $GMXEXEC="gmx grompp";
+ $GMXMDP="$SMOGDIR/examples/gromacs5/all-atom/allatomForGromacs5.mdp";
+ $GMXMDPCA="$SMOGDIR/examples/gromacs5/calpha/calphaForGromacs5.mdp";
+}else{
+ smog_quit("Only gromacs v4 and 5 can be tested with this script.");
+}
+
+if($GMXPATH eq "" && $CHECKGMX eq "yes"){
+ smog_quit("In order to test compatibility with gmx, you must export GMXPATH.  This may be accomplished by issuing the command :\n\t\"export GMXPATH=<location of gmx directory>\"\n ");
+}elsif($CHECKGMX eq "no"){
+ print "Note: Will NOT test gmx for compatibility of output files\n";
+}elsif($CHECKGMX eq "yes"){
+ print "Note: Will test gmx for compatibility of output files\n";
+ if(! -e $GMXMDP){
+  smog_quit("can not find mdp file $GMXMDP");
+ }
+ if(! -e $GMXMDPCA){
+  smog_quit("can not find mdp file $GMXMDPCA");
+ }
+}
+
+if($GMXPATHGAUSSIAN eq "" && $CHECKGMXGAUSSIAN eq "yes"){
+ smog_quit("In order to test compatibility with gmx, you must export GMXPATHGAUSSIAN.  This may be accomplished by issuing the command :\n\t\"export GMXPATHGAUSSIAN=<location of gmx directory>\"\n ");
+}elsif($CHECKGMX eq "no"){
+ print "Note: Will NOT test gmx for compatibility of output files for gaussian potentials\n";
+}elsif($CHECKGMX eq "yes"){
+ print "Note: Will test gmx for compatibility of output files for gaussian potentials\n";
+ if(! -e $GMXMDP){
+  smog_quit("can not find mdp file $GMXMDP");
+ }
+ if(! -e $GMXMDPCA){
+  smog_quit("can not find mdp file $GMXMDPCA");
+ }
+}
+
+
 # FAILLIST is a list of all the tests.
 # If you are developing and testing your own forcefield, which may not need to conform to certain checks, then you may want to disable some tests by  removing the test name from this list. However, do so at your own risk.
 
