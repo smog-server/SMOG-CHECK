@@ -2560,7 +2560,7 @@ sub checkpairs
   if($gaussian eq "yes"){
    $W=$A[3];
    $Cdist=$A[4];
-   $CALCD=getdist(\*CMAP,$A[0],$A[1]);
+   $CALCD=getpairdist(\*CMAP,$A[0],$A[1]);
    if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0) ){
     $ContactDist++;
    }else{
@@ -2587,7 +2587,7 @@ sub checkpairs
   }elsif($model eq "CA"){
    $W=5.0**5.0/6.0**6.0*($A[3]**6.0)/($A[4]**5.0);
    $Cdist=(6*$A[4]/(5*$A[3]))**(1.0/2.0);
-   $CALCD=getdist(\*CMAP,$A[0],$A[1]);
+   $CALCD=getpairdist(\*CMAP,$A[0],$A[1]);
    if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0) ){
     $ContactDist++;
    }else{
@@ -2596,7 +2596,7 @@ sub checkpairs
   }elsif($model eq "AA" || $model eq "AA-match"){
    $W=($A[3]*$A[3])/(4*$A[4]);
    $Cdist=(2.0*$A[4]/($A[3]))**(1.0/6.0);
-   $CALCD=getdist(\*CMAP,$A[0],$A[1]);
+   $CALCD=getpairdist(\*CMAP,$A[0],$A[1]);
    if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0)){
     $ContactDist++;
    }else{
@@ -2921,7 +2921,7 @@ sub CheckTemplatesCreated
  }	
 }
 
-sub getdist
+sub getpairdist
 {
  my ($handle,$A0,$A1)=@_;
  my $dist;
