@@ -1650,9 +1650,12 @@ sub checkbonds
    $RECOGNIZEDBTYPES++;
    my $bweight;
    my $bval;
+   my $maxdiff;
    if(defined  $bondEps){
     # there is a homogeneous value used
     $bweight=$bondEps;
+    $maxdiff=5E-3;
+    $bval=getbonddist(\@A);
    }else{
     # heterogeneous bonds need to be checked (obtained from compare file).
     my $bt1=$atombondedtype[$A[0]];
@@ -1661,17 +1664,19 @@ sub checkbonds
      # check for the expected values of the weight, if defined 
      $bweight=$matchbond_weight{"$bt1-$bt2"};
      $bval=$matchbond_val{"$bt1-$bt2"};
-     if(abs($A[3]- $bval) > 10E-10){
-      $fail_log .= failed_message("bond has incorrect length. Expected $bval. Found:\n\t$LINE");
-     }else{
-      $CORRECTBONDLENGTHS++;
-     }	
+     $maxdiff=10E-10;
     }else{
      # since one only needs to provide weights that are used, 
      # we verify here, as opposed to checking all possible combinations earlier
      smogcheck_error("Bonded types $bt1 $bt2 don\'t have a defined reference weight.")
     }
    }
+   if(abs($A[3]- $bval) > $maxdiff){
+    $fail_log .= failed_message("bond has incorrect length. Expected $bval. Found:\n\t$LINE");
+   }else{
+    $CORRECTBONDLENGTHS++;
+   }	
+
    if(abs($A[4] - $bweight) > 10E-10){
     $fail_log .= failed_message("bond has incorrect weight. Expected $bweight. Found:\n\t$LINE");
    }else{
@@ -1842,7 +1847,7 @@ sub checkangles
    $aweight=$angleEps;
    $aval=getbondangle(\@A);
   }else{
-   $maxdiff=0.00001;
+   $maxdiff=10E-10;
    # heterogeneous bonds need to be checked (obtained from compare file).
    my $at1=$atombondedtype[$A[0]];
    my $at2=$atombondedtype[$A[1]];
@@ -2128,7 +2133,7 @@ sub checkdihedrals
     my $dihval;
     if(defined  $dihmatch){
      # the differences should be zero, since it is simply read from a file
-     $maxdiff=0.00001;
+     $maxdiff=10E-10;
      # heterogeneous bonds need to be checked (obtained from compare file).
      my $at1=$atombondedtype[$A[0]];
      my $at2=$atombondedtype[$A[1]];
@@ -2934,6 +2939,23 @@ sub getdist
   $dist=(($XT[$A0]-$XT[$A1])**2+($YT[$A0]-$YT[$A1])**2+($ZT[$A0]-$ZT[$A1])**2)**(0.5);
   return $dist;
  }
+}
+
+sub getbonddist
+{
+ my ($A)=@_;
+ my @atoms=@{$A};
+ my $i=$atoms[0];
+ my $j=$atoms[1];
+ my $dist;
+ my @V;
+ $V[0]=$XT[$i]-$XT[$j];
+ $V[1]=$YT[$i]-$YT[$j];
+ $V[2]=$ZT[$i]-$ZT[$j];
+ 
+ $dist=sqrt($V[0]**2+$V[1]**2+$V[2]**2);
+
+ return $dist
 }
 
 sub getbondangle
