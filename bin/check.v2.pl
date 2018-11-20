@@ -11,14 +11,14 @@ my $VERSION="2.2beta";
 &printopeningmessage;
 
 # by default, we will not check for compatibility with gmx, since that is more involved.  However, we may turn on those tests by changing the following two lines to yes.
-my $CHECKGMX="yes";
+my $CHECKGMX="no";
 my $CHECKGMXGAUSSIAN="no";
 my $GMXVER=5;
 
-my $GMXTAB;
 my $GMXMDP;
 my $GMXMDPCA;
 my $GMXEXEC;
+my $GMXEDITCONF;
 # check if we are simply rerunning a single test, a few tests, or performing all
 my $RETEST=$#ARGV;
 my $RETESTEND=-1;
@@ -88,14 +88,14 @@ if(defined $ENV{"GMXPATHGAUSSIAN"}){
 
 if($GMXVER =~ /^4$/){
  $GMXEXEC="grompp";
+ $GMXEDITCONF="editconf";
  $GMXMDP="$SMOGDIR/examples/gromacs4/all-atom/allatomForGromacs4.X.mdp";
  $GMXMDPCA="$SMOGDIR/examples/gromacs4/calpha/calphaForGromacs4.X.mdp";
- $GMXTAB="$SMOGDIR/examples/gromacs4/calpha/table1012.xvg";
 }elsif($GMXVER =~ /^5$/){
  $GMXEXEC="gmx grompp";
+ $GMXEDITCONF="gmx editconf";
  $GMXMDP="$SMOGDIR/examples/gromacs5/all-atom/allatomForGromacs5.mdp";
  $GMXMDPCA="$SMOGDIR/examples/gromacs5/calpha/calphaForGromacs5.mdp";
- $GMXTAB="$SMOGDIR/examples/gromacs5/calpha/table1012.xvg";
 }else{
  smog_quit("Only gromacs v4 and 5 can be tested with this script.");
 }
@@ -111,9 +111,6 @@ if($GMXPATH eq "" && $CHECKGMX eq "yes"){
  }
  if(! -e $GMXMDPCA){
   smog_quit("can not find mdp file $GMXMDPCA");
- }
- if(! -e $GMXTAB){
-  smog_quit("can not find table file $GMXTAB");
  }
 }
 
@@ -143,7 +140,7 @@ our $FAILDIR="FAILED";
 # are we testing files with free interactions?
 our $free;
 # will add free-specific hashes, here
-our @FILETYPES=("top","gro","ndx","settings","contacts","output","contacts.SCM", "contacts.CG");
+our @FILETYPES=("top","gro","ndx","settings","contacts","output","contacts.SCM", "contacts.CG","grompp","editconf");
 
 # bunch of global vars.  A bit sloppy.  Many could be local.
 our ($AMINO_PRESENT,$angleEps,@atombondedtype,%atombondedtypes,%atombondedtypes2,@ATOMNAME,@ATOMTYPE,$BBRAD,%BBTYPE,$bondEps,$bondMG,$bondtype6,%C12NB,%C6NB,$chargeAT,%chargeNB,%CHECKED,@CID,$CONTD,$CONTENERGY,$CONTR,$CONTTYPE,$default,%defcharge,$defname,$DENERGY,$dihmatch,$DIH_MAX,$DIH_MIN,$DISP_MAX,@EDrig_T,@ED_T,$epsilon,$epsilonCAC,$epsilonCAD,%FAIL,$FAILED,$fail_log,@FIELDS,$gaussian,@GRODATA,$impEps,$improper_gen_N,$ION_PRESENT,$LIGAND_DIH,$LIGAND_PRESENT,%massNB,%matchangle_val,%matchangle_weight,%matchbond_val,%matchbond_weight,%matchdihedral_val,%matchdihedral_weight,$model,@MOLTYPE,%MOLTYPEBYRES,$NA_DIH,$NCONTACTS,$NUCLEIC_PRESENT,$NUMATOMS,$NUMATOMS_LIGAND,$omegaEps,$PDB,$phi_gen_N,$PRO_DIH,$R_CD,$rep_s12,@RESNUM,%restypecount,$ringEps,$R_N_SC_BB,$R_P_BB_SC,$sigma,$sigmaCA,$theta_gen_N,%TYPE,$type6count,$usermap,@XT,@YT,@ZT);
@@ -449,15 +446,24 @@ sub runsmog
 
 sub runGMX
 {
- my ($GMXPATH,$GMXEXEC,$GMXMDP,$GMXMDPCA,$GMXTAB)=@_;
+ my ($GMXPATH,$GMXEXEC,$GMXMDP,$GMXMDPCA)=@_;
+ if($model =~ /gaussian/ && $CHECKGMXGAUSSIAN eq "no"){
+  return -1;
+ }
+ if($model !~ /gaussian/ && $CHECKGMX eq "no"){
+  return -1;
+ }
+ print "Running grompp... may take a while\n";
+ # check the the gro and top work with grompp
+ `$GMXPATH/$GMXEDITCONF -f $PDB.gro -d 10 -o $PDB.box.gro &> $PDB.editconf`;
  if($model eq "CA"){
-  `$GMXPATH/$GMXEXEC -f $GMXMDPCA -c $PDB.gro -p $PDB.top -maxwarn 1`;
+  `$GMXPATH/$GMXEXEC -f $GMXMDPCA -c $PDB.box.gro -p $PDB.top -maxwarn 1 &> $PDB.grompp`;
  }elsif($model eq "AA"){
-  `$GMXPATH/$GMXEXEC -f $GMXMDP -c $PDB.gro -p $PDB.top -maxwarn 1`;
+  `$GMXPATH/$GMXEXEC -f $GMXMDP -c $PDB.box.gro -p $PDB.top -maxwarn 1 &> $PDB.grompp`;
  }else{
   internal_error("unable to determine whether this is a CA, or AA model.");
  }
- return 1;
+ return $?;
 }
 
 sub setmodelflags{
@@ -683,8 +689,6 @@ sub smogchecker
  &preparesettings;
  print "Running SMOG 2\n";
  &runsmog; 
- # if GMX tests are turned on, then run them
- $FAIL{'GMX COMPATIBLE'}=runGMX($GMXPATH,$GMXEXEC,$GMXMDP,$GMXMDPCA,$GMXTAB);
  ($FAIL{'NON-ZERO EXIT'},$FAIL{'UNINITIALIZED VARIABLES'})=checkoutput("$PDB.output");
 
  if($FAIL{'UNINITIALIZED VARIABLES'} == 1){
@@ -696,12 +700,14 @@ sub smogchecker
  }
  if($FAIL{'NON-ZERO EXIT'} == 0){
   print "SMOG 2 exited without an error.\nAssessing generated files...\n";
-  # CHECK THE OUTPUT
+   # CHECK THE OUTPUT
   &checkSCM;
   &checkgro; 
   &checkndx;
   &checktop;
   &finalchecks;
+  # if GMX tests are turned on, then run them
+  $FAIL{'GMX COMPATIBLE'}=runGMX($GMXPATH,$GMXEXEC,$GMXMDP,$GMXMDPCA);
  }else{
   $fail_log .= failed_message("SMOG 2 exited with non-zero exit code when trying to process this PDB file.");
   $FAIL_SYSTEM++;
