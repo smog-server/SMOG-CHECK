@@ -451,9 +451,9 @@ sub runGMX
 {
  my ($GMXPATH,$GMXEXEC,$GMXMDP,$GMXMDPCA,$GMXTAB)=@_;
  if($model eq "CA"){
-  `$GMXPATH/$GMXEXEC -f $GMXMDPCA -c $PDB.gro -o $PDB.top -table $GMXTAB `;
+  `$GMXPATH/$GMXEXEC -f $GMXMDPCA -c $PDB.gro -p $PDB.top -maxwarn 1`;
  }elsif($model eq "AA"){
-  `$GMXPATH/$GMXEXEC -f $GMXMDPCA -c $PDB.gro -o $PDB.top`;
+  `$GMXPATH/$GMXEXEC -f $GMXMDP -c $PDB.gro -p $PDB.top -maxwarn 1`;
  }else{
   internal_error("unable to determine whether this is a CA, or AA model.");
  }
