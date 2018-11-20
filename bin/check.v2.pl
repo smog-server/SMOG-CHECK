@@ -1737,10 +1737,7 @@ sub checkbonds
  if($CORRECTBONDWEIGHTS == $NBONDS && $NBONDS !=0){
   $FAIL{'BOND STRENGTHS'}=0;
  } 
- if(defined  $bondEps){
-  # not checking values
-  $FAIL{'BOND LENGTHS'}=-1; 
- }elsif($CORRECTBONDLENGTHS == $NBONDS && $NBONDS !=0){
+ if($CORRECTBONDLENGTHS == $NBONDS && $NBONDS !=0){
   $FAIL{'BOND LENGTHS'}=0;
  }
 
