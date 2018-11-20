@@ -1834,11 +1834,15 @@ sub checkangles
   }
   my $aweight;
   my $aval;
+  my $maxdiff;
   if(defined  $angleEps){
+   # somewhat large allowable difference, since we are comparing the angle that is limited by gro precision.
+   $maxdiff=1.0;
    # there is a homogeneous value used
    $aweight=$angleEps;
    $aval=getbondangle(\@A);
   }else{
+   $maxdiff=0.00001;
    # heterogeneous bonds need to be checked (obtained from compare file).
    my $at1=$atombondedtype[$A[0]];
    my $at2=$atombondedtype[$A[1]];
@@ -1853,7 +1857,7 @@ sub checkangles
     smogcheck_error("Bonded types $at1 $at2 $at3 don\'t have a defined reference angle weight.")
    }
   }
-  if(abs($A[4]- $aval) > 1){
+  if(abs($A[4]- $aval) > $maxdiff){
    # check that it is within 1 degree of what is expected.  This is limited by the resolution of gro files
    $fail_log .= failed_message("bond has incorrect angle. Expected $aval. Found:\n\t$LINE");
   }else{
@@ -2115,6 +2119,7 @@ sub checkdihedrals
   ##if dihedral is type 1, then save the information, so we can make sure the next is n=3
   if(exists $A[7]){
    if($A[7] == 1){
+    my $maxdiff;
     $numberofdihedrals++;
     $LAST_W=$A[6];
     $string_last=$string;
@@ -2122,6 +2127,8 @@ sub checkdihedrals
   # only going to check the value for matching if type 1
     my $dihval;
     if(defined  $dihmatch){
+     # the differences should be zero, since it is simply read from a file
+     $maxdiff=0.00001;
      # heterogeneous bonds need to be checked (obtained from compare file).
      my $at1=$atombondedtype[$A[0]];
      my $at2=$atombondedtype[$A[1]];
@@ -2146,11 +2153,11 @@ sub checkdihedrals
     }else{
      # if not matching based on sif, then calculate the dihedral angle
      $dihval=getdihangle(\@A);
+     # rather large allowable difference, since there a precision difference between the PDB, which defines the .top, and the precision of the .gro, which is used by the script to calculate the angles for comparison.
+     $maxdiff=3.0;
     }
     my $diff=dihdelta($A[5],$dihval);
-    if($diff > 3){
-     # this is a somewhat generous threshold for comparing angles.  However, the reason is that 
-     # this script uses the gro file, whereas the .top was based on the pdb, which has higher precision.
+    if($diff > $maxdiff){
      $fail_log .= failed_message("dihedral has incorrect angle. Expected $dihval. Found:\n\t$LINE\n(diff=$diff)");
     }else{
      $CORRECTDIHEDRALANGLES++;
