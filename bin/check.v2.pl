@@ -127,7 +127,7 @@ if($GMXPATH eq "" && $CHECKGMX eq "yes"){
 if($GMXPATHGAUSSIAN eq "" && $CHECKGMXGAUSSIAN eq "yes"){
  smog_quit("In order to test compatibility with gmx, you must export GMXPATHGAUSSIAN.  This may be accomplished by issuing the command :\n\t\"export GMXPATHGAUSSIAN=<location of gmx directory>\"\n ");
 }elsif($CHECKGMXGAUSSIAN eq "no"){
- print "Will NOT test gmx for compatibility of output files with gaussian potentials. To enable, export CHECKGMXGAUSSIAN with value \"yes\"\n";
+ print "Will NOT test gmx for compatibility of output files with gaussian potentials.\nTo enable, export CHECKGMXGAUSSIAN with value \"yes\"\n";
 }elsif($CHECKGMXGAUSSIAN eq "yes"){
  print "Will test gmx for compatibility of output files for gaussian potentials\n";
  if(! -e $GMXMDP){
@@ -150,7 +150,7 @@ our $FAILDIR="FAILED";
 # are we testing files with free interactions?
 our $free;
 # will add free-specific hashes, here
-our @FILETYPES=("top","gro","ndx","settings","contacts","output","contacts.SCM", "contacts.CG","grompp","editconf");
+our @FILETYPES=("top","gro","ndx","settings","contacts","output","contacts.SCM", "contacts.CG","grompp","editconf","mdp");
 
 # bunch of global vars.  A bit sloppy.  Many could be local.
 our ($AMINO_PRESENT,$angleEps,@atombondedtype,%atombondedtypes,%atombondedtypes2,@ATOMNAME,@ATOMTYPE,$BBRAD,%BBTYPE,$bondEps,$bondMG,$bondtype6,%C12NB,%C6NB,$chargeAT,%chargeNB,%CHECKED,@CID,$CONTD,$CONTENERGY,$CONTR,$CONTTYPE,$default,%defcharge,$defname,$DENERGY,$dihmatch,$DIH_MAX,$DIH_MIN,$DISP_MAX,@EDrig_T,@ED_T,$epsilon,$epsilonCAC,$epsilonCAD,%FAIL,$FAILED,$fail_log,@FIELDS,$gaussian,@GRODATA,$impEps,$improper_gen_N,$ION_PRESENT,$LIGAND_DIH,$LIGAND_PRESENT,%massNB,%matchangle_val,%matchangle_weight,%matchbond_val,%matchbond_weight,%matchdihedral_val,%matchdihedral_weight,$model,@MOLTYPE,%MOLTYPEBYRES,$NA_DIH,$NCONTACTS,$NUCLEIC_PRESENT,$NUMATOMS,$NUMATOMS_LIGAND,$omegaEps,$PDB,$phi_gen_N,$PRO_DIH,$R_CD,$rep_s12,@RESNUM,%restypecount,$ringEps,$R_N_SC_BB,$R_P_BB_SC,$sigma,$sigmaCA,$theta_gen_N,%TYPE,$type6count,$usermap,@XT,@YT,@ZT);
@@ -475,14 +475,20 @@ sub runGMX
   internal_error("gaussian variable not properly set");
  }
  print "Running grompp... may take a while\n";
+ if(-e "topol.tpr"){
+ `rm topol.tpr`;
+ }
  # check the the gro and top work with grompp
  `$GMXPATH/$GMXEDITCONF -f $PDB.gro -d 10 -o $PDB.box.gro &> $PDB.editconf`;
  if($model eq "CA"){
-  `$GMXPATH/$GMXEXEC -f $GMXMDPCA -c $PDB.box.gro -p $PDB.top -maxwarn 1 &> $PDB.grompp`;
+  `$GMXPATH/$GMXEXEC -f $GMXMDPCA -c $PDB.box.gro -p $PDB.top -po $PDB.out.mdp -maxwarn 1 &> $PDB.grompp`;
  }elsif($model eq "AA"){
-  `$GMXPATH/$GMXEXEC -f $GMXMDP -c $PDB.box.gro -p $PDB.top -maxwarn 1 &> $PDB.grompp`;
+  `$GMXPATH/$GMXEXEC -f $GMXMDP -c $PDB.box.gro -p $PDB.top -po $PDB.out.mdp -maxwarn 1 &> $PDB.grompp`;
  }else{
   internal_error("unable to determine whether this is a CA, or AA model.");
+ }
+ if(-e "topol.tpr"){
+ `rm topol.tpr`;
  }
  return $?;
 }
