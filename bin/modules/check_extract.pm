@@ -26,7 +26,7 @@ our %supported_directives = ( 'defaults' => '1',
 
 sub check_extract
 {
- my ($exec,$pdbdir)=@_;
+ my ($exec,$pdbdir,$CHECKGMX,$GMXVER,$GMXPATH,$GMXEXEC,$GMXEDITCONF,$GMXMDP,$GMXMDPCA)=@_;
  my $NFAIL=0;
  my $MESSAGE="";
  my %FAIL;
@@ -36,7 +36,7 @@ sub check_extract
  my $UNINIT;
  my $printbuffer;
  my $tool="extract";
- my @FAILLIST = ('NON-ZERO EXIT','UNINITIALIZED VARIABLES','EXTRA MAP FILE GENERATED');
+ my @FAILLIST = ('NON-ZERO EXIT','UNINITIALIZED VARIABLES','EXTRA MAP FILE GENERATED','GMX COMPATIBLE');
 
 
  %FAIL=resettests(\%FAIL,\@FAILLIST);
@@ -58,16 +58,17 @@ sub check_extract
 
    ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
    $FAIL{"EXTRA MAP FILE GENERATED"} = checkrestraintfile(1,"restrained.map");
+   $FAIL{"GMX COMPATIBLE"}=runGMX("AA",$CHECKGMX,"no",$GMXEDITCONF,$GMXPATH,"",$GMXEXEC,$GMXMDP,$GMXMDPCA,"no","extracted");
    my $string=loadfile("extracted.top");
    my ($DATA,$DIRLIST)=checkdirectives($string);
 
    ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
    $FAILSUM += $FAILED;
    if($FAILED !=0){
-    savefailed("AA.nores.$group",("output.$tool","extracted.top","extracted.gro","atomindex.map"));
+    savefailed("AA.nores.$group",("output.$tool","extracted.top","extracted.gro","atomindex.map","topol.tpr","extracted.box.gro","extracted.editconf","extracted.grompp","extracted.out.mdp"));
     print "$printbuffer\n";
    }else{
-    clearfiles(("output.$tool","extracted.top","extracted.gro","atomindex.map"));
+    clearfiles(("output.$tool","extracted.top","extracted.gro","atomindex.map","topol.tpr","extracted.box.gro","extracted.editconf","extracted.grompp","extracted.out.mdp"));
    }
   } 
   clearfiles(("AA.tmp.top","AA.tmp.gro","AA.tmp.ndx","AA.tmp.contacts"));
@@ -80,6 +81,7 @@ sub check_extract
    `echo $group | $exec -f $pdbdir/large.top -g $pdbdir/large.gro -n $pdbdir/large.ndx  &> output.$tool`;
 
    ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
+   $FAIL{"GMX COMPATIBLE"}=runGMX("AA",$CHECKGMX,"no",$GMXEDITCONF,$GMXPATH,"",$GMXEXEC,$GMXMDP,$GMXMDPCA,"no","extracted");
    $FAIL{"EXTRA MAP FILE GENERATED"} = checkrestraintfile(1,"restrained.map");
    my $string=loadfile("extracted.top");
    my ($DATA,$DIRLIST)=checkdirectives($string);
@@ -87,10 +89,10 @@ sub check_extract
    ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
    $FAILSUM += $FAILED;
    if($FAILED !=0){
-    savefailed("AA.nores.nonstandard.$group",("output.$tool","extracted.top","extracted.gro","atomindex.map"));
+    savefailed("AA.nores.nonstandard.$group",("output.$tool","extracted.top","extracted.gro","atomindex.map","topol.tpr","extracted.box.gro","extracted.editconf","extracted.grompp","extracted.out.mdp"));
     print "$printbuffer\n";
    }else{
-    clearfiles(("output.$tool","extracted.top","extracted.gro","atomindex.map"));
+    clearfiles(("output.$tool","extracted.top","extracted.gro","atomindex.map","topol.tpr","extracted.box.gro","extracted.editconf","extracted.grompp","extracted.out.mdp"));
    }
   } 
 
@@ -102,6 +104,7 @@ sub check_extract
    `echo $group | $exec -f $pdbdir/large.top -g $pdbdir/large.gro -n $pdbdir/large.ndx -restraints 100 &> output.$tool`;
 
    ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
+   $FAIL{"GMX COMPATIBLE"}=runGMX("AA",$CHECKGMX,"no",$GMXEDITCONF,$GMXPATH,"",$GMXEXEC,$GMXMDP,$GMXMDPCA,"no","extracted");
    $FAIL{"EXTRA MAP FILE GENERATED"} = checkrestraintfile(0,"restrained.map");
    my $string=loadfile("extracted.top");
    my ($DATA,$DIRLIST)=checkdirectives($string);
@@ -109,10 +112,10 @@ sub check_extract
    ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
    $FAILSUM += $FAILED;
    if($FAILED !=0){
-    savefailed("AA.res.nonstandard.$group",("output.$tool","extracted.top","extracted.gro","atomindex.map","restrained.map"));
+    savefailed("AA.res.nonstandard.$group",("output.$tool","extracted.top","extracted.gro","atomindex.map","restrained.map","topol.tpr","extracted.box.gro","extracted.editconf","extracted.grompp","extracted.out.mdp"));
     print "$printbuffer\n";
    }else{
-    clearfiles(("output.$tool","extracted.top","extracted.gro","atomindex.map","restrained.map"));
+    clearfiles(("output.$tool","extracted.top","extracted.gro","atomindex.map","restrained.map","topol.tpr","extracted.box.gro","extracted.editconf","extracted.grompp","extracted.out.mdp"));
    }
   } 
 

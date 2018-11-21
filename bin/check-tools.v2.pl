@@ -71,7 +71,7 @@ if(defined $checkthese{"ions"} || @ARGV==0){
 }
 if(defined $checkthese{"extract"} || @ARGV==0){
  print "\nTesting smog_extract\n";
- ($FAILED,$message)=check_extract($EXEC_EXTRACT,$PDB_DIR);
+ ($FAILED,$message)=check_extract($EXEC_EXTRACT,$PDB_DIR,$CHECKGMX,$GMXVER,$GMXPATH,$GMXEXEC,$GMXEDITCONF,$GMXMDP,$GMXMDPCA);
  if($FAILED >0){$FAILSUM++};
  $tested++;
 }
