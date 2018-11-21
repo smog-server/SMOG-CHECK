@@ -93,7 +93,7 @@ if(defined $ENV{"GMXPATH"}){
 }
 my $GMXPATHGAUSSIAN="";
 if(defined $ENV{"GMXPATHGAUSSIAN"}){
- $GMXPATH=$ENV{"GMXPATHGAUSSIAN"};
+ $GMXPATHGAUSSIAN=$ENV{"GMXPATHGAUSSIAN"};
 }
 
 if($GMXVER =~ /^4$/){
@@ -113,9 +113,10 @@ if($GMXVER =~ /^4$/){
 if($GMXPATH eq "" && $CHECKGMX eq "yes"){
  smog_quit("In order to test compatibility with gmx, you must export GMXPATH.  This may be accomplished by issuing the command :\n\t\"export GMXPATH=<location of gmx directory>\"\n ");
 }elsif($CHECKGMX eq "no"){
- print "Will NOT test gmx for compatibility of output files. To enable, export CHECKGMX with value \"yes\"\n";
+ print "Will NOT test gmx for compatibility of output files.\n\tTo enable, export CHECKGMX with value \"yes\"\n";
 }elsif($CHECKGMX eq "yes"){
  print "Will test gmx for compatibility of output files\n";
+ print "Will try to use the following command to launch grompp:\n\t$GMXPATH$GMXEXEC\n";
  if(! -e $GMXMDP){
   smog_quit("can not find mdp file $GMXMDP");
  }
@@ -127,9 +128,10 @@ if($GMXPATH eq "" && $CHECKGMX eq "yes"){
 if($GMXPATHGAUSSIAN eq "" && $CHECKGMXGAUSSIAN eq "yes"){
  smog_quit("In order to test compatibility with gmx, you must export GMXPATHGAUSSIAN.  This may be accomplished by issuing the command :\n\t\"export GMXPATHGAUSSIAN=<location of gmx directory>\"\n ");
 }elsif($CHECKGMXGAUSSIAN eq "no"){
- print "Will NOT test gmx for compatibility of output files with gaussian potentials.\nTo enable, export CHECKGMXGAUSSIAN with value \"yes\"\n";
+ print "Will NOT test gmx for compatibility of output files with gaussian potentials.\n\tTo enable, export CHECKGMXGAUSSIAN with value \"yes\"\n";
 }elsif($CHECKGMXGAUSSIAN eq "yes"){
  print "Will test gmx for compatibility of output files for gaussian potentials\n";
+ print "Will try to use the following command to launch grompp:\n\t$GMXPATH$GMXEXEC\n";
  if(! -e $GMXMDP){
   smog_quit("can not find mdp file $GMXMDP");
  }
@@ -456,7 +458,7 @@ sub runsmog
 
 sub runGMX
 {
- my ($GMXPATH,$GMXEXEC,$GMXMDP,$GMXMDPCA,$gaussian)=@_;
+ my ($GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXMDP,$GMXMDPCA,$gaussian)=@_;
  if($gaussian =~ /^yes$/)
  {
   if($CHECKGMXGAUSSIAN eq "no"){
@@ -464,6 +466,7 @@ sub runGMX
   }elsif($CHECKGMXGAUSSIAN ne "yes"){
    internal_error("CHECKGMXGAUSSIAN variable not properly set");
   }
+  $GMXPATH=$GMXPATHGAUSSIAN;
  }elsif($gaussian =~ /^no$/)
  {
   if($CHECKGMX eq "no"){
@@ -735,7 +738,7 @@ sub smogchecker
   &checktop;
   &finalchecks;
   # if GMX tests are turned on, then run them
-  $FAIL{'GMX COMPATIBLE'}=runGMX($GMXPATH,$GMXEXEC,$GMXMDP,$GMXMDPCA,$gaussian);
+  $FAIL{'GMX COMPATIBLE'}=runGMX($GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXMDP,$GMXMDPCA,$gaussian);
  }else{
   $fail_log .= failed_message("SMOG 2 exited with non-zero exit code when trying to process this PDB file.");
   $FAIL_SYSTEM++;
