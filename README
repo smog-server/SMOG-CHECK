@@ -53,8 +53,11 @@ which tests with
 ./smog-check N M
 
 You can also optionally verify that the generated top/gro
-files can be processed by gromacs 4, or gromacs 5. Indicating
-which versions to use it accomplished by exporting the following
+files can be processed by gromacs 4, or gromacs 5. This is generally
+not needed, and it can be very slow (hours). However, if you are modifying
+SMOG 2, then it can be helpful to verify that everything is formatted
+in a manner that is consistent with gromacs. Indicating
+which versions of gromacs to use is accomplished by exporting the following
 environment variables:
 GMXVER : set to 4 or 5 to indicate which version of gromacs will be used
 CHECKGMX : set to "yes" to turn on compatibility check with grompp
