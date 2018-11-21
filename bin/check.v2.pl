@@ -10,44 +10,9 @@ use check_common;
 my $VERSION="2.2beta";
 &printopeningmessage;
 
-# check if we are simply rerunning a single test, a few tests, or performing all
-my $RETEST=$#ARGV;
-my $RETESTEND=-1;
-if($RETEST == 0 || $RETEST == 1 ){
- my $RETESTT;
- if($ARGV[0] =~ /^\d+$/){
-  # is an integer
-  $RETESTT=$ARGV[0];
-  $RETESTEND=$RETESTT;
- }else{
-  # is not an integer.  flag error
-  smogcheck_error("argument to smog-check can only be one, or two, integers. Found \"$ARGV[0]\"");
- }
- 
- if($RETEST == 1 ){
-  if($ARGV[1] =~ /^\d+$/){
-   # is an integer
-   $RETESTEND=$ARGV[1];
-   print "\nWill run tests $ARGV[0] to $ARGV[1].\n\n";
-  }else{
-   # is not an integer.  flag error
-   smogcheck_error("argument to smog-check can only be one, or two, integers. Found \"$ARGV[0]\"");
-  }
-  if($ARGV[1] < $ARGV[0]){
-   smogcheck_error("Arguments must be first test, then last test. Last test number must be larger.");
-  }
- }else{
-  print "\nWill only run test $ARGV[0].\n\n";
- }
- $RETEST=$RETESTT;
-
-}elsif($RETEST== -1){
-	print "\nWill run all tests (default).\n\n";
-}else{
-	smogcheck_error("Too many arguments passed to smog-check");
-}
 
 &checkForModules;
+my ($RETEST,$RETESTEND)=checkforretest();
 
 # a number of global variables. This is a bit sloppy, since most of them do not need to be global.  Maybe later we'll convert some back to my declarations.
 our $EXEC_NAME=$ENV{'smog_exec'};
@@ -260,6 +225,48 @@ sub readbackbonetypes
   close(FF);
  }
 }
+
+sub checkforretest
+{
+ # check if we are simply rerunning a single test, a few tests, or performing all
+ my $RETEST=$#ARGV;
+ my $RETESTEND=-1;
+ if($RETEST == 0 || $RETEST == 1 ){
+  my $RETESTT;
+  if($ARGV[0] =~ /^\d+$/){
+   # is an integer
+   $RETESTT=$ARGV[0];
+   $RETESTEND=$RETESTT;
+  }else{
+   # is not an integer.  flag error
+   smogcheck_error("argument to smog-check can only be one, or two, integers. Found \"$ARGV[0]\"");
+  }
+  
+  if($RETEST == 1 ){
+   if($ARGV[1] =~ /^\d+$/){
+    # is an integer
+    $RETESTEND=$ARGV[1];
+    print "\nWill run tests $ARGV[0] to $ARGV[1].\n\n";
+   }else{
+    # is not an integer.  flag error
+    smogcheck_error("argument to smog-check can only be one, or two, integers. Found \"$ARGV[0]\"");
+   }
+   if($ARGV[1] < $ARGV[0]){
+    smogcheck_error("Arguments must be first test, then last test. Last test number must be larger.");
+   }
+  }else{
+   print "\nWill only run test $ARGV[0].\n\n";
+  }
+  $RETEST=$RETESTT;
+ 
+ }elsif($RETEST== -1){
+ 	print "\nWill run all tests (default).\n\n";
+ }else{
+ 	smogcheck_error("Too many arguments passed to smog-check");
+ }
+ return ($RETEST,$RETESTEND);
+}
+
 
 sub readresiduetypes
 {
