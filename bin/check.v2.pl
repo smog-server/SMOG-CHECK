@@ -8,11 +8,8 @@ use check_common;
 # a testing script, it is not designed to be efficient, but to be thorough, and foolproof...
 
 my $VERSION="2.2beta";
-&printopeningmessage;
 
-
-&checkForModules;
-my ($RETEST,$RETESTEND)=checkforretest();
+#****************INITIALIZE A BUNCH OF VARIABLES*******************
 
 # a number of global variables. This is a bit sloppy, since most of them do not need to be global.  Maybe later we'll convert some back to my declarations.
 our $EXEC_NAME=$ENV{'smog_exec'};
@@ -22,24 +19,27 @@ our $TOLERANCE=$ENV{'TOLERANCE'};
 our $MAXTHR=1.0+$TOLERANCE;
 our $MINTHR=1.0-$TOLERANCE;
 our $PRECISION=$ENV{'PRECISION'};
+
 #these are variables used for default testing
 our $BIFSIF_AA=$ENV{'BIFSIF_AA_DEFAULT'};
 our $BIFSIF_CA=$ENV{'BIFSIF_CA_DEFAULT'};
+
 #these are variables used for non-default testing
 our $TEMPLATE_DIR_AA=$ENV{'BIFSIF_AA_TESTING'};
 our $TEMPLATE_DIR_AA_STATIC=$ENV{'BIFSIF_STATIC_TESTING'};
 our $TEMPLATE_DIR_CA=$ENV{'BIFSIF_CA_TESTING'};
 our $TEMPLATE_DIR_AA_MATCH=$ENV{'BIFSIF_AA_MATCH'};
 
-my ($CHECKGMX,$CHECKGMXGAUSSIAN,$GMXVER,$GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXEDITCONF,$GMXMDP,$GMXMDPCA)=initgmxparams();
 # FAILLIST is a list of all the tests.
 # If you are developing and testing your own forcefield, which may not need to conform to certain checks, then you may want to disable some tests by  removing the test name from this list. However, do so at your own risk.
-
 our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','TOP FIELDS FOUND','TOP FIELDS RECOGNIZED','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'BOND LENGTHS','ANGLE TYPES', 'ANGLE WEIGHTS', 'ANGLE VALUES','DUPLICATE BONDS', 'DUPLICATE ANGLES', 'GENERATED ANGLE COUNT','GENERATED ANGLE IN TOP','ANGLES IN TOP GENERATED', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','MATCH DIH WEIGHTS','DIHEDRAL ANGLES','ALL POSSIBLE MATCHED DIHEDRALS PRESENT','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL IN TOP GENERATED','GENERATED DIHEDRAL IN TOP','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','GAUSSIAN CONTACT EXCLUDED VOLUME','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY','TYPE6 ATOMS','UNINITIALIZED VARIABLES','CLASSIFYING DIHEDRALS','NON-ZERO EXIT','ATOM FIELDS','ATOM CHARGES','FREE PAIRS APPEAR IN CONTACTS','EXTRAS ADDED','NONZERO LIGAND DIHEDRAL VALUE','GMX COMPATIBLE');
+
 # default location of test PDBs
 our $PDB_DIR="share/PDB.files";
+
 # where should data from failed tests be written
 our $FAILDIR="FAILED";
+
 # are we testing files with free interactions?
 our $free;
 
@@ -49,60 +49,58 @@ our @FILETYPES=("top","gro","ndx","settings","contacts","output","contacts.SCM",
 # bunch of global vars.  A bit sloppy.  Many could be local.
 our ($AMINO_PRESENT,$angleEps,@atombondedtype,%atombondedtypes,%atombondedtypes2,@ATOMNAME,@ATOMTYPE,$BBRAD,%BBTYPE,$bondEps,$bondMG,$bondtype6,%C12NB,%C6NB,$chargeAT,%chargeNB,%CHECKED,@CID,$CONTD,$CONTENERGY,$CONTR,$CONTTYPE,$default,%defcharge,$defname,$DENERGY,$dihmatch,$DIH_MAX,$DIH_MIN,$DISP_MAX,@EDrig_T,@ED_T,$epsilon,$epsilonCAC,$epsilonCAD,%FAIL,$FAILED,$fail_log,@FIELDS,$gaussian,@GRODATA,$impEps,$improper_gen_N,$ION_PRESENT,$LIGAND_DIH,$LIGAND_PRESENT,%massNB,%matchangle_val,%matchangle_weight,%matchbond_val,%matchbond_weight,%matchdihedral_val,%matchdihedral_weight,$model,@MOLTYPE,%MOLTYPEBYRES,$NA_DIH,$NCONTACTS,$NUCLEIC_PRESENT,$NUMATOMS,$NUMATOMS_LIGAND,$omegaEps,$PDB,$phi_gen_N,$PRO_DIH,$R_CD,$rep_s12,@RESNUM,%restypecount,$ringEps,$R_N_SC_BB,$R_P_BB_SC,$sigma,$sigmaCA,$theta_gen_N,%TYPE,$type6count,$usermap,@XT,@YT,@ZT);
 
-$DISP_MAX=0;
-# before testing anything, make sure this version of smog-check is compatible with the version of smog2
-my $smogversion=`$EXEC_NAME -v | tail -n 1`;
-chomp($smogversion);
-$smogversion=~s/Version //g;
-$smogversion=~/^\s+|\s+$/;
-if($VERSION ne $smogversion){
- smogcheck_error("Incompatible versions of SMOG ($smogversion) and SMOG-CHECK ($VERSION)");	
-}
-
 my %supported_directives = ( 'defaults' => '1','atomtypes' => '1','moleculetype' => '1','nonbond_params' => '0','atoms' => '1','bonds' => '1','angles' => '1','dihedrals' => '1','pairs' => '1','exclusions' => '1','system' => '1','molecules' => '1');
 
 # list the bonds that are free in the free-templates
 my %free_bond_defs=('TRP-CG-CD1' =>'1');
+
 # list the angles that are free in the free-templates
 my %free_angle_defs=('GLN-CB-CG-CD' =>'1');
+
 # list the dihedrals that are free in the free-templates
 my %free_dihedrals_defs=('TYR-CB-CG' =>'1',
 			 'TYR-CG-CD1' =>'1',
 			 'TYR-CD1-CE1' =>'1',
 			 );
+
 # list the residue pairs that free in the free-templates
 my %free_pair_defs=('ASN-MET' =>'1',
 	   	    'ASN-ASN' =>'1',
 	   	    'MET-MET' =>'1'
 		   );
 
-unless(-d $BIFSIF_AA && -d $BIFSIF_CA && -d $TEMPLATE_DIR_AA && -d $TEMPLATE_DIR_AA_STATIC && -d $TEMPLATE_DIR_CA ){
- smogcheck_error("Can\'t find the template directories. Something is wrong with the configurations of this script.\nYour intallation of SMOG2 may be ok, but we can\'t tell\nGiving up...");
-}
-
-print "environment variables read\n";
-print "EXEC_NAME $EXEC_NAME\n";
-
-unless( -e $SCM){
- smogcheck_error("Can\'t find Shadow!");
-}
-
 my %numfield = ( 'default' => '2', 'default-userC' => '2', 'default-gaussian' => '2', 'default-gaussian-userC' => '2','cutoff' => '19', 'shadow' => '20',  'shadow-free' => '20', 'shadow-gaussian' => '20', 'cutoff-gaussian' => '19' , 'shadow-match' => '4');
-
-my $FAIL_SYSTEM=0;
-
 %defcharge = ('GLY-N' => "0.3", 'GLY-C' => "0.2", 'GLY-O' => "-0.5");
+my $TESTNUM=0;
+my $FAIL_SYSTEM=0;
 my $NUMTESTED=0;
+
+#*******************END OF VARIABLE INITIALIZATION*****************
+
+
+#****************************MAIN ROUTINE**************************
+
+&checkversion($VERSION,$EXEC_NAME);
+&printopeningmessage;
+
 my $SETTINGS_FILE=<STDIN>;
 chomp($SETTINGS_FILE);
 open(PARMS,"$SETTINGS_FILE") or internal_error("The settings file is missing...");
-my $TESTNUM=0;
 
+print "Will use SMOG 2 executable $EXEC_NAME\n";
+
+&checktemplatedirs($BIFSIF_AA,,$BIFSIF_CA,$TEMPLATE_DIR_AA,$TEMPLATE_DIR_AA_STATIC,$TEMPLATE_DIR_CA);
+&checkForModules;
+&checkSCMexists($SCM);
+my ($RETEST,$RETESTEND)=checkforretest();
+# set flags for GMX testing
+my ($CHECKGMX,$CHECKGMXGAUSSIAN,$GMXVER,$GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXEDITCONF,$GMXMDP,$GMXMDPCA)=initgmxparams();
 
 &readbackbonetypes;
 &readresiduetypes;
 &runalltests;
 &finalreport;
+
 #*************************END OF MAIN ROUTINE**********************
 
 
@@ -134,14 +132,29 @@ printdashed($wide);
 
 }
 
+sub checkversion
+{
+ my ($VERSION,$EXEC_NAME)=@_;
+ # before testing anything, make sure this version of smog-check is compatible with the version of smog2
+ my $smogversion=`$EXEC_NAME -v | tail -n 1`;
+ chomp($smogversion);
+ $smogversion=~s/Version //g;
+ $smogversion=~/^\s+|\s+$/;
+ if($VERSION ne $smogversion){
+  smogcheck_error("Incompatible versions of SMOG ($smogversion) and SMOG-CHECK ($VERSION)");	
+ }
+}
+
 sub initgmxparams
 {
- my ($GMXMDP,$GMXMDPCA,$GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXEDITCONF);
+ my ($GMXMDP,$GMXMDPCA,$GMXEXEC,$GMXEDITCONF);
  # default is to not check gmx.  But, if we do, use v5.
  my $CHECKGMX="no";
  my $CHECKGMXGAUSSIAN="no";
  my $GMXVER=5;
 
+ my $GMXPATH="";
+ my $GMXPATHGAUSSIAN="";
  if(defined $ENV{'CHECKGMX'}){
   $CHECKGMX=$ENV{'CHECKGMX'};
  }
@@ -206,6 +219,23 @@ sub initgmxparams
  return ($CHECKGMX,$CHECKGMXGAUSSIAN,$GMXVER,$GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXEDITCONF,$GMXMDP,$GMXMDPCA);
 }
 
+sub checkSCMexists
+{
+ my ($SCM)=@_;
+ unless( -e $SCM){
+  smogcheck_error("Can\'t find Shadow!");
+ }
+}
+
+sub checktemplatedirs
+{
+ my @templates=@_;
+ foreach my $dir (@templates){
+  unless(-d $dir){
+   smogcheck_error("Can\'t find the template directory $dir. Something is wrong with the configurations of this script.\nYour intallation of SMOG2 may be ok, but we can\'t tell\nGiving up...");
+  }
+ }
+}
 
 sub readbackbonetypes
 {
@@ -1094,7 +1124,7 @@ sub checktop
  $DIH_MIN=100000000;
  $DIH_MAX=-100000000;
  $NCONTACTS=0;
-
+ $DISP_MAX=0;
  # clean up top file for easy parsing later
  open(TOP,"$PDB.top") or internal_error(" $PDB.top can not be opened...");
  while(<TOP>){
