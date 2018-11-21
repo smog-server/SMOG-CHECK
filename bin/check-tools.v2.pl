@@ -40,32 +40,22 @@ our $PRECISION=$ENV{'PRECISION'};
 
 our $PDB_DIR="share/PDB.files";
 
+
+my ($CHECKGMX,$CHECKGMXGAUSSIAN,$GMXVER,$GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXEDITCONF,$GMXMDP,$GMXMDPCA)=initgmxparams($SMOGDIR);
+if($CHECKGMXGAUSSIAN eq "yes"){
+ smog_quit("Testing gaussian potentials not supported with smog-tools-check. Please set CHECKGMXGAUSSIAN to no.");
+}
+my (@GMXPARAMS)=initgmxparams($SMOGDIR);
+
+
 my $FAILED;
 my $message;
 my $FAILSUM=0;
 my $TESTNUM=0;
 #things to check
-#all: check for unitialized variables
-#	check that they don't crash with FATAL error.
-#
-#ions: make sure only the right number of ions is added to go
-#	make sure that only two directives change: perhaps diff the files first.
-#		this will ensure all directives are written.
-#		nothing should be unique to original file
-#		make sure all parameters are varied
-#		make sure it works with CA models, as well.
-# 		make sure it works when more than one type of ion is added
 #extract: make sure the energetics are correct.  compare to original
 #	make sure the restraints are on the right atoms
 #	ensure no restraints when off
-#	make sure it works with AA and CA models
-#	make sure specified files names work
-#
-# scale: make sure they are correct
-# 	correct atoms
-# 	all correct atoms
-# 	correct ratios
-# 	same number of lines before and after 
 
 my $tested=0;
 my %checkthese;
@@ -78,7 +68,7 @@ if(@ARGV>0){
 }
 if(defined $checkthese{"ions"} || @ARGV==0){
  print "\nTesting smog_ions\n";
- ($FAILED,$message,$TESTNUM)=check_ions($EXEC_IONS,$PDB_DIR,$TESTNUM);
+ ($FAILED,$message,$TESTNUM)=check_ions($EXEC_IONS,$PDB_DIR,$TESTNUM,\@GMXPARAMS);
  if($FAILED >0){$FAILSUM++};
  $tested++;
 }

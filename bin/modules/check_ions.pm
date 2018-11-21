@@ -24,7 +24,8 @@ my %supported_directives_ions = ( 'defaults' => '1',
 
 sub check_ions
 {
- my ($exec,$pdbdir)=@_;
+ my ($exec,$pdbdir,$gmxparams)=@_;
+ my @GMXPARAMS=@{$gmxparams};
  my $NFAIL=0;
  my $MESSAGE="";
  my %FAIL;

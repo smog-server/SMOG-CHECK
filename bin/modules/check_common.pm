@@ -1,5 +1,6 @@
 package check_common;
 use strict;
+use smog_common;
 use Exporter;
 
 our $PDB_DIR;
@@ -313,7 +314,6 @@ sub initgmxparams
  if($GMXPATH eq "" && $CHECKGMX eq "yes"){
   smog_quit("In order to test compatibility with gmx, you must export GMXPATH.  This may be accomplished by issuing the command :\n\t\"export GMXPATH=<location of gmx directory>\"\n ");
  }elsif($CHECKGMX eq "no"){
-  print "Will NOT test gmx for compatibility of output files.\n\tTo enable, export CHECKGMX with value \"yes\"\n";
  }elsif($CHECKGMX eq "yes"){
   print "Will test gmx for compatibility of output files\n";
   print "Will try to use the following command to launch grompp:\n\t$GMXPATH$GMXEXEC\n";
@@ -328,7 +328,6 @@ sub initgmxparams
  if($GMXPATHGAUSSIAN eq "" && $CHECKGMXGAUSSIAN eq "yes"){
   smog_quit("In order to test compatibility with gmx, you must export GMXPATHGAUSSIAN.  This may be accomplished by issuing the command :\n\t\"export GMXPATHGAUSSIAN=<location of gmx directory>\"\n ");
  }elsif($CHECKGMXGAUSSIAN eq "no"){
-  print "Will NOT test gmx for compatibility of output files with gaussian potentials.\n\tTo enable, export CHECKGMXGAUSSIAN with value \"yes\"\n";
  }elsif($CHECKGMXGAUSSIAN eq "yes"){
   print "Will test gmx for compatibility of output files for gaussian potentials\n";
   print "Will try to use the following command to launch grompp:\n\t$GMXPATHGAUSSIAN$GMXEXEC\n";
