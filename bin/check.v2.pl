@@ -94,7 +94,7 @@ print "Will use SMOG 2 executable $EXEC_NAME\n";
 &checkSCMexists($SCM);
 my ($RETEST,$RETESTEND)=checkforretest();
 # set flags for GMX testing
-my ($CHECKGMX,$CHECKGMXGAUSSIAN,$GMXVER,$GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXEDITCONF,$GMXMDP,$GMXMDPCA)=initgmxparams();
+my ($CHECKGMX,$CHECKGMXGAUSSIAN,$GMXVER,$GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXEDITCONF,$GMXMDP,$GMXMDPCA)=initgmxparams($SMOGDIR);
 
 &readbackbonetypes;
 &readresiduetypes;
@@ -143,80 +143,6 @@ sub checkversion
  if($VERSION ne $smogversion){
   smogcheck_error("Incompatible versions of SMOG ($smogversion) and SMOG-CHECK ($VERSION)");	
  }
-}
-
-sub initgmxparams
-{
- my ($GMXMDP,$GMXMDPCA,$GMXEXEC,$GMXEDITCONF);
- # default is to not check gmx.  But, if we do, use v5.
- my $CHECKGMX="no";
- my $CHECKGMXGAUSSIAN="no";
- my $GMXVER=5;
-
- my $GMXPATH="";
- my $GMXPATHGAUSSIAN="";
- if(defined $ENV{'CHECKGMX'}){
-  $CHECKGMX=$ENV{'CHECKGMX'};
- }
- if(defined $ENV{'CHECKGMXGAUSSIAN'}){
-  $CHECKGMXGAUSSIAN=$ENV{'CHECKGMXGAUSSIAN'};
- }
- if(defined $ENV{'GMXVER'}){
-  $GMXVER=$ENV{'GMXVER'};
- }
- 
- # get all of the gromacs paths in order.
- if(defined $ENV{"GMXPATH"}){
-  $GMXPATH=$ENV{"GMXPATH"};
- }
- if(defined $ENV{"GMXPATHGAUSSIAN"}){
-  $GMXPATHGAUSSIAN=$ENV{"GMXPATHGAUSSIAN"};
- }
- 
- if($GMXVER =~ /^4$/){
-  $GMXEXEC="grompp";
-  $GMXEDITCONF="editconf";
-  $GMXMDP="$SMOGDIR/examples/gromacs4/all-atom/allatomForGromacs4.X.mdp";
-  $GMXMDPCA="$SMOGDIR/examples/gromacs4/calpha/calphaForGromacs4.X.mdp";
- }elsif($GMXVER =~ /^5$/){
-  $GMXEXEC="gmx grompp";
-  $GMXEDITCONF="gmx editconf";
-  $GMXMDP="$SMOGDIR/examples/gromacs5/all-atom/allatomForGromacs5.mdp";
-  $GMXMDPCA="$SMOGDIR/examples/gromacs5/calpha/calphaForGromacs5.mdp";
- }else{
-  smog_quit("Only gromacs v4 and 5 can be tested with this script.");
- }
- 
- if($GMXPATH eq "" && $CHECKGMX eq "yes"){
-  smog_quit("In order to test compatibility with gmx, you must export GMXPATH.  This may be accomplished by issuing the command :\n\t\"export GMXPATH=<location of gmx directory>\"\n ");
- }elsif($CHECKGMX eq "no"){
-  print "Will NOT test gmx for compatibility of output files.\n\tTo enable, export CHECKGMX with value \"yes\"\n";
- }elsif($CHECKGMX eq "yes"){
-  print "Will test gmx for compatibility of output files\n";
-  print "Will try to use the following command to launch grompp:\n\t$GMXPATH$GMXEXEC\n";
-  if(! -e $GMXMDP){
-   smog_quit("can not find mdp file $GMXMDP");
-  }
-  if(! -e $GMXMDPCA){
-   smog_quit("can not find mdp file $GMXMDPCA");
-  }
- }
- 
- if($GMXPATHGAUSSIAN eq "" && $CHECKGMXGAUSSIAN eq "yes"){
-  smog_quit("In order to test compatibility with gmx, you must export GMXPATHGAUSSIAN.  This may be accomplished by issuing the command :\n\t\"export GMXPATHGAUSSIAN=<location of gmx directory>\"\n ");
- }elsif($CHECKGMXGAUSSIAN eq "no"){
-  print "Will NOT test gmx for compatibility of output files with gaussian potentials.\n\tTo enable, export CHECKGMXGAUSSIAN with value \"yes\"\n";
- }elsif($CHECKGMXGAUSSIAN eq "yes"){
-  print "Will test gmx for compatibility of output files for gaussian potentials\n";
-  print "Will try to use the following command to launch grompp:\n\t$GMXPATH$GMXEXEC\n";
-  if(! -e $GMXMDP){
-   smog_quit("can not find mdp file $GMXMDP");
-  }
-  if(! -e $GMXMDPCA){
-   smog_quit("can not find mdp file $GMXMDPCA");
-  }
- }
- return ($CHECKGMX,$CHECKGMXGAUSSIAN,$GMXVER,$GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXEDITCONF,$GMXMDP,$GMXMDPCA);
 }
 
 sub checkSCMexists
