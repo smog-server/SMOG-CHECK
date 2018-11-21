@@ -29,10 +29,12 @@ configure.smog2 for the version of SMOG 2 that you would
 like to test, before running the tests.  Also, make sure
 to launch smog-check from the smog-check directory.
 
+		    QUICK CHECK
 For the less comprehensive check, issue the command:
 
 ./quick-check
 
+	       COMPREHENSIVE CHECK
 For the comprehensive check (requires ~30 minutes): 
 
 ./smog-check 
@@ -50,6 +52,17 @@ which tests with
 
 ./smog-check N M
 
+You can also optionally verify that the generated top/gro
+files can be processed by gromacs 4, or gromacs 5. Indicating
+which versions to use it accomplished by exporting the following
+environment variables:
+GMXVER : set to 4 or 5 to indicate which version of gromacs will be used
+CHECKGMX : set to "yes" to turn on compatibility check with grompp
+GMXPATH : path to the gromacs executable
+CHECKGMXGAUSSIAN : set to "yes" to also check gaussian-based files
+GMXPATHGAUSSIAN : path to the gromacs executable for gromacs-based files
+
+                  TOOL CHECK
 
 To check that the smog tools are working properly, use:
 

@@ -10,10 +10,20 @@ use check_common;
 my $VERSION="2.2beta";
 &printopeningmessage;
 
-# by default, we will not check for compatibility with gmx, since that is more involved.  However, we may turn on those tests by changing the following two lines to yes.
-my $CHECKGMX="yes";
+# by default, we will not check for compatibility with gmx, since that is more involved.  However, we may turn on those tests by exporting the CHECKGMX, CHECKGMXGAUSSIAN and GMXVER variables.
+my $CHECKGMX="no";
 my $CHECKGMXGAUSSIAN="no";
 my $GMXVER=5;
+
+if(defined $ENV{'CHECKGMX'}){
+ $CHECKGMX=$ENV{'CHECKGMX'};
+}
+if(defined $ENV{'CHECKGMXGAUSSIAN'}){
+ $CHECKGMXGAUSSIAN=$ENV{'CHECKGMXGAUSSIAN'};
+}
+if(defined $ENV{'GMXVER'}){
+ $GMXVER=$ENV{'GMXVER'};
+}
 
 my $GMXMDP;
 my $GMXMDPCA;
@@ -103,9 +113,9 @@ if($GMXVER =~ /^4$/){
 if($GMXPATH eq "" && $CHECKGMX eq "yes"){
  smog_quit("In order to test compatibility with gmx, you must export GMXPATH.  This may be accomplished by issuing the command :\n\t\"export GMXPATH=<location of gmx directory>\"\n ");
 }elsif($CHECKGMX eq "no"){
- print "Note: Will NOT test gmx for compatibility of output files\n";
+ print "Will NOT test gmx for compatibility of output files. To enable, export CHECKGMX with value \"yes\"\n";
 }elsif($CHECKGMX eq "yes"){
- print "Note: Will test gmx for compatibility of output files\n";
+ print "Will test gmx for compatibility of output files\n";
  if(! -e $GMXMDP){
   smog_quit("can not find mdp file $GMXMDP");
  }
@@ -117,9 +127,9 @@ if($GMXPATH eq "" && $CHECKGMX eq "yes"){
 if($GMXPATHGAUSSIAN eq "" && $CHECKGMXGAUSSIAN eq "yes"){
  smog_quit("In order to test compatibility with gmx, you must export GMXPATHGAUSSIAN.  This may be accomplished by issuing the command :\n\t\"export GMXPATHGAUSSIAN=<location of gmx directory>\"\n ");
 }elsif($CHECKGMXGAUSSIAN eq "no"){
- print "Note: Will NOT test gmx for compatibility of output files for gaussian potentials\n";
+ print "Will NOT test gmx for compatibility of output files with gaussian potentials. To enable, export CHECKGMXGAUSSIAN with value \"yes\"\n";
 }elsif($CHECKGMXGAUSSIAN eq "yes"){
- print "Note: Will test gmx for compatibility of output files for gaussian potentials\n";
+ print "Will test gmx for compatibility of output files for gaussian potentials\n";
  if(! -e $GMXMDP){
   smog_quit("can not find mdp file $GMXMDP");
  }
