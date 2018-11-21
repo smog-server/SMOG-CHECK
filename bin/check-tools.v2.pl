@@ -45,13 +45,10 @@ my ($CHECKGMX,$CHECKGMXGAUSSIAN,$GMXVER,$GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXE
 if($CHECKGMXGAUSSIAN eq "yes"){
  smog_quit("Testing gaussian potentials not supported with smog-tools-check. Please set CHECKGMXGAUSSIAN to no.");
 }
-my (@GMXPARAMS)=initgmxparams($SMOGDIR);
-
 
 my $FAILED;
 my $message;
 my $FAILSUM=0;
-my $TESTNUM=0;
 #things to check
 #extract: make sure the energetics are correct.  compare to original
 #	make sure the restraints are on the right atoms
@@ -68,31 +65,31 @@ if(@ARGV>0){
 }
 if(defined $checkthese{"ions"} || @ARGV==0){
  print "\nTesting smog_ions\n";
- ($FAILED,$message,$TESTNUM)=check_ions($EXEC_IONS,$PDB_DIR,$TESTNUM,\@GMXPARAMS);
+ ($FAILED,$message)=check_ions($EXEC_IONS,$PDB_DIR,$CHECKGMX,$GMXVER,$GMXPATH,$GMXEXEC,$GMXEDITCONF,$GMXMDP,$GMXMDPCA);
  if($FAILED >0){$FAILSUM++};
  $tested++;
 }
 if(defined $checkthese{"extract"} || @ARGV==0){
  print "\nTesting smog_extract\n";
- ($FAILED,$message,$TESTNUM)=check_extract($EXEC_EXTRACT,$PDB_DIR,$TESTNUM);
+ ($FAILED,$message)=check_extract($EXEC_EXTRACT,$PDB_DIR);
  if($FAILED >0){$FAILSUM++};
  $tested++;
 }
 if(defined $checkthese{"tablegen"} || @ARGV==0){
  print "\nTesting smog_tablegen\n";
- ($FAILED,$message,$TESTNUM)=check_table($EXEC_TABLE,$PDB_DIR,$TESTNUM);
+ ($FAILED,$message)=check_table($EXEC_TABLE,$PDB_DIR);
  if($FAILED >0){$FAILSUM++};
  $tested++;
 }
 if(defined $checkthese{"adjustPDB"} || @ARGV==0){
  print "\nTesting smog_adjustPDB\n";
- ($FAILED,$message,$TESTNUM)=check_adjust($EXEC_ADJUST,$PDB_DIR,$TESTNUM);
+ ($FAILED,$message)=check_adjust($EXEC_ADJUST,$PDB_DIR);
  if($FAILED >0){$FAILSUM++};
  $tested++;
 }
 if(defined $checkthese{"scale-energies"} || @ARGV==0){
  print "\nTesting smog_scale-energies\n";
- ($FAILED,$message,$TESTNUM)=check_scale($EXEC_SCALE,$PDB_DIR,$TESTNUM);
+ ($FAILED,$message)=check_scale($EXEC_SCALE,$PDB_DIR);
  if($FAILED >0){$FAILSUM++};
  $tested++;
 }

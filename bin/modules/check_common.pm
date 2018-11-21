@@ -349,7 +349,7 @@ sub runGMX
   if($CHECKGMXGAUSSIAN eq "no"){
    return -1;
   }elsif($CHECKGMXGAUSSIAN ne "yes"){
-   internal_error("CHECKGMXGAUSSIAN variable not properly set");
+   internal_error("CHECKGMXGAUSSIAN variable not properly set: found $CHECKGMXGAUSSIAN");
   }
   $GMXPATH=$GMXPATHGAUSSIAN;
  }elsif($gaussian =~ /^no$/)
@@ -357,12 +357,12 @@ sub runGMX
   if($CHECKGMX eq "no"){
    return -1;
   }elsif($CHECKGMX ne "yes"){
-   internal_error("CHECKGMX variable not properly set");
+   internal_error("CHECKGMX variable not properly set: found $CHECKGMX");
   }
  }else{
-  internal_error("gaussian variable not properly set");
+  internal_error("gaussian variable not properly set: found $gaussian");
  }
- print "Running grompp... may take a while\n";
+ print "\tRunning grompp... may take a while\n";
  if(-e "topol.tpr"){
  `rm topol.tpr`;
  }
