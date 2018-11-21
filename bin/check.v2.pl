@@ -11,7 +11,7 @@ my $VERSION="2.2beta";
 &printopeningmessage;
 
 # by default, we will not check for compatibility with gmx, since that is more involved.  However, we may turn on those tests by changing the following two lines to yes.
-my $CHECKGMX="no";
+my $CHECKGMX="yes";
 my $CHECKGMXGAUSSIAN="no";
 my $GMXVER=5;
 
@@ -116,9 +116,9 @@ if($GMXPATH eq "" && $CHECKGMX eq "yes"){
 
 if($GMXPATHGAUSSIAN eq "" && $CHECKGMXGAUSSIAN eq "yes"){
  smog_quit("In order to test compatibility with gmx, you must export GMXPATHGAUSSIAN.  This may be accomplished by issuing the command :\n\t\"export GMXPATHGAUSSIAN=<location of gmx directory>\"\n ");
-}elsif($CHECKGMX eq "no"){
+}elsif($CHECKGMXGAUSSIAN eq "no"){
  print "Note: Will NOT test gmx for compatibility of output files for gaussian potentials\n";
-}elsif($CHECKGMX eq "yes"){
+}elsif($CHECKGMXGAUSSIAN eq "yes"){
  print "Note: Will test gmx for compatibility of output files for gaussian potentials\n";
  if(! -e $GMXMDP){
   smog_quit("can not find mdp file $GMXMDP");
@@ -304,7 +304,7 @@ sub runalltests{
   # clean up the tracking for the next test
   %FAIL=resettests(\%FAIL,\@FAILLIST);
 
-  &smogchecker;
+  &smogchecker($gaussian);
  
  }
 }
@@ -446,12 +446,23 @@ sub runsmog
 
 sub runGMX
 {
- my ($GMXPATH,$GMXEXEC,$GMXMDP,$GMXMDPCA)=@_;
- if($model =~ /gaussian/ && $CHECKGMXGAUSSIAN eq "no"){
-  return -1;
- }
- if($model !~ /gaussian/ && $CHECKGMX eq "no"){
-  return -1;
+ my ($GMXPATH,$GMXEXEC,$GMXMDP,$GMXMDPCA,$gaussian)=@_;
+ if($gaussian =~ /^yes$/)
+ {
+  if($CHECKGMXGAUSSIAN eq "no"){
+   return -1;
+  }elsif($CHECKGMXGAUSSIAN ne "yes"){
+   internal_error("CHECKGMXGAUSSIAN variable not properly set");
+  }
+ }elsif($gaussian =~ /^no$/)
+ {
+  if($CHECKGMX eq "no"){
+   return -1;
+  }elsif($CHECKGMX ne "yes"){
+   internal_error("CHECKGMX variable not properly set");
+  }
+ }else{
+  internal_error("gaussian variable not properly set");
  }
  print "Running grompp... may take a while\n";
  # check the the gro and top work with grompp
@@ -685,6 +696,7 @@ sub checkSCM
 
 sub smogchecker
 {
+ my ($gaussian)=@_;
  &cleanoldfiles;
  &preparesettings;
  print "Running SMOG 2\n";
@@ -707,7 +719,7 @@ sub smogchecker
   &checktop;
   &finalchecks;
   # if GMX tests are turned on, then run them
-  $FAIL{'GMX COMPATIBLE'}=runGMX($GMXPATH,$GMXEXEC,$GMXMDP,$GMXMDPCA);
+  $FAIL{'GMX COMPATIBLE'}=runGMX($GMXPATH,$GMXEXEC,$GMXMDP,$GMXMDPCA,$gaussian);
  }else{
   $fail_log .= failed_message("SMOG 2 exited with non-zero exit code when trying to process this PDB file.");
   $FAIL_SYSTEM++;
@@ -1810,6 +1822,16 @@ sub checkbonds
     }else{
     $CORRECTBONDWEIGHTS++;
    }		
+   my $bval;
+   my $maxdiff;
+   $maxdiff=5E-3;
+   $bval=getbonddist(\@A);
+   if(abs($A[3]- $bval) > $maxdiff){
+    $fail_log .= failed_message("bond has incorrect length. Expected $bval. Found:\n\t$LINE");
+   }else{
+    $CORRECTBONDLENGTHS++;
+   }	
+
   }else{
    $fail_log .= failed_message("unknown function type for bond\n\t$LINE");
   }
