@@ -343,7 +343,10 @@ sub initgmxparams
 
 sub runGMX
 {
- my ($model,$CHECKGMX,$CHECKGMXGAUSSIAN,$GMXEDITCONF,$GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXMDP,$GMXMDPCA,$gaussian,$PDB)=@_;
+ my ($model,$CHECKGMX,$CHECKGMXGAUSSIAN,$GMXEDITCONF,$GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXMDP,$GMXMDPCA,$gaussian,$PDB,$GRO)=@_;
+ if(!defined $GRO){
+  $GRO="$PDB";
+ }
  if($gaussian =~ /^yes$/)
  {
   if($CHECKGMXGAUSSIAN eq "no"){
@@ -367,7 +370,7 @@ sub runGMX
  `rm topol.tpr`;
  }
  # check the the gro and top work with grompp
- `$GMXPATH/$GMXEDITCONF -f $PDB.gro -d 10 -o $PDB.box.gro &> $PDB.editconf`;
+ `$GMXPATH/$GMXEDITCONF -f $GRO.gro -d 10 -o $PDB.box.gro &> $PDB.editconf`;
  if($model eq "CA"){
   `$GMXPATH/$GMXEXEC -f $GMXMDPCA -c $PDB.box.gro -p $PDB.top -po $PDB.out.mdp -maxwarn 1 &> $PDB.grompp`;
  }elsif($model eq "AA"){

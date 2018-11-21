@@ -8,7 +8,7 @@ our @EXPORT = qw(check_scale);
 
 sub check_scale
 {
- my ($exec,$pdbdir)=@_;
+ my ($exec,$pdbdir,$CHECKGMX,$GMXVER,$GMXPATH,$GMXEXEC,$GMXEDITCONF,$GMXMDP,$GMXMDPCA)=@_;
  my $NFAIL=0;
  my $MESSAGE="";
  my %FAIL;
@@ -16,7 +16,7 @@ sub check_scale
  my $FAILSUM=0;
  my $tool="scale";
  my $printbuffer="";
- my @FAILLIST = ('NON-ZERO EXIT','UNINITIALIZED VARIABLES','UNCHANGED DIRECTIVES','N DIHEDRALS','N SCALED DIHEDRALS','N CONTACTS','N SCALED CONTACTS');
+ my @FAILLIST = ('NON-ZERO EXIT','UNINITIALIZED VARIABLES','UNCHANGED DIRECTIVES','N DIHEDRALS','N SCALED DIHEDRALS','N CONTACTS','N SCALED CONTACTS','GMX COMPATIBLE');
  %FAIL=resettests(\%FAIL,\@FAILLIST);
 
 # generate an AA model RNA 
@@ -37,6 +37,7 @@ sub check_scale
  my $RD=1.2;
  `$exec -f AA.tmp.top -n $indexfile -rc $RC -rd $RD < $grpsel &> output.$tool`;
  ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
+ $FAIL{"GMX COMPATIBLE"}=runGMX("AA",$CHECKGMX,"no",$GMXEDITCONF,$GMXPATH,"",$GMXEXEC,$GMXMDP,$GMXMDPCA,"no","smog.rescaled","AA.tmp");
  my ($samedirs,$dihlength,$dihmatch,$conlength,$conmatch)=comparetopsrescale("AA.tmp.top","smog.rescaled.top",$indexfile,$grpsel,$RC,$RD);
  $FAIL{"UNCHANGED DIRECTIVES"}=$samedirs;
  $FAIL{"N DIHEDRALS"}=$dihlength;
@@ -51,14 +52,14 @@ sub check_scale
   foreach my $file("AA.tmp.contacts" , "AA.tmp.gro","AA.tmp.ndx", "AA.tmp.top"){
    `cp $file tmp`;
   }
-  savefailed(1,("output.$tool","smog.rescaled.top","smog.rescaled.top","AA.tmp.contacts" , "AA.tmp.gro","AA.tmp.ndx", "AA.tmp.top"));
+  savefailed(1,("output.$tool","smog.rescaled.top","smog.rescaled.top","AA.tmp.contacts" , "AA.tmp.gro","AA.tmp.ndx", "AA.tmp.top","topol.tpr","smog.rescaled.box.gro","smog.rescaled.editconf","smog.rescaled.grompp","smog.rescaled.out.mdp"));
   print "$printbuffer\n";
   foreach my $file("AA.tmp.contacts" , "AA.tmp.gro","AA.tmp.ndx", "AA.tmp.top"){
    `mv tmp/$file .`;
   }
   `rmdir tmp`;
  }else{
-  clearfiles(("output.$tool","smog.rescaled.top"));
+  clearfiles(("output.$tool","smog.rescaled.top","topol.tpr","smog.rescaled.box.gro","smog.rescaled.editconf","smog.rescaled.grompp","smog.rescaled.out.mdp"));
  }
 
  print "\tChecking smog_scale-energies with all-atom model: removing terms\n";
@@ -66,12 +67,13 @@ sub check_scale
  %FAIL=resettests(\%FAIL,\@FAILLIST);
  my $indexfile="share/PDB.files/sample.AA.ndx";
  my $grpsel="$pdbdir/in.groups";
- my $outfile="test.top";
+ my $outfile="test";
  my $RC=0;
  my $RD=0;
- `$exec -f AA.tmp.top -of $outfile -n $indexfile -rc $RC -rd $RD < $grpsel &> output.$tool`;
+ `$exec -f AA.tmp.top -of "$outfile.top" -n $indexfile -rc $RC -rd $RD < $grpsel &> output.$tool`;
  ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
- my ($samedirs,$dihlength,$dihmatch,$conlength,$conmatch)=comparetopsrescale("AA.tmp.top",$outfile,$indexfile,$grpsel,$RC,$RD);
+ $FAIL{"GMX COMPATIBLE"}=runGMX("AA",$CHECKGMX,"no",$GMXEDITCONF,$GMXPATH,"",$GMXEXEC,$GMXMDP,$GMXMDPCA,"no","$outfile","AA.tmp");
+ my ($samedirs,$dihlength,$dihmatch,$conlength,$conmatch)=comparetopsrescale("AA.tmp.top","$outfile.top",$indexfile,$grpsel,$RC,$RD);
  $FAIL{"UNCHANGED DIRECTIVES"}=$samedirs;
  $FAIL{"N DIHEDRALS"}=$dihlength;
  $FAIL{"N SCALED DIHEDRALS"}=$dihmatch;
@@ -81,10 +83,10 @@ sub check_scale
  ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
  $FAILSUM += $FAILED;
  if($FAILED !=0){
-  savefailed(2,("output.$tool","smog.rescaled.top","smog.rescaled.top","AA.tmp.contacts" , "AA.tmp.gro","AA.tmp.ndx", "AA.tmp.top"));
+  savefailed(2,("output.$tool","smog.rescaled.top","smog.rescaled.top","AA.tmp.contacts" , "AA.tmp.gro","AA.tmp.ndx", "AA.tmp.top","topol.tpr","$outfile.box.gro","$outfile.editconf","$outfile.grompp","$outfile.out.mdp"));
   print "$printbuffer\n";
  }else{
-  clearfiles(("output.$tool",$outfile,"AA.tmp.contacts" , "AA.tmp.gro","AA.tmp.ndx", "AA.tmp.top"));
+  clearfiles(("output.$tool","$outfile.top","AA.tmp.contacts" , "AA.tmp.gro","AA.tmp.ndx", "AA.tmp.top","topol.tpr","$outfile.box.gro","$outfile.editconf","$outfile.grompp","$outfile.out.mdp"));
  }
  return ($FAILSUM, $printbuffer);
 

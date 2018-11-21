@@ -89,7 +89,7 @@ if(defined $checkthese{"adjustPDB"} || @ARGV==0){
 }
 if(defined $checkthese{"scale-energies"} || @ARGV==0){
  print "\nTesting smog_scale-energies\n";
- ($FAILED,$message)=check_scale($EXEC_SCALE,$PDB_DIR);
+ ($FAILED,$message)=check_scale($EXEC_SCALE,$PDB_DIR,$CHECKGMX,$GMXVER,$GMXPATH,$GMXEXEC,$GMXEDITCONF,$GMXMDP,$GMXMDPCA);
  if($FAILED >0){$FAILSUM++};
  $tested++;
 }
