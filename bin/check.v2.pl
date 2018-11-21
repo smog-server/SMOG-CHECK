@@ -377,7 +377,7 @@ EOT
  exit(1);
 }elsif($RETEST < 0){
  my $nottested=alltested(\%CHECKED,\%FAIL);
- if($nottested eq ""){
+ if($nottested eq "" || $nottested eq "GMX COMPATIBLE"){
  print <<EOT;
 *************************************************************
                       PASSED ALL TESTS  !!!
@@ -387,6 +387,8 @@ EOT
 }else{
   print <<EOT;
 *************************************************************
+Not all possible tests have been checked.  
+Unchecked tests include:
 $nottested
 *************************************************************
 EOT
@@ -453,7 +455,7 @@ sub alltested
   }
  }
  if($nottested ne ""){
-  $nottested = "Not all possible tests have been checked.  Unchecked tests include:\n$nottested";
+  $nottested = "$nottested";
  }
  return $nottested;
 }
