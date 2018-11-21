@@ -26,6 +26,7 @@ EOT
 &checkForModules;
  
 my $EXEC_NAME=$ENV{'smog_exec'};
+my $SMOGDIR=$ENV{'SMOG_PATH'};
 my $EXEC_ADJUST=$ENV{'exec_adjust'};
 my $EXEC_IONS=$ENV{'exec_ions'};
 my $EXEC_EXTRACT=$ENV{'exec_extract'};

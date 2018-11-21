@@ -13,7 +13,7 @@ my $VERSION="2.2beta";
 
 # a number of global variables. This is a bit sloppy, since most of them do not need to be global.  Maybe later we'll convert some back to my declarations.
 our $EXEC_NAME=$ENV{'smog_exec'};
-our $SMOGDIR=$ENV{'SMOG_PATH'};
+my  $SMOGDIR=$ENV{'SMOG_PATH'};
 our $SCM="$SMOGDIR/tools/SCM.jar";
 our $TOLERANCE=$ENV{'TOLERANCE'};
 our $MAXTHR=1.0+$TOLERANCE;
@@ -418,46 +418,6 @@ sub runsmog
  `$EXEC_NAME $ARGS &> $PDB.output`;
 }
 
-sub runGMX
-{
- my ($GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXMDP,$GMXMDPCA,$gaussian)=@_;
- if($gaussian =~ /^yes$/)
- {
-  if($CHECKGMXGAUSSIAN eq "no"){
-   return -1;
-  }elsif($CHECKGMXGAUSSIAN ne "yes"){
-   internal_error("CHECKGMXGAUSSIAN variable not properly set");
-  }
-  $GMXPATH=$GMXPATHGAUSSIAN;
- }elsif($gaussian =~ /^no$/)
- {
-  if($CHECKGMX eq "no"){
-   return -1;
-  }elsif($CHECKGMX ne "yes"){
-   internal_error("CHECKGMX variable not properly set");
-  }
- }else{
-  internal_error("gaussian variable not properly set");
- }
- print "Running grompp... may take a while\n";
- if(-e "topol.tpr"){
- `rm topol.tpr`;
- }
- # check the the gro and top work with grompp
- `$GMXPATH/$GMXEDITCONF -f $PDB.gro -d 10 -o $PDB.box.gro &> $PDB.editconf`;
- if($model eq "CA"){
-  `$GMXPATH/$GMXEXEC -f $GMXMDPCA -c $PDB.box.gro -p $PDB.top -po $PDB.out.mdp -maxwarn 1 &> $PDB.grompp`;
- }elsif($model eq "AA"){
-  `$GMXPATH/$GMXEXEC -f $GMXMDP -c $PDB.box.gro -p $PDB.top -po $PDB.out.mdp -maxwarn 1 &> $PDB.grompp`;
- }else{
-  internal_error("unable to determine whether this is a CA, or AA model.");
- }
- if(-e "topol.tpr"){
- `rm topol.tpr`;
- }
- return $?;
-}
-
 sub setmodelflags{
  my ($model,$contactmodel,$numfield,$A)=@_;
  my @A=@{$A};
@@ -700,7 +660,7 @@ sub smogchecker
   &checktop;
   &finalchecks;
   # if GMX tests are turned on, then run them
-  $FAIL{'GMX COMPATIBLE'}=runGMX($GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXMDP,$GMXMDPCA,$gaussian);
+  $FAIL{'GMX COMPATIBLE'}=runGMX($model,$CHECKGMX,$CHECKGMXGAUSSIAN,$GMXEDITCONF,$GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXMDP,$GMXMDPCA,$gaussian,$PDB);
  }else{
   $fail_log .= failed_message("SMOG 2 exited with non-zero exit code when trying to process this PDB file.");
   $FAIL_SYSTEM++;

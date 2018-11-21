@@ -5,7 +5,7 @@ use Exporter;
 our $PDB_DIR;
 our @ISA = 'Exporter';
 our @EXPORT =
-qw(internal_error smogcheck_error savefailed clearfiles failed_message failsum checkoutput filediff resettests compare_table timediff checkrestraintfile initgmxparams);
+qw(internal_error smogcheck_error savefailed clearfiles failed_message failsum checkoutput filediff resettests compare_table timediff checkrestraintfile initgmxparams runGMX);
 
 sub internal_error
 {
@@ -340,6 +340,46 @@ sub initgmxparams
   }
  }
  return ($CHECKGMX,$CHECKGMXGAUSSIAN,$GMXVER,$GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXEDITCONF,$GMXMDP,$GMXMDPCA);
+}
+
+sub runGMX
+{
+ my ($model,$CHECKGMX,$CHECKGMXGAUSSIAN,$GMXEDITCONF,$GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXMDP,$GMXMDPCA,$gaussian,$PDB)=@_;
+ if($gaussian =~ /^yes$/)
+ {
+  if($CHECKGMXGAUSSIAN eq "no"){
+   return -1;
+  }elsif($CHECKGMXGAUSSIAN ne "yes"){
+   internal_error("CHECKGMXGAUSSIAN variable not properly set");
+  }
+  $GMXPATH=$GMXPATHGAUSSIAN;
+ }elsif($gaussian =~ /^no$/)
+ {
+  if($CHECKGMX eq "no"){
+   return -1;
+  }elsif($CHECKGMX ne "yes"){
+   internal_error("CHECKGMX variable not properly set");
+  }
+ }else{
+  internal_error("gaussian variable not properly set");
+ }
+ print "Running grompp... may take a while\n";
+ if(-e "topol.tpr"){
+ `rm topol.tpr`;
+ }
+ # check the the gro and top work with grompp
+ `$GMXPATH/$GMXEDITCONF -f $PDB.gro -d 10 -o $PDB.box.gro &> $PDB.editconf`;
+ if($model eq "CA"){
+  `$GMXPATH/$GMXEXEC -f $GMXMDPCA -c $PDB.box.gro -p $PDB.top -po $PDB.out.mdp -maxwarn 1 &> $PDB.grompp`;
+ }elsif($model eq "AA"){
+  `$GMXPATH/$GMXEXEC -f $GMXMDP -c $PDB.box.gro -p $PDB.top -po $PDB.out.mdp -maxwarn 1 &> $PDB.grompp`;
+ }else{
+  internal_error("unable to determine whether this is a CA, or AA model.");
+ }
+ if(-e "topol.tpr"){
+ `rm topol.tpr`;
+ }
+ return $?;
 }
 
 
