@@ -111,7 +111,7 @@ sub printopeningmessage
 
 my $tmpstring = <<"EOS";
 
-                    smog-check (for smog v$VERSION)                                  
+                    smog-check\n (for smog v$VERSION)                                  
 
        smog-check is part of the SMOG 2 distribution, available at smog-server.org     
 
