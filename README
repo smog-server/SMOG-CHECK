@@ -29,10 +29,12 @@ configure.smog2 for the version of SMOG 2 that you would
 like to test, before running the tests.  Also, make sure
 to launch smog-check from the smog-check directory.
 
+		    QUICK CHECK
 For the less comprehensive check, issue the command:
 
 ./quick-check
 
+	       COMPREHENSIVE CHECK
 For the comprehensive check (requires ~30 minutes): 
 
 ./smog-check 
@@ -50,6 +52,20 @@ which tests with
 
 ./smog-check N M
 
+You can also optionally verify that the generated top/gro
+files can be processed by gromacs 4, or gromacs 5. This is generally
+not needed, and it can be very slow (hours). However, if you are modifying
+SMOG 2, then it can be helpful to verify that everything is formatted
+in a manner that is consistent with gromacs. Indicating
+which versions of gromacs to use is accomplished by exporting the following
+environment variables:
+GMXVER : set to 4 or 5 to indicate which version of gromacs will be used
+CHECKGMX : set to "yes" to turn on compatibility check with grompp
+GMXPATH : path to the gromacs executable
+CHECKGMXGAUSSIAN : set to "yes" to also check gaussian-based files
+GMXPATHGAUSSIAN : path to the gromacs executable for gromacs-based files
+
+                  TOOL CHECK
 
 To check that the smog tools are working properly, use:
 
@@ -57,6 +73,12 @@ To check that the smog tools are working properly, use:
 
 smog-tool-check is not very comprehensive, but it will 
 ensure basic functionality of the tools.
+
+If you would like to only test some tools, then indicate
+the tools to test on the command line.  For example, if
+you want to test smog_ions, only, then call
+
+./smog-tool-check ions
 
 These scripts have been tested on Linux and OSX 
 platforms. 

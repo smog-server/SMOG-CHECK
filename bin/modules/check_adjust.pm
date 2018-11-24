@@ -26,7 +26,7 @@ sub check_adjust
  my @FAILLIST = ('NON-ZERO EXIT','UNINITIALIZED VARIABLES','OUTPUT NAME','FILE LENGTH');
 
 
- print "Checking smog_adjustPDB with default naming.\n";
+ print "\tChecking smog_adjustPDB with default naming.\n";
  %FAIL=resettests(\%FAIL,\@FAILLIST);
 
  if(-e "adjusted.pdb"){
@@ -44,7 +44,8 @@ sub check_adjust
  while(<NEW>){
   $LINESnew++;
  }
- if($LINESnew==$LINESorig){
+ if($LINESnew==$LINESorig+1){
+  # +1 because a comment is added at the top
   $FAIL{"FILE LENGTH"}=0;
  }
  my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
@@ -56,7 +57,7 @@ sub check_adjust
   clearfiles(("adjusted.pdb","output.$tool"));
  }
 
- print "Checking smog_adjustPDB with user-specified file name.\n";
+ print "\tChecking smog_adjustPDB with user-specified file name.\n";
  %FAIL=resettests(\%FAIL,\@FAILLIST);
  if(-e "$newpdb"){
   `rm $newpdb`;
@@ -73,7 +74,7 @@ sub check_adjust
  while(<NEW>){
   $LINESnew++;
  }
- if($LINESnew==$LINESorig){
+ if($LINESnew==$LINESorig+1){
   $FAIL{"FILE LENGTH"}=0;
  }
  my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);

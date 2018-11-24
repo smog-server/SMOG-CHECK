@@ -1,5 +1,6 @@
 use strict;
 use warnings;
+use Math::Trig qw(acos_real rad2deg);
 use smog_common;
 use check_common;
 # This is the main script that runs SMOG2 and then checks to see if the generated files are correct.
@@ -7,9 +8,110 @@ use check_common;
 # a testing script, it is not designed to be efficient, but to be thorough, and foolproof...
 
 my $VERSION="2.2beta";
+
+#****************INITIALIZE A BUNCH OF VARIABLES*******************
+
+# a number of global variables. This is a bit sloppy, since most of them do not need to be global.  Maybe later we'll convert some back to my declarations.
+our $EXEC_NAME=$ENV{'smog_exec'};
+my  $SMOGDIR=$ENV{'SMOG_PATH'};
+our $SCM="$SMOGDIR/tools/SCM.jar";
+our $TOLERANCE=$ENV{'TOLERANCE'};
+our $MAXTHR=1.0+$TOLERANCE;
+our $MINTHR=1.0-$TOLERANCE;
+our $PRECISION=$ENV{'PRECISION'};
+
+#these are variables used for default testing
+our $BIFSIF_AA=$ENV{'BIFSIF_AA_DEFAULT'};
+our $BIFSIF_CA=$ENV{'BIFSIF_CA_DEFAULT'};
+
+#these are variables used for non-default testing
+our $TEMPLATE_DIR_AA=$ENV{'BIFSIF_AA_TESTING'};
+our $TEMPLATE_DIR_AA_STATIC=$ENV{'BIFSIF_STATIC_TESTING'};
+our $TEMPLATE_DIR_CA=$ENV{'BIFSIF_CA_TESTING'};
+our $TEMPLATE_DIR_AA_MATCH=$ENV{'BIFSIF_AA_MATCH'};
+
+# FAILLIST is a list of all the tests.
+# If you are developing and testing your own forcefield, which may not need to conform to certain checks, then you may want to disable some tests by  removing the test name from this list. However, do so at your own risk.
+our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','TOP FIELDS FOUND','TOP FIELDS RECOGNIZED','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'BOND LENGTHS','ANGLE TYPES', 'ANGLE WEIGHTS', 'ANGLE VALUES','DUPLICATE BONDS', 'DUPLICATE ANGLES', 'GENERATED ANGLE COUNT','GENERATED ANGLE IN TOP','ANGLES IN TOP GENERATED', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','MATCH DIH WEIGHTS','DIHEDRAL ANGLES','ALL POSSIBLE MATCHED DIHEDRALS PRESENT','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL IN TOP GENERATED','GENERATED DIHEDRAL IN TOP','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','GAUSSIAN CONTACT EXCLUDED VOLUME','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY','TYPE6 ATOMS','UNINITIALIZED VARIABLES','CLASSIFYING DIHEDRALS','NON-ZERO EXIT','ATOM FIELDS','ATOM CHARGES','FREE PAIRS APPEAR IN CONTACTS','EXTRAS ADDED','NONZERO LIGAND DIHEDRAL VALUE','GMX COMPATIBLE');
+
+# default location of test PDBs
+our $PDB_DIR="share/PDB.files";
+
+# where should data from failed tests be written
+our $FAILDIR="FAILED";
+
+# are we testing files with free interactions?
+our $free;
+
+# These are the file suffixes that we will save, or remove.
+our @FILETYPES=("top","gro","ndx","settings","contacts","output","contacts.SCM", "contacts.CG","grompp","editconf","out.mdp","box.gro");
+
+# bunch of global vars.  A bit sloppy.  Many could be local.
+our ($AMINO_PRESENT,$angleEps,@atombondedtype,%atombondedtypes,%atombondedtypes2,@ATOMNAME,@ATOMTYPE,$BBRAD,%BBTYPE,$bondEps,$bondMG,$bondtype6,%C12NB,%C6NB,$chargeAT,%chargeNB,%CHECKED,@CID,$CONTD,$CONTENERGY,$CONTR,$CONTTYPE,$default,%defcharge,$defname,$DENERGY,$dihmatch,$DIH_MAX,$DIH_MIN,$DISP_MAX,@EDrig_T,@ED_T,$epsilon,$epsilonCAC,$epsilonCAD,%FAIL,$FAILED,$fail_log,@FIELDS,$gaussian,@GRODATA,$impEps,$improper_gen_N,$ION_PRESENT,$LIGAND_DIH,$LIGAND_PRESENT,%massNB,%matchangle_val,%matchangle_weight,%matchbond_val,%matchbond_weight,%matchdihedral_val,%matchdihedral_weight,$model,@MOLTYPE,%MOLTYPEBYRES,$NA_DIH,$NCONTACTS,$NUCLEIC_PRESENT,$NUMATOMS,$NUMATOMS_LIGAND,$omegaEps,$PDB,$phi_gen_N,$PRO_DIH,$R_CD,$rep_s12,@RESNUM,%restypecount,$ringEps,$R_N_SC_BB,$R_P_BB_SC,$sigma,$sigmaCA,$theta_gen_N,%TYPE,$type6count,$usermap,@XT,@YT,@ZT);
+
+my %supported_directives = ( 'defaults' => '1','atomtypes' => '1','moleculetype' => '1','nonbond_params' => '0','atoms' => '1','bonds' => '1','angles' => '1','dihedrals' => '1','pairs' => '1','exclusions' => '1','system' => '1','molecules' => '1');
+
+# list the bonds that are free in the free-templates
+my %free_bond_defs=('TRP-CG-CD1' =>'1');
+
+# list the angles that are free in the free-templates
+my %free_angle_defs=('GLN-CB-CG-CD' =>'1');
+
+# list the dihedrals that are free in the free-templates
+my %free_dihedrals_defs=('TYR-CB-CG' =>'1',
+			 'TYR-CG-CD1' =>'1',
+			 'TYR-CD1-CE1' =>'1',
+			 );
+
+# list the residue pairs that free in the free-templates
+my %free_pair_defs=('ASN-MET' =>'1',
+	   	    'ASN-ASN' =>'1',
+	   	    'MET-MET' =>'1'
+		   );
+
+my %numfield = ( 'default' => '2', 'default-userC' => '2', 'default-gaussian' => '2', 'default-gaussian-userC' => '2','cutoff' => '19', 'shadow' => '20',  'shadow-free' => '20', 'shadow-gaussian' => '20', 'cutoff-gaussian' => '19' , 'shadow-match' => '4');
+%defcharge = ('GLY-N' => "0.3", 'GLY-C' => "0.2", 'GLY-O' => "-0.5");
+my $TESTNUM=0;
+my $FAIL_SYSTEM=0;
+my $NUMTESTED=0;
+
+#*******************END OF VARIABLE INITIALIZATION*****************
+
+
+#****************************MAIN ROUTINE**************************
+
+&checkversion($VERSION,$EXEC_NAME);
+&printopeningmessage;
+
+my $SETTINGS_FILE=<STDIN>;
+chomp($SETTINGS_FILE);
+open(PARMS,"$SETTINGS_FILE") or internal_error("The settings file is missing...");
+
+print "Will use SMOG 2 executable $EXEC_NAME\n";
+
+&checktemplatedirs($BIFSIF_AA,,$BIFSIF_CA,$TEMPLATE_DIR_AA,$TEMPLATE_DIR_AA_STATIC,$TEMPLATE_DIR_CA);
+&checkForModules;
+&checkSCMexists($SCM);
+my ($RETEST,$RETESTEND)=checkforretest();
+# set flags for GMX testing
+my ($CHECKGMX,$CHECKGMXGAUSSIAN,$GMXVER,$GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXEDITCONF,$GMXMDP,$GMXMDPCA)=initgmxparams($SMOGDIR);
+
+&readbackbonetypes;
+&readresiduetypes;
+&runalltests;
+&finalreport;
+
+#*************************END OF MAIN ROUTINE**********************
+
+
+#*****************************SUBROUTINES**************************
+
+sub printopeningmessage
+{
+
 my $tmpstring = <<"EOS";
 
-                    smog-check                                   
+                    smog-check\n (for smog v$VERSION)                                  
 
        smog-check is part of the SMOG 2 distribution, available at smog-server.org     
 
@@ -28,135 +130,38 @@ printdashed($wide);
 printcenter($wide,$tmpstring);
 printdashed($wide);
 
-# check if we are simply rerunning a single test, a few tests, or performing all
-my $RETEST=$#ARGV;
-my $RETESTEND=-1;
-if($RETEST == 0 || $RETEST == 1 ){
-	my $RETESTT;
-	if($ARGV[0] =~ /^\d+$/){
-		# is an integer
-		$RETESTT=$ARGV[0];
-		$RETESTEND=$RETESTT;
-	}else{
-		# is not an integer.  flag error
-		smogcheck_error("argument to smog-check can only be one, or two, integers. Found \"$ARGV[0]\"");
-	}
-
-	if($RETEST == 1 ){
-		if($ARGV[1] =~ /^\d+$/){
-			# is an integer
-			$RETESTEND=$ARGV[1];
-			print "\nWill run tests $ARGV[0] to $ARGV[1].\n\n";
-		}else{
-			# is not an integer.  flag error
-			smogcheck_error("argument to smog-check can only be one, or two, integers. Found \"$ARGV[0]\"");
-		}
-		if($ARGV[1] < $ARGV[0]){
-			smogcheck_error("Arguments must be first test, then last test. Last test number must be larger.");
-		}
-	}else{
-		print "\nWill only run test $ARGV[0].\n\n";
-	}
-	$RETEST=$RETESTT;
-
-}elsif($RETEST== -1){
-	print "\nWill run all tests (default).\n\n";
-}else{
-	smogcheck_error("Too many arguments passed to smog-check");
 }
 
-&checkForModules;
-
-# a number of global variables. This is a bit sloppy, since most of them do not need to be global.  Maybe later we'll convert some back to my declarations.
-our $EXEC_NAME=$ENV{'smog_exec'};
-our $SMOGDIR=$ENV{'SMOG_PATH'};
-our $SCM="$SMOGDIR/tools/SCM.jar";
-our $TOLERANCE=$ENV{'TOLERANCE'};
-our $MAXTHR=1.0+$TOLERANCE;
-our $MINTHR=1.0-$TOLERANCE;
-our $PRECISION=$ENV{'PRECISION'};
-#these are variables used for default testing
-our $BIFSIF_AA=$ENV{'BIFSIF_AA_DEFAULT'};
-our $BIFSIF_CA=$ENV{'BIFSIF_CA_DEFAULT'};
-#these are variables used for non-default testing
-our $TEMPLATE_DIR_AA=$ENV{'BIFSIF_AA_TESTING'};
-our $TEMPLATE_DIR_AA_STATIC=$ENV{'BIFSIF_STATIC_TESTING'};
-our $TEMPLATE_DIR_CA=$ENV{'BIFSIF_CA_TESTING'};
-our $TEMPLATE_DIR_AA_MATCH=$ENV{'BIFSIF_AA_MATCH'};
-# FAILLIST is a list of all the tests.
-# If you are developing and testing your own forcefield, which may not need to conform to certain checks, then you may want to disable some tests by  removing the test name from this list. However, do so at your own risk.
-
-our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','TOP FIELDS FOUND','TOP FIELDS RECOGNIZED','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'BOND LENGTHS','ANGLE TYPES', 'ANGLE WEIGHTS', 'ANGLE VALUES','DUPLICATE BONDS', 'DUPLICATE ANGLES', 'GENERATED ANGLE COUNT','GENERATED ANGLE IN TOP','ANGLES IN TOP GENERATED', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','MATCH DIH WEIGHTS','MATCH DIH ANGLES','ALL POSSIBLE MATCHED DIHEDRALS PRESENT','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL IN TOP GENERATED','GENERATED DIHEDRAL IN TOP','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','GAUSSIAN CONTACT EXCLUDED VOLUME','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY','TYPE6 ATOMS','UNINITIALIZED VARIABLES','CLASSIFYING DIHEDRALS','NON-ZERO EXIT','ATOM FIELDS','ATOM CHARGES','FREE PAIRS APPEAR IN CONTACTS','EXTRAS ADDED','NONZERO LIGAND DIHEDRAL VALUE');
-# default location of test PDBs
-our $PDB_DIR="share/PDB.files";
-# where should data from failed tests be written
-our $FAILDIR="FAILED";
-# are we testing files with free interactions?
-our $free;
-# will add free-specific hashes, here
-our @FILETYPES=("top","gro","ndx","settings","contacts","output","contacts.SCM", "contacts.CG");
-
-# bunch of global vars.  A bit sloppy.  Many could be local.
-our ($AMINO_PRESENT,$angleEps,@atombondedtype,%atombondedtypes,%atombondedtypes2,@ATOMNAME,@ATOMTYPE,$BBRAD,%BBTYPE,$bondEps,$bondMG,$bondtype6,%C12NB,%C6NB,$chargeAT,%chargeNB,%CHECKED,@CID,$CONTD,$CONTENERGY,$CONTR,$CONTTYPE,$default,%defcharge,$defname,$DENERGY,$dihmatch,$DIH_MAX,$DIH_MIN,$DISP_MAX,@EDrig_T,@ED_T,$epsilon,$epsilonCAC,$epsilonCAD,%FAIL,$FAILED,$fail_log,@FIELDS,$gaussian,@GRODATA,$impEps,$improper_gen_N,$ION_PRESENT,$LIGAND_DIH,$LIGAND_PRESENT,%massNB,%matchangle_val,%matchangle_weight,%matchbond_val,%matchbond_weight,%matchdihedral_val,%matchdihedral_weight,$model,@MOLTYPE,%MOLTYPEBYRES,$NA_DIH,$NCONTACTS,$NUCLEIC_PRESENT,$NUMATOMS,$NUMATOMS_LIGAND,$omegaEps,$PDB,$phi_gen_N,$PRO_DIH,$R_CD,$rep_s12,@RESNUM,%restypecount,$ringEps,$R_N_SC_BB,$R_P_BB_SC,$sigma,$sigmaCA,$theta_gen_N,%TYPE,$type6count,$usermap,@XT,@YT,@ZT);
-
-$DISP_MAX=0;
-# before testing anything, make sure this version of smog-check is compatible with the version of smog2
-my $smogversion=`$EXEC_NAME -v | tail -n 1`;
-chomp($smogversion);
-$smogversion=~s/Version //g;
-$smogversion=~/^\s+|\s+$/;
-if($VERSION ne $smogversion){
- smogcheck_error("Incompatible versions of SMOG ($smogversion) and SMOG-CHECK ($VERSION)");	
+sub checkversion
+{
+ my ($VERSION,$EXEC_NAME)=@_;
+ # before testing anything, make sure this version of smog-check is compatible with the version of smog2
+ my $smogversion=`$EXEC_NAME -v | tail -n 1`;
+ chomp($smogversion);
+ $smogversion=~s/Version //g;
+ $smogversion=~/^\s+|\s+$/;
+ if($VERSION ne $smogversion){
+  smogcheck_error("Incompatible versions of SMOG ($smogversion) and SMOG-CHECK ($VERSION)");	
+ }
 }
 
-my %supported_directives = ( 'defaults' => '1','atomtypes' => '1','moleculetype' => '1','nonbond_params' => '0','atoms' => '1','bonds' => '1','angles' => '1','dihedrals' => '1','pairs' => '1','exclusions' => '1','system' => '1','molecules' => '1');
-
-# list the bonds that are free in the free-templates
-my %free_bond_defs=('TRP-CG-CD1' =>'1');
-# list the angles that are free in the free-templates
-my %free_angle_defs=('GLN-CB-CG-CD' =>'1');
-# list the dihedrals that are free in the free-templates
-my %free_dihedrals_defs=('TYR-CB-CG' =>'1',
-			 'TYR-CG-CD1' =>'1',
-			 'TYR-CD1-CE1' =>'1',
-			 );
-# list the residue pairs that free in the free-templates
-my %free_pair_defs=('ASN-MET' =>'1',
-	   	    'ASN-ASN' =>'1',
-	   	    'MET-MET' =>'1'
-		   );
-
-unless(-d $BIFSIF_AA && -d $BIFSIF_CA && -d $TEMPLATE_DIR_AA && -d $TEMPLATE_DIR_AA_STATIC && -d $TEMPLATE_DIR_CA ){
- smogcheck_error("Can\'t find the template directories. Something is wrong with the configurations of this script.\nYour intallation of SMOG2 may be ok, but we can\'t tell\nGiving up...");
+sub checkSCMexists
+{
+ my ($SCM)=@_;
+ unless( -e $SCM){
+  smogcheck_error("Can\'t find Shadow!");
+ }
 }
 
-print "environment variables read\n";
-print "EXEC_NAME $EXEC_NAME\n";
-
-unless( -e $SCM){
- smogcheck_error("Can\'t find Shadow!");
+sub checktemplatedirs
+{
+ my @templates=@_;
+ foreach my $dir (@templates){
+  unless(-d $dir){
+   smogcheck_error("Can\'t find the template directory $dir. Something is wrong with the configurations of this script.\nYour intallation of SMOG2 may be ok, but we can\'t tell\nGiving up...");
+  }
+ }
 }
-
-my %numfield = ( 'default' => '2', 'default-userC' => '2', 'default-gaussian' => '2', 'default-gaussian-userC' => '2','cutoff' => '19', 'shadow' => '20',  'shadow-free' => '20', 'shadow-gaussian' => '20', 'cutoff-gaussian' => '19' , 'shadow-match' => '4');
-
-my $FAIL_SYSTEM=0;
-
-%defcharge = ('GLY-N' => "0.3", 'GLY-C' => "0.2", 'GLY-O' => "-0.5");
-my $NUMTESTED=0;
-my $SETTINGS_FILE=<STDIN>;
-chomp($SETTINGS_FILE);
-open(PARMS,"$SETTINGS_FILE") or internal_error("The settings file is missing...");
-my $TESTNUM=0;
-
-
-&readbackbonetypes;
-&readresiduetypes;
-&runalltests;
-&finalreport;
-#*************************END OF MAIN ROUTINE**********************
-
-
-#*****************************SUBROUTINES**************************
 
 sub readbackbonetypes
 {
@@ -176,6 +181,48 @@ sub readbackbonetypes
   close(FF);
  }
 }
+
+sub checkforretest
+{
+ # check if we are simply rerunning a single test, a few tests, or performing all
+ my $RETEST=$#ARGV;
+ my $RETESTEND=-1;
+ if($RETEST == 0 || $RETEST == 1 ){
+  my $RETESTT;
+  if($ARGV[0] =~ /^\d+$/){
+   # is an integer
+   $RETESTT=$ARGV[0];
+   $RETESTEND=$RETESTT;
+  }else{
+   # is not an integer.  flag error
+   smogcheck_error("argument to smog-check can only be one, or two, integers. Found \"$ARGV[0]\"");
+  }
+  
+  if($RETEST == 1 ){
+   if($ARGV[1] =~ /^\d+$/){
+    # is an integer
+    $RETESTEND=$ARGV[1];
+    print "\nWill run tests $ARGV[0] to $ARGV[1].\n\n";
+   }else{
+    # is not an integer.  flag error
+    smogcheck_error("argument to smog-check can only be one, or two, integers. Found \"$ARGV[0]\"");
+   }
+   if($ARGV[1] < $ARGV[0]){
+    smogcheck_error("Arguments must be first test, then last test. Last test number must be larger.");
+   }
+  }else{
+   print "\nWill only run test $ARGV[0].\n\n";
+  }
+  $RETEST=$RETESTT;
+ 
+ }elsif($RETEST== -1){
+ 	print "\nWill run all tests (default).\n\n";
+ }else{
+ 	smogcheck_error("Too many arguments passed to smog-check");
+ }
+ return ($RETEST,$RETESTEND);
+}
+
 
 sub readresiduetypes
 {
@@ -232,7 +279,7 @@ sub runalltests{
   # clean up the tracking for the next test
   %FAIL=resettests(\%FAIL,\@FAILLIST);
 
-  &smogchecker;
+  &smogchecker($gaussian);
  
  }
 }
@@ -256,7 +303,7 @@ EOT
  exit(1);
 }elsif($RETEST < 0){
  my $nottested=alltested(\%CHECKED,\%FAIL);
- if($nottested eq ""){
+ if($nottested eq "" || $nottested eq "GMX COMPATIBLE\n"){
  print <<EOT;
 *************************************************************
                       PASSED ALL TESTS  !!!
@@ -266,6 +313,8 @@ EOT
 }else{
   print <<EOT;
 *************************************************************
+Not all possible tests have been checked.  
+Unchecked tests include:
 $nottested
 *************************************************************
 EOT
@@ -330,9 +379,6 @@ sub alltested
   if(!exists $CHECKED{$name}){
    $nottested .= "$name\n";
   }
- }
- if($nottested ne ""){
-  $nottested = "Not all possible tests have been checked.  Unchecked tests include:\n$nottested";
  }
  return $nottested;
 }
@@ -591,11 +637,11 @@ sub checkSCM
 
 sub smogchecker
 {
+ my ($gaussian)=@_;
  &cleanoldfiles;
  &preparesettings;
  print "Running SMOG 2\n";
  &runsmog; 
-
  ($FAIL{'NON-ZERO EXIT'},$FAIL{'UNINITIALIZED VARIABLES'})=checkoutput("$PDB.output");
 
  if($FAIL{'UNINITIALIZED VARIABLES'} == 1){
@@ -607,12 +653,14 @@ sub smogchecker
  }
  if($FAIL{'NON-ZERO EXIT'} == 0){
   print "SMOG 2 exited without an error.\nAssessing generated files...\n";
-  # CHECK THE OUTPUT
+   # CHECK THE OUTPUT
   &checkSCM;
   &checkgro; 
   &checkndx;
   &checktop;
   &finalchecks;
+  # if GMX tests are turned on, then run them
+  $FAIL{'GMX COMPATIBLE'}=runGMX($model,$CHECKGMX,$CHECKGMXGAUSSIAN,$GMXEDITCONF,$GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXMDP,$GMXMDPCA,$gaussian,$PDB);
  }else{
   $fail_log .= failed_message("SMOG 2 exited with non-zero exit code when trying to process this PDB file.");
   $FAIL_SYSTEM++;
@@ -961,7 +1009,7 @@ sub checktop
  $DIH_MIN=100000000;
  $DIH_MAX=-100000000;
  $NCONTACTS=0;
-
+ $DISP_MAX=0;
  # clean up top file for easy parsing later
  open(TOP,"$PDB.top") or internal_error(" $PDB.top can not be opened...");
  while(<TOP>){
@@ -1649,9 +1697,12 @@ sub checkbonds
    $RECOGNIZEDBTYPES++;
    my $bweight;
    my $bval;
+   my $maxdiff;
    if(defined  $bondEps){
     # there is a homogeneous value used
     $bweight=$bondEps;
+    $maxdiff=5E-3;
+    $bval=getbonddist(\@A);
    }else{
     # heterogeneous bonds need to be checked (obtained from compare file).
     my $bt1=$atombondedtype[$A[0]];
@@ -1660,17 +1711,19 @@ sub checkbonds
      # check for the expected values of the weight, if defined 
      $bweight=$matchbond_weight{"$bt1-$bt2"};
      $bval=$matchbond_val{"$bt1-$bt2"};
-     if(abs($A[3]- $bval) > 10E-10){
-      $fail_log .= failed_message("bond has incorrect length. Expected $bval. Found:\n\t$LINE");
-     }else{
-      $CORRECTBONDLENGTHS++;
-     }	
+     $maxdiff=10E-10;
     }else{
      # since one only needs to provide weights that are used, 
      # we verify here, as opposed to checking all possible combinations earlier
      smogcheck_error("Bonded types $bt1 $bt2 don\'t have a defined reference weight.")
     }
    }
+   if(abs($A[3]- $bval) > $maxdiff){
+    $fail_log .= failed_message("bond has incorrect length. Expected $bval. Found:\n\t$LINE");
+   }else{
+    $CORRECTBONDLENGTHS++;
+   }	
+
    if(abs($A[4] - $bweight) > 10E-10){
     $fail_log .= failed_message("bond has incorrect weight. Expected $bweight. Found:\n\t$LINE");
    }else{
@@ -1710,6 +1763,16 @@ sub checkbonds
     }else{
     $CORRECTBONDWEIGHTS++;
    }		
+   my $bval;
+   my $maxdiff;
+   $maxdiff=5E-3;
+   $bval=getbonddist(\@A);
+   if(abs($A[3]- $bval) > $maxdiff){
+    $fail_log .= failed_message("bond has incorrect length. Expected $bval. Found:\n\t$LINE");
+   }else{
+    $CORRECTBONDLENGTHS++;
+   }	
+
   }else{
    $fail_log .= failed_message("unknown function type for bond\n\t$LINE");
   }
@@ -1731,10 +1794,7 @@ sub checkbonds
  if($CORRECTBONDWEIGHTS == $NBONDS && $NBONDS !=0){
   $FAIL{'BOND STRENGTHS'}=0;
  } 
- if(defined  $bondEps){
-  # not checking values
-  $FAIL{'BOND LENGTHS'}=-1; 
- }elsif($CORRECTBONDLENGTHS == $NBONDS && $NBONDS !=0){
+ if($CORRECTBONDLENGTHS == $NBONDS && $NBONDS !=0){
   $FAIL{'BOND LENGTHS'}=0;
  }
 
@@ -1833,29 +1893,35 @@ sub checkangles
   }
   my $aweight;
   my $aval;
+  my $maxdiff;
   if(defined  $angleEps){
+   # somewhat large allowable difference, since we are comparing the angle that is limited by gro precision.
+   $maxdiff=1.0;
    # there is a homogeneous value used
    $aweight=$angleEps;
+   $aval=getbondangle(\@A);
   }else{
+   $maxdiff=10E-10;
    # heterogeneous bonds need to be checked (obtained from compare file).
    my $at1=$atombondedtype[$A[0]];
    my $at2=$atombondedtype[$A[1]];
    my $at3=$atombondedtype[$A[2]];
    if(exists $matchangle_weight{"$at1-$at2-$at3"}){
-    # check for the expected values of the weight, if defined 
+    # check for the expected values of the angles and weight, if defined explicitly in sif
     $aweight=$matchangle_weight{"$at1-$at2-$at3"};
     $aval=$matchangle_val{"$at1-$at2-$at3"};
-    if(abs($A[4]- $aval) > 10E-10){
-     $fail_log .= failed_message("bond has incorrect angle. Expected $aval. Found:\n\t$LINE");
-    }else{
-     $CORRECTBONDANGLES++;
-    }	
    }else{
     # since one only needs to provide weights that are used, 
     # we verify here, as opposed to checking all possible combinations earlier
     smogcheck_error("Bonded types $at1 $at2 $at3 don\'t have a defined reference angle weight.")
    }
   }
+  if(abs($A[4]- $aval) > $maxdiff){
+   # check that it is within 1 degree of what is expected.  This is limited by the resolution of gro files
+   $fail_log .= failed_message("bond has incorrect angle. Expected $aval. Found:\n\t$LINE");
+  }else{
+   $CORRECTBONDANGLES++;
+  }	
   if(abs($A[5] - $aweight) > 10E-10){
    $fail_log .= failed_message("bond angle has incorrect weight. Expected $aweight. Found:\n\t$LINE");
   }else{
@@ -1939,10 +2005,7 @@ sub checkangles
  }else{
   $FAIL{'ANGLES IN TOP GENERATED'}=1;
  }
- if(defined  $angleEps){
-  # not checking values
-  $FAIL{'ANGLE VALUES'}=-1; 
- }elsif($CORRECTBONDANGLES == $Nangles && $Nangles !=0){
+ if($CORRECTBONDANGLES == $Nangles && $Nangles !=0){
   $FAIL{'ANGLE VALUES'}=0;
  }
 
@@ -2061,6 +2124,7 @@ sub checkdihedrals
  my $accounted1=0;
  my $CORRECTDIHEDRALANGLES=0;
  my $CORRECTDIHEDRALWEIGHTS=0;
+ my $numberofdihedrals=0;
  $#ED_T = -1;
  $#EDrig_T = -1;
  my $LINE=$topdata[$LN];$LN++;
@@ -2114,13 +2178,16 @@ sub checkdihedrals
   ##if dihedral is type 1, then save the information, so we can make sure the next is n=3
   if(exists $A[7]){
    if($A[7] == 1){
+    my $maxdiff;
+    $numberofdihedrals++;
     $LAST_W=$A[6];
     $string_last=$string;
     $DANGLE_LAST=$A[5];
   # only going to check the value for matching if type 1
-    my $dihweight;
     my $dihval;
     if(defined  $dihmatch){
+     # the differences should be zero, since it is simply read from a file
+     $maxdiff=10E-10;
      # heterogeneous bonds need to be checked (obtained from compare file).
      my $at1=$atombondedtype[$A[0]];
      my $at2=$atombondedtype[$A[1]];
@@ -2131,12 +2198,7 @@ sub checkdihedrals
      if(exists $matchdihedral_weight{"$dname"}){
       # check for the expected values of the weight, if defined 
       my $dweight=$matchdihedral_weight{"$dname"};
-      my $dval=$matchdihedral_val{"$dname"};
-      if(abs($A[5]- $dval) > 10E-10){
-       $fail_log .= failed_message("dihedral has incorrect angle. Expected $dval. Found:\n\t$LINE");
-      }else{
-       $CORRECTDIHEDRALANGLES++;
-      }	
+      $dihval=$matchdihedral_val{"$dname"};
       if(abs($A[6]- $dweight) > 10E-10){
        $fail_log .= failed_message("dihedral has incorrect weight. Expected $dweight. Found:\n\t$LINE");
       }else{
@@ -2147,11 +2209,23 @@ sub checkdihedrals
       # we verify here, as opposed to checking all possible combinations earlier
       smogcheck_error("Bonded types $at1 $at2 $at3 $at4 don\'t have a defined reference dihedral angle weight.")
      }
+    }else{
+     # if not matching based on sif, then calculate the dihedral angle
+     $dihval=getdihangle(\@A);
+     # rather large allowable difference, since there a precision difference between the PDB, which defines the .top, and the precision of the .gro, which is used by the script to calculate the angles for comparison.
+     $maxdiff=3.0;
     }
+    my $diff=dihdelta($A[5],$dihval);
+    if($diff > $maxdiff){
+     $fail_log .= failed_message("dihedral has incorrect angle. Expected $dihval. Found:\n\t$LINE\n(diff=$diff)");
+    }else{
+     $CORRECTDIHEDRALANGLES++;
+    }	
    }
    $LAST_N=$A[7];
    if($A[7] == 3 && ($string eq $string_last)){
     $S3_match++; 
+    # we don't check anything at this point, so that we can compare n=1 and n=3 relative to each other 
    }
    if($A[4] == 1 && $A[7] == 1 ){
     my $F;
@@ -2215,6 +2289,20 @@ sub checkdihedrals
     $CORIMP--;
    }else{
     $fail_log .= failed_message("improper dihedral has wrong weight\n\t$LINE");
+   }
+  }
+
+  if($A[4] == 2){
+   $numberofdihedrals++;
+   # for some reason, 0 is different for impropers
+   my $dihval=getdihangle(\@A)+180;
+   my $diff=dihdelta($A[5],$dihval);
+   if($diff > 3.0){
+    # this is a somewhat generous threshold for comparing angles.  However, the reason is that 
+    # this script uses the gro file, whereas the .top was based on the pdb, which has higher precision.
+    $fail_log .= failed_message("dihedral has incorrect angle. Expected $dihval. Found:\n\t$LINE\n(diff=$diff)");
+   }else{
+    $CORRECTDIHEDRALANGLES++;
    }
   }
 
@@ -2306,17 +2394,15 @@ sub checkdihedrals
  if($matchingpairs == $accounted1){
   $FAIL{'1-3 DIHEDRAL PAIRS'}=0;
  }
+ if($CORRECTDIHEDRALANGLES == $numberofdihedrals && $numberofdihedrals !=0){
+  $FAIL{'DIHEDRAL ANGLES'}=0;
+ }
  if(defined  $dihmatch){
-  if($CORRECTDIHEDRALANGLES == $accounted1){
-   $FAIL{'MATCH DIH ANGLES'}=0;
-  }
   if($CORRECTDIHEDRALWEIGHTS == $accounted1){
    $FAIL{'MATCH DIH WEIGHTS'}=0;
   }
  }else{
    $FAIL{'MATCH DIH WEIGHTS'}=-1;
-   $FAIL{'MATCH DIH ANGLES'}=-1;
-
  }
  if($S3_match == $accounted1){
   $FAIL{'1-3 ORDERING OF DIHEDRALS'}=0
@@ -2464,6 +2550,19 @@ sub checkdihedrals
  return ($LN,$A[1],\%revData,\%phi_gen_as,\@phi_gen,\%improper_gen_as,\@improper_gen);
 }
 
+sub dihdelta
+{
+ my ($a,$b)=@_;
+ my $diff=$a-$b;
+ until($diff<180.0){
+  $diff-=360.0;
+ }
+ until($diff>-180.0){
+  $diff+=360.0;
+ }
+ return abs($diff);
+}
+
 sub checkpairs
 {
  my ($LN,$N1,$N2,$N3,$stackingE,$NonstackingE)=@_;
@@ -2518,7 +2617,7 @@ sub checkpairs
   if($gaussian eq "yes"){
    $W=$A[3];
    $Cdist=$A[4];
-   $CALCD=getdist(\*CMAP,$A[0],$A[1]);
+   $CALCD=getpairdist(\*CMAP,$A[0],$A[1]);
    if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0) ){
     $ContactDist++;
    }else{
@@ -2545,7 +2644,7 @@ sub checkpairs
   }elsif($model eq "CA"){
    $W=5.0**5.0/6.0**6.0*($A[3]**6.0)/($A[4]**5.0);
    $Cdist=(6*$A[4]/(5*$A[3]))**(1.0/2.0);
-   $CALCD=getdist(\*CMAP,$A[0],$A[1]);
+   $CALCD=getpairdist(\*CMAP,$A[0],$A[1]);
    if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0) ){
     $ContactDist++;
    }else{
@@ -2554,7 +2653,7 @@ sub checkpairs
   }elsif($model eq "AA" || $model eq "AA-match"){
    $W=($A[3]*$A[3])/(4*$A[4]);
    $Cdist=(2.0*$A[4]/($A[3]))**(1.0/6.0);
-   $CALCD=getdist(\*CMAP,$A[0],$A[1]);
+   $CALCD=getpairdist(\*CMAP,$A[0],$A[1]);
    if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0)){
     $ContactDist++;
    }else{
@@ -2879,7 +2978,7 @@ sub CheckTemplatesCreated
  }	
 }
 
-sub getdist
+sub getpairdist
 {
  my ($handle,$A0,$A1)=@_;
  my $dist;
@@ -2894,6 +2993,147 @@ sub getdist
   $dist=(($XT[$A0]-$XT[$A1])**2+($YT[$A0]-$YT[$A1])**2+($ZT[$A0]-$ZT[$A1])**2)**(0.5);
   return $dist;
  }
+}
+
+sub getbonddist
+{
+ my ($A)=@_;
+ my @atoms=@{$A};
+ my $i=$atoms[0];
+ my $j=$atoms[1];
+ my $dist;
+ my @V;
+ $V[0]=$XT[$i]-$XT[$j];
+ $V[1]=$YT[$i]-$YT[$j];
+ $V[2]=$ZT[$i]-$ZT[$j];
+ 
+ $dist=sqrt($V[0]**2+$V[1]**2+$V[2]**2);
+
+ return $dist
+}
+
+sub getbondangle
+{
+ my ($A)=@_;
+ my @atoms=@{$A};
+ my $i=$atoms[0];
+ my $j=$atoms[1];
+ my $k=$atoms[2];
+ my $distV;
+ my $distW;
+ my @V;
+ my @W;
+ my $dot;
+ my $angle;
+ $V[0]=$XT[$i]-$XT[$j];
+ $V[1]=$YT[$i]-$YT[$j];
+ $V[2]=$ZT[$i]-$ZT[$j];
+
+ $W[0]=$XT[$k]-$XT[$j];
+ $W[1]=$YT[$k]-$YT[$j];
+ $W[2]=$ZT[$k]-$ZT[$j];
+
+ $distV=sqrt($V[0]**2+$V[1]**2+$V[2]**2);
+ $distW=sqrt($W[0]**2+$W[1]**2+$W[2]**2);
+
+ $V[0]/=$distV;
+ $V[1]/=$distV;
+ $V[2]/=$distV;
+ $W[0]/=$distW;
+ $W[1]/=$distW;
+ $W[2]/=$distW;
+
+ $dot=$V[0]*$W[0]+$V[1]*$W[1]+$V[2]*$W[2];
+ $angle=rad2deg(acos_real($dot));
+ return $angle
+}
+
+sub getdihangle
+{
+ my ($A)=@_;
+ my @atoms=@{$A};
+ my $i=$atoms[0];
+ my $j=$atoms[1];
+ my $k=$atoms[2];
+ my $l=$atoms[3];
+ my $multiplicity;
+ my $ftype=$atoms[4];
+ if($ftype==1){
+  $multiplicity=$atoms[7];
+ }else{
+  $multiplicity=1.0;
+ }
+ my $distU;
+ my $distV;
+ my $distW;
+ my $dist1;
+ my $dist2;
+ my @U;
+ my @V;
+ my @W;
+ my @vec1;
+ my @vec2;
+ my $dot;
+ my @cross;
+ my $angle;
+ $U[0]=$XT[$i]-$XT[$j];
+ $U[1]=$YT[$i]-$YT[$j];
+ $U[2]=$ZT[$i]-$ZT[$j];
+
+ $V[0]=$XT[$k]-$XT[$j];
+ $V[1]=$YT[$k]-$YT[$j];
+ $V[2]=$ZT[$k]-$ZT[$j];
+
+ $W[0]=$XT[$l]-$XT[$k];
+ $W[1]=$YT[$l]-$YT[$k];
+ $W[2]=$ZT[$l]-$ZT[$k];
+
+ $distU=sqrt($U[0]**2+$U[1]**2+$U[2]**2);
+ $distV=sqrt($V[0]**2+$V[1]**2+$V[2]**2);
+ $distW=sqrt($W[0]**2+$W[1]**2+$W[2]**2);
+
+ $U[0]/=$distU;
+ $U[1]/=$distU;
+ $U[2]/=$distU;
+ $V[0]/=$distV;
+ $V[1]/=$distV;
+ $V[2]/=$distV;
+ $W[0]/=$distW;
+ $W[1]/=$distW;
+ $W[2]/=$distW;
+
+ $vec1[0]=$U[1]*$V[2]-$V[1]*$U[2];
+ $vec1[1]=$U[2]*$V[0]-$V[2]*$U[0];
+ $vec1[2]=$U[0]*$V[1]-$V[0]*$U[1];
+
+ $vec2[0]=$V[1]*$W[2]-$W[1]*$V[2];
+ $vec2[1]=$V[2]*$W[0]-$W[2]*$V[0];
+ $vec2[2]=$V[0]*$W[1]-$W[0]*$V[1];
+
+ $dist1=sqrt($vec1[0]**2+$vec1[1]**2+$vec1[2]**2);
+ $dist2=sqrt($vec2[0]**2+$vec2[1]**2+$vec2[2]**2);
+
+
+ $vec1[0]/=$dist1;
+ $vec1[1]/=$dist1;
+ $vec1[2]/=$dist1;
+ $vec2[0]/=$dist2;
+ $vec2[1]/=$dist2;
+ $vec2[2]/=$dist2;
+
+ $dot=$vec1[0]*$vec2[0]+$vec1[1]*$vec2[1]+$vec1[2]*$vec2[2];
+ $angle=rad2deg(acos_real($dot));
+
+
+ $cross[0]=$vec1[1]*$vec2[2]-$vec2[1]*$vec1[2];
+ $cross[1]=$vec1[2]*$vec2[0]-$vec2[2]*$vec1[0];
+ $cross[2]=$vec1[0]*$vec2[1]-$vec2[0]*$vec1[1];
+ 
+ if($cross[0]*$V[0]+$cross[1]*$V[1]+$cross[2]*$V[2] <0){
+  $angle*=-1.0;
+ }
+ $angle+=$multiplicity;
+ return $angle
 }
 
 sub singletestsummary

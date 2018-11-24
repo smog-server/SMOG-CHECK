@@ -6,9 +6,27 @@ use check_common;
 our @ISA = 'Exporter';
 our @EXPORT = qw(check_extract);
 
+# in supported_directives:0 = not supported. 1 = required once. 2=required (may appear more than once). 3=optional once.
+our %supported_directives = ( 'defaults' => '1',
+        'atomtypes' => '1',
+        'nonbond_params' => '0',
+        'moleculetype' => '1',
+        'atoms' => '1',
+        'bonds' => '1',
+        'angles' => '1',
+        'dihedrals' => '1',
+        'pairs' => '1',
+        'exclusions' => '1',
+        'system' => '1',
+        'molecules' => '1',
+        'position_restraints' => '3'
+        );
+
+
+
 sub check_extract
 {
- my ($exec,$pdbdir)=@_;
+ my ($exec,$pdbdir,$CHECKGMX,$GMXVER,$GMXPATH,$GMXEXEC,$GMXEDITCONF,$GMXMDP,$GMXMDPCA)=@_;
  my $NFAIL=0;
  my $MESSAGE="";
  my %FAIL;
@@ -18,7 +36,7 @@ sub check_extract
  my $UNINIT;
  my $printbuffer;
  my $tool="extract";
- my @FAILLIST = ('NON-ZERO EXIT','UNINITIALIZED VARIABLES');
+ my @FAILLIST = ('NON-ZERO EXIT','UNINITIALIZED VARIABLES','EXTRA MAP FILE GENERATED','GMX COMPATIBLE');
 
 
  %FAIL=resettests(\%FAIL,\@FAILLIST);
@@ -31,58 +49,73 @@ sub check_extract
  }else{
   clearfiles("output.smog");
  }
-  print "Checking smog_extract with all-atom model: no restaints\n";
+  print "\tChecking smog_extract with all-atom model: no restaints\n";
   for(my $group=0;$group<3;$group++){
 
    %FAIL=resettests(\%FAIL,\@FAILLIST);
    print "\tChecking with index group $group\n";
    `echo $group | $exec -f AA.tmp.top -g AA.tmp.gro -n $pdbdir/sample.AA.ndx  &> output.$tool`;
+
    ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
+   $FAIL{"EXTRA MAP FILE GENERATED"} = checkrestraintfile(1,"restrained.map");
+   $FAIL{"GMX COMPATIBLE"}=runGMX("AA",$CHECKGMX,"no",$GMXEDITCONF,$GMXPATH,"",$GMXEXEC,$GMXMDP,$GMXMDPCA,"no","extracted");
+   my $string=loadfile("extracted.top");
+   my ($DATA,$DIRLIST)=checkdirectives($string);
 
    ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
    $FAILSUM += $FAILED;
    if($FAILED !=0){
-    savefailed("AA.nores.$group",("output.$tool","extracted.top","extracted.gro","atomindex.map"));
+    savefailed("AA.nores.$group",("output.$tool","extracted.top","extracted.gro","atomindex.map","topol.tpr","extracted.box.gro","extracted.editconf","extracted.grompp","extracted.out.mdp"));
     print "$printbuffer\n";
    }else{
-    clearfiles(("output.$tool","extracted.top","extracted.gro","atomindex.map"));
+    clearfiles(("output.$tool","extracted.top","extracted.gro","atomindex.map","topol.tpr","extracted.box.gro","extracted.editconf","extracted.grompp","extracted.out.mdp"));
    }
   } 
   clearfiles(("AA.tmp.top","AA.tmp.gro","AA.tmp.ndx","AA.tmp.contacts"));
 
-  print "Checking smog_extract with all-atom model: no restaints: non-standard fields\n";
+  print "\tChecking smog_extract with all-atom model: no restaints: non-standard fields\n";
   for(my $group=0;$group<2;$group++){
 
    %FAIL=resettests(\%FAIL,\@FAILLIST);
    print "\tChecking with index group $group\n";
    `echo $group | $exec -f $pdbdir/large.top -g $pdbdir/large.gro -n $pdbdir/large.ndx  &> output.$tool`;
+
    ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
+   $FAIL{"GMX COMPATIBLE"}=runGMX("AA",$CHECKGMX,"no",$GMXEDITCONF,$GMXPATH,"",$GMXEXEC,$GMXMDP,$GMXMDPCA,"no","extracted");
+   $FAIL{"EXTRA MAP FILE GENERATED"} = checkrestraintfile(1,"restrained.map");
+   my $string=loadfile("extracted.top");
+   my ($DATA,$DIRLIST)=checkdirectives($string);
 
    ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
    $FAILSUM += $FAILED;
    if($FAILED !=0){
-    savefailed("AA.nores.nonstandard.$group",("output.$tool","extracted.top","extracted.gro","atomindex.map"));
+    savefailed("AA.nores.nonstandard.$group",("output.$tool","extracted.top","extracted.gro","atomindex.map","topol.tpr","extracted.box.gro","extracted.editconf","extracted.grompp","extracted.out.mdp"));
     print "$printbuffer\n";
    }else{
-    clearfiles(("output.$tool","extracted.top","extracted.gro","atomindex.map"));
+    clearfiles(("output.$tool","extracted.top","extracted.gro","atomindex.map","topol.tpr","extracted.box.gro","extracted.editconf","extracted.grompp","extracted.out.mdp"));
    }
   } 
 
-  print "Checking smog_extract with all-atom model: restaints: non-standard fields\n";
+  print "\tChecking smog_extract with all-atom model: restaints: non-standard fields\n";
   for(my $group=0;$group<2;$group++){
 
    %FAIL=resettests(\%FAIL,\@FAILLIST);
    print "\tChecking with index group $group\n";
    `echo $group | $exec -f $pdbdir/large.top -g $pdbdir/large.gro -n $pdbdir/large.ndx -restraints 100 &> output.$tool`;
+
    ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
+   $FAIL{"GMX COMPATIBLE"}=runGMX("AA",$CHECKGMX,"no",$GMXEDITCONF,$GMXPATH,"",$GMXEXEC,$GMXMDP,$GMXMDPCA,"no","extracted");
+   $FAIL{"EXTRA MAP FILE GENERATED"} = checkrestraintfile(0,"restrained.map");
+   my $string=loadfile("extracted.top");
+   my ($DATA,$DIRLIST)=checkdirectives($string);
 
    ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
    $FAILSUM += $FAILED;
    if($FAILED !=0){
-    savefailed("AA.res.nonstandard.$group",("output.$tool","extracted.top","extracted.gro","atomindex.map","restrained.map"));
+    savefailed("AA.res.nonstandard.$group",("output.$tool","extracted.top","extracted.gro","atomindex.map","restrained.map","topol.tpr","extracted.box.gro","extracted.editconf","extracted.grompp","extracted.out.mdp"));
     print "$printbuffer\n";
    }else{
-    clearfiles(("output.$tool","extracted.top","extracted.gro","atomindex.map","restrained.map"));
+    clearfiles(("output.$tool","extracted.top","extracted.gro","atomindex.map","restrained.map","topol.tpr","extracted.box.gro","extracted.editconf","extracted.grompp","extracted.out.mdp"));
    }
   } 
 

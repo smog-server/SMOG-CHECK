@@ -1,11 +1,12 @@
 package check_common;
 use strict;
+use smog_common;
 use Exporter;
 
 our $PDB_DIR;
 our @ISA = 'Exporter';
 our @EXPORT =
-qw(internal_error smogcheck_error savefailed clearfiles failed_message failsum checkoutput filediff resettests compare_table timediff);
+qw(internal_error smogcheck_error savefailed clearfiles failed_message failsum checkoutput filediff resettests compare_table timediff checkrestraintfile initgmxparams runGMX);
 
 sub internal_error
 {
@@ -101,13 +102,13 @@ sub failsum
   $FAILED=1;
   $printbuffer = sprintf ("\tFATAL ERROR ENCOUNTERED\n");
  }
- print "\ntest results\n";
- print "\t passed : $NPASSED\n";
+ print "\ttest results\n";
+ print "\tpassed : $NPASSED\n";
  if($NFAILED != 0){
   
- print "\t failed : $NFAILED\n";
+ print "\tfailed : $NFAILED\n";
  }
- print "\t N/A    : $NNA\n";
+ print "\tN/A    : $NNA\n";
 
  return ($FAILED,$printbuffer);
 
@@ -150,6 +151,7 @@ sub load_file
   return (-1,1);
  }
 }
+
 
 ###################################
 # check if two files are identical#
@@ -247,11 +249,139 @@ sub compare_table
 
 sub timediff
 {
-	my ($time_last)=@_;
-	my $time=time-$time_last;
-	print "$time seconds\n";
-	$time_last=time;
-	return $time_last;
+ my ($time_last)=@_;
+ my $time=time-$time_last;
+ print "$time seconds\n";
+ $time_last=time;
+ return $time_last;
+}
+
+sub checkrestraintfile
+{
+ my ($FIND,$NAME)=@_;
+ if ($FIND == 0 && -e "$NAME"){
+  return 0;
+ } 
+ if ($FIND == 1 && ! -e "$NAME"){
+  return 0;
+ } 
+ return 1;
+}
+
+sub initgmxparams
+{
+ my ($SMOGBIN)=@_;
+ my ($GMXMDP,$GMXMDPCA,$GMXEXEC,$GMXEDITCONF);
+ # default is to not check gmx.  But, if we do, use v5.
+ my $CHECKGMX="no";
+ my $CHECKGMXGAUSSIAN="no";
+ my $GMXVER=5;
+
+ my $GMXPATH="";
+ my $GMXPATHGAUSSIAN="";
+ if(defined $ENV{'CHECKGMX'}){
+  $CHECKGMX=$ENV{'CHECKGMX'};
+ }
+ if(defined $ENV{'CHECKGMXGAUSSIAN'}){
+  $CHECKGMXGAUSSIAN=$ENV{'CHECKGMXGAUSSIAN'};
+ }
+ if(defined $ENV{'GMXVER'}){
+  $GMXVER=$ENV{'GMXVER'};
+ }
+ 
+ # get all of the gromacs paths in order.
+ if(defined $ENV{"GMXPATH"}){
+  $GMXPATH=$ENV{"GMXPATH"};
+ }
+ if(defined $ENV{"GMXPATHGAUSSIAN"}){
+  $GMXPATHGAUSSIAN=$ENV{"GMXPATHGAUSSIAN"};
+ }
+ 
+ if($GMXVER =~ /^4$/){
+  $GMXEXEC="grompp";
+  $GMXEDITCONF="editconf";
+  $GMXMDP="$SMOGBIN/examples/gromacs4/all-atom/allatomForGromacs4.X.mdp";
+  $GMXMDPCA="$SMOGBIN/examples/gromacs4/calpha/calphaForGromacs4.X.mdp";
+ }elsif($GMXVER =~ /^5$/){
+  $GMXEXEC="gmx grompp";
+  $GMXEDITCONF="gmx editconf";
+  $GMXMDP="$SMOGBIN/examples/gromacs5/all-atom/allatomForGromacs5.mdp";
+  $GMXMDPCA="$SMOGBIN/examples/gromacs5/calpha/calphaForGromacs5.mdp";
+ }else{
+  smog_quit("Only gromacs v4 and 5 can be tested with this script.");
+ }
+ 
+ if($GMXPATH eq "" && $CHECKGMX eq "yes"){
+  smog_quit("In order to test compatibility with gmx, you must export GMXPATH.  This may be accomplished by issuing the command :\n\t\"export GMXPATH=<location of gmx directory>\"\n ");
+ }elsif($CHECKGMX eq "no"){
+ }elsif($CHECKGMX eq "yes"){
+  print "Will test gmx for compatibility of output files\n";
+  print "Will try to use the following command to launch grompp:\n\t$GMXPATH$GMXEXEC\n";
+  if(! -e $GMXMDP){
+   smog_quit("can not find mdp file $GMXMDP");
+  }
+  if(! -e $GMXMDPCA){
+   smog_quit("can not find mdp file $GMXMDPCA");
+  }
+ }
+ 
+ if($GMXPATHGAUSSIAN eq "" && $CHECKGMXGAUSSIAN eq "yes"){
+  smog_quit("In order to test compatibility with gmx, you must export GMXPATHGAUSSIAN.  This may be accomplished by issuing the command :\n\t\"export GMXPATHGAUSSIAN=<location of gmx directory>\"\n ");
+ }elsif($CHECKGMXGAUSSIAN eq "no"){
+ }elsif($CHECKGMXGAUSSIAN eq "yes"){
+  print "Will test gmx for compatibility of output files for gaussian potentials\n";
+  print "Will try to use the following command to launch grompp:\n\t$GMXPATHGAUSSIAN$GMXEXEC\n";
+  if(! -e $GMXMDP){
+   smog_quit("can not find mdp file $GMXMDP");
+  }
+  if(! -e $GMXMDPCA){
+   smog_quit("can not find mdp file $GMXMDPCA");
+  }
+ }
+ return ($CHECKGMX,$CHECKGMXGAUSSIAN,$GMXVER,$GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXEDITCONF,$GMXMDP,$GMXMDPCA);
+}
+
+sub runGMX
+{
+ my ($model,$CHECKGMX,$CHECKGMXGAUSSIAN,$GMXEDITCONF,$GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXMDP,$GMXMDPCA,$gaussian,$PDB,$GRO)=@_;
+ if(!defined $GRO){
+  $GRO="$PDB";
+ }
+ if($gaussian =~ /^yes$/)
+ {
+  if($CHECKGMXGAUSSIAN eq "no"){
+   return -1;
+  }elsif($CHECKGMXGAUSSIAN ne "yes"){
+   internal_error("CHECKGMXGAUSSIAN variable not properly set: found $CHECKGMXGAUSSIAN");
+  }
+  $GMXPATH=$GMXPATHGAUSSIAN;
+ }elsif($gaussian =~ /^no$/)
+ {
+  if($CHECKGMX eq "no"){
+   return -1;
+  }elsif($CHECKGMX ne "yes"){
+   internal_error("CHECKGMX variable not properly set: found $CHECKGMX");
+  }
+ }else{
+  internal_error("gaussian variable not properly set: found $gaussian");
+ }
+ print "\tRunning grompp... may take a while\n";
+ if(-e "topol.tpr"){
+ `rm topol.tpr`;
+ }
+ # check the the gro and top work with grompp
+ `$GMXPATH/$GMXEDITCONF -f $GRO.gro -d 10 -o $PDB.box.gro &> $PDB.editconf`;
+ if($model eq "CA"){
+  `$GMXPATH/$GMXEXEC -f $GMXMDPCA -c $PDB.box.gro -p $PDB.top -po $PDB.out.mdp -maxwarn 1 &> $PDB.grompp`;
+ }elsif($model =~ /^AA/){
+  `$GMXPATH/$GMXEXEC -f $GMXMDP -c $PDB.box.gro -p $PDB.top -po $PDB.out.mdp -maxwarn 1 &> $PDB.grompp`;
+ }else{
+  internal_error("unable to determine whether this is a CA, or AA model: model defined as $model.");
+ }
+ if(-e "topol.tpr"){
+ `rm topol.tpr`;
+ }
+ return $?;
 }
 
 
