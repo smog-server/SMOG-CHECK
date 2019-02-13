@@ -1578,6 +1578,7 @@ sub checkatoms
    $GRODATA[$NUMATOMS][$J] =~ s/^\s+|\s+$//g;
   }
   if($A[0] != $GRODATA[$NUMATOMS][3]){
+   $fail_log .= failed_message("mismatched numbers.  Top: $A[0] and Gro: $GRODATA[$NUMATOMS][3]: Top line :$LINE");
    $FAIL_GROTOP++;
   }
   if(exists $defcharge{"$A[3]-$A[4]"} && $#A==6){
@@ -1598,6 +1599,7 @@ sub checkatoms
   }
 
   if($A[4] ne $GRODATA[$NUMATOMS][2]){
+   $fail_log .= failed_message("mismatched names.  Top: $A[4] and Gro: $GRODATA[$NUMATOMS][2]: Top line :$LINE");
    $FAIL_GROTOP++;
   }
   # check if it is a backbone atom. This list does not include CA and C1* because this classification is only used for determining which bonds are backbone and which are sidechain
@@ -1610,10 +1612,12 @@ sub checkatoms
   # residue number
   $RESNUM[$A[0]]=$A[2];
   if($A[2] != $GRODATA[$NUMATOMS][0]){
+   $fail_log .= failed_message("mismatched residue numbers.  Top: $A[2] and Gro: $GRODATA[$NUMATOMS][0]: Top line :$LINE");
    $FAIL_GROTOP++;
   }
   # residue name
   if($A[3] ne $GRODATA[$NUMATOMS][1]){
+   $fail_log .= failed_message("mismatched resnames.  Top: $A[3] and Gro: $GRODATA[$NUMATOMS][1]: Top line :$LINE");
    $FAIL_GROTOP++;
   }
   $resindex[$A[0]]=$A[2];
