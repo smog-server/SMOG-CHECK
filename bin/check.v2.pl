@@ -136,10 +136,13 @@ sub checkversion
 {
  my ($VERSION,$EXEC_NAME)=@_;
  # before testing anything, make sure this version of smog-check is compatible with the version of smog2
- my $smogversion=`$EXEC_NAME -v | tail -n 1`;
+ my $smogversion=`$EXEC_NAME -v 2> /dev/null |  tail -n 1 `;
  chomp($smogversion);
  $smogversion=~s/Version //g;
  $smogversion=~/^\s+|\s+$/;
+ if($smogversion eq ""){
+  smogcheck_error("Unable to determine SMOG version. SMOG likely crashed. May need to reconfigure installation.");	
+ }
  if($VERSION ne $smogversion){
   smogcheck_error("Incompatible versions of SMOG ($smogversion) and SMOG-CHECK ($VERSION)");	
  }
