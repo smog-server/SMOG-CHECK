@@ -7,7 +7,7 @@ use check_common;
 # This is intended to be a brute-force evaluation of everything that should appear. Since this is
 # a testing script, it is not designed to be efficient, but to be thorough, and foolproof...
 
-my $VERSION="2.2beta";
+my $VERSION="2.3beta";
 
 #****************INITIALIZE A BUNCH OF VARIABLES*******************
 
@@ -71,6 +71,9 @@ my %free_pair_defs=('ASN-MET' =>'1',
 
 my %numfield = ( 'default' => '2', 'default-userC' => '2', 'default-gaussian' => '2', 'default-gaussian-userC' => '2','cutoff' => '19', 'shadow' => '20',  'shadow-free' => '20', 'shadow-gaussian' => '20', 'cutoff-gaussian' => '19' , 'shadow-match' => '4');
 %defcharge = ('GLY-N' => "0.3", 'GLY-C' => "0.2", 'GLY-O' => "-0.5");
+
+our $name2="NB_2";
+
 my $TESTNUM=0;
 my $FAIL_SYSTEM=0;
 my $NUMTESTED=0;
@@ -559,13 +562,13 @@ sub setmodelflags{
     $ARG++;
    $sigmaCA=$A[$ARG];
     $ARG++;
-   $massNB{'NB_2'}=$A[$ARG];
+   $massNB{$name2}=$A[$ARG];
     $ARG++;
-   $chargeNB{'NB_2'}=$A[$ARG];
+   $chargeNB{$name2}=$A[$ARG];
     $ARG++;
-   $C6NB{'NB_2'}=$A[$ARG];
+   $C6NB{$name2}=$A[$ARG];
     $ARG++;
-   $C12NB{'NB_2'}=$A[$ARG];
+   $C12NB{$name2}=$A[$ARG];
     $ARG++;
    $chargeAT=$A[$ARG];
   }
@@ -805,7 +808,7 @@ EOT
  }elsif($model eq "AA"){
   $sigma=$sigma/10;
   $rep_s12=$sigma**12*$epsilon;
-   $defname="NB_1";
+  $defname="NB_1";
   $C12NB{$defname}=$rep_s12;
   $C6NB{$defname}=0;
   $massNB{$defname}=1.0;
@@ -942,14 +945,14 @@ EOT
   }elsif($CONTTYPE eq "cutoff"){
    `sed "s/PARM_C_D/$R_CD/g;s/PARM_P_BB/$PARM_P_BB/g;s/PARM_P_SC/$PARM_P_SC/g;s/PARM_N_BB/$PARM_N_BB/g;s/PARM_N_SC/$PARM_N_SC/g;s/CUTDIST/$CONTD/g" $TEMPLATE_DIR_AA/$templateAA.cutoff.sif > temp.bifsif/tmp.sif`;
   }
-  `sed "s/PARM_MASS/$massNB{'NB_2'}/g;s/PARM_chargeNB/$chargeNB{'NB_2'}/g;s/PARM_C6_2/$C6NB{'NB_2'}/g;s/PARM_C12_2/$C12NB{'NB_2'}/g;s/PARM_C12/$C12NB{$defname}/g" $TEMPLATE_DIR_AA/$templateAA.nb > temp.bifsif/tmp.nb`;
+  `sed "s/PARM_MASS/$massNB{$name2}/g;s/PARM_chargeNB/$chargeNB{$name2}/g;s/PARM_C6_2/$C6NB{$name2}/g;s/PARM_C12_2/$C12NB{$name2}/g;s/PARM_C12/$C12NB{$defname}/g" $TEMPLATE_DIR_AA/$templateAA.nb > temp.bifsif/tmp.nb`;
 
   if($CONTTYPE eq "shadow-free"){
-   `sed "s/PARM_MASS/$massNB{'NB_2'}/g;s/PARM_chargeNB/$chargeNB{'NB_2'}/g;s/PARM_C6_2/$C6NB{'NB_2'}/g;s/PARM_C12_2/$C12NB{'NB_2'}/g;s/PARM_C12/$C12NB{$defname}/g" $TEMPLATE_DIR_AA/$templateAA.free.nb > temp.bifsif/tmp.nb`;
+   `sed "s/PARM_MASS/$massNB{$name2}/g;s/PARM_chargeNB/$chargeNB{$name2}/g;s/PARM_C6_2/$C6NB{$name2}/g;s/PARM_C12_2/$C12NB{$name2}/g;s/PARM_C12/$C12NB{$defname}/g" $TEMPLATE_DIR_AA/$templateAA.free.nb > temp.bifsif/tmp.nb`;
    `cp $TEMPLATE_DIR_AA/$templateAA.free.bif temp.bifsif/tmp.bif`;
    `cp $TEMPLATE_DIR_AA/$templateAA.free.b temp.bifsif/tmp.b`;
   }else{
-   `sed "s/PARM_MASS/$massNB{'NB_2'}/g;s/PARM_chargeNB/$chargeNB{'NB_2'}/g;s/PARM_C6_2/$C6NB{'NB_2'}/g;s/PARM_C12_2/$C12NB{'NB_2'}/g;s/PARM_C12/$C12NB{$defname}/g" $TEMPLATE_DIR_AA/$templateAA.nb > temp.bifsif/tmp.nb`;
+   `sed "s/PARM_MASS/$massNB{$name2}/g;s/PARM_chargeNB/$chargeNB{$name2}/g;s/PARM_C6_2/$C6NB{$name2}/g;s/PARM_C12_2/$C12NB{$name2}/g;s/PARM_C12/$C12NB{$defname}/g" $TEMPLATE_DIR_AA/$templateAA.nb > temp.bifsif/tmp.nb`;
    `cp $TEMPLATE_DIR_AA/$templateAA.bif temp.bifsif/tmp.bif`;
    `cp $TEMPLATE_DIR_AA/$templateAA.b temp.bifsif/tmp.b`;
   }
@@ -1477,20 +1480,28 @@ sub checkatomtypes
   }
   if(defined $massNB{$A[0]} && $A[1] > $MINTHR*$massNB{$A[0]} && $A[1] < $MAXTHR*$massNB{$A[0]}){
    $mass1++;
+  }elsif(!defined $massNB{$A[0]}){
+   $fail_log .= failed_message("Reference mass not provided for type $A[0].");
   }
   if(defined $chargeNB{$A[0]} && $A[2] >= $MINTHR*$chargeNB{$A[0]} && $A[2] <= $MAXTHR*$chargeNB{$A[0]} && $chargeNB{$A[0]} >= 0){
    $charge1++;
   }elsif(defined $chargeNB{$A[0]} && $A[2] <= $MINTHR*$chargeNB{$A[0]} && $A[2] >= $MAXTHR*$chargeNB{$A[0]} && $chargeNB{$A[0]} < 0){
    $charge1++;
+  }elsif(!defined $chargeNB{$A[0]}){
+   $fail_log .= failed_message("Reference charge not provided for type $A[0].");
   }
   if($A[3] eq "A"){
    $particle1++;
   }
   if(defined $C6NB{$A[0]} && $A[4] >= $MINTHR*$C6NB{$A[0]} && $A[4] <= $MAXTHR*$C6NB{$A[0]}){
    $c61++
+  }elsif(!defined $C6NB{$A[0]}){
+   $fail_log .= failed_message("Reference C6 value not provided for type $A[0].");
   }
   if(defined $C12NB{$A[0]} && $A[5] > $MINTHR*$C12NB{$A[0]} && $A[5] < $MAXTHR*$C12NB{$A[0]}){
    $excl1++;
+  }elsif(!defined $C12NB{$A[0]}){
+   $fail_log .= failed_message("Reference C12 value not provided for type $A[0].");
   }
   $#A = -1;
   $LINE=$topdata[$LN];$LN++;
