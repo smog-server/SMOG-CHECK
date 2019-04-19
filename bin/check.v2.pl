@@ -897,10 +897,16 @@ EOT
  }
  # make some special entries to handle extras
  if($model eq "AA" && $default ne "yes"){
+ # read in extra information
   $C12NB{"extratype"}=7;
   $C6NB{"extratype"}=2;
   $massNB{"extratype"}=2.1;
   $chargeNB{"extratype"}=-3.0;
+ }else{
+        $FAIL{'EXTRAS: BONDTYPES'}=-1;
+        $FAIL{'EXTRAS: ANGLETYPES'}=-1;
+        $FAIL{'EXTRAS: DIHEDRALTYPES'}=-1;
+        $FAIL{'EXTRAS: NB_PARAMS'}=-1;
  }
  if(-d "temp.bifsif"){
   `rm -r temp.bifsif`;
@@ -1078,28 +1084,28 @@ sub checktop
 
   if(exists $A[1] && $A[1] eq "bondtypes"){
    my $test;
-   ($LN,$test)=checktypes($LN,\@topdata,\%seen,2);
+   ($LN,$test)=checktypes($LN,\@topdata,\%seen,2,"bondtypes");
    $FAIL{'EXTRAS: BONDTYPES'}=$test;
    next;
   }
 
   if(exists $A[1] && $A[1] eq "angletypes"){
    my $test;
-   ($LN,$test)=checktypes($LN,\@topdata,\%seen,3);
+   ($LN,$test)=checktypes($LN,\@topdata,\%seen,3,"angletypes");
    $FAIL{'EXTRAS: ANGLETYPES'}=$test;
    next;
   }
 
   if(exists $A[1] && $A[1] eq "dihedraltypes"){
    my $test;
-   ($LN,$test)=checktypes($LN,\@topdata,\%seen,4);
+   ($LN,$test)=checktypes($LN,\@topdata,\%seen,4,"dihedraltypes");
    $FAIL{'EXTRAS: DIHEDRALTYPES'}=$test;
    next;
   }
 
   if(exists $A[1] && $A[1] eq "nonbond_params"){
    my $test;
-   ($LN,$test)=checktypes($LN,\@topdata,\%seen,2);
+   ($LN,$test)=checktypes($LN,\@topdata,\%seen,2,"nonbond_params");
    $FAIL{'EXTRAS: NB_PARAMS'}=$test;
    next;
   }
@@ -1728,7 +1734,7 @@ sub checkatoms
 
 sub checktypes
 {
- my ($LN,$N1,$N2,$Nf)=@_;
+ my ($LN,$N1,$N2,$Nf,$type)=@_;
  my @topdata=@{$N1};
  my %seen=%{$N2};
  my $FAIL_GROTOP=0;
@@ -1737,6 +1743,10 @@ sub checktypes
  my @A=split(/\s+/,$LINE);
  my $totallines=0;
  my $correctentries=0;
+ my %savedlines;
+ my $shouldappear=0;
+ my $appeared=0;
+ # first check that all added types are only including atom types that are present in atomtypes
  until($A[0] eq "["){
   $totallines++;
   my $matchedtypes=0;
@@ -1744,6 +1754,12 @@ sub checktypes
    if(defined $seen{$A[$I]} || $A[$I] eq "X"){
     $matchedtypes++;
    }
+   # save line
+   my $linetmp="";
+   for(my $I=0;$I<$#A;$I++){
+    $linetmp.=" $A[$I]";
+   }
+   $savedlines{$linetmp}=0;
   }
   if($matchedtypes == $Nf){
    $correctentries++;
@@ -1751,14 +1767,41 @@ sub checktypes
    $fail_log .= failed_message("Unrecognized atom types at line: $LINE");
   }
   $LINE=$topdata[$LN];$LN++;
-  @A=split(/ /,$LINE);
+  @A=split(/\s+/,$LINE);
  }
-  # if we are matching hetergeneous parameters, we need to store the smog-internal bonded types
- my $test;
- if($correctentries == $totallines && $totallines>0){
-  $test=0;
- }else{
-  $test=1;
+
+ # now check that every type that should have been found, was found in the top
+ open(INFILE,"share/refs/extras.ref.$type") or internal_error("Unable to open share/refs/extras.ref.$type");
+ while(<INFILE>){
+  my $LINE=$_;
+  chomp($LINE);
+  @A=split(/\s+/,$LINE);
+  my $matchedtypes=0;
+  for(my $I=2;$I<$Nf+2;$I++){
+   if(defined $seen{$A[$I]} || $A[$I] eq "X"){
+    $matchedtypes++;
+   }
+  }
+  if($matchedtypes != $Nf){
+   next;
+  }
+  my $linetmp="";
+  for(my $I=2;$I<$#A;$I++){
+   $linetmp.=" $A[$I]";
+  }
+  $shouldappear++;
+  if(defined $savedlines{$linetmp}){
+   $appeared++;
+  }else{
+   $fail_log .= failed_message("Extras line not found in top: $LINE");
+  }
+ }
+ my $test=0;
+ unless($shouldappear == $appeared && $shouldappear > 0){
+  $test++;
+ }
+ unless($correctentries == $totallines && $totallines>0){
+  $test++;
  }
  return ($LN-1,$test);
 }
