@@ -49,7 +49,7 @@ our @FILETYPES=("top","gro","ndx","settings","contacts","output","contacts.SCM",
 # bunch of global vars.  A bit sloppy.  Many could be local.
 our ($AMINO_PRESENT,$angleEps,@atombondedtype,%atombondedtypes,%atombondedtypes2,@ATOMNAME,@ATOMTYPE,$BBRAD,%BBTYPE,$bondEps,$bondMG,$bondtype6,%C12NB,%C6NB,$chargeAT,%chargeNB,%CHECKED,@CID,$CONTD,$CONTENERGY,$CONTR,$CONTTYPE,$default,%defcharge,$defname,$DENERGY,$dihmatch,$DIH_MAX,$DIH_MIN,$DISP_MAX,@EDrig_T,@ED_T,$epsilon,$epsilonCAC,$epsilonCAD,%FAIL,$FAILED,$fail_log,@FIELDS,$gaussian,@GRODATA,$impEps,$improper_gen_N,$ION_PRESENT,$LIGAND_DIH,$LIGAND_PRESENT,%massNB,%matchangle_val,%matchangle_weight,%matchbond_val,%matchbond_weight,%matchdihedral_val,%matchdihedral_weight,$model,@MOLTYPE,%MOLTYPEBYRES,$NA_DIH,$NCONTACTS,$NUCLEIC_PRESENT,$NUMATOMS,$NUMATOMS_LIGAND,$omegaEps,$PDB,$phi_gen_N,$PRO_DIH,$R_CD,$rep_s12,@RESNUM,%restypecount,$ringEps,$R_N_SC_BB,$R_P_BB_SC,$sigma,$sigmaCA,$theta_gen_N,%TYPE,$type6count,$usermap,@XT,@YT,@ZT);
 
-my %supported_directives = ( 'defaults' => '1','atomtypes' => '1','moleculetype' => '1','nonbond_params' => '0','atoms' => '1','bonds' => '1','angles' => '1','dihedrals' => '1','pairs' => '1','exclusions' => '1','system' => '1','molecules' => '1');
+my %supported_directives = ( 'defaults' => '1','atomtypes' => '1','moleculetype' => '1','nonbond_params' => '0','bondtypes' => '0','angletypes' => '0','dihedraltypes' => '0','atoms' => '1','bonds' => '1','angles' => '1','dihedrals' => '1','pairs' => '1','exclusions' => '1','system' => '1','molecules' => '1');
 
 # list the bonds that are free in the free-templates
 my %free_bond_defs=('TRP-CG-CD1' =>'1');
@@ -1405,11 +1405,14 @@ sub checktop
  }
  my $NFIELDC=0;
  foreach my $FF(keys %supported_directives){
-  if($FOUND{"$FF"} == $supported_directives{"$FF"}){
+  if($FOUND{$FF} == $supported_directives{$FF}){
+   # we found the expected number of instances of a directive.
    $NFIELDC++;
-  }elsif($model eq "AA" and $default eq "no" and $FF eq "nonbond_params" and $FOUND{"$FF"} == 1){
-   # allow nb params to appear in non-default AA models
-   $NFIELDC++;
+  }elsif($model eq "AA" and $default eq "no" and $FOUND{$FF} == 1 ){
+    # allow some directives to appear in non-default AA models
+    if($FF eq "bondtypes" || $FF eq "nonbond_params" || $FF eq "angletypes" || $FF eq "dihedraltypes"){
+     $NFIELDC++;
+    }
   }elsif($supported_directives{"$FF"}==1){
    $fail_log .= failed_message("Required directive [ $FF ] not found in top file.  This either means SMOG did not complete, or there was a problem reading the file.  All subsequent output will likely be meaningless.");
   }elsif($supported_directives{"$FF"}==0){
