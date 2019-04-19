@@ -1050,7 +1050,7 @@ sub checktop
 
  while($LN<$topNlines){
   my $LINE=$topdata[$LN];$LN++;
-  @A=split(/ /,$LINE);
+  @A=split(/\s+/,$LINE);
   if(exists $A[1] && $A[1] eq "defaults"){
    ($LN,$A[1])=checkdefaults($LN,\@topdata);
   }
