@@ -188,6 +188,7 @@ sub checktopions
 {
  my %FOUND;
  my $error=14;
+ my %seenatomtypes;
  my ($file1,$file2,$ionnm,$ionn,$ionq,$ionm,$ionC12,$ionC6,$extras)=@_;
  my $string=loadfile($file1);
  my @D=split(/\n/,$string);
@@ -207,6 +208,7 @@ sub checktopions
  @D=split(/\n/,$string);
  my $N2=0;
  my @FILE2;
+ my $storeatomtypes=0;
  for (my $i=0;$i<=$#D;$i++){
   my ($LINE,$COM)=checkcomment($D[$i]);
   if(hascontent($LINE)){
@@ -214,6 +216,15 @@ sub checktopions
    if(substr($LINE,0,1) eq "["){
     my @B=split(/\s+/,$LINE);
     $FOUND{$B[1]}++;
+    if($B[1] eq "atomtypes"){
+     $storeatomtypes=1;
+    }else{
+     $storeatomtypes=0;
+    }
+   }elsif($storeatomtypes==1){
+    my @B=split(/\s+/,$LINE);
+    my $atomtype=$B[0];
+    $seenatomtypes{$atomtype}=0;
    }
    $N2++;
   }
@@ -271,18 +282,23 @@ sub checktopions
  if(defined $extras && -e "$extras"){
   open(TMP,"$extras") or internal_error("could not open $extras");
   my $appear=0;
-  # very lazy way to see if the should be any definitions for this ion type
+  # We need to make sure that all atom types are present for the extra, and at least one is the new ion type
   while(<TMP>){
    my $line=$_;
-   if($line =~ $ionnm){
-    $appear++;
+   if($line =~ m/^nonbond_params/){
     chomp($line);
     my @tmarr=split(/\s+/,$line);
-    my $tv=$tmarr[2];
-    for(my $I=3;$I<$#tmarr;$I++){
-     $tv .= " " . $tmarr[$I];
+    if(($tmarr[2] =~ m/^$ionnm$/ && ($tmarr[3] =~ m/^X$/ || defined $seenatomtypes{$tmarr[3]})) || 
+       ($tmarr[3] =~ m/^$ionnm$/ && ($tmarr[2] =~ m/^X$/ || defined $seenatomtypes{$tmarr[2]}))){ 
+     $appear++;
+     chomp($line);
+     my @tmarr=split(/\s+/,$line);
+     my $tv=$tmarr[2];
+     for(my $I=3;$I<$#tmarr;$I++){
+      $tv .= " " . $tmarr[$I];
+     }
+     $extrasdefined{$tv}=0;
     }
-    $extrasdefined{$tv}=0;
    }
   }
   if($appear >0){
