@@ -310,7 +310,7 @@ EOT
 }elsif($RETEST < 0){
  my $nottested=alltested(\%CHECKED,\%FAIL);
  #if($nottested eq "" || $nottested eq "GMX COMPATIBLE\n"){
- if($nottested ~= m/^$|^GMX COMPATIBLE$/){
+ if($nottested =~ m/^$|^GMX COMPATIBLE$/){
  print <<EOT;
 *************************************************************
                       PASSED ALL TESTS  !!!
@@ -963,7 +963,12 @@ EOT
    `cp $TEMPLATE_DIR_AA/$templateAA.bif temp.bifsif/tmp.bif`;
    `cp $TEMPLATE_DIR_AA/$templateAA.b temp.bifsif/tmp.b`;
   }
-  `cp $TEMPLATE_DIR_AA/extras temp.bifsif/extras`;
+  # if we are testing compatibility with gromacs, then we need to use a different extras file, since the original file contains nonbond_param of type 3, which is only supported in a modified version of gromacs.
+  if($CHECKGMX eq "yes" || $CHECKGMXGAUSSIAN eq "yes"){
+   `cp $TEMPLATE_DIR_AA/extras.gmxtest temp.bifsif/extras`;
+  }else{
+   `cp $TEMPLATE_DIR_AA/extras temp.bifsif/extras`;
+  }
   CheckTemplatesCreated("temp.bifsif","tmp");
  }
 }
