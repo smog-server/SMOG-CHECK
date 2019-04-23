@@ -1784,7 +1784,8 @@ sub checktypes
   @A=split(/\s+/,$LINE);
   my $matchedtypes=0;
   for(my $I=2;$I<$Nf+2;$I++){
-   if(defined $seen{$A[$I]} || $A[$I] eq "X"){
+   # the second condition allows for wildcards, only when looking at dihedraltypes
+   if(defined $seen{$A[$I]} || ($Nf==4 && $A[$I] eq "X")){
     $matchedtypes++;
    }
   }
