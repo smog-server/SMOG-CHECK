@@ -96,6 +96,29 @@ sub check_extract
    }
   } 
 
+  print "\tChecking smog_extract with all-atom model: no restraints: non-standard fields: ndxorder on\n";
+  for(my $group=0;$group<2;$group++){
+
+   %FAIL=resettests(\%FAIL,\@FAILLIST);
+   print "\tChecking with index group $group\n";
+   `echo $group | $exec -f $pdbdir/large.top -g $pdbdir/large.gro -n $pdbdir/large.ndx -ndxorder &> output.$tool`;
+
+   ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
+   $FAIL{"GMX COMPATIBLE"}=runGMX("AA",$CHECKGMX,"no",$GMXEDITCONF,$GMXPATH,"",$GMXEXEC,$GMXMDP,$GMXMDPCA,"no","extracted");
+   $FAIL{"EXTRA MAP FILE GENERATED"} = checkrestraintfile(1,"restrained.map");
+   my $string=loadfile("extracted.top");
+   my ($DATA,$DIRLIST)=checkdirectives($string);
+
+   ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
+   $FAILSUM += $FAILED;
+   if($FAILED !=0){
+    savefailed("AA.nores.nonstandard.$group",("output.$tool","extracted.top","extracted.gro","atomindex.map","topol.tpr","extracted.box.gro","extracted.editconf","extracted.grompp","extracted.out.mdp"));
+    print "$printbuffer\n";
+   }else{
+    clearfiles(("output.$tool","extracted.top","extracted.gro","atomindex.map","topol.tpr","extracted.box.gro","extracted.editconf","extracted.grompp","extracted.out.mdp"));
+   }
+  } 
+
   print "\tChecking smog_extract with all-atom model: restraints: non-standard fields\n";
   for(my $group=0;$group<2;$group++){
 
