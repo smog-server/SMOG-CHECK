@@ -31,7 +31,7 @@ sub check_ions
  my $FAILED;
  my $FATAL;
  my $UNINIT;
- my @FAILLIST = ('NON-ZERO EXIT','UNINITIALIZED VARIABLES','OUTPUT GRO NAME','OUTPUT TOP NAME','CHECK TOP','GMX COMPATIBLE');
+ my @FAILLIST = ('NON-ZERO EXIT','OUTPUT GRO NAME','OUTPUT TOP NAME','CHECK TOP','GMX COMPATIBLE');
  my $FAILSUM=0;
  my $printbuffer;
  my $tool="ions";
@@ -46,8 +46,7 @@ sub check_ions
 
 # perform checks for AA model RNA 
  `smog2 -i $pdbdir/tRNA.pdb -AA -dname AA.tmp > output.smog`;
- my ($SMOGFATAL,$smt)=checkoutput("output.smog");
- unless($SMOGFATAL == 0){
+ unless($? == 0){
   internal_error("SMOG 2 crashed.  Fix SMOG 2 before testing smog_ions.");
  }else{
   clearfiles("output.smog");
@@ -59,14 +58,12 @@ sub check_ions
   %FAIL=resettests(\%FAIL,\@FAILLIST);
 
   `$exec -f AA.tmp.top -g AA.tmp.gro -ionnm $PARAMS[$i][0] -ionn  $PARAMS[$i][1] -ionq $PARAMS[$i][2] -ionm $PARAMS[$i][3] -ionC12 $PARAMS[$i][4] -ionC6 $PARAMS[$i][5]   &> output.$tool`;
+  $FAIL{"NON-ZERO EXIT"}=$?;
   if($i>0){
    # if not the first test, then check everything
    if(-e "smog.ions.top"){$FAIL{"OUTPUT TOP NAME"}=0;}
    if(-e "smog.ions.gro"){$FAIL{"OUTPUT GRO NAME"}=0;}
-   ($FATAL,$UNINIT)=checkoutput("output.$tool");
 
-   $FAIL{"NON-ZERO EXIT"}=$FATAL;
-   $FAIL{"UNINITIALIZED VARIABLES"}=$UNINIT;
    $FAIL{"CHECK TOP"}=checktopions("AA.tmp.top","smog.ions.top",$PARAMS[$i][0],$PARAMS[$i][1],$PARAMS[$i][2],$PARAMS[$i][3],$PARAMS[$i][4],$PARAMS[$i][5]);
    $FAIL{"GMX COMPATIBLE"}=runGMX("AA",$CHECKGMX,"no",$GMXEDITCONF,$GMXPATH,"",$GMXEXEC,$GMXMDP,$GMXMDPCA,"no","smog.ions");
    ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
@@ -82,12 +79,10 @@ sub check_ions
    $i=1;
    print "\tChecking smog_ions with all-atom model: second set of ions: parameter set $i\n";
    `$exec -f smog.ions.top -g smog.ions.gro -of smog.ions2.top -og smog.ions2.gro -ionnm $PARAMS[$i][0] -ionn  $PARAMS[$i][1] -ionq $PARAMS[$i][2] -ionm $PARAMS[$i][3] -ionC12 $PARAMS[$i][4] -ionC6 $PARAMS[$i][5]   &> output2.$tool`;
+   $FAIL{"NON-ZERO EXIT"}=$?;
    if(-e "smog.ions2.top"){$FAIL{"OUTPUT TOP NAME"}=0;}
    if(-e "smog.ions2.gro"){$FAIL{"OUTPUT GRO NAME"}=0;}
-   ($FATAL,$UNINIT)=checkoutput("output.$tool");
  
-   $FAIL{"NON-ZERO EXIT"}=$FATAL;
-   $FAIL{"UNINITIALIZED VARIABLES"}=$UNINIT;
    $FAIL{"CHECK TOP"}=checktopions("smog.ions.top","smog.ions2.top",$PARAMS[$i][0],$PARAMS[$i][1],$PARAMS[$i][2],$PARAMS[$i][3],$PARAMS[$i][4],$PARAMS[$i][5]);
    $FAIL{"GMX COMPATIBLE"}=runGMX("AA",$CHECKGMX,"no",$GMXEDITCONF,$GMXPATH,"",$GMXEXEC,$GMXMDP,$GMXMDPCA,"no","smog.ions2");
    ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
@@ -128,11 +123,9 @@ sub check_ions
   %FAIL=resettests(\%FAIL,\@FAILLIST);
 
   `$exec -f AA.tmp.top -g AA.tmp.gro -ionnm $IONNAME -ionn 100 -t $tdir  &> output.$tool`;
+  $FAIL{"NON-ZERO EXIT"}=$?;
   if(-e "smog.ions.top"){$FAIL{"OUTPUT TOP NAME"}=0;}
   if(-e "smog.ions.gro"){$FAIL{"OUTPUT GRO NAME"}=0;}
-  ($FATAL,$UNINIT)=checkoutput("output.$tool");
-  $FAIL{"NON-ZERO EXIT"}=$FATAL;
-  $FAIL{"UNINITIALIZED VARIABLES"}=$UNINIT;
   $FAIL{"CHECK TOP"}=checktopions("AA.tmp.top","smog.ions.top",$IONNAME,100,$idefsq{$IONNAME},$idefsm{$IONNAME},$idefs12{$IONNAME},$idefs6{$IONNAME},"$tdir/extras");
    $FAIL{"GMX COMPATIBLE"}=runGMX("AA",$CHECKGMX,"no",$GMXEDITCONF,$GMXPATH,"",$GMXEXEC,$GMXMDP,$GMXMDPCA,"no","smog.ions");
 
@@ -150,8 +143,7 @@ sub check_ions
 
 # perform checks for CA model protein 
  `smog2 -i $pdbdir/2ci2_v2.pdb -CA -dname CA.tmp > output.smog`;
- ($SMOGFATAL,$smt)=checkoutput("output.smog");
- unless($SMOGFATAL == 0){
+ unless($? == 0){
   internal_error("SMOG 2 crashed.  Fix SMOG 2 before testing smog_ions.");
  }else{
   clearfiles("output.smog");
@@ -163,7 +155,7 @@ sub check_ions
   %FAIL=resettests(\%FAIL,\@FAILLIST);
 
   `$exec -f CA.tmp.top -g CA.tmp.gro -ionnm $PARAMS[$i][0] -ionn  $PARAMS[$i][1] -ionq $PARAMS[$i][2] -ionm $PARAMS[$i][3] -ionC12 $PARAMS[$i][4] -ionC6 $PARAMS[$i][5]   &> output.$tool`;
-  ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
+   $FAIL{"NON-ZERO EXIT"}=$?;
    if(-e "smog.ions.top"){$FAIL{"OUTPUT TOP NAME"}=0;}
    if(-e "smog.ions.gro"){$FAIL{"OUTPUT GRO NAME"}=0;}
    $FAIL{"CHECK TOP"}=checktopions("CA.tmp.top","smog.ions.top",$PARAMS[$i][0],$PARAMS[$i][1],$PARAMS[$i][2],$PARAMS[$i][3],$PARAMS[$i][4],$PARAMS[$i][5]);
