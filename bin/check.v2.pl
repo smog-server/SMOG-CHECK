@@ -1,5 +1,5 @@
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 use Math::Trig qw(acos_real rad2deg);
 use smog_common;
 use check_common;

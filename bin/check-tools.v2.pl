@@ -1,5 +1,5 @@
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 use smog_common;
 use check_common;
 use check_adjust;
