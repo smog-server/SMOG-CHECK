@@ -45,8 +45,9 @@ sub check_adjust
   while(<NEW>){
    $LINESnew++;
   }
-  if($LINESnew==$LINESorig+1){
+  if($LINESnew==$LINESorig-1){
    # +1 because a comment is added at the top
+   # but, we are also removing 2 lines, since they are consecutive TER lines
    $FAIL{"FILE LENGTH"}=0;
   }
  }
@@ -76,7 +77,7 @@ sub check_adjust
   while(<NEW>){
    $LINESnew++;
   }
-  if($LINESnew==$LINESorig+1){
+  if($LINESnew==$LINESorig-1){
    $FAIL{"FILE LENGTH"}=0;
   }
   my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
