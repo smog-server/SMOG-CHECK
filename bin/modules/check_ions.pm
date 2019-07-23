@@ -31,7 +31,7 @@ sub check_ions
  my $FAILED;
  my $FATAL;
  my $UNINIT;
- my @FAILLIST = ('NON-ZERO EXIT','UNINITIALIZED VARIABLES','OUTPUT GRO NAME','OUTPUT TOP NAME','CHECK TOP','GMX COMPATIBLE');
+ my @FAILLIST = ('NON-ZERO EXIT','OUTPUT GRO NAME','OUTPUT TOP NAME','CHECK TOP','GMX COMPATIBLE');
  my $FAILSUM=0;
  my $printbuffer;
  my $tool="ions";
@@ -46,8 +46,7 @@ sub check_ions
 
 # perform checks for AA model RNA 
  `smog2 -i $pdbdir/tRNA.pdb -AA -dname AA.tmp > output.smog`;
- my ($SMOGFATAL,$smt)=checkoutput("output.smog");
- unless($SMOGFATAL == 0){
+ unless($? == 0){
   internal_error("SMOG 2 crashed.  Fix SMOG 2 before testing smog_ions.");
  }else{
   clearfiles("output.smog");
@@ -59,14 +58,12 @@ sub check_ions
   %FAIL=resettests(\%FAIL,\@FAILLIST);
 
   `$exec -f AA.tmp.top -g AA.tmp.gro -ionnm $PARAMS[$i][0] -ionn  $PARAMS[$i][1] -ionq $PARAMS[$i][2] -ionm $PARAMS[$i][3] -ionC12 $PARAMS[$i][4] -ionC6 $PARAMS[$i][5]   &> output.$tool`;
+  $FAIL{"NON-ZERO EXIT"}=$?;
   if($i>0){
    # if not the first test, then check everything
    if(-e "smog.ions.top"){$FAIL{"OUTPUT TOP NAME"}=0;}
    if(-e "smog.ions.gro"){$FAIL{"OUTPUT GRO NAME"}=0;}
-   ($FATAL,$UNINIT)=checkoutput("output.$tool");
 
-   $FAIL{"NON-ZERO EXIT"}=$FATAL;
-   $FAIL{"UNINITIALIZED VARIABLES"}=$UNINIT;
    $FAIL{"CHECK TOP"}=checktopions("AA.tmp.top","smog.ions.top",$PARAMS[$i][0],$PARAMS[$i][1],$PARAMS[$i][2],$PARAMS[$i][3],$PARAMS[$i][4],$PARAMS[$i][5]);
    $FAIL{"GMX COMPATIBLE"}=runGMX("AA",$CHECKGMX,"no",$GMXEDITCONF,$GMXPATH,"",$GMXEXEC,$GMXMDP,$GMXMDPCA,"no","smog.ions");
    ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
@@ -82,12 +79,10 @@ sub check_ions
    $i=1;
    print "\tChecking smog_ions with all-atom model: second set of ions: parameter set $i\n";
    `$exec -f smog.ions.top -g smog.ions.gro -of smog.ions2.top -og smog.ions2.gro -ionnm $PARAMS[$i][0] -ionn  $PARAMS[$i][1] -ionq $PARAMS[$i][2] -ionm $PARAMS[$i][3] -ionC12 $PARAMS[$i][4] -ionC6 $PARAMS[$i][5]   &> output2.$tool`;
+   $FAIL{"NON-ZERO EXIT"}=$?;
    if(-e "smog.ions2.top"){$FAIL{"OUTPUT TOP NAME"}=0;}
    if(-e "smog.ions2.gro"){$FAIL{"OUTPUT GRO NAME"}=0;}
-   ($FATAL,$UNINIT)=checkoutput("output.$tool");
  
-   $FAIL{"NON-ZERO EXIT"}=$FATAL;
-   $FAIL{"UNINITIALIZED VARIABLES"}=$UNINIT;
    $FAIL{"CHECK TOP"}=checktopions("smog.ions.top","smog.ions2.top",$PARAMS[$i][0],$PARAMS[$i][1],$PARAMS[$i][2],$PARAMS[$i][3],$PARAMS[$i][4],$PARAMS[$i][5]);
    $FAIL{"GMX COMPATIBLE"}=runGMX("AA",$CHECKGMX,"no",$GMXEDITCONF,$GMXPATH,"",$GMXEXEC,$GMXMDP,$GMXMDPCA,"no","smog.ions2");
    ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
@@ -128,11 +123,9 @@ sub check_ions
   %FAIL=resettests(\%FAIL,\@FAILLIST);
 
   `$exec -f AA.tmp.top -g AA.tmp.gro -ionnm $IONNAME -ionn 100 -t $tdir  &> output.$tool`;
+  $FAIL{"NON-ZERO EXIT"}=$?;
   if(-e "smog.ions.top"){$FAIL{"OUTPUT TOP NAME"}=0;}
   if(-e "smog.ions.gro"){$FAIL{"OUTPUT GRO NAME"}=0;}
-  ($FATAL,$UNINIT)=checkoutput("output.$tool");
-  $FAIL{"NON-ZERO EXIT"}=$FATAL;
-  $FAIL{"UNINITIALIZED VARIABLES"}=$UNINIT;
   $FAIL{"CHECK TOP"}=checktopions("AA.tmp.top","smog.ions.top",$IONNAME,100,$idefsq{$IONNAME},$idefsm{$IONNAME},$idefs12{$IONNAME},$idefs6{$IONNAME},"$tdir/extras");
    $FAIL{"GMX COMPATIBLE"}=runGMX("AA",$CHECKGMX,"no",$GMXEDITCONF,$GMXPATH,"",$GMXEXEC,$GMXMDP,$GMXMDPCA,"no","smog.ions");
 
@@ -150,8 +143,7 @@ sub check_ions
 
 # perform checks for CA model protein 
  `smog2 -i $pdbdir/2ci2_v2.pdb -CA -dname CA.tmp > output.smog`;
- ($SMOGFATAL,$smt)=checkoutput("output.smog");
- unless($SMOGFATAL == 0){
+ unless($? == 0){
   internal_error("SMOG 2 crashed.  Fix SMOG 2 before testing smog_ions.");
  }else{
   clearfiles("output.smog");
@@ -163,7 +155,7 @@ sub check_ions
   %FAIL=resettests(\%FAIL,\@FAILLIST);
 
   `$exec -f CA.tmp.top -g CA.tmp.gro -ionnm $PARAMS[$i][0] -ionn  $PARAMS[$i][1] -ionq $PARAMS[$i][2] -ionm $PARAMS[$i][3] -ionC12 $PARAMS[$i][4] -ionC6 $PARAMS[$i][5]   &> output.$tool`;
-  ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
+   $FAIL{"NON-ZERO EXIT"}=$?;
    if(-e "smog.ions.top"){$FAIL{"OUTPUT TOP NAME"}=0;}
    if(-e "smog.ions.gro"){$FAIL{"OUTPUT GRO NAME"}=0;}
    $FAIL{"CHECK TOP"}=checktopions("CA.tmp.top","smog.ions.top",$PARAMS[$i][0],$PARAMS[$i][1],$PARAMS[$i][2],$PARAMS[$i][3],$PARAMS[$i][4],$PARAMS[$i][5]);
@@ -188,6 +180,7 @@ sub checktopions
 {
  my %FOUND;
  my $error=14;
+ my %seenatomtypes;
  my ($file1,$file2,$ionnm,$ionn,$ionq,$ionm,$ionC12,$ionC6,$extras)=@_;
  my $string=loadfile($file1);
  my @D=split(/\n/,$string);
@@ -207,6 +200,7 @@ sub checktopions
  @D=split(/\n/,$string);
  my $N2=0;
  my @FILE2;
+ my $storeatomtypes=0;
  for (my $i=0;$i<=$#D;$i++){
   my ($LINE,$COM)=checkcomment($D[$i]);
   if(hascontent($LINE)){
@@ -214,6 +208,15 @@ sub checktopions
    if(substr($LINE,0,1) eq "["){
     my @B=split(/\s+/,$LINE);
     $FOUND{$B[1]}++;
+    if($B[1] eq "atomtypes"){
+     $storeatomtypes=1;
+    }else{
+     $storeatomtypes=0;
+    }
+   }elsif($storeatomtypes==1){
+    my @B=split(/\s+/,$LINE);
+    my $atomtype=$B[0];
+    $seenatomtypes{$atomtype}=0;
    }
    $N2++;
   }
@@ -271,18 +274,23 @@ sub checktopions
  if(defined $extras && -e "$extras"){
   open(TMP,"$extras") or internal_error("could not open $extras");
   my $appear=0;
-  # very lazy way to see if the should be any definitions for this ion type
+  # We need to make sure that all atom types are present for the extra, and at least one is the new ion type
   while(<TMP>){
    my $line=$_;
-   if($line =~ $ionnm){
-    $appear++;
+   if($line =~ m/^nonbond_params/){
     chomp($line);
     my @tmarr=split(/\s+/,$line);
-    my $tv=$tmarr[2];
-    for(my $I=3;$I<$#tmarr;$I++){
-     $tv .= " " . $tmarr[$I];
+    if(($tmarr[2] =~ m/^$ionnm$/ && ($tmarr[3] =~ m/^X$/ || defined $seenatomtypes{$tmarr[3]})) || 
+       ($tmarr[3] =~ m/^$ionnm$/ && ($tmarr[2] =~ m/^X$/ || defined $seenatomtypes{$tmarr[2]}))){ 
+     $appear++;
+     chomp($line);
+     my @tmarr=split(/\s+/,$line);
+     my $tv=$tmarr[2];
+     for(my $I=3;$I<$#tmarr;$I++){
+      $tv .= " " . $tmarr[$I];
+     }
+     $extrasdefined{$tv}=0;
     }
-    $extrasdefined{$tv}=0;
    }
   }
   if($appear >0){

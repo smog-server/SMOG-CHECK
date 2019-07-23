@@ -4,6 +4,15 @@ echo Collecting information and cleaning up directory before launching smog-chec
 echo Detecting configured version of SMOG2
 # grab all of the environment settings used when running smog2
 export smog_exec=`which smog2`
+if [ -z "$smog_exec" ]
+then
+	echo "
+
+COULD NOT FIND USABLE VERSION OF SMOG 2!  QUITTING
+
+"
+	exit 1
+fi
 export perl4smog=`tail -n 1 $smog_exec| awk '{print $1}'`
 export SMOG_PATH=`tail -n 1 $smog_exec| awk '{print $2}' | sed "s/src\/smogv2$//g"`
 `grep PERL $smog_exec`

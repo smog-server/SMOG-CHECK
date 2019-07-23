@@ -1,5 +1,5 @@
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 use smog_common;
 use check_common;
 use check_adjust;
@@ -97,7 +97,7 @@ if($FAILSUM>0){
  print "\n\nSOME TESTS FAILED.  SEE EARLIER MESSAGES\n\n";	
  exit (1);
 }elsif($tested==0){
- print "\n\nNo tests performed...\n\n"; 
+ print "\n\nNo tests performed... Possible options: adjustPDB, tablegen, scale-energies, extract, ions\n\n"; 
  exit (1);
 }elsif($testall ==0){
  print "\n\nPassed all SMOG tool checks!\n\n"; 

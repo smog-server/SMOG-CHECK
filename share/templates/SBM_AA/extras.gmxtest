@@ -2,7 +2,7 @@
 ; test adding another atom type (these values will be checked by smog-check) 
 nonbond_params < NB_1 NB_1 1  2.0   7.0
 nonbond_params < CL NB_1 1  2.0   7.0
-nonbond_params < BMG NB_1 3 0.00000e+00 1.0e-07 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00
+;nonbond_params < BMG NB_1 3 0.00000e+00 1.0e-07 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00
 bondtypes < NB_1 NB_1 1 100 1.1  
 bondtypes < X NB_1 1 120 1.4 
 bondtypes < J NB_1 1  120 1.4

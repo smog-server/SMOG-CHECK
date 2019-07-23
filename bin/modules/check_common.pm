@@ -6,7 +6,7 @@ use Exporter;
 our $PDB_DIR;
 our @ISA = 'Exporter';
 our @EXPORT =
-qw(internal_error smogcheck_error savefailed clearfiles failed_message failsum checkoutput filediff resettests compare_table timediff checkrestraintfile initgmxparams runGMX);
+qw(internal_error smogcheck_error savefailed clearfiles failed_message failsum filediff resettests compare_table timediff checkrestraintfile initgmxparams runGMX);
 
 sub internal_error
 {
@@ -117,23 +117,6 @@ sub failsum
 ##################################
 # routines that check for errors #
 # ################################
-
-sub checkoutput
-{
- my ($filename)=@_;
- open(FILE,"$filename") or internal_error("can not open $filename for reading.");
- my $fatal=0;
- my $uninit=0;
- my $exitcode=$?;
- while(<FILE>){
-  $uninit=1 if /uninitialized|masks/;
- }
- if($exitcode >0){
-  $exitcode=1; 
- }
- close(FILE);
- return ($exitcode,$uninit);	
-}
 
 sub load_file
 {
@@ -316,7 +299,7 @@ sub initgmxparams
  }elsif($CHECKGMX eq "no"){
  }elsif($CHECKGMX eq "yes"){
   print "Will test gmx for compatibility of output files\n";
-  print "Will try to use the following command to launch grompp:\n\t$GMXPATH$GMXEXEC\n";
+  print "Will use the following command to launch grompp for non-gaussian potentials:\n\t$GMXPATH$GMXEXEC\n";
   if(! -e $GMXMDP){
    smog_quit("can not find mdp file $GMXMDP");
   }
@@ -330,7 +313,7 @@ sub initgmxparams
  }elsif($CHECKGMXGAUSSIAN eq "no"){
  }elsif($CHECKGMXGAUSSIAN eq "yes"){
   print "Will test gmx for compatibility of output files for gaussian potentials\n";
-  print "Will try to use the following command to launch grompp:\n\t$GMXPATHGAUSSIAN$GMXEXEC\n";
+  print "Will try to use the following command to launch grompp for gaussian potentials:\n\t$GMXPATHGAUSSIAN$GMXEXEC\n";
   if(! -e $GMXMDP){
    smog_quit("can not find mdp file $GMXMDP");
   }

@@ -64,6 +64,7 @@ CHECKGMX : set to "yes" to turn on compatibility check with grompp
 GMXPATH : path to the gromacs executable
 CHECKGMXGAUSSIAN : set to "yes" to also check gaussian-based files
 GMXPATHGAUSSIAN : path to the gromacs executable for gromacs-based files
+Note: GMX checks may also be enabled when using smog-tool-check
 
                   TOOL CHECK
 

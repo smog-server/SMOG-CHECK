@@ -1,0 +1,6 @@
+angletypes < NB_1 NB_1 NB_1 1 100 1.4  
+angletypes < X NB_1 NB_1 1 111 1.4 
+angletypes < X X NB_1 1  110 2.0
+angletypes < NB_1 X NB_1 1 120 1.6  
+angletypes <  X NB_1 	X 1 120 1.6  
+angletypes <  P NB_1 	X 1 120 1.6 
