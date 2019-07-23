@@ -629,7 +629,7 @@ sub checkSCM
  }
 
  # check that the same contact map is generated
- my $CONTDIFF=filediff("$PDB.contacts","$PDB.contacts.SCM");
+ my $CONTDIFF=filediff("$PDB.contacts.shadowOutput","$PDB.contacts.SCM");
  if($CONTDIFF == 0){
   $FAIL{'SCM CONTACT COMPARISON'}=0;
  }elsif($usermap eq "yes"){
