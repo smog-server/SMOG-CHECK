@@ -635,7 +635,7 @@ sub checkSCM
  }elsif($usermap eq "yes"){
   $FAIL{'SCM CONTACT COMPARISON'}=-1;
  }else{
-  $fail_log .= failed_message("smog-check could not generate identical SCM map. Check $PDB.contacts and $PDB.contacts.SCM");
+  $fail_log .= failed_message("smog-check could not generate identical SCM map. Check $PDB.contacts.ShadowOutput and $PDB.contacts.SCM");
  }
  if(! -e "$PDB.contacts.SCM"){
   smogcheck_error("Unable to re-generate contact map");
