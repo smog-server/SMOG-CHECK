@@ -16,13 +16,12 @@ sub check_scale
  my $FAILSUM=0;
  my $tool="scale";
  my $printbuffer="";
- my @FAILLIST = ('NON-ZERO EXIT','UNINITIALIZED VARIABLES','UNCHANGED DIRECTIVES','N DIHEDRALS','N SCALED DIHEDRALS','N CONTACTS','N SCALED CONTACTS','GMX COMPATIBLE');
+ my @FAILLIST = ('NON-ZERO EXIT','UNCHANGED DIRECTIVES','N DIHEDRALS','N SCALED DIHEDRALS','N CONTACTS','N SCALED CONTACTS','GMX COMPATIBLE');
  %FAIL=resettests(\%FAIL,\@FAILLIST);
 
 # generate an AA model RNA 
  `smog2 -i $pdbdir/tRNA.pdb -AA -dname AA.tmp > output.smog`;
- my ($SMOGFATAL,$smt)=checkoutput("output.smog");
- unless($SMOGFATAL == 0){
+ unless($? == 0){
   internal_error("SMOG 2 crashed.  Fix SMOG 2 before testing smog_ions.");
  }else{
   clearfiles("output.smog");
@@ -36,7 +35,7 @@ sub check_scale
  my $RC=1.5;
  my $RD=1.2;
  `$exec -f AA.tmp.top -n $indexfile -rc $RC -rd $RD < $grpsel &> output.$tool`;
- ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
+ $FAIL{"NON-ZERO EXIT"}=$?;
  $FAIL{"GMX COMPATIBLE"}=runGMX("AA",$CHECKGMX,"no",$GMXEDITCONF,$GMXPATH,"",$GMXEXEC,$GMXMDP,$GMXMDPCA,"no","smog.rescaled","AA.tmp");
  my ($samedirs,$dihlength,$dihmatch,$conlength,$conmatch)=comparetopsrescale("AA.tmp.top","smog.rescaled.top",$indexfile,$grpsel,$RC,$RD);
  $FAIL{"UNCHANGED DIRECTIVES"}=$samedirs;
@@ -71,7 +70,7 @@ sub check_scale
  my $RC=0;
  my $RD=0;
  `$exec -f AA.tmp.top -of "$outfile.top" -n $indexfile -rc $RC -rd $RD < $grpsel &> output.$tool`;
- ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
+ $FAIL{"NON-ZERO EXIT"}=$?;
  $FAIL{"GMX COMPATIBLE"}=runGMX("AA",$CHECKGMX,"no",$GMXEDITCONF,$GMXPATH,"",$GMXEXEC,$GMXMDP,$GMXMDPCA,"no","$outfile","AA.tmp");
  my ($samedirs,$dihlength,$dihmatch,$conlength,$conmatch)=comparetopsrescale("AA.tmp.top","$outfile.top",$indexfile,$grpsel,$RC,$RD);
  $FAIL{"UNCHANGED DIRECTIVES"}=$samedirs;

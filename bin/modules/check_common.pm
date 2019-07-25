@@ -6,7 +6,7 @@ use Exporter;
 our $PDB_DIR;
 our @ISA = 'Exporter';
 our @EXPORT =
-qw(internal_error smogcheck_error savefailed clearfiles failed_message failsum checkoutput filediff resettests compare_table timediff checkrestraintfile initgmxparams runGMX);
+qw(internal_error smogcheck_error savefailed clearfiles failed_message failsum filediff resettests compare_table timediff checkrestraintfile initgmxparams runGMX);
 
 sub internal_error
 {
@@ -117,23 +117,6 @@ sub failsum
 ##################################
 # routines that check for errors #
 # ################################
-
-sub checkoutput
-{
- my ($filename)=@_;
- open(FILE,"$filename") or internal_error("can not open $filename for reading.");
- my $fatal=0;
- my $uninit=0;
- my $exitcode=$?;
- while(<FILE>){
-  $uninit=1 if /uninitialized|masks/;
- }
- if($exitcode >0){
-  $exitcode=1; 
- }
- close(FILE);
- return ($exitcode,$uninit);	
-}
 
 sub load_file
 {

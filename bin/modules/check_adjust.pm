@@ -19,11 +19,12 @@ sub check_adjust
  my $origpdb="$pdbdir/3PTA.preadjust.pdb";
  my $newpdb="testname.pdb";
  my $tool="adjust";
+
  open(ORIG,"$origpdb") or internal_error("Unable to open $origpdb");
  while(<ORIG>){
   $LINESorig++;
  }
- my @FAILLIST = ('NON-ZERO EXIT','UNINITIALIZED VARIABLES','OUTPUT NAME','FILE LENGTH');
+ my @FAILLIST = ('NON-ZERO EXIT','OUTPUT NAME','FILE LENGTH');
 
 
  print "\tChecking smog_adjustPDB with default naming.\n";
@@ -37,16 +38,18 @@ sub check_adjust
   $FAIL{"OUTPUT NAME"}=0;
  }
 
- ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
- 
- my $LINESnew=0;
- open(NEW,"adjusted.pdb") or internal_error("Unable to open adjusted.pdb");
- while(<NEW>){
-  $LINESnew++;
- }
- if($LINESnew==$LINESorig+1){
-  # +1 because a comment is added at the top
-  $FAIL{"FILE LENGTH"}=0;
+ $FAIL{"NON-ZERO EXIT"}=$?;
+ if ($FAIL{"NON-ZERO EXIT"} == 0){
+  my $LINESnew=0;
+  open(NEW,"adjusted.pdb") or internal_error("Unable to open adjusted.pdb");
+  while(<NEW>){
+   $LINESnew++;
+  }
+  if($LINESnew==$LINESorig-1){
+   # +1 because a comment is added at the top
+   # but, we are also removing 2 lines, since they are consecutive TER lines
+   $FAIL{"FILE LENGTH"}=0;
+  }
  }
  my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
  $FAILSUM += $FAILED;
@@ -67,18 +70,19 @@ sub check_adjust
   $FAIL{"OUTPUT NAME"}=0;
  }
 
- ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
-
- my $LINESnew=0;
- open(NEW,"$newpdb") or internal_error("Unable to open adjusted.pdb");
- while(<NEW>){
-  $LINESnew++;
+ $FAIL{"NON-ZERO EXIT"}=$?;
+ if($FAIL{"NON-ZERO EXIT"} == 0){
+  my $LINESnew=0;
+  open(NEW,"$newpdb") or internal_error("Unable to open adjusted.pdb");
+  while(<NEW>){
+   $LINESnew++;
+  }
+  if($LINESnew==$LINESorig-1){
+   $FAIL{"FILE LENGTH"}=0;
+  }
+  my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
+  $FAILSUM += $FAILED;
  }
- if($LINESnew==$LINESorig+1){
-  $FAIL{"FILE LENGTH"}=0;
- }
- my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
- $FAILSUM += $FAILED;
  if($FAILED !=0){
   savefailed(2,("adjusted.pdb","$newpdb","output.$tool"));
   print "$printbuffer\n";

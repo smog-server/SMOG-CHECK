@@ -15,12 +15,12 @@ sub check_table
  my $FAILED;
  my $FAILSUM=0;
  my $tool="table";
- my @FAILLIST = ('NON-ZERO EXIT','UNINITIALIZED VARIABLES','CORRECT VALUES');
+ my @FAILLIST = ('NON-ZERO EXIT','CORRECT VALUES');
  %FAIL=resettests(\%FAIL,\@FAILLIST);
 
  print "\tChecking default table\n"; 
  `$exec &> output.$tool`;
- ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
+ $FAIL{"NON-ZERO EXIT"}=$?;
  $FAIL{"CORRECT VALUES"}=compare_table("table.xvg","share/refs/table_def.xvg");
  my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
  $FAILSUM += $FAILED;
@@ -34,7 +34,7 @@ sub check_table
  %FAIL=resettests(\%FAIL,\@FAILLIST);
  print "\tChecking custom table\n"; 
  `$exec -M 10 -n 6 -ic 150 -tl 3 -sd 0.8 -sc 1.2 -table table.2.xvg &> output.$tool`;
- ($FAIL{"NON-ZERO EXIT"},$FAIL{"UNINITIALIZED VARIABLES"})=checkoutput("output.$tool");
+ $FAIL{"NON-ZERO EXIT"}=$?;
  $FAIL{"CORRECT VALUES"}=compare_table("table.2.xvg","share/refs/table.2.xvg");
  my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
  if($FAILED !=0){

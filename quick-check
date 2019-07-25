@@ -1,5 +1,14 @@
 #!/bin/bash
 export smog_exec=`which smog2`
+if [ -z "$smog_exec" ]
+then
+	echo "
+
+COULD NOT FIND USABLE VERSION OF SMOG 2!  QUITTING
+
+"
+	exit 1
+fi
 
 export perl4smog=`tail -n 1 $smog_exec| awk '{print $1}'`
 
