@@ -44,7 +44,7 @@ our $FAILDIR="FAILED";
 our $free;
 
 # These are the file suffixes that we will save, or remove.
-our @FILETYPES=("top","gro","ndx","settings","contacts","output","contacts.SCM", "contacts.CG","grompp","editconf","out.mdp","box.gro");
+our @FILETYPES=("top","gro","ndx","settings","contacts","output","contacts.SCM", "contacts.CG","grompp","editconf","out.mdp","box.gro",".ShadowOutput");
 
 # bunch of global vars.  A bit sloppy.  Many could be local.
 our ($AMINO_PRESENT,$angleEps,@atombondedtype,%atombondedtypes,%atombondedtypes2,@ATOMNAME,@ATOMTYPE,$BBRAD,%BBTYPE,$bondEps,$bondMG,$bondtype6,%C12NB,%C6NB,$chargeAT,%chargeNB,%CHECKED,@CID,$CONTD,$CONTENERGY,$CONTR,$CONTTYPE,$default,%defcharge,$defname,$DENERGY,$dihmatch,$DIH_MAX,$DIH_MIN,$DISP_MAX,@EDrig_T,@ED_T,$epsilon,$epsilonCAC,$epsilonCAD,%FAIL,$FAILED,$fail_log,@FIELDS,$gaussian,@GRODATA,$impEps,$improper_gen_N,$ION_PRESENT,$LIGAND_DIH,$LIGAND_PRESENT,%massNB,%matchangle_val,%matchangle_weight,%matchbond_val,%matchbond_weight,%matchdihedral_val,%matchdihedral_weight,$model,@MOLTYPE,%MOLTYPEBYRES,$NA_DIH,$NCONTACTS,$NUCLEIC_PRESENT,$NUMATOMS,$NUMATOMS_LIGAND,$omegaEps,$PDB,$phi_gen_N,$PRO_DIH,$R_CD,$rep_s12,@RESNUM,%restypecount,$ringEps,$R_N_SC_BB,$R_P_BB_SC,$sigma,$sigmaCA,$theta_gen_N,%TYPE,$type6count,$usermap,@XT,@YT,@ZT);
@@ -392,7 +392,7 @@ sub alltested
 
 sub runsmog
 {
- my $ARGS=" -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts";
+ my $ARGS=" -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -SCMorig";
 
 # prepare the flags
  if($default eq "yes"){
@@ -629,7 +629,7 @@ sub checkSCM
  }
 
  # check that the same contact map is generated
- my $CONTDIFF=filediff("$PDB.contacts","$PDB.contacts.SCM");
+ my $CONTDIFF=filediff("$PDB.contacts.ShadowOutput","$PDB.contacts.SCM");
  if($CONTDIFF == 0){
   $FAIL{'SCM CONTACT COMPARISON'}=0;
  }elsif($usermap eq "yes"){
@@ -3058,20 +3058,23 @@ sub finalchecks
  }
 
  if($usermap eq "no"){
-  if($model eq "AA" || $model eq "AA-match" ){
-   if(open(CFILE,"$PDB.contacts")){
-    $FAIL{'OPEN CONTACT FILE'}=0;
-   }
-  }elsif($model eq "CA"){
-   if(open(CFILE,"$PDB.contacts.CG")){
-    $FAIL{'OPEN CONTACT FILE'}=0;
-   }
+  my $mapname="$PDB.contacts";
+  if($model eq "CA"){
+   $mapname .= ".CG";
   }
+  $mapname .= ".ShadowOutput";
   my $NUMBER_OF_CONTACTS_SHADOW=0;
-  while(<CFILE>){
-   $NUMBER_OF_CONTACTS_SHADOW++;
+
+  if(open(CFILE,"$mapname")){
+   $FAIL{'OPEN CONTACT FILE'}=0;
+   while(<CFILE>){
+    $NUMBER_OF_CONTACTS_SHADOW++;
+   }
+   close(CFILE);
+  }else{
+   $fail_log .= failed_message("Unable to open contact file: $mapname");
   }
-  close(CFILE);
+
   my $NRD=$NCONTACTS+$bondtype6;
   if($NUMBER_OF_CONTACTS_SHADOW == $NRD){
    $FAIL{'NCONTACTS'}=0;
