@@ -3061,8 +3061,9 @@ sub finalchecks
   my $mapname="$PDB.contacts";
   if($model eq "CA"){
    $mapname .= ".CG";
+  } else {
+   $mapname .= ".ShadowOutput";
   }
-  $mapname .= ".ShadowOutput";
   my $NUMBER_OF_CONTACTS_SHADOW=0;
 
   if(open(CFILE,"$mapname")){
