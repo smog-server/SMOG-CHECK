@@ -25,7 +25,7 @@ EOT
 
 &checkForModules;
  
-my $EXEC_NAME=$ENV{'smog_exec'};
+my $EXEC_SMOG=$ENV{'smog_exec'};
 my $SMOGDIR=$ENV{'SMOG_PATH'};
 my $EXEC_ADJUST=$ENV{'exec_adjust'};
 my $EXEC_IONS=$ENV{'exec_ions'};
@@ -83,7 +83,7 @@ if(defined $checkthese{"tablegen"} || @ARGV==0){
 }
 if(defined $checkthese{"adjustPDB"} || @ARGV==0){
  print "\nTesting smog_adjustPDB\n";
- ($FAILED,$message)=check_adjust($EXEC_ADJUST,$PDB_DIR);
+ ($FAILED,$message)=check_adjust($EXEC_ADJUST,$EXEC_SMOG,$PDB_DIR);
  if($FAILED >0){$FAILSUM++};
  $tested++;
 }

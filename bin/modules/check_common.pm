@@ -105,11 +105,10 @@ sub failsum
  print "\ttest results\n";
  print "\tpassed : $NPASSED\n";
  if($NFAILED != 0){
-  
- print "\tfailed : $NFAILED\n";
+  print "\tfailed : $NFAILED\n";
  }
  print "\tN/A    : $NNA\n";
-
+ 
  return ($FAILED,$printbuffer);
 
 }
