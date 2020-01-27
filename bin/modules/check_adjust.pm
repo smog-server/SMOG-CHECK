@@ -32,7 +32,7 @@ sub check_adjust
  if(-e "adjusted.pdb"){
   `rm adjusted.pdb`;
  }
- `$exec -default -nomatch -i $origpdb &> output.$tool`;
+ `$exec -default -legacy -i $origpdb &> output.$tool`;
  if(-e "adjusted.pdb"){
   $FAIL{"OUTPUT NAME"}=0;
  }
@@ -68,7 +68,7 @@ sub check_adjust
  if(-e "$newpdb"){
   `rm $newpdb`;
  }
- `$exec -default -nomatch -i $origpdb -o $newpdb &> output.$tool`;
+ `$exec -default -legacy -i $origpdb -o $newpdb &> output.$tool`;
  if(-e "$newpdb"){
   $FAIL{"OUTPUT NAME"}=0;
  }
