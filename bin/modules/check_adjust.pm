@@ -8,7 +8,7 @@ our @EXPORT = qw(check_adjust);
 
 sub check_adjust
 {
- my ($exec,$pdbdir)=@_;
+ my ($exec,$smogexec,$pdbdir)=@_;
  my $NFAIL=0;
  my $MESSAGE="";
  my %FAIL;
@@ -24,8 +24,7 @@ sub check_adjust
  while(<ORIG>){
   $LINESorig++;
  }
- my @FAILLIST = ('NON-ZERO EXIT','OUTPUT NAME','FILE LENGTH');
-
+ my @FAILLIST = ('NON-ZERO EXIT','OUTPUT NAME','FILE LENGTH','SMOG RUNS');
 
  print "\tChecking smog_adjustPDB with default naming.\n";
  %FAIL=resettests(\%FAIL,\@FAILLIST);
@@ -33,7 +32,7 @@ sub check_adjust
  if(-e "adjusted.pdb"){
   `rm adjusted.pdb`;
  }
- `$exec -default -i $origpdb &> output.$tool`;
+ `$exec -default -legacy -i $origpdb &> output.$tool`;
  if(-e "adjusted.pdb"){
   $FAIL{"OUTPUT NAME"}=0;
  }
@@ -50,14 +49,18 @@ sub check_adjust
    # but, we are also removing 2 lines, since they are consecutive TER lines
    $FAIL{"FILE LENGTH"}=0;
   }
+  my $smogout=`$smogexec -AA -i adjusted.pdb -dname adjusted &> smog.output`;
+  $FAIL{'SMOG RUNS'}=$?;
  }
+
  my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
  $FAILSUM += $FAILED;
  if($FAILED !=0){
-  savefailed(1,("adjusted.pdb","output.$tool"));
+  savefailed(1,("adjusted.pdb","output.$tool","adjusted.gro","adjusted.top","adjusted.ndx","adjusted.contacts","smog.output"));
   print "$printbuffer\n";
  }else{
-  clearfiles(("adjusted.pdb","output.$tool"));
+  print "\n";
+  clearfiles(("adjusted.pdb","output.$tool","adjusted.gro","adjusted.top","adjusted.ndx","adjusted.contacts" ,"smog.output"));
  }
 
  print "\tChecking smog_adjustPDB with user-specified file name.\n";
@@ -65,7 +68,7 @@ sub check_adjust
  if(-e "$newpdb"){
   `rm $newpdb`;
  }
- `$exec -default -i $origpdb -o $newpdb &> output.$tool`;
+ `$exec -default -legacy -i $origpdb -o $newpdb &> output.$tool`;
  if(-e "$newpdb"){
   $FAIL{"OUTPUT NAME"}=0;
  }
@@ -80,14 +83,53 @@ sub check_adjust
   if($LINESnew==$LINESorig-1){
    $FAIL{"FILE LENGTH"}=0;
   }
-  my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
-  $FAILSUM += $FAILED;
+  my $smogout=`$smogexec -AA -i $newpdb -dname adjusted &> smog.output`;
+  $FAIL{'SMOG RUNS'}=$?;
  }
+ my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
+ $FAILSUM += $FAILED;
  if($FAILED !=0){
-  savefailed(2,("adjusted.pdb","$newpdb","output.$tool"));
+  savefailed(2,("adjusted.pdb","$newpdb","output.$tool","adjusted.gro","adjusted.top","adjusted.ndx","adjusted.contacts" ,"smog.output"));
   print "$printbuffer\n";
  }else{
-  clearfiles(("adjusted.pdb","$newpdb","output.$tool"));
+  print "\n";
+  clearfiles(("adjusted.pdb","$newpdb","output.$tool","adjusted.gro","adjusted.top","adjusted.ndx","adjusted.contacts" ,"smog.output"));
+ }
+
+
+ my $origpdb="$pdbdir/mangled.names.pdb";
+
+ print "\tChecking smog_adjustPDB with residue atom matching.\n";
+ %FAIL=resettests(\%FAIL,\@FAILLIST);
+ if(-e "$newpdb"){
+  `rm $newpdb`;
+ }
+ `$exec -default -i $origpdb -o $newpdb &> output.$tool`;
+ if(-e "$newpdb"){
+  $FAIL{"OUTPUT NAME"}=0;
+ }
+
+ $FAIL{"NON-ZERO EXIT"}=$?;
+ if($FAIL{"NON-ZERO EXIT"} == 0){
+  my $LINESnew=0;
+  open(NEW,"$newpdb") or internal_error("Unable to open $newpdb");
+  while(<NEW>){
+   $LINESnew++;
+  }
+  if($LINESnew==$LINESorig-1){
+   $FAIL{"FILE LENGTH"}=0;
+  }
+  my $smogout=`$smogexec -AA -i $newpdb -dname adjusted &> smog.output`;
+  $FAIL{'SMOG RUNS'}=$?;
+ }
+ my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
+ $FAILSUM += $FAILED;
+ if($FAILED !=0){
+  savefailed(2,("adjusted.pdb","$newpdb","output.$tool","adjusted.gro","adjusted.top","adjusted.ndx","adjusted.contacts" ,"smog.output"));
+  print "$printbuffer\n";
+ }else{
+  print "\n";
+  clearfiles(("adjusted.pdb","$newpdb","output.$tool","adjusted.gro","adjusted.top","adjusted.ndx","adjusted.contacts" ,"smog.output"));
  }
 
  return ($FAILSUM, $printbuffer);
