@@ -26,7 +26,7 @@ sub check_adjust
  }
  my @FAILLIST = ('NON-ZERO EXIT','OUTPUT NAME','FILE LENGTH','SMOG RUNS');
 
- print "\tChecking smog_adjustPDB with default naming.\n";
+ print "\tChecking smog_adjustPDB with legacy naming.\n";
  %FAIL=resettests(\%FAIL,\@FAILLIST);
 
  if(-e "adjusted.pdb"){
@@ -63,7 +63,7 @@ sub check_adjust
   clearfiles(("adjusted.pdb","output.$tool","adjusted.gro","adjusted.top","adjusted.ndx","adjusted.contacts" ,"smog.output"));
  }
 
- print "\tChecking smog_adjustPDB with user-specified file name.\n";
+ print "\tChecking smog_adjustPDB with user-specified file name (legacy).\n";
  %FAIL=resettests(\%FAIL,\@FAILLIST);
  if(-e "$newpdb"){
   `rm $newpdb`;
@@ -99,7 +99,7 @@ sub check_adjust
 
  my $origpdb="$pdbdir/mangled.names.pdb";
 
- print "\tChecking smog_adjustPDB with residue atom matching.\n";
+ print "\tChecking smog_adjustPDB with default exact matching.\n";
  %FAIL=resettests(\%FAIL,\@FAILLIST);
  if(-e "$newpdb"){
   `rm $newpdb`;
