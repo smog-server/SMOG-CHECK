@@ -14,7 +14,7 @@ my $VERSION="2.3beta";
 # a number of global variables. This is a bit sloppy, since most of them do not need to be global.  Maybe later we'll convert some back to my declarations.
 our $EXEC_NAME=$ENV{'smog_exec'};
 my  $SMOGDIR=$ENV{'SMOG_PATH'};
-our $SCM="$SMOGDIR/tools/SCM.jar";
+our $SCM="$SMOGDIR/src/tools/SCM.jar";
 our $TOLERANCE=$ENV{'TOLERANCE'};
 our $MAXTHR=1.0+$TOLERANCE;
 our $MINTHR=1.0-$TOLERANCE;
