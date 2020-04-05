@@ -906,12 +906,8 @@ EOT
         $FAIL{'EXTRAS: DIHEDRALTYPES'}=-1;
         $FAIL{'EXTRAS: NB_PARAMS'}=-1;
  }
- if(-d "temp.bifsif"){
-  `rm -r temp.bifsif`;
- }
-  if(-d "temp.cont.bifsif"){
-  `rm -r temp.cont.bifsif`;
- }
+ removedireifexists("temp.bifsif");
+ removedireifexists("temp.cont.bifsif");
 
  if($model eq "CA" && $default ne "yes"){
   `mkdir temp.bifsif temp.cont.bifsif`;
@@ -3335,12 +3331,7 @@ EOT
     removeifexists("$PDB.meta$m.$_");
    }
   }
-
-  if(-d "temp.bifsif"){
-   `rm -r temp.bifsif `;
-  }
-  if(-d "temp.cont.bifsif"){
-   `rm -r temp.cont.bifsif`;
-  }
+  removedireifexists("temp.bifsif");
+  removedireifexists("temp.cont.bifsif");
  }
 }

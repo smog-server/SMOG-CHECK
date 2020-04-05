@@ -6,7 +6,7 @@ use Exporter;
 our $PDB_DIR;
 our @ISA = 'Exporter';
 our @EXPORT =
-qw(internal_error smogcheck_error savefailed clearfiles failed_message failsum filediff resettests compare_table timediff checkrestraintfile initgmxparams runGMX removeifexists);
+qw(internal_error smogcheck_error savefailed clearfiles failed_message failsum filediff resettests compare_table timediff checkrestraintfile initgmxparams runGMX removeifexists removedireifexists);
 
 
 sub removeifexists
@@ -14,6 +14,14 @@ sub removeifexists
  my ($file)=@_;
  if(-e $file){
   `rm $file`;
+ }
+}
+
+sub removedireifexists
+{
+ my ($file)=@_;
+ if(-d $file){
+  `rm -r $file`;
  }
 }
 
