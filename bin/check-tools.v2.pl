@@ -83,7 +83,7 @@ if(defined $checkthese{"tablegen"} || @ARGV==0){
 }
 if(defined $checkthese{"adjustPDB"} || @ARGV==0){
  print "\nTesting smog_adjustPDB\n";
- ($FAILED,$message)=check_adjust($EXEC_ADJUST,$EXEC_SMOG,$PDB_DIR);
+ ($FAILED,$message)=check_adjust($EXEC_ADJUST,$EXEC_SMOG,"share");
  if($FAILED >0){$FAILSUM++};
  $tested++;
 }
