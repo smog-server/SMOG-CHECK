@@ -3104,14 +3104,8 @@ sub finalchecks
 
 sub cleanoldfiles
 {
- if(-e "$PDB.top"){
-  `rm $PDB.top`;
- }
- if(-e "$PDB.gro"){
-  `rm $PDB.gro`;
- }
- if(-e "$PDB.ndx"){
-  `rm $PDB.ndx`;
+ foreach my $suf(".top",".gro",".ndx"){
+  removeifexists("$PDB.$suf");
  }
 }
 
@@ -3336,22 +3330,17 @@ EOT
   print "                 CHECK $TESTNUM PASSED ($PDB)\n";
   print  "*************************************************************\n";
   foreach(@FILETYPES){
-   if(-e "$PDB.$_"){
-    `rm $PDB.$_`;
+   removeifexists("$PDB.$_");
+   for (my $m=1;$m<=4;$m++){
+    removeifexists("$PDB.meta$m.$_");
    }
-   if(-d "temp.bifsif"){
+  }
+
+  if(-d "temp.bifsif"){
    `rm -r temp.bifsif `;
   }
-   if(-d "temp.cont.bifsif"){
-    `rm -r temp.cont.bifsif`;
-   }
- 
-
-   for (my $m=1;$m<=4;$m++){
-    if(-e "$PDB.meta$m.$_"){
-     `rm $PDB.meta$m.$_`;
-    }
-   }
-  } 
+  if(-d "temp.cont.bifsif"){
+   `rm -r temp.cont.bifsif`;
+  }
  }
 }
