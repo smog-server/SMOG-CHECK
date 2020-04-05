@@ -28,10 +28,7 @@ sub check_adjust
 
  print "\tChecking smog_adjustPDB with legacy naming.\n";
  %FAIL=resettests(\%FAIL,\@FAILLIST);
-
- if(-e "adjusted.pdb"){
-  `rm adjusted.pdb`;
- }
+ removeifexists("adjusted.pdb");
  `$exec -default -legacy -i $origpdb &> output.$tool`;
  if(-e "adjusted.pdb"){
   $FAIL{"OUTPUT NAME"}=0;
@@ -65,9 +62,7 @@ sub check_adjust
 
  print "\tChecking smog_adjustPDB with user-specified file name (legacy).\n";
  %FAIL=resettests(\%FAIL,\@FAILLIST);
- if(-e "$newpdb"){
-  `rm $newpdb`;
- }
+ removeifexists("$newpdb");
  `$exec -default -legacy -i $origpdb -o $newpdb &> output.$tool`;
  if(-e "$newpdb"){
   $FAIL{"OUTPUT NAME"}=0;
@@ -101,9 +96,7 @@ sub check_adjust
 
  print "\tChecking smog_adjustPDB with default exact matching.\n";
  %FAIL=resettests(\%FAIL,\@FAILLIST);
- if(-e "$newpdb"){
-  `rm $newpdb`;
- }
+ removeifexists("$newpdb");
  `$exec -default -i $origpdb -o $newpdb &> output.$tool`;
  if(-e "$newpdb"){
   $FAIL{"OUTPUT NAME"}=0;

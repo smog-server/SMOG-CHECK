@@ -6,7 +6,16 @@ use Exporter;
 our $PDB_DIR;
 our @ISA = 'Exporter';
 our @EXPORT =
-qw(internal_error smogcheck_error savefailed clearfiles failed_message failsum filediff resettests compare_table timediff checkrestraintfile initgmxparams runGMX);
+qw(internal_error smogcheck_error savefailed clearfiles failed_message failsum filediff resettests compare_table timediff checkrestraintfile initgmxparams runGMX removeifexists);
+
+
+sub removeifexists
+{
+ my ($file)=@_;
+ if(-e $file){
+  `rm $file`;
+ }
+}
 
 sub internal_error
 {
@@ -51,9 +60,7 @@ sub clearfiles
  my (@A)=@_;
  foreach my $name (@A)
  {
-  if(-e $name){
-   `rm $name`;
-  }
+  removeifexists($name);
  }
 }
 
@@ -348,9 +355,7 @@ sub runGMX
   internal_error("gaussian variable not properly set: found $gaussian");
  }
  print "\tRunning grompp... may take a while\n";
- if(-e "topol.tpr"){
- `rm topol.tpr`;
- }
+ removeifexists("topol.tpr");
  # check the the gro and top work with grompp
  `$GMXPATH/$GMXEDITCONF -f $GRO.gro -d 10 -o $PDB.box.gro &> $PDB.editconf`;
  if($model eq "CA"){
@@ -360,9 +365,7 @@ sub runGMX
  }else{
   internal_error("unable to determine whether this is a CA, or AA model: model defined as $model.");
  }
- if(-e "topol.tpr"){
- `rm topol.tpr`;
- }
+ removeifexists("topol.tpr");
  return $?;
 }
 
