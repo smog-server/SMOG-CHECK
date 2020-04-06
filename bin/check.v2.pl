@@ -157,6 +157,12 @@ sub checkSCMexists
  unless( -e $SCM){
   smogcheck_error("Can\'t find Shadow!");
  }
+ #check that Jeff remembered to use -target 1.6
+print `javap -v -classpath $SCM noel/folding/ShadowMain | grep major | awk '{print \$3}'`;
+ my $javaVersion=`javap -v -classpath tools/SCM.jar noel/folding/ShadowMain | grep major | awk '{print $3}'`;
+ unless($javaVersion eq "50"){
+  smogcheck_error("Jeff forgot to use -target 1.6 for SCM.jar")
+ }
 }
 
 sub checktemplatedirs
