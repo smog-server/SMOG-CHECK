@@ -14,7 +14,7 @@ my $VERSION="2.3beta";
 # a number of global variables. This is a bit sloppy, since most of them do not need to be global.  Maybe later we'll convert some back to my declarations.
 our $EXEC_NAME=$ENV{'smog_exec'};
 my  $SMOGDIR=$ENV{'SMOG_PATH'};
-our $SCM="$SMOGDIR/tools/SCM.jar";
+our $SCM="$SMOGDIR/src/tools/SCM.jar";
 our $TOLERANCE=$ENV{'TOLERANCE'};
 our $MAXTHR=1.0+$TOLERANCE;
 our $MINTHR=1.0-$TOLERANCE;
@@ -912,12 +912,8 @@ EOT
         $FAIL{'EXTRAS: DIHEDRALTYPES'}=-1;
         $FAIL{'EXTRAS: NB_PARAMS'}=-1;
  }
- if(-d "temp.bifsif"){
-  `rm -r temp.bifsif`;
- }
-  if(-d "temp.cont.bifsif"){
-  `rm -r temp.cont.bifsif`;
- }
+ removedireifexists("temp.bifsif");
+ removedireifexists("temp.cont.bifsif");
 
  if($model eq "CA" && $default ne "yes"){
   `mkdir temp.bifsif temp.cont.bifsif`;
@@ -3110,14 +3106,8 @@ sub finalchecks
 
 sub cleanoldfiles
 {
- if(-e "$PDB.top"){
-  `rm $PDB.top`;
- }
- if(-e "$PDB.gro"){
-  `rm $PDB.gro`;
- }
- if(-e "$PDB.ndx"){
-  `rm $PDB.ndx`;
+ foreach my $suf(".top",".gro",".ndx"){
+  removeifexists("$PDB.$suf");
  }
 }
 
@@ -3342,22 +3332,12 @@ EOT
   print "                 CHECK $TESTNUM PASSED ($PDB)\n";
   print  "*************************************************************\n";
   foreach(@FILETYPES){
-   if(-e "$PDB.$_"){
-    `rm $PDB.$_`;
-   }
-   if(-d "temp.bifsif"){
-   `rm -r temp.bifsif `;
-  }
-   if(-d "temp.cont.bifsif"){
-    `rm -r temp.cont.bifsif`;
-   }
- 
-
+   removeifexists("$PDB.$_");
    for (my $m=1;$m<=4;$m++){
-    if(-e "$PDB.meta$m.$_"){
-     `rm $PDB.meta$m.$_`;
-    }
+    removeifexists("$PDB.meta$m.$_");
    }
-  } 
+  }
+  removedireifexists("temp.bifsif");
+  removedireifexists("temp.cont.bifsif");
  }
 }

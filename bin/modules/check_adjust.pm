@@ -8,7 +8,7 @@ our @EXPORT = qw(check_adjust);
 
 sub check_adjust
 {
- my ($exec,$smogexec,$pdbdir)=@_;
+ my ($exec,$smogexec,$sharedir)=@_;
  my $NFAIL=0;
  my $MESSAGE="";
  my %FAIL;
@@ -16,9 +16,12 @@ sub check_adjust
  my $FAILSUM=0;
  my $UNINIT;
  my $LINESorig=0;
+ my $pdbdir="$sharedir/PDB.files";
+ my $mapdir="$sharedir/mapfiles";
  my $origpdb="$pdbdir/3PTA.preadjust.pdb";
  my $newpdb="testname.pdb";
  my $tool="adjust";
+ my $TESTNUM=0;
 
  open(ORIG,"$origpdb") or internal_error("Unable to open $origpdb");
  while(<ORIG>){
@@ -26,16 +29,13 @@ sub check_adjust
  }
  my @FAILLIST = ('NON-ZERO EXIT','OUTPUT NAME','FILE LENGTH','SMOG RUNS');
 
- print "\tChecking smog_adjustPDB with default naming.\n";
+ # TEST 1
+ print "\tChecking smog_adjustPDB with legacy naming.\n";
+ $TESTNUM++;
  %FAIL=resettests(\%FAIL,\@FAILLIST);
-
- if(-e "adjusted.pdb"){
-  `rm adjusted.pdb`;
- }
+ removeifexists("adjusted.pdb");
  `$exec -default -legacy -i $origpdb &> output.$tool`;
- if(-e "adjusted.pdb"){
-  $FAIL{"OUTPUT NAME"}=0;
- }
+ $FAIL{"OUTPUT NAME"}=trueifexists("adjusted.pdb");
 
  $FAIL{"NON-ZERO EXIT"}=$?;
  if ($FAIL{"NON-ZERO EXIT"} == 0){
@@ -56,22 +56,20 @@ sub check_adjust
  my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
  $FAILSUM += $FAILED;
  if($FAILED !=0){
-  savefailed(1,("adjusted.pdb","output.$tool","adjusted.gro","adjusted.top","adjusted.ndx","adjusted.contacts","smog.output"));
+  savefailed($TESTNUM,("adjusted.pdb","output.$tool","adjusted.gro","adjusted.top","adjusted.ndx","adjusted.contacts","smog.output"));
   print "$printbuffer\n";
  }else{
   print "\n";
   clearfiles(("adjusted.pdb","output.$tool","adjusted.gro","adjusted.top","adjusted.ndx","adjusted.contacts" ,"smog.output"));
  }
 
- print "\tChecking smog_adjustPDB with user-specified file name.\n";
+ # TEST 2 
+ print "\tChecking smog_adjustPDB with user-specified file name (legacy).\n";
+ $TESTNUM++;
  %FAIL=resettests(\%FAIL,\@FAILLIST);
- if(-e "$newpdb"){
-  `rm $newpdb`;
- }
+ removeifexists("$newpdb");
  `$exec -default -legacy -i $origpdb -o $newpdb &> output.$tool`;
- if(-e "$newpdb"){
-  $FAIL{"OUTPUT NAME"}=0;
- }
+ $FAIL{"OUTPUT NAME"}=trueifexists("$newpdb");
 
  $FAIL{"NON-ZERO EXIT"}=$?;
  if($FAIL{"NON-ZERO EXIT"} == 0){
@@ -89,25 +87,21 @@ sub check_adjust
  my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
  $FAILSUM += $FAILED;
  if($FAILED !=0){
-  savefailed(2,("adjusted.pdb","$newpdb","output.$tool","adjusted.gro","adjusted.top","adjusted.ndx","adjusted.contacts" ,"smog.output"));
+  savefailed($TESTNUM,("adjusted.pdb","$newpdb","output.$tool","adjusted.gro","adjusted.top","adjusted.ndx","adjusted.contacts" ,"smog.output"));
   print "$printbuffer\n";
  }else{
   print "\n";
   clearfiles(("adjusted.pdb","$newpdb","output.$tool","adjusted.gro","adjusted.top","adjusted.ndx","adjusted.contacts" ,"smog.output"));
  }
 
-
+ # TEST 3
+ print "\tChecking smog_adjustPDB with default exact matching.\n";
+ $TESTNUM++;
  my $origpdb="$pdbdir/mangled.names.pdb";
-
- print "\tChecking smog_adjustPDB with residue atom matching.\n";
  %FAIL=resettests(\%FAIL,\@FAILLIST);
- if(-e "$newpdb"){
-  `rm $newpdb`;
- }
+ removeifexists("$newpdb");
  `$exec -default -i $origpdb -o $newpdb &> output.$tool`;
- if(-e "$newpdb"){
-  $FAIL{"OUTPUT NAME"}=0;
- }
+ $FAIL{"OUTPUT NAME"}=trueifexists("$newpdb");
 
  $FAIL{"NON-ZERO EXIT"}=$?;
  if($FAIL{"NON-ZERO EXIT"} == 0){
@@ -125,7 +119,41 @@ sub check_adjust
  my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
  $FAILSUM += $FAILED;
  if($FAILED !=0){
-  savefailed(2,("adjusted.pdb","$newpdb","output.$tool","adjusted.gro","adjusted.top","adjusted.ndx","adjusted.contacts" ,"smog.output"));
+  savefailed($TESTNUM,("adjusted.pdb","$newpdb","output.$tool","adjusted.gro","adjusted.top","adjusted.ndx","adjusted.contacts" ,"smog.output"));
+  print "$printbuffer\n";
+ }else{
+  print "\n";
+  clearfiles(("adjusted.pdb","$newpdb","output.$tool","adjusted.gro","adjusted.top","adjusted.ndx","adjusted.contacts" ,"smog.output"));
+ }
+
+
+ # TEST 4
+ print "\tChecking smog_adjustPDB with exact matching and alternate names.\n";
+ $TESTNUM++;
+ my $origpdb="$pdbdir/mangled.atomnames.pdb";
+ my $mapfile="$mapdir/sbmMapExact.alts";
+ %FAIL=resettests(\%FAIL,\@FAILLIST);
+ removeifexists("$newpdb");
+ `$exec -map $mapfile -i $origpdb -o $newpdb &> output.$tool`;
+ $FAIL{"OUTPUT NAME"}=trueifexists("$newpdb");
+
+ $FAIL{"NON-ZERO EXIT"}=$?;
+ if($FAIL{"NON-ZERO EXIT"} == 0){
+  my $LINESnew=0;
+  open(NEW,"$newpdb") or internal_error("Unable to open $newpdb");
+  while(<NEW>){
+   $LINESnew++;
+  }
+  if($LINESnew==$LINESorig-1){
+   $FAIL{"FILE LENGTH"}=0;
+  }
+  my $smogout=`$smogexec -AA -i $newpdb -dname adjusted &> smog.output`;
+  $FAIL{'SMOG RUNS'}=$?;
+ }
+ my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
+ $FAILSUM += $FAILED;
+ if($FAILED !=0){
+  savefailed($TESTNUM,("adjusted.pdb","$newpdb","output.$tool","adjusted.gro","adjusted.top","adjusted.ndx","adjusted.contacts" ,"smog.output"));
   print "$printbuffer\n";
  }else{
   print "\n";
@@ -134,6 +162,16 @@ sub check_adjust
 
  return ($FAILSUM, $printbuffer);
 
+}
+
+sub trueifexists
+{
+ my ($file)=@_;
+ if(-e $file){
+  return 0;
+ }else{
+  return 1;
+ }
 }
 
 return 1;
