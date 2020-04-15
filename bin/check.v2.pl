@@ -655,6 +655,8 @@ sub smogchecker
   # BOND in name means disable check
   $FAIL{'GENERATED DIHEDRAL IN TOP'}=-1; 
  }
+ # temporarily disable this check.
+ $FAIL{'EXTRAS: ATOMTYPES'}=-1;
  if($FAIL{'NON-ZERO EXIT'} == 0){
   print "SMOG 2 exited without an error.\nAssessing generated files...\n";
    # CHECK THE OUTPUT
@@ -3075,7 +3077,7 @@ sub finalchecks
   my $NRD=$NCONTACTS+$bondtype6;
   if($NUMBER_OF_CONTACTS_SHADOW == $NRD){
    $FAIL{'NCONTACTS'}=0;
-  }else{
+  }elsif($free ne "yes" ){
    $fail_log .= failed_message("Same number of contacts not found in contact file and top file!!!! FAIL\n\t$NUMBER_OF_CONTACTS_SHADOW contacts were found in the contact file.\n\t$NRD contacts were found in the top file.");
   }
  }else{
