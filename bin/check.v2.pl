@@ -2343,7 +2343,8 @@ sub checkdihedrals
      if(exists $matchdihedral_weight{"$dname"}){
       # check for the expected values of the weight, if defined 
       my $dweight=$matchdihedral_weight{"$dname"};
-      $dihval=$matchdihedral_val{"$dname"};
+      # to convert to gromacs conventions for angles, one must multiply my the multiplicity and add 180.
+      $dihval=$matchdihedral_val{"$dname"}*$A[7]+180.0;
       if(abs($A[6]- $dweight) > 10E-10){
        $fail_log .= failed_message("dihedral has incorrect weight. Expected $dweight. Found:\n\t$LINE");
       }else{
