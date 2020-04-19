@@ -656,7 +656,7 @@ sub smogchecker
   $FAIL{'GENERATED DIHEDRAL IN TOP'}=-1; 
  }
  # temporarily disable this check.
- $FAIL{'EXTRAS: ATOMTYPES'}=-1;
+ $FAIL{'EXTRAS: ATOMTYPES'}=0;
  if($FAIL{'NON-ZERO EXIT'} == 0){
   print "SMOG 2 exited without an error.\nAssessing generated files...\n";
    # CHECK THE OUTPUT
