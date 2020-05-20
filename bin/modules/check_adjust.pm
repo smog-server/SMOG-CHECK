@@ -44,8 +44,8 @@ sub check_adjust
   while(<NEW>){
    $LINESnew++;
   }
-  if($LINESnew==$LINESorig-1){
-   # +1 because a comment is added at the top
+  if($LINESnew==$LINESorig){
+   # +2 because a comment is added at the top
    # but, we are also removing 2 lines, since they are consecutive TER lines
    $FAIL{"FILE LENGTH"}=0;
   }
@@ -78,7 +78,7 @@ sub check_adjust
   while(<NEW>){
    $LINESnew++;
   }
-  if($LINESnew==$LINESorig-1){
+  if($LINESnew==$LINESorig){
    $FAIL{"FILE LENGTH"}=0;
   }
   my $smogout=`$smogexec -AA -i $newpdb -dname adjusted &> smog.output`;
@@ -110,7 +110,7 @@ sub check_adjust
   while(<NEW>){
    $LINESnew++;
   }
-  if($LINESnew==$LINESorig-1){
+  if($LINESnew==$LINESorig){
    $FAIL{"FILE LENGTH"}=0;
   }
   my $smogout=`$smogexec -AA -i $newpdb -dname adjusted &> smog.output`;
@@ -144,7 +144,7 @@ sub check_adjust
   while(<NEW>){
    $LINESnew++;
   }
-  if($LINESnew==$LINESorig-1){
+  if($LINESnew==$LINESorig){
    $FAIL{"FILE LENGTH"}=0;
   }
   my $smogout=`$smogexec -AA -i $newpdb -dname adjusted &> smog.output`;
