@@ -27,12 +27,13 @@ sub check_adjust
  while(<ORIG>){
   $LINESorig++;
  }
- my @FAILLIST = ('NON-ZERO EXIT','OUTPUT NAME','FILE LENGTH','SMOG RUNS');
+ my @FAILLIST = ('NON-ZERO EXIT','OUTPUT NAME','FILE LENGTH','SMOG RUNS','LARGE');
 
  # TEST 1
  print "\tChecking smog_adjustPDB with legacy naming.\n";
  $TESTNUM++;
  %FAIL=resettests(\%FAIL,\@FAILLIST);
+ $FAIL{'LARGE'}=-1;
  removeifexists("adjusted.pdb");
  `$exec -default -legacy -i $origpdb &> output.$tool`;
  $FAIL{"OUTPUT NAME"}=trueifexists("adjusted.pdb");
@@ -67,6 +68,7 @@ sub check_adjust
  print "\tChecking smog_adjustPDB with user-specified file name (legacy).\n";
  $TESTNUM++;
  %FAIL=resettests(\%FAIL,\@FAILLIST);
+ $FAIL{'LARGE'}=-1;
  removeifexists("$newpdb");
  `$exec -default -legacy -i $origpdb -o $newpdb &> output.$tool`;
  $FAIL{"OUTPUT NAME"}=trueifexists("$newpdb");
@@ -99,6 +101,7 @@ sub check_adjust
  $TESTNUM++;
  my $origpdb="$pdbdir/mangled.names.pdb";
  %FAIL=resettests(\%FAIL,\@FAILLIST);
+ $FAIL{'LARGE'}=-1;
  removeifexists("$newpdb");
  `$exec -default -i $origpdb -o $newpdb &> output.$tool`;
  $FAIL{"OUTPUT NAME"}=trueifexists("$newpdb");
@@ -126,13 +129,13 @@ sub check_adjust
   clearfiles(("adjusted.pdb","$newpdb","output.$tool","adjusted.gro","adjusted.top","adjusted.ndx","adjusted.contacts" ,"smog.output"));
  }
 
-
  # TEST 4
  print "\tChecking smog_adjustPDB with exact matching and alternate names.\n";
  $TESTNUM++;
  my $origpdb="$pdbdir/mangled.atomnames.pdb";
  my $mapfile="$mapdir/sbmMapExact.alts";
  %FAIL=resettests(\%FAIL,\@FAILLIST);
+ $FAIL{'LARGE'}=-1;
  removeifexists("$newpdb");
  `$exec -map $mapfile -i $origpdb -o $newpdb &> output.$tool`;
  $FAIL{"OUTPUT NAME"}=trueifexists("$newpdb");
@@ -145,6 +148,43 @@ sub check_adjust
    $LINESnew++;
   }
   if($LINESnew==$LINESorig){
+   $FAIL{"FILE LENGTH"}=0;
+  }
+  my $smogout=`$smogexec -AA -i $newpdb -dname adjusted &> smog.output`;
+  $FAIL{'SMOG RUNS'}=$?;
+ }
+ my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
+ $FAILSUM += $FAILED;
+ if($FAILED !=0){
+  savefailed($TESTNUM,("adjusted.pdb","$newpdb","output.$tool","adjusted.gro","adjusted.top","adjusted.ndx","adjusted.contacts" ,"smog.output"));
+  print "$printbuffer\n";
+ }else{
+  print "\n";
+  clearfiles(("adjusted.pdb","$newpdb","output.$tool","adjusted.gro","adjusted.top","adjusted.ndx","adjusted.contacts" ,"smog.output"));
+ }
+
+ # TEST 5
+ print "\tChecking smog_adjustPDB with exact matching, alternate names and -large format.\n";
+ $TESTNUM++;
+ my $origpdb="$pdbdir/mangled.atomnames.pdb";
+ my $mapfile="$mapdir/sbmMapExact.alts";
+ %FAIL=resettests(\%FAIL,\@FAILLIST);
+ removeifexists("$newpdb");
+ `$exec -map $mapfile -i $origpdb -o $newpdb -large &> output.$tool`;
+ $FAIL{"OUTPUT NAME"}=trueifexists("$newpdb");
+
+ $FAIL{"NON-ZERO EXIT"}=$?;
+ if($FAIL{"NON-ZERO EXIT"} == 0){
+  my $LINESnew=0;
+  open(NEW,"$newpdb") or internal_error("Unable to open $newpdb");
+  while(<NEW>){
+   my $LINE=$_;
+   if ($LINE =~ m/^LARGE/){
+    $FAIL{'LARGE'}=0;
+   }
+   $LINESnew++;
+  }
+  if($LINESnew==$LINESorig+1){
    $FAIL{"FILE LENGTH"}=0;
   }
   my $smogout=`$smogexec -AA -i $newpdb -dname adjusted &> smog.output`;
