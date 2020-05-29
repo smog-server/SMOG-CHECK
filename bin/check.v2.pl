@@ -1327,10 +1327,16 @@ sub checktop
  if($model eq "AA" || $model eq "AA-match" ){
   if($NonstackingE !=0 && $stackingE !=0){
    my $CR=$NonstackingE/$stackingE;
-   if($CR < $MAXTHR and  $CR > $MINTHR){
+   my $contactratio;
+   if($CONTTYPE eq "cutoff"){
+    $contactratio=3.0;
+   }else{
+    $contactratio=1.0;
+   }
+   if($CR < $MAXTHR*$contactratio and  $CR > $MINTHR*$contactratio){
     $FAIL{'STACK-NONSTACK RATIO'}=0;
    }else{
-    $fail_log .= failed_message("NonStacking-stacking ratio issue: \n  Expected: 1, Actual: $CR");
+    $fail_log .= failed_message("NonStacking-stacking ratio issue: \n  Expected: $contactratio, Actual: $CR");
    }
   }else{
    $FAIL{'STACK-NONSTACK RATIO'}=-1;
@@ -2834,7 +2840,7 @@ sub checkpairs
      $stackingE=$W;
     }elsif(abs($stackingE - $W) > 10.0/($PRECISION*1.0) ){
      $FAIL_STACK++;
-     $fail_log .= failed_message("stacking energies: $stackingE  $W $A[0] $A[1]");
+     $fail_log .= failed_message("stacking energies: $stackingE  $W $A[0] $A[1]\n MOLTYPE0 $MOLTYPE[$A[0]]\n MOLTYPE1 $MOLTYPE[$A[1]]\n ATOMTYPE0 $ATOMTYPE[$A[0]]\n ATOMTYPE1 $ATOMTYPE[$A[1]]\n ATOMNAME0 $ATOMNAME[$A[0]]\n ATOMNAME1 $ATOMNAME[$A[1]]\n RESNUM0 $RESNUM[$A[0]]\n RESNUM1 $RESNUM[$A[1]]\n CHAINID0 $CID[$A[0]]\n CHAINID1 $CID[$A[1]]");
      }
    }else{
    # it is not a stacking contact.  Do the same checks for non-stacking interactions
@@ -2842,7 +2848,7 @@ sub checkpairs
      $NonstackingE=$W;
     }elsif(abs($NonstackingE - $W) > 10.0/($PRECISION*1.0) ){
      $FAIL_NONSTACK++;
-     $fail_log .= failed_message("non-stacking contacts: $NonstackingE $W\n\tline:\n\t$LINE");
+     $fail_log .= failed_message("non-stacking contacts: $NonstackingE $W\n\tline:\n\t$LINE\n MOLTYPE0 $MOLTYPE[$A[0]]\n MOLTYPE1 $MOLTYPE[$A[1]]\n ATOMTYPE0 $ATOMTYPE[$A[0]]\n ATOMTYPE1 $ATOMTYPE[$A[1]]\n ATOMNAME0 $ATOMNAME[$A[0]]\n ATOMNAME1 $ATOMNAME[$A[1]]\n RESNUM0 $RESNUM[$A[0]]\n RESNUM1 $RESNUM[$A[1]]\n CHAINID0 $CID[$A[0]]\n CHAINID1 $CID[$A[1]]");
     }
    }
   }else{
