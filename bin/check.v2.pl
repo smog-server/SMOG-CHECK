@@ -934,7 +934,7 @@ EOT
   }elsif($CONTTYPE eq "cutoff"){
    `sed "s/CUTDIST/$CONTD/g" $TEMPLATE_DIR_AA_STATIC/$templateAA.cutoff.sif > temp.cont.bifsif/tmp.cont.sif`;
   }
- CheckTemplatesCreated("temp.cont.bifsif","tmp.cont");
+  CheckTemplatesCreated("temp.cont.bifsif","tmp.cont");
  } 
 
  if($model eq "AA" && $default ne "yes"){
@@ -1691,6 +1691,9 @@ sub checkatoms
    $FAIL_GROTOP++;
   }
   # check if it is a backbone atom. This list does not include CA and C1* because this classification is only used for determining which bonds are backbone and which are sidechain
+  if(!exists $TYPE{$A[3]}){
+   internal_error("Residue name $A[3] is not given a type. Check the directory share/residues");
+  }
   my $atomt="$TYPE{$A[3]}-$A[4]";
   if(exists $BBTYPE{$atomt}){
    $ATOMTYPE[$A[0]]=$BBTYPE{$atomt};
