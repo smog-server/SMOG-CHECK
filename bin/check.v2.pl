@@ -493,6 +493,9 @@ sub setmodelflags{
   print "Testing CA model\n";
  }elsif($model =~ m/AA/){
   print "Testing AA model\n";
+  if($model =~ m/^AA-2cg$/){
+   print "Testing multiple contact groups\n";
+  }
  }else{
   smogcheck_error("Model name $model, not understood. Only CA and AA models are supported by the test script.");
  }
