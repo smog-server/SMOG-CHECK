@@ -1891,6 +1891,10 @@ sub checkbonds
      smogcheck_error("Bonded types $bt1 $bt2 don\'t have a defined reference weight.")
     }
    }
+   if($ATOMNAME[$A[1]] =~ m/^FE[12]/ || $ATOMNAME[$A[2]] =~ m/^FE[12]/ && $A[3] == 0.21){
+    # in our tests, FES atoms always have a bond length of 0.21
+    $bval=0.21;
+   }
    if(abs($A[3]- $bval) > $maxdiff){
     $fail_log .= failed_message("bond has incorrect length. Expected $bval. Found:\n\t$LINE");
    }else{
