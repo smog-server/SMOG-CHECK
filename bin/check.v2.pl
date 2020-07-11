@@ -93,7 +93,7 @@ open(PARMS,"$SETTINGS_FILE") or internal_error("The settings file is missing..."
 
 print "Will use SMOG 2 executable $EXEC_NAME\n";
 
-&checktemplatedirs($BIFSIF_AA,,$BIFSIF_CA,$TEMPLATE_DIR_AA,$TEMPLATE_DIR_AA_STATIC,$TEMPLATE_DIR_CA);
+&checktemplatedirs($BIFSIF_AA,$BIFSIF_CA,$TEMPLATE_DIR_AA,$TEMPLATE_DIR_AA_STATIC,$TEMPLATE_DIR_CA);
 &checkForModules;
 &checkSCMexists($SCM);
 my ($RETEST,$RETESTEND)=checkforretest();
@@ -254,13 +254,13 @@ sub runalltests{
  ## Run tests for each pdb
  while(<PARMS>){
   my $LINE=$_;
-  chomp($LINE);
-  $LINE =~ s/\s+/ /g;
-  $LINE =~ s/\s+$//;
-  $LINE =~ s/^\s+//;
+  my ($A,$B)=checkcomment($LINE);
+  if($A eq ""){
+   next;
+  }
   $fail_log="";
   $FAILED=0;
-  my @A=split(/ /,$LINE);
+  my @A=split(/ /,$A);
   $PDB=$A[0];
   $TESTNUM++;
   if($RETEST>0 && ($RETEST > $TESTNUM || $RETESTEND < $TESTNUM)){
@@ -477,10 +477,10 @@ sub setmodelflags{
   smogcheck_error("Unknown contact option: \"$contactmodel\"");
  }
  if(!exists $numfield{$contactmodel}){
-  internal_error("model $contactmodel in all.pdbs is not recognized");
+  internal_error("model $contactmodel in $SETTINGS_FILE is not recognized");
  }
  if($numfield{$contactmodel} != $NA){
-  internal_error("all.pdbs has wrong number of entries for model $contactmodel. Expected $numfield{contactmodel}, found $NA");
+  internal_error("$SETTINGS_FILE has wrong number of entries for model $contactmodel. Expected $numfield{contactmodel}, found $NA");
  }
  if($usermap eq "yes"){
   unless(-e "$PDB_DIR/$PDB.contacts"){
