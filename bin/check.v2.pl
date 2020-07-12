@@ -93,7 +93,7 @@ open(PARMS,"$SETTINGS_FILE") or internal_error("The settings file is missing..."
 
 print "Will use SMOG 2 executable $EXEC_NAME\n";
 
-&checktemplatedirs($BIFSIF_AA,,$BIFSIF_CA,$TEMPLATE_DIR_AA,$TEMPLATE_DIR_AA_STATIC,$TEMPLATE_DIR_CA);
+&checktemplatedirs($BIFSIF_AA,$BIFSIF_CA,$TEMPLATE_DIR_AA,$TEMPLATE_DIR_AA_STATIC,$TEMPLATE_DIR_CA);
 &checkForModules;
 &checkSCMexists($SCM);
 my ($RETEST,$RETESTEND)=checkforretest();
@@ -254,13 +254,13 @@ sub runalltests{
  ## Run tests for each pdb
  while(<PARMS>){
   my $LINE=$_;
-  chomp($LINE);
-  $LINE =~ s/\s+/ /g;
-  $LINE =~ s/\s+$//;
-  $LINE =~ s/^\s+//;
+  my ($A,$B)=checkcomment($LINE);
+  if($A eq ""){
+   next;
+  }
   $fail_log="";
   $FAILED=0;
-  my @A=split(/ /,$LINE);
+  my @A=split(/ /,$A);
   $PDB=$A[0];
   $TESTNUM++;
   if($RETEST>0 && ($RETEST > $TESTNUM || $RETESTEND < $TESTNUM)){
@@ -477,10 +477,10 @@ sub setmodelflags{
   smogcheck_error("Unknown contact option: \"$contactmodel\"");
  }
  if(!exists $numfield{$contactmodel}){
-  internal_error("model $contactmodel in all.pdbs is not recognized");
+  internal_error("model $contactmodel in $SETTINGS_FILE is not recognized");
  }
  if($numfield{$contactmodel} != $NA){
-  internal_error("all.pdbs has wrong number of entries for model $contactmodel. Expected $numfield{contactmodel}, found $NA");
+  internal_error("$SETTINGS_FILE has wrong number of entries for model $contactmodel. Expected $numfield{contactmodel}, found $NA");
  }
  if($usermap eq "yes"){
   unless(-e "$PDB_DIR/$PDB.contacts"){
@@ -657,12 +657,26 @@ sub smogchecker
  &runsmog; 
  $FAIL{'NON-ZERO EXIT'}=$?;
 
+
+#######TEST-SPECIFIC DISABLED CHECKS######
+
  if($PDB =~ m/BOND$/){
   # BOND in name means disable check
   $FAIL{'GENERATED DIHEDRAL IN TOP'}=-1; 
  }
+
+ if($PDB =~ m/^FES$/){
+  # Can't perform these tests for the FES system (limit of the test logic)
+  $FAIL{'STRENGTHS OF LIGAND DIHEDRALS'}=-1;
+  $FAIL{'AMINO/LIGAND DIHEDRAL RATIO'}=-1;
+  $FAIL{'NONZERO LIGAND DIHEDRAL VALUE'}=-1;
+ }
+
  # temporarily disable this check.
  $FAIL{'EXTRAS: ATOMTYPES'}=0;
+
+#######END DISABLED CHECKS######
+
  if($FAIL{'NON-ZERO EXIT'} == 0){
   print "SMOG 2 exited without an error.\nAssessing generated files...\n";
    # CHECK THE OUTPUT
@@ -937,7 +951,7 @@ EOT
   }elsif($CONTTYPE eq "cutoff"){
    `sed "s/CUTDIST/$CONTD/g" $TEMPLATE_DIR_AA_STATIC/$templateAA.cutoff.sif > temp.cont.bifsif/tmp.cont.sif`;
   }
- CheckTemplatesCreated("temp.cont.bifsif","tmp.cont");
+  CheckTemplatesCreated("temp.cont.bifsif","tmp.cont");
  } 
 
  if($model eq "AA" && $default ne "yes"){
@@ -1201,23 +1215,23 @@ sub checktop
     $NUM_NONZERO++;	
     if( ($ATOMNAME[$i] eq "C"  && $ATOMNAME[$i+$j] eq "N") || (  $ATOMNAME[$i] eq "N"  && $ATOMNAME[$i+$j] eq "C"   ) ||
         ($ATOMNAME[$i] eq "C"  && $ATOMNAME[$i+$j] eq "O3*") || (  $ATOMNAME[$i] eq "O3*"  && $ATOMNAME[$i+$j] eq "C"   )    ){
-     $NRIGID++;
+     $NOMEGA++;
      if( abs($EDrig_T[$i][$j]-$omegaEps) > $TOLERANCE ){
       $fail_log .= failed_message("weird omega rigid...\n\t$i $j $EDrig_T[$i][$j]\n\t$ATOMNAME[$i] $ATOMNAME[$i+$j]\n\t$RESNUM[$i] $RESNUM[$i+$j]");
      }else{
-     $NRIGIDC++;
+      $NOMEGAC++;
      }
     }else{
-     $NOMEGA++;
+     $NRIGID++;
      # make sure that, if the dihedral is in a ligand (ANP, GNP), it must not involve the backbone
      if($MOLTYPE[$i] eq "LIGAND" && ($ATOMTYPE[$i] eq "BACKBONE" or  $ATOMTYPE[$i+$j] eq "BACKBONE")){
       $fail_log .= failed_message("Rigid dihedral assigned to ligand backbone. script expects these to be flexible. \n\t$i $j $EDrig_T[$i][$j]\n\t$ATOMNAME[$i] $ATOMNAME[$i+$j]\n\t$RESNUM[$i] $RESNUM[$i+$j]");
       next; # by going to next, this will automatically flag errors with regards to number of rigids
      }
      if(abs($EDrig_T[$i][$j]-$ringEps) > $TOLERANCE ){
-      $fail_log .= failed_message("weird ring dihedral...\n\t$i $j $EDrig_T[$i][$j]\n\t$ATOMNAME[$i] $ATOMNAME[$i+$j]\n\t$RESNUM[$i] $RESNUM[$i+$j]");
+      $fail_log .= failed_message("weird ring dihedral...\n\t$i $j $EDrig_T[$i][$j]\n\texpected $ringEps\n\t$ATOMNAME[$i] $ATOMNAME[$i+$j]\n\t$RESNUM[$i] $RESNUM[$i+$j]");
      }else{
-     $NOMEGAC++;
+      $NRIGIDC++;
      }
     }
    }
@@ -1262,7 +1276,7 @@ sub checktop
     }elsif($MOLTYPE[$i] eq "LIGAND"){
      $NLIG++;
      if( $ATOMTYPE[$i] ne "BACKBONE" && $ATOMTYPE[$i+$j] ne "BACKBONE"){
-      $fail_log .= failed_message("Flexible dihedral assigned to ligand non-backbone. script expects these to be rigid. \n\t$i $j $EDrig_T[$i][$j]\n\t$ATOMNAME[$i] $ATOMNAME[$i+$j]\n\t$RESNUM[$i] $RESNUM[$i+$j]");
+      $fail_log .= failed_message("Flexible dihedral assigned to ligand non-backbone. script expects these to be rigid. \n\t$i $j $ED_T[$i][$j]\n\t$ATOMNAME[$i] $ATOMNAME[$i+$j]\n\t$RESNUM[$i] $RESNUM[$i+$j]");
       next; # by going to next, this will automatically flag errors with regards to number of rigids
      }
      if($LIGdvalue !=$ED_T[$i][$j] && $LIGdvalue != 0 ){
@@ -1694,6 +1708,9 @@ sub checkatoms
    $FAIL_GROTOP++;
   }
   # check if it is a backbone atom. This list does not include CA and C1* because this classification is only used for determining which bonds are backbone and which are sidechain
+  if(!exists $TYPE{$A[3]}){
+   internal_error("Residue name $A[3] is not given a type. Check the directory share/residues");
+  }
   my $atomt="$TYPE{$A[3]}-$A[4]";
   if(exists $BBTYPE{$atomt}){
    $ATOMTYPE[$A[0]]=$BBTYPE{$atomt};
@@ -1887,6 +1904,10 @@ sub checkbonds
      # we verify here, as opposed to checking all possible combinations earlier
      smogcheck_error("Bonded types $bt1 $bt2 don\'t have a defined reference weight.")
     }
+   }
+   if($ATOMNAME[$A[1]] =~ m/^FE[12]/ || $ATOMNAME[$A[2]] =~ m/^FE[12]/ && $A[3] == 0.21){
+    # in our tests, FES atoms always have a bond length of 0.21
+    $bval=0.21;
    }
    if(abs($A[3]- $bval) > $maxdiff){
     $fail_log .= failed_message("bond has incorrect length. Expected $bval. Found:\n\t$LINE");

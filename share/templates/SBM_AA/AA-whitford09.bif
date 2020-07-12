@@ -3,6 +3,35 @@
 	<residues>
 					<!-- LIGANDS -->
 
+<!--FES-->
+                <residue name="FES" residueType="ligand" atomCount="0">
+                        <atoms>
+                                <atom bType="B_FES" nbType="NB_1" pairType="P_1">S1</atom>
+                                <atom bType="B_FES" nbType="NB_1" pairType="P_1">S2</atom>
+                                <atom bType="B_FES" nbType="NB_1" pairType="P_1">FE1</atom>
+                                <atom bType="B_FES" nbType="NB_1" pairType="P_1">FE2</atom>
+                        </atoms>
+                        <bonds>
+                                <bond energyGroup="lig">
+                                        <atom>S1</atom>
+                                        <atom>FE1</atom>
+                                </bond>
+                                <bond energyGroup="lig">
+                                        <atom>S1</atom>
+                                        <atom>FE2</atom>
+                                </bond>
+                                <bond energyGroup="lig">
+                                        <atom>S2</atom>
+                                        <atom>FE1</atom>
+                                </bond>
+                                <bond energyGroup="lig">
+                                        <atom>S2</atom>
+                                        <atom>FE2</atom>
+                                </bond>
+                        </bonds>
+                </residue>
+	
+
 <!--ADP-->
 		<residue name="ADP" residueType="ligand" atomCount="0">
 			<atoms>

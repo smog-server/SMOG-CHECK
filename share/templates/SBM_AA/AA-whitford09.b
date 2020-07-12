@@ -5,6 +5,10 @@
 	<bond func="bond_harmonic(?,10000)">
 	<bType>*</bType>
 	<bType>*</bType>
+	</bond>
+        <bond func="bond_harmonic(0.21,10000)">
+	<bType>B_FES</bType>
+	<bType>B_FES</bType>
         </bond>
 </bonds>
 
@@ -65,7 +69,7 @@
 	</dihedral>
 
 	<!-- LIGAND DIHEDRALS -->
-        <dihedral func="dihedral_harmonic(?,10)" energyGroup="lig">
+        <dihedral func="dihedral_harmonic(?,40)" energyGroup="lig">
         <bType>*</bType>
         <bType>*</bType>
         <bType>*</bType>
