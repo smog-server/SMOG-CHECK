@@ -1201,23 +1201,23 @@ sub checktop
     $NUM_NONZERO++;	
     if( ($ATOMNAME[$i] eq "C"  && $ATOMNAME[$i+$j] eq "N") || (  $ATOMNAME[$i] eq "N"  && $ATOMNAME[$i+$j] eq "C"   ) ||
         ($ATOMNAME[$i] eq "C"  && $ATOMNAME[$i+$j] eq "O3*") || (  $ATOMNAME[$i] eq "O3*"  && $ATOMNAME[$i+$j] eq "C"   )    ){
-     $NRIGID++;
+     $NOMEGA++;
      if( abs($EDrig_T[$i][$j]-$omegaEps) > $TOLERANCE ){
       $fail_log .= failed_message("weird omega rigid...\n\t$i $j $EDrig_T[$i][$j]\n\t$ATOMNAME[$i] $ATOMNAME[$i+$j]\n\t$RESNUM[$i] $RESNUM[$i+$j]");
      }else{
-     $NRIGIDC++;
+      $NOMEGAC++;
      }
     }else{
-     $NOMEGA++;
+     $NRIGID++;
      # make sure that, if the dihedral is in a ligand (ANP, GNP), it must not involve the backbone
      if($MOLTYPE[$i] eq "LIGAND" && ($ATOMTYPE[$i] eq "BACKBONE" or  $ATOMTYPE[$i+$j] eq "BACKBONE")){
       $fail_log .= failed_message("Rigid dihedral assigned to ligand backbone. script expects these to be flexible. \n\t$i $j $EDrig_T[$i][$j]\n\t$ATOMNAME[$i] $ATOMNAME[$i+$j]\n\t$RESNUM[$i] $RESNUM[$i+$j]");
       next; # by going to next, this will automatically flag errors with regards to number of rigids
      }
      if(abs($EDrig_T[$i][$j]-$ringEps) > $TOLERANCE ){
-      $fail_log .= failed_message("weird ring dihedral...\n\t$i $j $EDrig_T[$i][$j]\n\t$ATOMNAME[$i] $ATOMNAME[$i+$j]\n\t$RESNUM[$i] $RESNUM[$i+$j]");
+      $fail_log .= failed_message("weird ring dihedral...\n\t$i $j $EDrig_T[$i][$j]\n\texpected $ringEps\n\t$ATOMNAME[$i] $ATOMNAME[$i+$j]\n\t$RESNUM[$i] $RESNUM[$i+$j]");
      }else{
-     $NOMEGAC++;
+      $NRIGIDC++;
      }
     }
    }
