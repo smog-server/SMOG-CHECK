@@ -657,12 +657,26 @@ sub smogchecker
  &runsmog; 
  $FAIL{'NON-ZERO EXIT'}=$?;
 
+
+#######TEST-SPECIFIC DISABLED CHECKS######
+
  if($PDB =~ m/BOND$/){
   # BOND in name means disable check
   $FAIL{'GENERATED DIHEDRAL IN TOP'}=-1; 
  }
+
+ if($PDB =~ m/^FES$/){
+  # Can't perform these tests for the FES system (limit of the test logic)
+  $FAIL{'STRENGTHS OF LIGAND DIHEDRALS'}=-1;
+  $FAIL{'AMINO/LIGAND DIHEDRAL RATIO'}=-1;
+  $FAIL{'NONZERO LIGAND DIHEDRAL VALUE'}=-1;
+ }
+
  # temporarily disable this check.
  $FAIL{'EXTRAS: ATOMTYPES'}=0;
+
+#######END DISABLED CHECKS######
+
  if($FAIL{'NON-ZERO EXIT'} == 0){
   print "SMOG 2 exited without an error.\nAssessing generated files...\n";
    # CHECK THE OUTPUT
