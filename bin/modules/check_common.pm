@@ -137,13 +137,13 @@ sub load_file
  my ($file1)=@_;
  my @info;
  my $I;
+ local($\) = undef;
+
  if(open(FILE1,"$file1")){
-  while(<FILE1>){
-   $info[$I]=$_;
-   $I++;
-  }
+  my $content=<FILE1>;
+  @info=split(/\n/,$content);
   close(FILE1);
-  return ($I,\@info);
+  return (length(@info),\@info);
  }else{
   return (-1,1);
  }
