@@ -1262,7 +1262,7 @@ sub checktop
     }elsif($MOLTYPE[$i] eq "LIGAND"){
      $NLIG++;
      if( $ATOMTYPE[$i] ne "BACKBONE" && $ATOMTYPE[$i+$j] ne "BACKBONE"){
-      $fail_log .= failed_message("Flexible dihedral assigned to ligand non-backbone. script expects these to be rigid. \n\t$i $j $EDrig_T[$i][$j]\n\t$ATOMNAME[$i] $ATOMNAME[$i+$j]\n\t$RESNUM[$i] $RESNUM[$i+$j]");
+      $fail_log .= failed_message("Flexible dihedral assigned to ligand non-backbone. script expects these to be rigid. \n\t$i $j $ED_T[$i][$j]\n\t$ATOMNAME[$i] $ATOMNAME[$i+$j]\n\t$RESNUM[$i] $RESNUM[$i+$j]");
       next; # by going to next, this will automatically flag errors with regards to number of rigids
      }
      if($LIGdvalue !=$ED_T[$i][$j] && $LIGdvalue != 0 ){
