@@ -1,3 +1,5 @@
+protein-RNA AA-2cg default
+FES AA shadow 5.0 1.4 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0 0.2 -1 1E-6 3E-9 1.0 
 1A01-AMP AA default
 1A01-AMP AA default-gaussian
 1A01-ADP AA default
@@ -10,6 +12,7 @@
 2FP4-GDP AA default-gaussian
 2FP4-GTP AA default
 2FP4-GTP AA default-gaussian
+2FP4-GDP.largeformat AA default
 DNA.terminal AA	default-gaussian 
 DNA.terminal.BMG AA default 
 1AKEapo_v2 AA default-gaussian 

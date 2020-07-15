@@ -29,10 +29,11 @@ our $TEMPLATE_DIR_AA=$ENV{'BIFSIF_AA_TESTING'};
 our $TEMPLATE_DIR_AA_STATIC=$ENV{'BIFSIF_STATIC_TESTING'};
 our $TEMPLATE_DIR_CA=$ENV{'BIFSIF_CA_TESTING'};
 our $TEMPLATE_DIR_AA_MATCH=$ENV{'BIFSIF_AA_MATCH'};
+our $TEMPLATE_DIR_AA_2CG=$ENV{'BIFSIF_AA_2CG'};
 
 # FAILLIST is a list of all the tests.
 # If you are developing and testing your own forcefield, which may not need to conform to certain checks, then you may want to disable some tests by  removing the test name from this list. However, do so at your own risk.
-our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','TOP FIELDS FOUND','TOP FIELDS RECOGNIZED','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'BOND LENGTHS','ANGLE TYPES', 'ANGLE WEIGHTS', 'ANGLE VALUES','DUPLICATE BONDS', 'DUPLICATE ANGLES', 'GENERATED ANGLE COUNT','GENERATED ANGLE IN TOP','ANGLES IN TOP GENERATED', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','MATCH DIH WEIGHTS','DIHEDRAL ANGLES','ALL POSSIBLE MATCHED DIHEDRALS PRESENT','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL IN TOP GENERATED','GENERATED DIHEDRAL IN TOP','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','GAUSSIAN CONTACT EXCLUDED VOLUME','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY','TYPE6 ATOMS','CLASSIFYING DIHEDRALS','NON-ZERO EXIT','ATOM FIELDS','ATOM CHARGES','FREE PAIRS APPEAR IN CONTACTS','EXTRAS: ATOMTYPES','EXTRAS: BONDTYPES','EXTRAS: ANGLETYPES','EXTRAS: DIHEDRALTYPES','EXTRAS: NB_PARAMS','NONZERO LIGAND DIHEDRAL VALUE','GMX COMPATIBLE');
+our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','TOP FIELDS FOUND','TOP FIELDS RECOGNIZED','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'BOND LENGTHS','ANGLE TYPES', 'ANGLE WEIGHTS', 'ANGLE VALUES','DUPLICATE BONDS', 'DUPLICATE ANGLES', 'GENERATED ANGLE COUNT','GENERATED ANGLE IN TOP','ANGLES IN TOP GENERATED', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','MATCH DIH WEIGHTS','DIHEDRAL ANGLES','ALL POSSIBLE MATCHED DIHEDRALS PRESENT','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL IN TOP GENERATED','GENERATED DIHEDRAL IN TOP','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','NON-STACKING 2CG CONTACT WEIGHTS','NON-STACKING CG RATIO','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','GAUSSIAN CONTACT EXCLUDED VOLUME','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY','TYPE6 ATOMS','CLASSIFYING DIHEDRALS','NON-ZERO EXIT','ATOM FIELDS','ATOM CHARGES','FREE PAIRS APPEAR IN CONTACTS','EXTRAS: ATOMTYPES','EXTRAS: BONDTYPES','EXTRAS: ANGLETYPES','EXTRAS: DIHEDRALTYPES','EXTRAS: NB_PARAMS','NONZERO LIGAND DIHEDRAL VALUE','GMX COMPATIBLE');
 
 # default location of test PDBs
 our $PDB_DIR="share/PDB.files";
@@ -69,7 +70,7 @@ my %free_pair_defs=('ASN-MET' =>'1',
 	   	    'MET-MET' =>'1'
 		   );
 
-my %numfield = ( 'default' => '2', 'default-userC' => '2', 'default-gaussian' => '2', 'default-gaussian-userC' => '2','cutoff' => '19', 'shadow' => '20',  'shadow-free' => '20', 'shadow-gaussian' => '20', 'cutoff-gaussian' => '19' , 'shadow-match' => '4');
+my %numfield = ( 'default' => '2', 'default-2cg' => '2',  'default-userC' => '2', 'default-gaussian' => '2', 'default-gaussian-userC' => '2','cutoff' => '19', 'shadow' => '20',  'shadow-free' => '20', 'shadow-gaussian' => '20', 'cutoff-gaussian' => '19' , 'shadow-match' => '4');
 %defcharge = ('GLY-N' => "0.3", 'GLY-C' => "0.2", 'GLY-O' => "-0.5");
 
 our $name2="NB_2";
@@ -92,7 +93,7 @@ open(PARMS,"$SETTINGS_FILE") or internal_error("The settings file is missing..."
 
 print "Will use SMOG 2 executable $EXEC_NAME\n";
 
-&checktemplatedirs($BIFSIF_AA,,$BIFSIF_CA,$TEMPLATE_DIR_AA,$TEMPLATE_DIR_AA_STATIC,$TEMPLATE_DIR_CA);
+&checktemplatedirs($BIFSIF_AA,$BIFSIF_CA,$TEMPLATE_DIR_AA,$TEMPLATE_DIR_AA_STATIC,$TEMPLATE_DIR_CA);
 &checkForModules;
 &checkSCMexists($SCM);
 my ($RETEST,$RETESTEND)=checkforretest();
@@ -258,13 +259,13 @@ sub runalltests{
  ## Run tests for each pdb
  while(<PARMS>){
   my $LINE=$_;
-  chomp($LINE);
-  $LINE =~ s/\s+/ /g;
-  $LINE =~ s/\s+$//;
-  $LINE =~ s/^\s+//;
+  my ($A,$B)=checkcomment($LINE);
+  if($A eq ""){
+   next;
+  }
   $fail_log="";
   $FAILED=0;
-  my @A=split(/ /,$LINE);
+  my @A=split(/ /,$A);
   $PDB=$A[0];
   $TESTNUM++;
   if($RETEST>0 && ($RETEST > $TESTNUM || $RETESTEND < $TESTNUM)){
@@ -314,18 +315,18 @@ EOT
  exit(1);
 }elsif($RETEST < 0){
  my $nottested=alltested(\%CHECKED,\%FAIL);
- #if($nottested eq "" || $nottested eq "GMX COMPATIBLE\n"){
- if($nottested =~ m/^$|^GMX COMPATIBLE$/){
+ if($nottested eq "" || $nottested =~ m/^$|^GMX COMPATIBLE$/){
  print <<EOT;
 *************************************************************
                       PASSED ALL TESTS  !!!
 *************************************************************
 EOT
  exit(0);
-}else{
+ }else{
   print <<EOT;
 *************************************************************
-Not all possible tests have been checked.  
+                  PASSED ALL CHECKED TESTS  !!!
+But, not all possible tests have been checked.  
 Unchecked tests include:
 $nottested
 *************************************************************
@@ -400,7 +401,7 @@ sub runsmog
  my $ARGS=" -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -SCMorig";
 
 # prepare the flags
- if($default eq "yes"){
+ if($default eq "yes" && $model ne "AA-2cg"){
   if($model eq "CA" && $gaussian eq "no"){
    $ARGS .= " -CA";
   }elsif($model eq "CA" && $gaussian eq "yes"){
@@ -419,6 +420,8 @@ sub runsmog
    $ARGS .= " -t temp.bifsif/ ";
   }elsif($model eq "AA-match"){
    $ARGS .= " -t $TEMPLATE_DIR_AA_MATCH ";
+  }elsif($model eq "AA-2cg"){
+   $ARGS .= " -t $TEMPLATE_DIR_AA_2CG ";
   }else{
    smogcheck_error("Unrecognized model when preparing non-default smog 2 flags.");
   }
@@ -479,10 +482,10 @@ sub setmodelflags{
   smogcheck_error("Unknown contact option: \"$contactmodel\"");
  }
  if(!exists $numfield{$contactmodel}){
-  internal_error("model $contactmodel in all.pdbs is not recognized");
+  internal_error("model $contactmodel in $SETTINGS_FILE is not recognized");
  }
  if($numfield{$contactmodel} != $NA){
-  internal_error("all.pdbs has wrong number of entries for model $contactmodel. Expected $numfield{contactmodel}, found $NA");
+  internal_error("$SETTINGS_FILE has wrong number of entries for model $contactmodel. Expected $numfield{contactmodel}, found $NA");
  }
  if($usermap eq "yes"){
   unless(-e "$PDB_DIR/$PDB.contacts"){
@@ -495,6 +498,9 @@ sub setmodelflags{
   print "Testing CA model\n";
  }elsif($model =~ m/AA/){
   print "Testing AA model\n";
+  if($model =~ m/^AA-2cg$/){
+   print "Testing multiple contact groups\n";
+  }
  }else{
   smogcheck_error("Model name $model, not understood. Only CA and AA models are supported by the test script.");
  }
@@ -582,7 +588,7 @@ sub setmodelflags{
  if($model eq "CA"){
   $bondEps=20000;
   $angleEps=40;
- }elsif($model eq "AA"){
+ }elsif($model eq "AA" || $model eq "AA-2cg"){
   $bondEps=10000;
   $angleEps=80;
  }elsif($model eq "AA-match"){
@@ -601,7 +607,7 @@ sub setmodelflags{
 
 sub checkSCM
 {
- if($model eq "AA"){
+ if($model eq "AA" || $model eq "AA-2cg"){
   my $SHADOWARGS="-g $PDB.gro -t $PDB.top -ch $PDB.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD";
   if($default eq "yes"){
    $SHADOWARGS .= " -bif $BIFSIF_AA/AA-whitford09.bif";
@@ -656,10 +662,26 @@ sub smogchecker
  &runsmog; 
  $FAIL{'NON-ZERO EXIT'}=$?;
 
+
+#######TEST-SPECIFIC DISABLED CHECKS######
+
  if($PDB =~ m/BOND$/){
   # BOND in name means disable check
   $FAIL{'GENERATED DIHEDRAL IN TOP'}=-1; 
  }
+
+ if($PDB =~ m/^FES$/){
+  # Can't perform these tests for the FES system (limit of the test logic)
+  $FAIL{'STRENGTHS OF LIGAND DIHEDRALS'}=-1;
+  $FAIL{'AMINO/LIGAND DIHEDRAL RATIO'}=-1;
+  $FAIL{'NONZERO LIGAND DIHEDRAL VALUE'}=-1;
+ }
+
+ # temporarily disable this check.
+ $FAIL{'EXTRAS: ATOMTYPES'}=0;
+
+#######END DISABLED CHECKS######
+
  if($FAIL{'NON-ZERO EXIT'} == 0){
   print "SMOG 2 exited without an error.\nAssessing generated files...\n";
    # CHECK THE OUTPUT
@@ -808,7 +830,7 @@ EOT
   $massNB{$defname}=1.0;
   $chargeNB{$defname}=0.0;
   $sigmaCA=$sigmaCA*10.0;
- }elsif($model eq "AA"){
+ }elsif($model eq "AA" || $model eq "AA-2cg"){
   $sigma=$sigma/10;
   $rep_s12=$sigma**12*$epsilon;
   $defname="NB_1";
@@ -934,7 +956,7 @@ EOT
   }elsif($CONTTYPE eq "cutoff"){
    `sed "s/CUTDIST/$CONTD/g" $TEMPLATE_DIR_AA_STATIC/$templateAA.cutoff.sif > temp.cont.bifsif/tmp.cont.sif`;
   }
- CheckTemplatesCreated("temp.cont.bifsif","tmp.cont");
+  CheckTemplatesCreated("temp.cont.bifsif","tmp.cont");
  } 
 
  if($model eq "AA" && $default ne "yes"){
@@ -1020,6 +1042,7 @@ sub checktop
  undef %restypecount;
  my $stackingE=0;
  my $NonstackingE=0;
+ my $NonstackingE2=0;
  my $LN=0;
  my $topNlines=0;
  $DIH_MIN=100000000;
@@ -1146,7 +1169,7 @@ sub checktop
   
   if(exists $A[1] &&$A[1] eq "pairs"){
     my ($r1,$r2);
-   ($LN,$r1,$stackingE,$NonstackingE)=checkpairs($LN,\@topdata,\@resindex,\@PAIRS,$stackingE,$NonstackingE);
+   ($LN,$r1,$stackingE,$NonstackingE,$NonstackingE2)=checkpairs($LN,\@topdata,\@resindex,\@PAIRS,$stackingE,$NonstackingE,$NonstackingE2);
    @PAIRS=@{$r1};
    next;
   }
@@ -1197,23 +1220,23 @@ sub checktop
     $NUM_NONZERO++;	
     if( ($ATOMNAME[$i] eq "C"  && $ATOMNAME[$i+$j] eq "N") || (  $ATOMNAME[$i] eq "N"  && $ATOMNAME[$i+$j] eq "C"   ) ||
         ($ATOMNAME[$i] eq "C"  && $ATOMNAME[$i+$j] eq "O3*") || (  $ATOMNAME[$i] eq "O3*"  && $ATOMNAME[$i+$j] eq "C"   )    ){
-     $NRIGID++;
+     $NOMEGA++;
      if( abs($EDrig_T[$i][$j]-$omegaEps) > $TOLERANCE ){
       $fail_log .= failed_message("weird omega rigid...\n\t$i $j $EDrig_T[$i][$j]\n\t$ATOMNAME[$i] $ATOMNAME[$i+$j]\n\t$RESNUM[$i] $RESNUM[$i+$j]");
      }else{
-     $NRIGIDC++;
+      $NOMEGAC++;
      }
     }else{
-     $NOMEGA++;
+     $NRIGID++;
      # make sure that, if the dihedral is in a ligand (ANP, GNP), it must not involve the backbone
      if($MOLTYPE[$i] eq "LIGAND" && ($ATOMTYPE[$i] eq "BACKBONE" or  $ATOMTYPE[$i+$j] eq "BACKBONE")){
       $fail_log .= failed_message("Rigid dihedral assigned to ligand backbone. script expects these to be flexible. \n\t$i $j $EDrig_T[$i][$j]\n\t$ATOMNAME[$i] $ATOMNAME[$i+$j]\n\t$RESNUM[$i] $RESNUM[$i+$j]");
       next; # by going to next, this will automatically flag errors with regards to number of rigids
      }
      if(abs($EDrig_T[$i][$j]-$ringEps) > $TOLERANCE ){
-      $fail_log .= failed_message("weird ring dihedral...\n\t$i $j $EDrig_T[$i][$j]\n\t$ATOMNAME[$i] $ATOMNAME[$i+$j]\n\t$RESNUM[$i] $RESNUM[$i+$j]");
+      $fail_log .= failed_message("weird ring dihedral...\n\t$i $j $EDrig_T[$i][$j]\n\texpected $ringEps\n\t$ATOMNAME[$i] $ATOMNAME[$i+$j]\n\t$RESNUM[$i] $RESNUM[$i+$j]");
      }else{
-     $NOMEGAC++;
+      $NRIGIDC++;
      }
     }
    }
@@ -1258,7 +1281,7 @@ sub checktop
     }elsif($MOLTYPE[$i] eq "LIGAND"){
      $NLIG++;
      if( $ATOMTYPE[$i] ne "BACKBONE" && $ATOMTYPE[$i+$j] ne "BACKBONE"){
-      $fail_log .= failed_message("Flexible dihedral assigned to ligand non-backbone. script expects these to be rigid. \n\t$i $j $EDrig_T[$i][$j]\n\t$ATOMNAME[$i] $ATOMNAME[$i+$j]\n\t$RESNUM[$i] $RESNUM[$i+$j]");
+      $fail_log .= failed_message("Flexible dihedral assigned to ligand non-backbone. script expects these to be rigid. \n\t$i $j $ED_T[$i][$j]\n\t$ATOMNAME[$i] $ATOMNAME[$i+$j]\n\t$RESNUM[$i] $RESNUM[$i+$j]");
       next; # by going to next, this will automatically flag errors with regards to number of rigids
      }
      if($LIGdvalue !=$ED_T[$i][$j] && $LIGdvalue != 0 ){
@@ -1326,19 +1349,37 @@ sub checktop
    $FAIL{'STRENGTHS OF LIGAND DIHEDRALS'}=-1;
    $FAIL{'NONZERO LIGAND DIHEDRAL VALUE'}=-1;
  }
+ if($model eq "AA-2cg"){
+  my $CR=$NonstackingE/$NonstackingE2;
+  my $cgratio=7;
+  if($CR < $MAXTHR*$cgratio and  $CR > $MINTHR*$cgratio){
+   $FAIL{'NON-STACKING CG RATIO'}=0;
+  }else{
+   $fail_log .= failed_message("NonStacking-stacking ratio issue: \n  Expected: $cgratio, Actual: $CR");
+  }
+ }else{
+  $FAIL{'NON-STACKING 2CG CONTACT WEIGHTS'}=-1;
+  $FAIL{'NON-STACKING CG RATIO'}=-1;
+ }
 
- if($model eq "AA" || $model eq "AA-match" ){
+ if($model eq "AA" || $model eq "AA-match" || $model eq "AA-2cg"  ){
   if($NonstackingE !=0 && $stackingE !=0){
    my $CR=$NonstackingE/$stackingE;
-   if($CR < $MAXTHR and  $CR > $MINTHR){
+   my $contactratio;
+   if($CONTTYPE eq "cutoff"){
+    $contactratio=3.0;
+   }else{
+    $contactratio=1.0;
+   }
+   if($CR < $MAXTHR*$contactratio and  $CR > $MINTHR*$contactratio){
     $FAIL{'STACK-NONSTACK RATIO'}=0;
    }else{
-    $fail_log .= failed_message("NonStacking-stacking ratio issue: \n  Expected: 1, Actual: $CR");
+    $fail_log .= failed_message("NonStacking-stacking ratio issue: \n  Expected: $contactratio, Actual: $CR");
    }
   }else{
    $FAIL{'STACK-NONSTACK RATIO'}=-1;
   }
- 
+
   if($AMINO_PRESENT && $free eq "no" && $NPSC>0){
    my $ratio=$PBBvalue/$PSCvalue;
    if($ratio < $MAXTHR*$R_P_BB_SC   and $ratio > $MINTHR*$R_P_BB_SC ){
@@ -1672,6 +1713,9 @@ sub checkatoms
    $FAIL_GROTOP++;
   }
   # check if it is a backbone atom. This list does not include CA and C1* because this classification is only used for determining which bonds are backbone and which are sidechain
+  if(!exists $TYPE{$A[3]}){
+   internal_error("Residue name $A[3] is not given a type. Check the directory share/residues");
+  }
   my $atomt="$TYPE{$A[3]}-$A[4]";
   if(exists $BBTYPE{$atomt}){
    $ATOMTYPE[$A[0]]=$BBTYPE{$atomt};
@@ -1865,6 +1909,10 @@ sub checkbonds
      # we verify here, as opposed to checking all possible combinations earlier
      smogcheck_error("Bonded types $bt1 $bt2 don\'t have a defined reference weight.")
     }
+   }
+   if($ATOMNAME[$A[1]] =~ m/^FE[12]/ || $ATOMNAME[$A[2]] =~ m/^FE[12]/ && $A[3] == 0.21){
+    # in our tests, FES atoms always have a bond length of 0.21
+    $bval=0.21;
    }
    if(abs($A[3]- $bval) > $maxdiff){
     $fail_log .= failed_message("bond has incorrect length. Expected $bval. Found:\n\t$LINE");
@@ -2346,7 +2394,8 @@ sub checkdihedrals
      if(exists $matchdihedral_weight{"$dname"}){
       # check for the expected values of the weight, if defined 
       my $dweight=$matchdihedral_weight{"$dname"};
-      $dihval=$matchdihedral_val{"$dname"};
+      # to convert to gromacs conventions for angles, one must multiply my the multiplicity and add 180.
+      $dihval=$matchdihedral_val{"$dname"}*$A[7]+180.0;
       if(abs($A[6]- $dweight) > 10E-10){
        $fail_log .= failed_message("dihedral has incorrect weight. Expected $dweight. Found:\n\t$LINE");
       }else{
@@ -2713,13 +2762,14 @@ sub dihdelta
 
 sub checkpairs
 {
- my ($LN,$N1,$N2,$N3,$stackingE,$NonstackingE)=@_;
+ my ($LN,$N1,$N2,$N3,$stackingE,$NonstackingE,$NonstackingE2)=@_;
  my @topdata=@{$N1};
  my @resindex=@{$N2};
  my @PAIRS=@{$N3};
  $CONTENERGY=0;
  my $FAIL_STACK=0;
  my $FAIL_NONSTACK=0;
+ my $FAIL_NONSTACK_CG2=0;
  my $LONGCONT=0;
  my $CONTACT_W_CA=0;
  my $ContactDist=0;
@@ -2732,6 +2782,7 @@ sub checkpairs
  my $W;
  my $Cdist;
  my $CALCD;
+ my $pronuc;
  if($usermap eq "yes"){
   open(CMAP,"$PDB_DIR/$PDB.contacts") or internal_error("can not open $PDB_DIR/$PDB.contacts");
  }
@@ -2749,6 +2800,11 @@ sub checkpairs
      $NOTSHORTSEQ++;
   }
 
+  if( ($MOLTYPE[$A[0]] eq "AMINO" && $MOLTYPE[$A[1]] eq "NUCLEIC") || ($MOLTYPE[$A[1]] eq "AMINO" && $MOLTYPE[$A[0]] eq "NUCLEIC") ){
+   $pronuc=2;
+  }else{
+   $pronuc=1;
+  }
   if($CID[$A[0]] == $CID[$A[1]] && $MOLTYPE[$A[0]] eq "AMINO" && $MOLTYPE[$A[1]] eq "AMINO" &&  abs($resindex[$A[0]]-$resindex[$A[1]]) ==4 ){
      $FAIL{'CONTACTS PROTEIN i-j=4'}=0;
   }elsif($CID[$A[0]] == $CID[$A[1]] && $MOLTYPE[$A[0]] eq "NUCLEIC" && $MOLTYPE[$A[1]] eq "NUCLEIC" &&  abs($resindex[$A[0]]-$resindex[$A[1]]) ==1 ){
@@ -2798,7 +2854,7 @@ sub checkpairs
    }else{
     $fail_log .= failed_message("A contact appears to be the wrong distance.  From the .gro (or .contact) file, we found r=$CALCD, and from the .top r=$Cdist.\n\t$LINE");
    }
-  }elsif($model eq "AA" || $model eq "AA-match"){
+  }elsif($model eq "AA" || $model eq "AA-match" || $model eq "AA-2cg"){
    $W=($A[3]*$A[3])/(4*$A[4]);
    $Cdist=(2.0*$A[4]/($A[3]))**(1.0/6.0);
    $CALCD=getpairdist(\*CMAP,$A[0],$A[1]);
@@ -2818,7 +2874,7 @@ sub checkpairs
    }else{
     $fail_log .= failed_message("EpsilonC values\n\tValue: Target\n\t$W $epsilonCAC\n\tline:\n\t$LINE");
    }
-  }elsif($model eq "AA" || $model eq "AA-match" ){
+  }elsif($model eq "AA" || $model eq "AA-match" || $model eq "AA-2cg" ){
    $Cdist = int(($Cdist * $PRECISION)/10.0)/($PRECISION*10.0);
    if($Cdist <= $CONTD/10.0){
     $LONGCONT++;
@@ -2836,15 +2892,38 @@ sub checkpairs
      $stackingE=$W;
     }elsif(abs($stackingE - $W) > 10.0/($PRECISION*1.0) ){
      $FAIL_STACK++;
-     $fail_log .= failed_message("stacking energies: $stackingE  $W $A[0] $A[1]");
+     $fail_log .= failed_message("stacking energies: $stackingE  $W $A[0] $A[1]\n MOLTYPE0 $MOLTYPE[$A[0]]\n MOLTYPE1 $MOLTYPE[$A[1]]\n ATOMTYPE0 $ATOMTYPE[$A[0]]\n ATOMTYPE1 $ATOMTYPE[$A[1]]\n ATOMNAME0 $ATOMNAME[$A[0]]\n ATOMNAME1 $ATOMNAME[$A[1]]\n RESNUM0 $RESNUM[$A[0]]\n RESNUM1 $RESNUM[$A[1]]\n CHAINID0 $CID[$A[0]]\n CHAINID1 $CID[$A[1]]");
      }
    }else{
    # it is not a stacking contact.  Do the same checks for non-stacking interactions
-    if($NonstackingE == 0 ){
-     $NonstackingE=$W;
-    }elsif(abs($NonstackingE - $W) > 10.0/($PRECISION*1.0) ){
-     $FAIL_NONSTACK++;
-     $fail_log .= failed_message("non-stacking contacts: $NonstackingE $W\n\tline:\n\t$LINE");
+
+    if($model eq "AA-2cg"){
+     if($pronuc ==1){
+      if($NonstackingE == 0 ){
+       $NonstackingE=$W;
+      }elsif(abs($NonstackingE - $W) > 10.0/($PRECISION*1.0) ){
+       $FAIL_NONSTACK++;
+       $fail_log .= failed_message("non-stacking contacts: $NonstackingE $W\n\tline:\n\t$LINE\n MOLTYPE0 $MOLTYPE[$A[0]]\n MOLTYPE1 $MOLTYPE[$A[1]]\n ATOMTYPE0 $ATOMTYPE[$A[0]]\n ATOMTYPE1 $ATOMTYPE[$A[1]]\n ATOMNAME0 $ATOMNAME[$A[0]]\n ATOMNAME1 $ATOMNAME[$A[1]]\n RESNUM0 $RESNUM[$A[0]]\n RESNUM1 $RESNUM[$A[1]]\n CHAINID0 $CID[$A[0]]\n CHAINID1 $CID[$A[1]]");
+      }
+     }elsif($pronuc ==2){
+      if($NonstackingE2 == 0 ){
+       $NonstackingE2=$W;
+      }elsif(abs($NonstackingE2 - $W) > 10.0/($PRECISION*1.0) ){
+       $FAIL_NONSTACK_CG2++;
+       $fail_log .= failed_message("non-stacking contacts 2cg: $NonstackingE2 $W\n\tline:\n\t$LINE\n MOLTYPE0 $MOLTYPE[$A[0]]\n MOLTYPE1 $MOLTYPE[$A[1]]\n ATOMTYPE0 $ATOMTYPE[$A[0]]\n ATOMTYPE1 $ATOMTYPE[$A[1]]\n ATOMNAME0 $ATOMNAME[$A[0]]\n ATOMNAME1 $ATOMNAME[$A[1]]\n RESNUM0 $RESNUM[$A[0]]\n RESNUM1 $RESNUM[$A[1]]\n CHAINID0 $CID[$A[0]]\n CHAINID1 $CID[$A[1]]");
+      }
+     }else{
+      internal_error("AA-2cg assignment error");
+     }
+
+    }else{ 
+
+     if($NonstackingE == 0 ){
+      $NonstackingE=$W;
+     }elsif(abs($NonstackingE - $W) > 10.0/($PRECISION*1.0) ){
+      $FAIL_NONSTACK++;
+      $fail_log .= failed_message("non-stacking contacts: $NonstackingE $W\n\tline:\n\t$LINE\n MOLTYPE0 $MOLTYPE[$A[0]]\n MOLTYPE1 $MOLTYPE[$A[1]]\n ATOMTYPE0 $ATOMTYPE[$A[0]]\n ATOMTYPE1 $ATOMTYPE[$A[1]]\n ATOMNAME0 $ATOMNAME[$A[0]]\n ATOMNAME1 $ATOMNAME[$A[1]]\n RESNUM0 $RESNUM[$A[0]]\n RESNUM1 $RESNUM[$A[1]]\n CHAINID0 $CID[$A[0]]\n CHAINID1 $CID[$A[1]]");
+     }
     }
    }
   }else{
@@ -2877,13 +2956,18 @@ sub checkpairs
    $FAIL{'GAUSSIAN CONTACT EXCLUDED VOLUME'}=-1;
    $FAIL{'GAUSSIAN CONTACT WIDTHS'}=-1;
  }
- if($model eq "AA" || $model eq "AA-match"){
+ if($model eq "AA" || $model eq "AA-match" || $model eq "AA-2cg"){
   if($LONGCONT == $NCONTACTS){
    $FAIL{'LONG CONTACTS'}=0;
   }
   if($NUCLEIC_PRESENT){
    if($FAIL_NONSTACK == 0 and $NonstackingE != 0){
     $FAIL{'NON-STACKING CONTACT WEIGHTS'}=0;	
+   }
+   if($AMINO_PRESENT){
+    if($FAIL_NONSTACK == 0 and $NonstackingE2 != 0){
+     $FAIL{'NON-STACKING 2CG CONTACT WEIGHTS'}=0;	
+    }
    }
    if($FAIL_STACK == 0 and $stackingE != 0 ){
     $FAIL{'STACKING CONTACT WEIGHTS'}=0;	
@@ -2902,7 +2986,7 @@ sub checkpairs
   $FAIL{'LONG CONTACTS'}=-1;
   $FAIL{'STACKING CONTACT WEIGHTS'}=-1;	
   $FAIL{'NON-STACKING CONTACT WEIGHTS'}=-1;	
- }elsif(($model eq "AA" || $model eq "AA-match") and !$NUCLEIC_PRESENT){
+ }elsif(($model eq "AA" || $model eq "AA-match" || $model eq "AA-2cg") and !$NUCLEIC_PRESENT){
   $FAIL{'STACKING CONTACT WEIGHTS'}=-1;	
   $FAIL{'NON-STACKING CONTACT WEIGHTS'}=-1;	
  }else{
@@ -2913,7 +2997,7 @@ sub checkpairs
  }else{
   $FAIL{'FREE PAIRS APPEAR IN CONTACTS'}=1;	
  }
- return ($LN-1,\@PAIRS,$stackingE,$NonstackingE);
+ return ($LN-1,\@PAIRS,$stackingE,$NonstackingE,$NonstackingE2);
 }
 
 
@@ -3043,7 +3127,7 @@ sub finalchecks
   }else{
    smogcheck_error("Unable to generate angles ($theta_gen_N), or dihedrals ($phi_gen_N)...");
   }
- }elsif($model eq "AA" || $model eq "AA-match"){
+ }elsif($model eq "AA" || $model eq "AA-match" || $model eq "AA-2cg"){
   if($theta_gen_N > 0 and $phi_gen_N > 0 and $improper_gen_N > 0){
    $FAIL{'GENERATION OF ANGLES/DIHEDRALS'}=0;
 
@@ -3080,7 +3164,7 @@ sub finalchecks
   my $NRD=$NCONTACTS+$bondtype6;
   if($NUMBER_OF_CONTACTS_SHADOW == $NRD){
    $FAIL{'NCONTACTS'}=0;
-  }else{
+  }elsif($free ne "yes" ){
    $fail_log .= failed_message("Same number of contacts not found in contact file and top file!!!! FAIL\n\t$NUMBER_OF_CONTACTS_SHADOW contacts were found in the contact file.\n\t$NRD contacts were found in the top file.");
   }
  }else{

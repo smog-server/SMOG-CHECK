@@ -6,11 +6,6 @@
 	<bType>*</bType>
 	<bType>*</bType>
         </bond>
-	<bond func="bond_free()">
-	<bType>B_2</bType>
-	<bType>B_2</bType>
-        </bond>
-
 </bonds>
 
 <!-- ANGLES -->
