@@ -14,13 +14,13 @@
 
 <!-- CONTACTS -->
 <contact func="contact_2(2*?**6,?**12,?,?)" contactGroup="c">
-	<contactType>*</contactType>
-	<contactType>*</contactType>
+	<pairType>*</pairType>
+	<pairType>*</pairType>
 </contact>
 
 <contact func="contact_free()" contactGroup="c">
-	<contactType>P_2</contactType>
-	<contactType>P_2</contactType>
+	<pairType>P_2</pairType>
+	<pairType>P_2</pairType>
 </contact>
 
 </nb>
