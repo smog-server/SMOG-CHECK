@@ -10,20 +10,20 @@
 
 <!-- CONTACTS -->
 <contact func="contact_1(6,12,?,?)" contactGroup="c1">
-	<pairType>*</pairType>
-	<pairType>*</pairType>
+	<contactType>*</contactType>
+	<contactType>*</contactType>
 </contact>
 
 <contact func="contact_1(6,12,?,?)" contactGroup="c2">
-	<pairType>P_1</pairType>
-	<pairType>P_2</pairType>
+	<contactType>P_1</contactType>
+	<contactType>P_2</contactType>
 </contact>
 
 
 
 <contact func="bond_type6(?,200)" contactGroup="c">
-	<pairType>BMG</pairType>
-	<pairType>*</pairType>
+	<contactType>BMG</contactType>
+	<contactType>*</contactType>
 </contact>
 
 </nb>

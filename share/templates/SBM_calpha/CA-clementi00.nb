@@ -11,8 +11,8 @@
 	
     <!-- CONTACTSGAUSSIAN -->
     <contact func="contact_2(6*?**10,5*?**12,?,EPS_CONT)" contactGroup="c">
-    <pairType>*</pairType>
-    <pairType>*</pairType>
+    <contactType>*</contactType>
+    <contactType>*</contactType>
     </contact>
 
 </nb>
