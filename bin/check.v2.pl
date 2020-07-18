@@ -2817,7 +2817,7 @@ sub checkpairs
    $W=$A[3];
    $Cdist=$A[4];
    $CALCD=getpairdist(\*CMAP,$A[0],$A[1]);
-   if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0) ){
+   if(checkdist($Cdist,$CALCD)){
     $ContactDist++;
    }else{
     $fail_log .= failed_message("A contact appears to be the wrong distance.  From the .gro (or .contact) file, we found r=$CALCD, and from the .top r=$Cdist.\n\t$LINE");
@@ -2844,7 +2844,7 @@ sub checkpairs
    $W=5.0**5.0/6.0**6.0*($A[3]**6.0)/($A[4]**5.0);
    $Cdist=(6*$A[4]/(5*$A[3]))**(1.0/2.0);
    $CALCD=getpairdist(\*CMAP,$A[0],$A[1]);
-   if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0) ){
+   if(checkdist($Cdist,$CALCD)){
     $ContactDist++;
    }else{
     $fail_log .= failed_message("A contact appears to be the wrong distance.  From the .gro (or .contact) file, we found r=$CALCD, and from the .top r=$Cdist.\n\t$LINE");
@@ -2853,7 +2853,7 @@ sub checkpairs
    $W=($A[3]*$A[3])/(4*$A[4]);
    $Cdist=(2.0*$A[4]/($A[3]))**(1.0/6.0);
    $CALCD=getpairdist(\*CMAP,$A[0],$A[1]);
-   if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0)){
+   if(checkdist($Cdist,$CALCD)){
     $ContactDist++;
    }else{
     $fail_log .= failed_message("A contact appears to be the wrong distance.  From the .gro (or .contact) file, we found r=$CALCD, and from the .top r=$Cdist.\n\t$LINE");
@@ -2995,7 +2995,17 @@ sub checkpairs
  return ($LN-1,\@PAIRS,$stackingE,$NonstackingE,$NonstackingE2);
 }
 
-
+sub checkdist
+{
+ # if distances vary, return 1.  Otherwise, return 0.
+ my($Cdist,$CALCD)=@_;
+ # the !=0 is to avoid a bug where both variables are passed as 0.
+ if($Cdist !=0 && abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0)){
+  return 1;
+ }else{
+  return 0;
+ }
+}
 sub checkexclusions
 {
  my ($LN,$N1,$N2)=@_;
