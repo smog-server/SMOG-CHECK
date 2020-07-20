@@ -3000,7 +3000,7 @@ sub checkdist
  # if distances vary, return 1.  Otherwise, return 0.
  my($Cdist,$CALCD)=@_;
  # the !=0 is to avoid a bug where both variables are passed as 0.
- if($Cdist !=0 && abs($Cdist-$CALCD) < 0.001){
+ if($Cdist !=0 && abs($Cdist-$CALCD) < 0.005){
   return 1;
  }else{
   return 0;
