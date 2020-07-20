@@ -3000,7 +3000,7 @@ sub checkdist
  # if distances vary, return 1.  Otherwise, return 0.
  my($Cdist,$CALCD)=@_;
  # the !=0 is to avoid a bug where both variables are passed as 0.
- if($Cdist !=0 && abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0)){
+ if($Cdist !=0 && abs($Cdist-$CALCD) < 0.001){
   return 1;
  }else{
   return 0;
@@ -3225,7 +3225,7 @@ sub getpairdist
   $A[4]/=10;;
   return $A[4];
  }else{
-  $dist=(($XT[$A0]-$XT[$A1])**2+($YT[$A0]-$YT[$A1])**2+($ZT[$A0]-$ZT[$A1])**2)**(0.5);
+  $dist=sqrt(($XT[$A0]-$XT[$A1])**2+($YT[$A0]-$YT[$A1])**2+($ZT[$A0]-$ZT[$A1])**2);
   return $dist;
  }
 }
