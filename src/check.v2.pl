@@ -45,7 +45,7 @@ our $FAILDIR="FAILED";
 our $free;
 
 # These are the file suffixes that we will save, or remove.
-our @FILETYPES=("top","gro","ndx","settings","contacts","output","contacts.SCM", "contacts.CG","grompp","editconf","out.mdp","contacts.ShadowOutput","box.gro");
+our @FILETYPES=("top","gro","ndx","settings","contacts","output","contacts.SCM", "contacts.CG","grompp","editconf","out.mdp","contacts.ShadowOutput","box.gro","gro4SCM.gro");
 
 # bunch of global vars.  A bit sloppy.  Many could be local.
 our ($AMINO_PRESENT,$angleEps,@atombondedtype,%atombondedtypes,%atombondedtypes2,@ATOMNAME,@ATOMTYPE,$BBRAD,%BBTYPE,$bondEps,$bondMG,$bondtype6,%C12NB,%C6NB,$chargeAT,%chargeNB,%CHECKED,@CID,$CONTD,$CONTENERGY,$CONTR,$CONTTYPE,$default,%defcharge,$defname,$DENERGY,$dihmatch,$DIH_MAX,$DIH_MIN,$DISP_MAX,@EDrig_T,@ED_T,$epsilon,$epsilonCAC,$epsilonCAD,%FAIL,$FAILED,$fail_log,@FIELDS,$gaussian,@GRODATA,$impEps,$improper_gen_N,$ION_PRESENT,$LIGAND_DIH,$LIGAND_PRESENT,%massNB,%matchangle_val,%matchangle_weight,%matchbond_val,%matchbond_weight,%matchdihedral_val,%matchdihedral_weight,$model,@MOLTYPE,%MOLTYPEBYRES,$NA_DIH,$NCONTACTS,$NUCLEIC_PRESENT,$NUMATOMS,$NUMATOMS_LIGAND,$omegaEps,$PDB,$phi_gen_N,$PRO_DIH,$R_CD,$rep_s12,@RESNUM,%restypecount,$ringEps,$R_N_SC_BB,$R_P_BB_SC,$sigma,$sigmaCA,$theta_gen_N,%TYPE,$type6count,$usermap,@XT,@YT,@ZT);
@@ -425,6 +425,7 @@ sub runsmog
    $ARGS .= " -c $PDB_DIR/$PDB.contacts ";
  }
 # run smog2
+ $ARGS .=" -keep4SCM";
  `$EXEC_NAME $ARGS &> $PDB.output`;
 }
 
@@ -682,6 +683,7 @@ sub smogchecker
    # CHECK THE OUTPUT
   &checkSCM;
   &checkgro; 
+  &checkgro4SCM; 
   &checkndx;
   &checktop;
   &finalchecks;
@@ -772,6 +774,35 @@ sub checkgro
   $FAIL{'BOX DIMENSIONS'}=0;
  }
 }
+
+sub checkgro4SCM
+{
+ if(open(GRO,"$PDB.gro4SCM.gro")){
+  $FAIL{'OPEN GRO'}=0;
+ }else{
+  smogcheck_error("$PDB.gro4SCM.gro can not be opened. This probably means SMOG died unexpectedly.");
+  return;
+ }
+ my $LINE=<GRO>; # header comment
+ my $NUMOFATOMS=<GRO>; # header comment
+ chomp($NUMOFATOMS);
+ # store atom information
+ for(my $I=0;$I<$NUMOFATOMS;$I++){
+  $LINE=<GRO>;
+  chomp($LINE);
+  $LINE =~ s/\s+$//;
+  my $X=substr($LINE,20,9);
+  my $Y=substr($LINE,29,9);
+  my $Z=substr($LINE,38,9);
+  if(abs($XT[$I+1]-$X) > 0.001){smogcheck_error("gro and gro4SCM inconsistent.  This should not happen.")}
+  if(abs($YT[$I+1]-$Y) > 0.001){smogcheck_error("gro and gro4SCM inconsistent.  This should not happen.")}
+  if(abs($ZT[$I+1]-$Z) > 0.001){smogcheck_error("gro and gro4SCM inconsistent.  This should not happen.")}
+  $XT[$I+1]=$X;
+  $YT[$I+1]=$Y;
+  $ZT[$I+1]=$Z;
+ }
+}
+
 
 sub preparesettings
 {
@@ -3000,7 +3031,7 @@ sub checkdist
  # if distances vary, return 1.  Otherwise, return 0.
  my($Cdist,$CALCD)=@_;
  # the !=0 is to avoid a bug where both variables are passed as 0.
- if($Cdist !=0 && abs($Cdist-$CALCD) < 0.005){
+ if($Cdist !=0 && abs($Cdist-$CALCD) < 0.0001){
   return 1;
  }else{
   return 0;
