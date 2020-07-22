@@ -78,7 +78,7 @@ our $name2="NB_2";
 my $TESTNUM=0;
 my $FAIL_SYSTEM=0;
 my $NUMTESTED=0;
-
+my $contactmodel;
 #*******************END OF VARIABLE INITIALIZATION*****************
 
 
@@ -279,7 +279,7 @@ sub runalltests{
   &resetvars; 
 
   $model=$A[1];
-  my $contactmodel=$A[2];
+  $contactmodel=$A[2];
  
   ($default,$gaussian,$usermap,$free)=setmodelflags($model,$contactmodel,\%numfield,\@A);
  
@@ -682,8 +682,10 @@ sub smogchecker
   print "SMOG 2 exited without an error.\nAssessing generated files...\n";
    # CHECK THE OUTPUT
   &checkSCM;
-  &checkgro; 
-  &checkgro4SCM; 
+  &checkgro;
+  if($contactmodel !~ m/-userC$/){ 
+   &checkgro4SCM; 
+  }
   &checkndx;
   &checktop;
   &finalchecks;
