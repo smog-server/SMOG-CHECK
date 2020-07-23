@@ -22,7 +22,7 @@ export exec_table=`which smog_tablegen`
 `grep PERL $smog_exec`
 
 CURDIR=`pwd`
-CURDIR=$CURDIR/bin
+CURDIR=$CURDIR/src
 
 export PERLLIB=$PERLLIB:$CURDIR/modules
 export PERL5LIB=$PERL5LIB:$CURDIR/modules
@@ -39,7 +39,7 @@ export perl4smog=`tail -n 1 $smog_exec| awk '{print $1}'`
 export TOLERANCE=0.001
 export PRECISION=10000
 
-bin/cleanup.bash
+src/cleanup.bash
 mkdir FAILED.tools
-$perl4smog bin/check-tools.v2.pl "$@"
+$perl4smog src/check-tools.v2.pl "$@"
 
