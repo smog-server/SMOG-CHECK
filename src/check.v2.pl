@@ -33,7 +33,7 @@ our $TEMPLATE_DIR_AA_2CG=$ENV{'BIFSIF_AA_2CG'};
 
 # FAILLIST is a list of all the tests.
 # If you are developing and testing your own forcefield, which may not need to conform to certain checks, then you may want to disable some tests by  removing the test name from this list. However, do so at your own risk.
-our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','TOP FIELDS FOUND','TOP FIELDS RECOGNIZED','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'BOND LENGTHS','ANGLE TYPES', 'ANGLE WEIGHTS', 'ANGLE VALUES','DUPLICATE BONDS', 'DUPLICATE ANGLES', 'GENERATED ANGLE COUNT','GENERATED ANGLE IN TOP','ANGLES IN TOP GENERATED', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','MATCH DIH WEIGHTS','DIHEDRAL ANGLES','ALL POSSIBLE MATCHED DIHEDRALS PRESENT','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL IN TOP GENERATED','GENERATED DIHEDRAL IN TOP','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','NON-STACKING 2CG CONTACT WEIGHTS','NON-STACKING CG RATIO','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','GAUSSIAN CONTACT EXCLUDED VOLUME','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY','TYPE6 ATOMS','CLASSIFYING DIHEDRALS','NON-ZERO EXIT','ATOM FIELDS','ATOM CHARGES','FREE PAIRS APPEAR IN CONTACTS','EXTRAS: ATOMTYPES','EXTRAS: BONDTYPES','EXTRAS: ANGLETYPES','EXTRAS: DIHEDRALTYPES','EXTRAS: NB_PARAMS','NONZERO LIGAND DIHEDRAL VALUE','GMX COMPATIBLE');
+our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','TOP FIELDS FOUND','TOP FIELDS RECOGNIZED','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'BOND LENGTHS','ANGLE TYPES', 'ANGLE WEIGHTS', 'ANGLE VALUES','DUPLICATE BONDS', 'DUPLICATE ANGLES', 'GENERATED ANGLE COUNT','GENERATED ANGLE IN TOP','ANGLES IN TOP GENERATED', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','MATCH DIH WEIGHTS','DIHEDRAL ANGLES','ALL POSSIBLE MATCHED DIHEDRALS PRESENT','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL IN TOP GENERATED','GENERATED DIHEDRAL IN TOP','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','NON-STACKING 2CG CONTACT WEIGHTS','NON-STACKING CG RATIO','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','GAUSSIAN CONTACT EXCLUDED VOLUME','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY','TYPE6 ATOMS','CLASSIFYING DIHEDRALS','NON-ZERO EXIT','ATOM FIELDS','ATOM CHARGES','FREE PAIRS APPEAR IN CONTACTS','EXTRAS: ATOMTYPES','EXTRAS: BONDTYPES','EXTRAS: ANGLETYPES','EXTRAS: DIHEDRALTYPES','EXTRAS: NB_PARAMS','NONZERO LIGAND DIHEDRAL VALUE','BONDS: EXPECTED FOUND','BONDS: FOUND EXPECTED','GMX COMPATIBLE');
 
 # default location of test PDBs
 our $PDB_DIR="share/PDB.files";
@@ -70,6 +70,14 @@ my %free_pair_defs=('ASN-MET' =>'1',
 	   	    'MET-MET' =>'1'
 		   );
 
+# bonds to expect in each residue. This will hold references to arrays. This will hold references to arrays.
+my %bonds_by_residue_hash;
+my %bonds_by_residue_array;
+my %expectedbonds;
+my %foundbonds;
+my $NUMOFATOMS;
+# $NUMOFATOMS was made global for top-gro comparisons
+
 my %numfield = ( 'default' => '2', 'default-2cg' => '2',  'default-userC' => '2', 'default-gaussian' => '2', 'default-gaussian-userC' => '2','cutoff' => '19', 'shadow' => '20',  'shadow-free' => '20', 'shadow-gaussian' => '20', 'cutoff-gaussian' => '19' , 'shadow-match' => '4');
 %defcharge = ('GLY-N' => "0.3", 'GLY-C' => "0.2", 'GLY-O' => "-0.5");
 
@@ -102,6 +110,8 @@ my ($CHECKGMX,$CHECKGMXGAUSSIAN,$GMXVER,$GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXE
 
 &readbackbonetypes;
 &readresiduetypes;
+&readbondsbyresidue;
+
 &runalltests;
 &finalreport;
 
@@ -230,7 +240,6 @@ sub checkforretest
  return ($RETEST,$RETESTEND);
 }
 
-
 sub readresiduetypes
 {
  ## LOAD INFORMATION ABOUT WHAT TYPES OF RESIDUES ARE RECOGNIZED BY SMOG2
@@ -248,6 +257,32 @@ sub readresiduetypes
   }
   close(FF);
  }
+}
+
+sub readbondsbyresidue
+{
+ ## LOAD INFORMATION ABOUT WHAT TYPES OF RESIDUES ARE RECOGNIZED BY SMOG2
+ open(FF,"share/residues/bonds_by_residue") or internal_error("can not open share/residues/bonds_by_residue");
+  while(<FF>){
+   my $LINE=$_;
+   my @resarray;
+   my %reshash;
+   chomp($LINE);
+   $LINE =~ s/\s+$//;
+   my @array=split(/\s+/,$LINE);
+   my $J=0;
+   for (my $I=1;$I<=$#array;$I++){
+    $reshash{$array[$I]}=0;
+    my @t=split(/-/,$array[$I]);
+    $resarray[$J]=$t[0];
+    $J++;
+    $resarray[$J]=$t[1];
+    $J++;
+   }
+   $bonds_by_residue_array{$array[0]}=\@resarray;
+   $bonds_by_residue_hash{$array[0]}=\%reshash;
+  }
+  close(FF);
 }
 
 sub runalltests{
@@ -707,7 +742,7 @@ sub checkgro
   return;
  }
  my $LINE=<GRO>; # header comment
- my $NUMOFATOMS=<GRO>; # header comment
+ $NUMOFATOMS=<GRO>; # header comment
  chomp($NUMOFATOMS);
  # store atom information
  my $XMIN=10000000;
@@ -1068,6 +1103,8 @@ sub checktop
  my (@topdata,%seen,%FOUND,@theta_gen,@PAIRS,$finalres,%revData,@resindex,%theta_gen_as,%phi_gen_as,@phi_gen,%improper_gen_as,@improper_gen,@A);
  undef %MOLTYPEBYRES;
  undef %restypecount;
+ undef %expectedbonds;
+ undef %foundbonds;
  my $stackingE=0;
  my $NonstackingE=0;
  my $NonstackingE2=0;
@@ -1698,7 +1735,60 @@ sub checkatoms
  $NUMATOMS_LIGAND=0;
  my $LINE=$topdata[$LN];$LN++;
  my @A=split(/ /,$LINE);
+ my $lastresnum;
+ my %indexinres;
+ my $curresname;
  until($A[0] eq "["){
+ if ($NUMATOMS==0){
+  # first atom, set resnum
+  $lastresnum=$A[2];
+  $curresname=$A[3];
+ }
+
+#### BEGIN BOND GENERATION####
+ if ($lastresnum != $A[2]){
+  # the second condition asks if we are working on the last atom
+  # end of residue, save expected bonds for last residue
+  my @arrt=@{$bonds_by_residue_array{$curresname}} ;
+  for (my $I=0;$I<=$#arrt;$I++){
+   my $at1=$indexinres{$arrt[$I]};
+   $I++;
+   my $at2=$indexinres{$arrt[$I]};
+   if($at1<$at2){
+    $expectedbonds{"$at1 $at2"}=0;
+   }else{	
+    $expectedbonds{"$at2 $at1"}=0;
+   }
+  }
+  # clear hash
+  undef %indexinres;
+  $lastresnum=$A[2];
+ }
+ # add atom to hash
+ $indexinres{$A[4]}=$NUMATOMS;
+ $curresname=$A[3];
+ if ($NUMATOMS+1==$NUMOFATOMS){
+  # the second condition asks if we are working on the last atom
+  # end of residue, save expected bonds for last residue
+  my @arrt=@{$bonds_by_residue_array{$curresname}} ;
+  for (my $I=0;$I<=$#arrt;$I++){
+   my $at1=$indexinres{$arrt[$I]};
+   $I++;
+   my $at2=$indexinres{$arrt[$I]};
+   if($at1<$at2){
+    $expectedbonds{"$at1 $at2"}=0;
+   }else{	
+    $expectedbonds{"$at2 $at1"}=0;
+   }
+
+  }
+  # clear hash
+  undef %indexinres;
+  $lastresnum=$A[2];
+ }
+
+#### END OF BOND GENERATION####
+
  # atom name
   $ATOMNAME[$A[0]]=$A[4];
   # if we are matching hetergeneous parameters, we need to store the smog-internal bonded types
@@ -1913,6 +2003,16 @@ sub checkbonds
  my @A=split(/ /,$LINE);
  until($A[0] eq "["){
   $NBONDS++;
+  my $a1=$A[0]-1;
+  my $a2=$A[1]-1;
+
+  if($GRODATA[$a1][0] == $GRODATA[$a2][0]){
+   if($a1 < $a2) {
+    $foundbonds{"$a1 $a2"}=0;
+   }else{
+    $foundbonds{"$a2 $a1"}=0;
+   }
+  }
   if($A[2] == 1){
    $RECOGNIZEDBTYPES++;
    my $bweight;
@@ -2077,6 +2177,40 @@ sub checkbonds
    }
   }
  }
+
+ my $NFOUND=0;
+ my $NEXPECTED=0;
+ foreach my $key(keys %expectedbonds){
+  $NEXPECTED++;
+  if(exists $foundbonds{$key}){
+   $NFOUND++;
+  }else{
+   my ($a,$b)=split(/\s+/,$key);
+   $a++;
+   $b++;
+   $fail_log .= failed_message("Expected bond between atoms $a and $b, but did not find one.");
+  }
+ }
+ if($NFOUND==$NEXPECTED && $NFOUND !=0){
+  $FAIL{'BONDS: FOUND EXPECTED'}=0;
+ }
+ $NFOUND=0;
+ $NEXPECTED=0;
+ foreach my $key(keys %foundbonds){
+  $NFOUND++;
+  if(exists $expectedbonds{$key}){
+   $NEXPECTED++;
+  }else{
+   my ($a,$b)=split(/\s+/,$key);
+   $a++;
+   $b++;
+   $fail_log .= failed_message("Found unexpected bond between atoms $a and $b.");
+  }
+ }
+ if($NFOUND==$NEXPECTED && $NFOUND !=0){
+  $FAIL{'BONDS: EXPECTED FOUND'}=0;
+ }
+
  return ($LN-1,\@theta_gen,\%theta_gen_as);
 }
 
