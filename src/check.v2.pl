@@ -20,7 +20,7 @@ our $MAXTHR=1.0+$TOLERANCE;
 our $MINTHR=1.0-$TOLERANCE;
 our $PRECISION=$ENV{'PRECISION'};
 
-#these are variables used for default testing
+#these are variables used for default contact map testing
 our $BIFSIF_AA=$ENV{'BIFSIF_AA_DEFAULT'};
 our $BIFSIF_CA=$ENV{'BIFSIF_CA_DEFAULT'};
 
@@ -78,6 +78,13 @@ my %foundbonds;
 my $NUMOFATOMS;
 # $NUMOFATOMS was made global for top-gro comparisons
 
+# checking that every type of residue has been checked, at least once (unless only a subset of tests was run)
+# these checks only consider the default models.  They ensure that everything in the bif has been checked
+my %seenresidueAA;
+my %seenresidueAAgauss;
+my %seenresidueCA;
+my %seenresidueCAgauss;
+
 my %numfield = ( 'default' => '2', 'default-2cg' => '2',  'default-userC' => '2', 'default-gaussian' => '2', 'default-gaussian-userC' => '2','cutoff' => '19', 'shadow' => '20',  'shadow-free' => '20', 'shadow-gaussian' => '20', 'cutoff-gaussian' => '19' , 'shadow-match' => '4');
 %defcharge = ('GLY-N' => "0.3", 'GLY-C' => "0.2", 'GLY-O' => "-0.5");
 
@@ -94,6 +101,7 @@ my $contactmodel;
 
 &checkversion($VERSION,$EXEC_NAME);
 &printopeningmessage;
+&readtemplateresidues;
 
 my $SETTINGS_FILE=<STDIN>;
 chomp($SETTINGS_FILE);
@@ -259,6 +267,131 @@ sub readresiduetypes
  }
 }
 
+sub seenresidue
+{
+ my ($resname)=@_;
+ $resname =~ s/\s+//g;
+ if($model =~ m/^AA$/)
+ {
+  if($contactmodel =~ m/^default$/){
+   if(!exists $seenresidueAA{$resname}){
+    internal_error("Resname $resname found on PDB file, but wasn't found in the AA .bif file.");
+   }
+   $seenresidueAA{$resname}=0; 
+  }elsif ($contactmodel =~ m/^default-gaussian$/){
+   if(!exists $seenresidueAAgauss{$resname}){
+    internal_error("Resname $resname found on PDB file, but wasn't found in the AA-gauss .bif file.");
+   }
+   $seenresidueAAgauss{$resname}=0; 
+  }
+ } elsif ($model =~ m/^CA$/) {
+  if($contactmodel =~ m/^default$/){
+   if(!exists $seenresidueCA{$resname}){
+    internal_error("Resname $resname found on PDB file, but wasn't found in the CA .bif file.");
+   }
+   $seenresidueCA{$resname}=0; 
+  }elsif ($contactmodel =~ m/^default-gaussian$/){
+   if(!exists $seenresidueCAgauss{$resname}){
+    internal_error("Resname $resname found on PDB file, but wasn't found in the CA-gauss .bif file.");
+   }
+   $seenresidueCAgauss{$resname}=0; 
+  }
+ }
+}
+
+sub allresidueschecked
+{
+ my $notchecked="";
+ my $tmpmess="";
+ foreach my $key (sort keys %seenresidueAA)
+ {
+  if($seenresidueAA{$key} !=0){
+   $tmpmess .= " $key";
+  }
+ }
+ if($tmpmess ne ""){
+  $notchecked .= "\nNOTE: Not all residues in AA model were checked. Missed residues: $tmpmess\n";
+ }
+
+ $tmpmess="";
+ foreach my $key (sort keys %seenresidueAAgauss)
+ {
+  if($seenresidueAAgauss{$key} !=0){
+   $tmpmess .= " $key";
+  }
+ }
+ if($tmpmess ne ""){
+  $notchecked .= "\nNOTE: Not all residues in AA model with gaussians were checked. Missed residues: $tmpmess\n";
+ }
+
+ $tmpmess="";
+ foreach my $key (sort keys %seenresidueCA)
+ {
+  if($seenresidueCA{$key} !=0){
+   $tmpmess .= " $key";
+  }
+ }
+ if($tmpmess ne ""){
+  $notchecked .= "\nNOTE: Not all residues in CA model were checked. Missed residues: $tmpmess\n";
+ }
+
+ $tmpmess="";
+ foreach my $key (sort keys %seenresidueCAgauss)
+ {
+  if($seenresidueCAgauss{$key} !=0){
+   $tmpmess .= " $key";
+  }
+ }
+ if($tmpmess ne ""){
+  $notchecked .= "\nNOTE: Not all residues in CA model with gaussians were checked. Missed residues: $tmpmess\n";
+ }
+ return $notchecked;
+}
+
+sub readtemplateresidues
+{
+ # for each model, get the directory
+ my $t=readnamesingletemplate("$SMOGDIR/SBM_AA");
+ %seenresidueAA=%{$t};
+ $t=readnamesingletemplate("$SMOGDIR/SBM_AA+gaussian");
+ %seenresidueAAgauss=%{$t};
+ $t=readnamesingletemplate("$SMOGDIR/SBM_calpha");
+ %seenresidueCA=%{$t};
+ $t=readnamesingletemplate("$SMOGDIR/SBM_calpha+gaussian");
+ %seenresidueCAgauss=%{$t};
+}
+
+sub readnamesingletemplate
+{
+ # take a directory name, find the bif, get residue names and return the hash
+ my ($folderName) = @_;
+ my %residues;
+ my $bif; 
+ $folderName = $1 if($folderName=~/(.*)\/$/);
+ opendir(my $folder,$folderName);
+ while(my $file = readdir($folder)){
+  if($file =~ m/\.bif$/){
+   $bif=$file;
+  }
+ }
+ closedir($folder);
+
+ open(BIFFILE,"$folderName/$bif") or die "can not open $bif";
+ while(<BIFFILE>){
+  my $LINE=$_;
+  chomp($LINE);
+  $LINE=~s/\s+//g;
+  $LINE=~s/\"/ /g;
+  if($LINE =~ m/^<residuename= /){
+   my @entries=split(/\s+/,$LINE);
+   $residues{$entries[1]}=1; 
+  }
+ }
+ close(BIFFILE);
+ return (\%residues);
+}
+
+
 sub readbondsbyresidue
 {
  ## LOAD INFORMATION ABOUT WHAT TYPES OF RESIDUES ARE RECOGNIZED BY SMOG2
@@ -341,8 +474,17 @@ EOT
 EOT
  exit(1);
 }elsif($RETEST < 0){
+ my $missedresidues=allresidueschecked;
  my $nottested=alltested(\%CHECKED,\%FAIL);
+ 
  if($nottested eq "" || $nottested =~ m/^$|^GMX COMPATIBLE$/){
+  $nottested="";
+ }else{
+  $nottested= "NOTE: not all possible tests have been checked.
+Unchecked tests include:
+$nottested\n";
+ }
+ if($nottested eq "" && $missedresidues eq ""){
  print <<EOT;
 *************************************************************
                       PASSED ALL TESTS  !!!
@@ -353,9 +495,8 @@ EOT
   print <<EOT;
 *************************************************************
                   PASSED ALL CHECKED TESTS  !!!
-But, not all possible tests have been checked.  
-Unchecked tests include:
 $nottested
+$missedresidues
 *************************************************************
 EOT
  exit(1);
@@ -772,6 +913,7 @@ sub checkgro
   my $Y=substr($LINE,28,8);
   my $Z=substr($LINE,36,8);
 
+  &seenresidue($GRODATA[$I][1]);
   if($X > $XMAX){
    $XMAX=$X;
   }
