@@ -262,7 +262,7 @@ sub readresiduetypes
 sub readbondsbyresidue
 {
  ## LOAD INFORMATION ABOUT WHAT TYPES OF RESIDUES ARE RECOGNIZED BY SMOG2
- open(FF,"share/residues/bonds_by_residue") or internal_error("can not open share/residues/bonds_by_residue");
+ open(FF,"share/residues/bonds_by_residue.AA") or internal_error("can not open share/residues/bonds_by_residue");
   while(<FF>){
    my $LINE=$_;
    my @resarray;
@@ -273,11 +273,8 @@ sub readbondsbyresidue
    my $J=0;
    for (my $I=1;$I<=$#array;$I++){
     $reshash{$array[$I]}=0;
-    my @t=split(/-/,$array[$I]);
-    $resarray[$J]=$t[0];
-    $J++;
-    $resarray[$J]=$t[1];
-    $J++;
+    ($resarray[$J],$resarray[$J+1])=split(/-/,$array[$I]);
+    $J=$J+2;
    }
    $bonds_by_residue_array{$array[0]}=\@resarray;
    $bonds_by_residue_hash{$array[0]}=\%reshash;
@@ -710,6 +707,11 @@ sub smogchecker
 
  # temporarily disable this check.
  $FAIL{'EXTRAS: ATOMTYPES'}=0;
+
+ if($model !~ m/^AA$/ || $default ne "yes"){
+  $FAIL{'BONDS: FOUND EXPECTED'}=-1;
+  $FAIL{'BONDS: EXPECTED FOUND'}=-1;
+ }
 
 #######END DISABLED CHECKS######
 
@@ -1746,44 +1748,20 @@ sub checkatoms
  }
 
 #### BEGIN BOND GENERATION####
- if ($lastresnum != $A[2]){
-  # the second condition asks if we are working on the last atom
-  # end of residue, save expected bonds for last residue
-  my @arrt=@{$bonds_by_residue_array{$curresname}} ;
-  for (my $I=0;$I<=$#arrt;$I++){
-   my $at1=$indexinres{$arrt[$I]};
-   $I++;
-   my $at2=$indexinres{$arrt[$I]};
-   if($at1<$at2){
-    $expectedbonds{"$at1 $at2"}=0;
-   }else{	
-    $expectedbonds{"$at2 $at1"}=0;
-   }
+ if($model =~ m/^AA$/ && $default eq "yes"){
+  if ($lastresnum != $A[2]){
+   # end of residue
+   addtoexpected(\%indexinres,$curresname);
+   undef %indexinres;
   }
-  # clear hash
-  undef %indexinres;
-  $lastresnum=$A[2];
- }
- # add atom to hash
- $indexinres{$A[4]}=$NUMATOMS;
- $curresname=$A[3];
- if ($NUMATOMS+1==$NUMOFATOMS){
-  # the second condition asks if we are working on the last atom
-  # end of residue, save expected bonds for last residue
-  my @arrt=@{$bonds_by_residue_array{$curresname}} ;
-  for (my $I=0;$I<=$#arrt;$I++){
-   my $at1=$indexinres{$arrt[$I]};
-   $I++;
-   my $at2=$indexinres{$arrt[$I]};
-   if($at1<$at2){
-    $expectedbonds{"$at1 $at2"}=0;
-   }else{	
-    $expectedbonds{"$at2 $at1"}=0;
-   }
-
+  # add atom to hash
+  $indexinres{$A[4]}=$NUMATOMS;
+  $curresname=$A[3];
+  if ($NUMATOMS+1==$NUMOFATOMS){
+   #end of last residue
+   addtoexpected(\%indexinres,$curresname);
+   undef %indexinres;
   }
-  # clear hash
-  undef %indexinres;
   $lastresnum=$A[2];
  }
 
@@ -1896,6 +1874,23 @@ sub checkatoms
   $restypecount{$MOLTYPEBYRES{$rest}}++;
  }
  return ($LN-1,$finalres,\%revData,\@resindex);
+}
+
+sub addtoexpected
+{
+ my ($indexinres,$curresname)=@_;
+ my %indexinres=%{$indexinres};
+ my @arrt=@{$bonds_by_residue_array{$curresname}} ;
+ for (my $I=0;$I<=$#arrt;$I++){
+  my $at1=$indexinres{$arrt[$I]};
+  $I++;
+  my $at2=$indexinres{$arrt[$I]};
+  if($at1<$at2){
+   $expectedbonds{"$at1 $at2"}=0;
+  }else{	
+   $expectedbonds{"$at2 $at1"}=0;
+  }
+ }
 }
 
 sub checktypes
@@ -2178,9 +2173,18 @@ sub checkbonds
   }
  }
 
+ if($model =~ m/^AA$/ && $default eq "yes"){
+  &checkbondgen;
+ }
+
+ return ($LN-1,\@theta_gen,\%theta_gen_as);
+}
+
+sub checkbondgen
+{
  my $NFOUND=0;
  my $NEXPECTED=0;
- foreach my $key(keys %expectedbonds){
+ foreach my $key(sort keys %expectedbonds){
   $NEXPECTED++;
   if(exists $foundbonds{$key}){
    $NFOUND++;
@@ -2196,7 +2200,7 @@ sub checkbonds
  }
  $NFOUND=0;
  $NEXPECTED=0;
- foreach my $key(keys %foundbonds){
+ foreach my $key(sort keys %foundbonds){
   $NFOUND++;
   if(exists $expectedbonds{$key}){
    $NEXPECTED++;
@@ -2210,10 +2214,7 @@ sub checkbonds
  if($NFOUND==$NEXPECTED && $NFOUND !=0){
   $FAIL{'BONDS: EXPECTED FOUND'}=0;
  }
-
- return ($LN-1,\@theta_gen,\%theta_gen_as);
 }
-
 
 sub checkangles
 {
