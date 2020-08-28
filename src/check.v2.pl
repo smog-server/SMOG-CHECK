@@ -3,7 +3,7 @@ use warnings FATAL => 'all';
 use Math::Trig qw(acos_real rad2deg);
 use smog_common;
 use check_common;
-# This is the main script that runs SMOG2 and then checks to see if the generated files are correct.
+# This is the main script that runs SMOG 2 and then checks to see if the generated files are correct.
 # This is intended to be a brute-force evaluation of everything that should appear. Since this is
 # a testing script, it is not designed to be efficient, but to be thorough, and foolproof...
 
@@ -183,7 +183,7 @@ sub checktemplatedirs
  my @templates=@_;
  foreach my $dir (@templates){
   unless(-d $dir){
-   smogcheck_error("Can\'t find the template directory $dir. Something is wrong with the configurations of this script.\nYour intallation of SMOG2 may be ok, but we can\'t tell\nGiving up...");
+   smogcheck_error("Can\'t find the template directory $dir. Something is wrong with the configurations of this script.\nYour intallation of SMOG 2 may be ok, but we can\'t tell\nGiving up...");
   }
  }
 }
@@ -250,7 +250,7 @@ sub checkforretest
 
 sub readresiduetypes
 {
- ## LOAD INFORMATION ABOUT WHAT TYPES OF RESIDUES ARE RECOGNIZED BY SMOG2
+ ## LOAD INFORMATION ABOUT WHAT TYPES OF RESIDUES ARE RECOGNIZED BY SMOG 2
  my %files = ( 'aminoacids' => 'AMINO','nucleicacids'=>'NUCLEIC','ligands'=>'LIGAND','ions'=>'ION');
  foreach my $f(keys %files){
   open(FF,"share/residues/$f") or internal_error("can not open share/residues/$f");
@@ -394,7 +394,7 @@ sub readnamesingletemplate
 
 sub readbondsbyresidue
 {
- ## LOAD INFORMATION ABOUT WHAT TYPES OF RESIDUES ARE RECOGNIZED BY SMOG2
+ ## LOAD INFORMATION ABOUT WHAT TYPES OF RESIDUES ARE RECOGNIZED BY SMOG 2
  open(FF,"share/residues/bonds_by_residue.AA") or internal_error("can not open share/residues/bonds_by_residue");
   while(<FF>){
    my $LINE=$_;
@@ -3727,7 +3727,7 @@ EOT
   $FAIL_SYSTEM++;
  }else{
   print "\n*************************************************************\n";
-  print "                 CHECK $TESTNUM PASSED ($PDB)\n";
+  print "                  TEST $TESTNUM PASSED ($PDB)\n";
   print  "*************************************************************\n";
   foreach(@FILETYPES){
    removeifexists("$PDB.$_");
