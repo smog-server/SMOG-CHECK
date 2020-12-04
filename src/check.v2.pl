@@ -3,7 +3,7 @@ use warnings FATAL => 'all';
 use Math::Trig qw(acos_real rad2deg);
 use smog_common;
 use check_common;
-# This is the main script that runs SMOG2 and then checks to see if the generated files are correct.
+# This is the main script that runs SMOG 2 and then checks to see if the generated files are correct.
 # This is intended to be a brute-force evaluation of everything that should appear. Since this is
 # a testing script, it is not designed to be efficient, but to be thorough, and foolproof...
 
@@ -20,7 +20,7 @@ our $MAXTHR=1.0+$TOLERANCE;
 our $MINTHR=1.0-$TOLERANCE;
 our $PRECISION=$ENV{'PRECISION'};
 
-#these are variables used for default testing
+#these are variables used for default contact map testing
 our $BIFSIF_AA=$ENV{'BIFSIF_AA_DEFAULT'};
 our $BIFSIF_CA=$ENV{'BIFSIF_CA_DEFAULT'};
 
@@ -33,7 +33,7 @@ our $TEMPLATE_DIR_AA_2CG=$ENV{'BIFSIF_AA_2CG'};
 
 # FAILLIST is a list of all the tests.
 # If you are developing and testing your own forcefield, which may not need to conform to certain checks, then you may want to disable some tests by  removing the test name from this list. However, do so at your own risk.
-our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','TOP FIELDS FOUND','TOP FIELDS RECOGNIZED','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'BOND LENGTHS','ANGLE TYPES', 'ANGLE WEIGHTS', 'ANGLE VALUES','DUPLICATE BONDS', 'DUPLICATE ANGLES', 'GENERATED ANGLE COUNT','GENERATED ANGLE IN TOP','ANGLES IN TOP GENERATED', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','MATCH DIH WEIGHTS','DIHEDRAL ANGLES','ALL POSSIBLE MATCHED DIHEDRALS PRESENT','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL IN TOP GENERATED','GENERATED DIHEDRAL IN TOP','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','NON-STACKING 2CG CONTACT WEIGHTS','NON-STACKING CG RATIO','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','GAUSSIAN CONTACT EXCLUDED VOLUME','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY','TYPE6 ATOMS','CLASSIFYING DIHEDRALS','NON-ZERO EXIT','ATOM FIELDS','ATOM CHARGES','FREE PAIRS APPEAR IN CONTACTS','EXTRAS: ATOMTYPES','EXTRAS: BONDTYPES','EXTRAS: ANGLETYPES','EXTRAS: DIHEDRALTYPES','EXTRAS: NB_PARAMS','NONZERO LIGAND DIHEDRAL VALUE','GMX COMPATIBLE');
+our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','TOP FIELDS FOUND','TOP FIELDS RECOGNIZED','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'BOND LENGTHS','ANGLE TYPES', 'ANGLE WEIGHTS', 'ANGLE VALUES','DUPLICATE BONDS', 'DUPLICATE ANGLES', 'GENERATED ANGLE COUNT','GENERATED ANGLE IN TOP','ANGLES IN TOP GENERATED', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','MATCH DIH WEIGHTS','DIHEDRAL ANGLES','ALL POSSIBLE MATCHED DIHEDRALS PRESENT','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL IN TOP GENERATED','GENERATED DIHEDRAL IN TOP','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','NON-STACKING 2CG CONTACT WEIGHTS','NON-STACKING CG RATIO','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','GAUSSIAN CONTACT EXCLUDED VOLUME','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY','TYPE6 ATOMS','CLASSIFYING DIHEDRALS','NON-ZERO EXIT','ATOM FIELDS','ATOM CHARGES','FREE PAIRS APPEAR IN CONTACTS','EXTRAS: ATOMTYPES','EXTRAS: BONDTYPES','EXTRAS: ANGLETYPES','EXTRAS: DIHEDRALTYPES','EXTRAS: NB_PARAMS','NONZERO LIGAND DIHEDRAL VALUE','BONDS: EXPECTED FOUND','BONDS: FOUND EXPECTED','GMX COMPATIBLE');
 
 # default location of test PDBs
 our $PDB_DIR="share/PDB.files";
@@ -45,7 +45,7 @@ our $FAILDIR="FAILED";
 our $free;
 
 # These are the file suffixes that we will save, or remove.
-our @FILETYPES=("top","gro","ndx","settings","contacts","output","contacts.SCM", "contacts.CG","grompp","editconf","out.mdp","contacts.ShadowOutput","box.gro");
+our @FILETYPES=("top","gro","ndx","settings","contacts","output","contacts.SCM", "contacts.CG","grompp","editconf","out.mdp","contacts.ShadowOutput","box.gro","gro4SCM.gro","top4SCM.top");
 
 # bunch of global vars.  A bit sloppy.  Many could be local.
 our ($AMINO_PRESENT,$angleEps,@atombondedtype,%atombondedtypes,%atombondedtypes2,@ATOMNAME,@ATOMTYPE,$BBRAD,%BBTYPE,$bondEps,$bondMG,$bondtype6,%C12NB,%C6NB,$chargeAT,%chargeNB,%CHECKED,@CID,$CONTD,$CONTENERGY,$CONTR,$CONTTYPE,$default,%defcharge,$defname,$DENERGY,$dihmatch,$DIH_MAX,$DIH_MIN,$DISP_MAX,@EDrig_T,@ED_T,$epsilon,$epsilonCAC,$epsilonCAD,%FAIL,$FAILED,$fail_log,@FIELDS,$gaussian,@GRODATA,$impEps,$improper_gen_N,$ION_PRESENT,$LIGAND_DIH,$LIGAND_PRESENT,%massNB,%matchangle_val,%matchangle_weight,%matchbond_val,%matchbond_weight,%matchdihedral_val,%matchdihedral_weight,$model,@MOLTYPE,%MOLTYPEBYRES,$NA_DIH,$NCONTACTS,$NUCLEIC_PRESENT,$NUMATOMS,$NUMATOMS_LIGAND,$omegaEps,$PDB,$phi_gen_N,$PRO_DIH,$R_CD,$rep_s12,@RESNUM,%restypecount,$ringEps,$R_N_SC_BB,$R_P_BB_SC,$sigma,$sigmaCA,$theta_gen_N,%TYPE,$type6count,$usermap,@XT,@YT,@ZT);
@@ -70,6 +70,21 @@ my %free_pair_defs=('ASN-MET' =>'1',
 	   	    'MET-MET' =>'1'
 		   );
 
+# bonds to expect in each residue. This will hold references to arrays. This will hold references to arrays.
+my %bonds_by_residue_hash;
+my %bonds_by_residue_array;
+my %expectedbonds;
+my %foundbonds;
+my $NUMOFATOMS;
+# $NUMOFATOMS was made global for top-gro comparisons
+
+# checking that every type of residue has been checked, at least once (unless only a subset of tests was run)
+# these checks only consider the default models.  They ensure that everything in the bif has been checked
+my %seenresidueAA;
+my %seenresidueAAgauss;
+my %seenresidueCA;
+my %seenresidueCAgauss;
+
 my %numfield = ( 'default' => '2', 'default-2cg' => '2',  'default-userC' => '2', 'default-gaussian' => '2', 'default-gaussian-userC' => '2','cutoff' => '19', 'shadow' => '20',  'shadow-free' => '20', 'shadow-gaussian' => '20', 'cutoff-gaussian' => '19' , 'shadow-match' => '4');
 %defcharge = ('GLY-N' => "0.3", 'GLY-C' => "0.2", 'GLY-O' => "-0.5");
 
@@ -78,7 +93,7 @@ our $name2="NB_2";
 my $TESTNUM=0;
 my $FAIL_SYSTEM=0;
 my $NUMTESTED=0;
-
+my $contactmodel;
 #*******************END OF VARIABLE INITIALIZATION*****************
 
 
@@ -86,6 +101,7 @@ my $NUMTESTED=0;
 
 &checkversion($VERSION,$EXEC_NAME);
 &printopeningmessage;
+&readtemplateresidues;
 
 my $SETTINGS_FILE=<STDIN>;
 chomp($SETTINGS_FILE);
@@ -102,6 +118,8 @@ my ($CHECKGMX,$CHECKGMXGAUSSIAN,$GMXVER,$GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXE
 
 &readbackbonetypes;
 &readresiduetypes;
+&readbondsbyresidue;
+
 &runalltests;
 &finalreport;
 
@@ -170,7 +188,7 @@ sub checktemplatedirs
  my @templates=@_;
  foreach my $dir (@templates){
   unless(-d $dir){
-   smogcheck_error("Can\'t find the template directory $dir. Something is wrong with the configurations of this script.\nYour intallation of SMOG2 may be ok, but we can\'t tell\nGiving up...");
+   smogcheck_error("Can\'t find the template directory $dir. Something is wrong with the configurations of this script.\nYour intallation of SMOG 2 may be ok, but we can\'t tell\nGiving up...");
   }
  }
 }
@@ -235,10 +253,9 @@ sub checkforretest
  return ($RETEST,$RETESTEND);
 }
 
-
 sub readresiduetypes
 {
- ## LOAD INFORMATION ABOUT WHAT TYPES OF RESIDUES ARE RECOGNIZED BY SMOG2
+ ## LOAD INFORMATION ABOUT WHAT TYPES OF RESIDUES ARE RECOGNIZED BY SMOG 2
  my %files = ( 'aminoacids' => 'AMINO','nucleicacids'=>'NUCLEIC','ligands'=>'LIGAND','ions'=>'ION');
  foreach my $f(keys %files){
   open(FF,"share/residues/$f") or internal_error("can not open share/residues/$f");
@@ -253,6 +270,154 @@ sub readresiduetypes
   }
   close(FF);
  }
+}
+
+sub seenresidue
+{
+ my ($resname)=@_;
+ $resname =~ s/\s+//g;
+ if($model =~ m/^AA$/)
+ {
+  if($contactmodel =~ m/^default$/){
+   if(!exists $seenresidueAA{$resname}){
+    internal_error("Resname $resname found on PDB file, but wasn't found in the AA .bif file.");
+   }
+   $seenresidueAA{$resname}=0; 
+  }elsif ($contactmodel =~ m/^default-gaussian$/){
+   if(!exists $seenresidueAAgauss{$resname}){
+    internal_error("Resname $resname found on PDB file, but wasn't found in the AA-gauss .bif file.");
+   }
+   $seenresidueAAgauss{$resname}=0; 
+  }
+ } elsif ($model =~ m/^CA$/) {
+  if($contactmodel =~ m/^default$/){
+   if(!exists $seenresidueCA{$resname}){
+    internal_error("Resname $resname found on PDB file, but wasn't found in the CA .bif file.");
+   }
+   $seenresidueCA{$resname}=0; 
+  }elsif ($contactmodel =~ m/^default-gaussian$/){
+   if(!exists $seenresidueCAgauss{$resname}){
+    internal_error("Resname $resname found on PDB file, but wasn't found in the CA-gauss .bif file.");
+   }
+   $seenresidueCAgauss{$resname}=0; 
+  }
+ }
+}
+
+sub allresidueschecked
+{
+ my $notchecked="";
+ my $tmpmess="";
+ foreach my $key (sort keys %seenresidueAA)
+ {
+  if($seenresidueAA{$key} !=0){
+   $tmpmess .= " $key";
+  }
+ }
+ if($tmpmess ne ""){
+  $notchecked .= "\nNOTE: Not all residues in AA model were checked. Missed residues: $tmpmess\n";
+ }
+
+ $tmpmess="";
+ foreach my $key (sort keys %seenresidueAAgauss)
+ {
+  if($seenresidueAAgauss{$key} !=0){
+   $tmpmess .= " $key";
+  }
+ }
+ if($tmpmess ne ""){
+  $notchecked .= "\nNOTE: Not all residues in AA model with gaussians were checked. Missed residues: $tmpmess\n";
+ }
+
+ $tmpmess="";
+ foreach my $key (sort keys %seenresidueCA)
+ {
+  if($seenresidueCA{$key} !=0){
+   $tmpmess .= " $key";
+  }
+ }
+ if($tmpmess ne ""){
+  $notchecked .= "\nNOTE: Not all residues in CA model were checked. Missed residues: $tmpmess\n";
+ }
+
+ $tmpmess="";
+ foreach my $key (sort keys %seenresidueCAgauss)
+ {
+  if($seenresidueCAgauss{$key} !=0){
+   $tmpmess .= " $key";
+  }
+ }
+ if($tmpmess ne ""){
+  $notchecked .= "\nNOTE: Not all residues in CA model with gaussians were checked. Missed residues: $tmpmess\n";
+ }
+ return $notchecked;
+}
+
+sub readtemplateresidues
+{
+ # for each model, get the directory
+ my $t=readnamesingletemplate("$SMOGDIR/SBM_AA");
+ %seenresidueAA=%{$t};
+ $t=readnamesingletemplate("$SMOGDIR/SBM_AA+gaussian");
+ %seenresidueAAgauss=%{$t};
+ $t=readnamesingletemplate("$SMOGDIR/SBM_calpha");
+ %seenresidueCA=%{$t};
+ $t=readnamesingletemplate("$SMOGDIR/SBM_calpha+gaussian");
+ %seenresidueCAgauss=%{$t};
+}
+
+sub readnamesingletemplate
+{
+ # take a directory name, find the bif, get residue names and return the hash
+ my ($folderName) = @_;
+ my %residues;
+ my $bif; 
+ $folderName = $1 if($folderName=~/(.*)\/$/);
+ opendir(my $folder,$folderName);
+ while(my $file = readdir($folder)){
+  if($file =~ m/\.bif$/){
+   $bif=$file;
+  }
+ }
+ closedir($folder);
+
+ open(BIFFILE,"$folderName/$bif") or die "can not open $bif";
+ while(<BIFFILE>){
+  my $LINE=$_;
+  chomp($LINE);
+  $LINE=~s/\s+//g;
+  $LINE=~s/\"/ /g;
+  if($LINE =~ m/^<residuename= /){
+   my @entries=split(/\s+/,$LINE);
+   $residues{$entries[1]}=1; 
+  }
+ }
+ close(BIFFILE);
+ return (\%residues);
+}
+
+
+sub readbondsbyresidue
+{
+ ## LOAD INFORMATION ABOUT WHAT TYPES OF RESIDUES ARE RECOGNIZED BY SMOG 2
+ open(FF,"share/residues/bonds_by_residue.AA") or internal_error("can not open share/residues/bonds_by_residue");
+  while(<FF>){
+   my $LINE=$_;
+   my @resarray;
+   my %reshash;
+   chomp($LINE);
+   $LINE =~ s/\s+$//;
+   my @array=split(/\s+/,$LINE);
+   my $J=0;
+   for (my $I=1;$I<=$#array;$I++){
+    $reshash{$array[$I]}=0;
+    ($resarray[$J],$resarray[$J+1])=split(/-/,$array[$I]);
+    $J=$J+2;
+   }
+   $bonds_by_residue_array{$array[0]}=\@resarray;
+   $bonds_by_residue_hash{$array[0]}=\%reshash;
+  }
+  close(FF);
 }
 
 sub runalltests{
@@ -284,7 +449,7 @@ sub runalltests{
   &resetvars; 
 
   $model=$A[1];
-  my $contactmodel=$A[2];
+  $contactmodel=$A[2];
  
   ($default,$gaussian,$usermap,$free)=setmodelflags($model,$contactmodel,\%numfield,\@A);
  
@@ -314,8 +479,17 @@ EOT
 EOT
  exit(1);
 }elsif($RETEST < 0){
+ my $missedresidues=allresidueschecked;
  my $nottested=alltested(\%CHECKED,\%FAIL);
+ 
  if($nottested eq "" || $nottested =~ m/^$|^GMX COMPATIBLE$/){
+  $nottested="";
+ }else{
+  $nottested= "NOTE: not all possible tests have been checked.
+Unchecked tests include:
+$nottested\n";
+ }
+ if($nottested eq "" && $missedresidues eq ""){
  print <<EOT;
 *************************************************************
                       PASSED ALL TESTS  !!!
@@ -326,9 +500,8 @@ EOT
   print <<EOT;
 *************************************************************
                   PASSED ALL CHECKED TESTS  !!!
-But, not all possible tests have been checked.  
-Unchecked tests include:
 $nottested
+$missedresidues
 *************************************************************
 EOT
  exit(1);
@@ -430,6 +603,7 @@ sub runsmog
    $ARGS .= " -c $PDB_DIR/$PDB.contacts ";
  }
 # run smog2
+ $ARGS .=" -keep4SCM";
  `$EXEC_NAME $ARGS &> $PDB.output`;
 }
 
@@ -680,13 +854,21 @@ sub smogchecker
  # temporarily disable this check.
  $FAIL{'EXTRAS: ATOMTYPES'}=0;
 
+ if($model !~ m/^AA$/ || $default ne "yes"){
+  $FAIL{'BONDS: FOUND EXPECTED'}=-1;
+  $FAIL{'BONDS: EXPECTED FOUND'}=-1;
+ }
+
 #######END DISABLED CHECKS######
 
  if($FAIL{'NON-ZERO EXIT'} == 0){
   print "SMOG 2 exited without an error.\nAssessing generated files...\n";
    # CHECK THE OUTPUT
   &checkSCM;
-  &checkgro; 
+  &checkgro;
+  if($contactmodel !~ m/-userC$/){ 
+   &checkgro4SCM; 
+  }
   &checkndx;
   &checktop;
   &finalchecks;
@@ -708,7 +890,7 @@ sub checkgro
   return;
  }
  my $LINE=<GRO>; # header comment
- my $NUMOFATOMS=<GRO>; # header comment
+ $NUMOFATOMS=<GRO>; # header comment
  chomp($NUMOFATOMS);
  # store atom information
  my $XMIN=10000000;
@@ -736,6 +918,7 @@ sub checkgro
   my $Y=substr($LINE,28,8);
   my $Z=substr($LINE,36,8);
 
+  &seenresidue($GRODATA[$I][1]);
   if($X > $XMAX){
    $XMAX=$X;
   }
@@ -777,6 +960,35 @@ sub checkgro
   $FAIL{'BOX DIMENSIONS'}=0;
  }
 }
+
+sub checkgro4SCM
+{
+ if(open(GRO,"$PDB.gro4SCM.gro")){
+  $FAIL{'OPEN GRO'}=0;
+ }else{
+  smogcheck_error("$PDB.gro4SCM.gro can not be opened. This probably means SMOG died unexpectedly.");
+  return;
+ }
+ my $LINE=<GRO>; # header comment
+ my $NUMOFATOMS=<GRO>; # header comment
+ chomp($NUMOFATOMS);
+ # store atom information
+ for(my $I=0;$I<$NUMOFATOMS;$I++){
+  $LINE=<GRO>;
+  chomp($LINE);
+  $LINE =~ s/\s+$//;
+  my $X=substr($LINE,20,9);
+  my $Y=substr($LINE,29,9);
+  my $Z=substr($LINE,38,9);
+  if(abs($XT[$I+1]-$X) > 0.001){smogcheck_error("gro and gro4SCM inconsistent.  This should not happen.")}
+  if(abs($YT[$I+1]-$Y) > 0.001){smogcheck_error("gro and gro4SCM inconsistent.  This should not happen.")}
+  if(abs($ZT[$I+1]-$Z) > 0.001){smogcheck_error("gro and gro4SCM inconsistent.  This should not happen.")}
+  $XT[$I+1]=$X;
+  $YT[$I+1]=$Y;
+  $ZT[$I+1]=$Z;
+ }
+}
+
 
 sub preparesettings
 {
@@ -1040,6 +1252,8 @@ sub checktop
  my (@topdata,%seen,%FOUND,@theta_gen,@PAIRS,$finalres,%revData,@resindex,%theta_gen_as,%phi_gen_as,@phi_gen,%improper_gen_as,@improper_gen,@A);
  undef %MOLTYPEBYRES;
  undef %restypecount;
+ undef %expectedbonds;
+ undef %foundbonds;
  my $stackingE=0;
  my $NonstackingE=0;
  my $NonstackingE2=0;
@@ -1670,7 +1884,36 @@ sub checkatoms
  $NUMATOMS_LIGAND=0;
  my $LINE=$topdata[$LN];$LN++;
  my @A=split(/ /,$LINE);
+ my $lastresnum;
+ my %indexinres;
+ my $curresname;
  until($A[0] eq "["){
+ if ($NUMATOMS==0){
+  # first atom, set resnum
+  $lastresnum=$A[2];
+  $curresname=$A[3];
+ }
+
+#### BEGIN BOND GENERATION####
+ if($model =~ m/^AA$/ && $default eq "yes"){
+  if ($lastresnum != $A[2]){
+   # end of residue
+   addtoexpected(\%indexinres,$curresname);
+   undef %indexinres;
+  }
+  # add atom to hash
+  $indexinres{$A[4]}=$NUMATOMS;
+  $curresname=$A[3];
+  if ($NUMATOMS+1==$NUMOFATOMS){
+   #end of last residue
+   addtoexpected(\%indexinres,$curresname);
+   undef %indexinres;
+  }
+  $lastresnum=$A[2];
+ }
+
+#### END OF BOND GENERATION####
+
  # atom name
   $ATOMNAME[$A[0]]=$A[4];
   # if we are matching hetergeneous parameters, we need to store the smog-internal bonded types
@@ -1780,6 +2023,23 @@ sub checkatoms
  return ($LN-1,$finalres,\%revData,\@resindex);
 }
 
+sub addtoexpected
+{
+ my ($indexinres,$curresname)=@_;
+ my %indexinres=%{$indexinres};
+ my @arrt=@{$bonds_by_residue_array{$curresname}} ;
+ for (my $I=0;$I<=$#arrt;$I++){
+  my $at1=$indexinres{$arrt[$I]};
+  $I++;
+  my $at2=$indexinres{$arrt[$I]};
+  if($at1<$at2){
+   $expectedbonds{"$at1 $at2"}=0;
+  }else{	
+   $expectedbonds{"$at2 $at1"}=0;
+  }
+ }
+}
+
 sub checktypes
 {
  my ($LN,$N1,$N2,$Nf,$type)=@_;
@@ -1885,6 +2145,16 @@ sub checkbonds
  my @A=split(/ /,$LINE);
  until($A[0] eq "["){
   $NBONDS++;
+  my $a1=$A[0]-1;
+  my $a2=$A[1]-1;
+
+  if($GRODATA[$a1][0] == $GRODATA[$a2][0]){
+   if($a1 < $a2) {
+    $foundbonds{"$a1 $a2"}=0;
+   }else{
+    $foundbonds{"$a2 $a1"}=0;
+   }
+  }
   if($A[2] == 1){
    $RECOGNIZEDBTYPES++;
    my $bweight;
@@ -2049,9 +2319,49 @@ sub checkbonds
    }
   }
  }
+
+ if($model =~ m/^AA$/ && $default eq "yes"){
+  &checkbondgen;
+ }
+
  return ($LN-1,\@theta_gen,\%theta_gen_as);
 }
 
+sub checkbondgen
+{
+ my $NFOUND=0;
+ my $NEXPECTED=0;
+ foreach my $key(sort keys %expectedbonds){
+  $NEXPECTED++;
+  if(exists $foundbonds{$key}){
+   $NFOUND++;
+  }else{
+   my ($a,$b)=split(/\s+/,$key);
+   $a++;
+   $b++;
+   $fail_log .= failed_message("Expected bond between atoms $a and $b, but did not find one.");
+  }
+ }
+ if($NFOUND==$NEXPECTED && $NFOUND !=0){
+  $FAIL{'BONDS: FOUND EXPECTED'}=0;
+ }
+ $NFOUND=0;
+ $NEXPECTED=0;
+ foreach my $key(sort keys %foundbonds){
+  $NFOUND++;
+  if(exists $expectedbonds{$key}){
+   $NEXPECTED++;
+  }else{
+   my ($a,$b)=split(/\s+/,$key);
+   $a++;
+   $b++;
+   $fail_log .= failed_message("Found unexpected bond between atoms $a and $b.");
+  }
+ }
+ if($NFOUND==$NEXPECTED && $NFOUND !=0){
+  $FAIL{'BONDS: EXPECTED FOUND'}=0;
+ }
+}
 
 sub checkangles
 {
@@ -2822,7 +3132,7 @@ sub checkpairs
    $W=$A[3];
    $Cdist=$A[4];
    $CALCD=getpairdist(\*CMAP,$A[0],$A[1]);
-   if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0) ){
+   if(checkdist($Cdist,$CALCD)){
     $ContactDist++;
    }else{
     $fail_log .= failed_message("A contact appears to be the wrong distance.  From the .gro (or .contact) file, we found r=$CALCD, and from the .top r=$Cdist.\n\t$LINE");
@@ -2849,7 +3159,7 @@ sub checkpairs
    $W=5.0**5.0/6.0**6.0*($A[3]**6.0)/($A[4]**5.0);
    $Cdist=(6*$A[4]/(5*$A[3]))**(1.0/2.0);
    $CALCD=getpairdist(\*CMAP,$A[0],$A[1]);
-   if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0) ){
+   if(checkdist($Cdist,$CALCD)){
     $ContactDist++;
    }else{
     $fail_log .= failed_message("A contact appears to be the wrong distance.  From the .gro (or .contact) file, we found r=$CALCD, and from the .top r=$Cdist.\n\t$LINE");
@@ -2858,7 +3168,7 @@ sub checkpairs
    $W=($A[3]*$A[3])/(4*$A[4]);
    $Cdist=(2.0*$A[4]/($A[3]))**(1.0/6.0);
    $CALCD=getpairdist(\*CMAP,$A[0],$A[1]);
-   if(abs($Cdist-$CALCD) < 100.0/($PRECISION*1.0)){
+   if(checkdist($Cdist,$CALCD)){
     $ContactDist++;
    }else{
     $fail_log .= failed_message("A contact appears to be the wrong distance.  From the .gro (or .contact) file, we found r=$CALCD, and from the .top r=$Cdist.\n\t$LINE");
@@ -3000,7 +3310,17 @@ sub checkpairs
  return ($LN-1,\@PAIRS,$stackingE,$NonstackingE,$NonstackingE2);
 }
 
-
+sub checkdist
+{
+ # if distances vary, return 1.  Otherwise, return 0.
+ my($Cdist,$CALCD)=@_;
+ # the !=0 is to avoid a bug where both variables are passed as 0.
+ if($Cdist !=0 && abs($Cdist-$CALCD) < 0.0001){
+  return 1;
+ }else{
+  return 0;
+ }
+}
 sub checkexclusions
 {
  my ($LN,$N1,$N2)=@_;
@@ -3220,7 +3540,7 @@ sub getpairdist
   $A[4]/=10;;
   return $A[4];
  }else{
-  $dist=(($XT[$A0]-$XT[$A1])**2+($YT[$A0]-$YT[$A1])**2+($ZT[$A0]-$ZT[$A1])**2)**(0.5);
+  $dist=sqrt(($XT[$A0]-$XT[$A1])**2+($YT[$A0]-$YT[$A1])**2+($ZT[$A0]-$ZT[$A1])**2);
   return $dist;
  }
 }
@@ -3412,7 +3732,7 @@ EOT
   $FAIL_SYSTEM++;
  }else{
   print "\n*************************************************************\n";
-  print "                 CHECK $TESTNUM PASSED ($PDB)\n";
+  print "                  TEST $TESTNUM PASSED ($PDB)\n";
   print  "*************************************************************\n";
   foreach(@FILETYPES){
    removeifexists("$PDB.$_");
