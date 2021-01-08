@@ -1197,9 +1197,9 @@ EOT
   }
   # if we are testing compatibility with gromacs, then we need to use a different extras file, since the original file contains nonbond_param of type 3, which is only supported in a modified version of gromacs.
   if($CHECKGMX eq "yes" || $CHECKGMXGAUSSIAN eq "yes"){
-   `cp $TEMPLATE_DIR_AA/extras.gmxtest temp.bifsif/extras`;
+   `cp $TEMPLATE_DIR_AA/extras.gmxtest temp.bifsif/dummy.extras`;
   }else{
-   `cp $TEMPLATE_DIR_AA/extras temp.bifsif/extras`;
+   `cp $TEMPLATE_DIR_AA/extras temp.bifsif/test.extras`;
   }
   CheckTemplatesCreated("temp.bifsif","tmp");
  }
@@ -3523,7 +3523,7 @@ sub CheckTemplatesCreated
    internal_error(" $dir/$prefix.$i not created");
   }	
  }
- if($model eq "AA" && $default eq "no" && ! -e "$dir/extras"){
+ if($model eq "AA" && $default eq "no" && ! glob("$dir/*extras")){
   internal_error(" $dir/extras not created");
  }	
 }
