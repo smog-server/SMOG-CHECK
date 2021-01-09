@@ -84,6 +84,11 @@ you want to test smog_ions, only, then call
 These scripts have been tested on Linux and OSX 
 platforms. 
 
+
+                  SCM CHECK
+
+If you plan to use the Shadow Contact Map software (SCM.jar) as a standalone application, then you can test it is working with scm-check
+
 Direct all questions and suggestions to info@smog-server.org.
 
 #############################################################
