@@ -3527,7 +3527,7 @@ sub CheckTemplatesCreated
   }	
  }
  if($model eq "AA" && $default eq "no" && ! glob("$dir/*extras")){
-  internal_error(" $dir/extras not created");
+  internal_error(" $dir/*extras not created");
  }	
 }
 
