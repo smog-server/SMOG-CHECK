@@ -176,10 +176,13 @@ sub checkSCMexists
  unless( -e $SCM){
   smogcheck_error("Can\'t find Shadow!");
  }
- #check that Jeff remembered to use -target 1.6
- my $javaVersion=`javap -v -classpath $SCM noel/folding/ShadowMain | grep major | awk '{print \$3}'`;
- unless($javaVersion==50){
-  smogcheck_error("Jeff forgot to use -target 1.6 for SCM.jar, major version=$javaVersion")
+ my $o=`sh -c 'command -v javap'`;
+ if($o ne ""){
+  #check that Jeff remembered to use -target 1.6 - this is only needed for development.  Since we check smog-check before releasing, we don't need to note this check normally.
+  my $javaVersion=`javap -v -classpath $SCM noel/folding/ShadowMain | grep major | awk '{print \$3}'`;
+  unless($javaVersion==50){
+   internal_error("Jeff forgot to use -target 1.6 for SCM.jar, major version=$javaVersion")
+  }
  }
 }
 
