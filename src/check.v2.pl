@@ -3526,8 +3526,18 @@ sub CheckTemplatesCreated
    internal_error(" $dir/$prefix.$i not created");
   }	
  }
- if($model eq "AA" && $default eq "no" && ! glob("$dir/*extras")){
-  internal_error(" $dir/*extras not created");
+ if($model eq "AA" && $default eq "no"){
+  opendir(my $dirhandle, $dir) or internal_error("Could not open $dir");
+  my $matchextras=0;
+  while (my $filename = readdir $dirhandle) {
+   if($filename =~ m/extras$/){
+    $matchextras=1;
+   }
+  }
+  closedir($dirhandle);
+  if($matchextras==0){
+   internal_error("$dir/*extras not created");
+  }
  }	
 }
 
