@@ -62,10 +62,10 @@ terminaltest CA default-gaussian ;49
 ; check use of multiple contact groups
 protein-RNA AA-2cg default ;52
 
-; check specialized examples where there are fixed parameter for individual atoms/residues
-2ci2_v2.CB AA-match shadow-match 10.0 2.0 ;53
-1AKEapo_v2.CB AA-match shadow-match 10.0 2.0 ;54
-3IZH_v2.CB AA-match shadow-match 10.0 2.0 ;55
+; check specialized examples where there are fixed parameter for individual atoms/residues. These systems also test non-standard values of gen-pairs, fudgeLJ and fudgeQQ
+2ci2_v2.CB AA-match shadow-match 10.0 2.0 0 1.0 0.4 ;53
+1AKEapo_v2.CB AA-match shadow-match 10.0 2.0 1 1.2 1.5 ;54
+3IZH_v2.CB AA-match shadow-match 10.0 2.0 0 1.0 0.0 ;55
 
 ; check for use of "free" angles and dihedrals
 1AKEapo_v2 AA shadow-free 5.0 1.4 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0 0.2 -1 1E-6 3E-9 1.0 ;56
@@ -101,4 +101,5 @@ tRNA AA cutoff 5.0 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0 0.2 -1 1E-6 3E-9
 1AKEapo_v2 CA cutoff 5.0 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0 0.2 -1 1E-6 3E-9 1.0 ;82
 2ci2_v2 CA cutoff 5.0 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0 0.2 -1 1E-6 3E-9 1.0 ;83
 3IZH_v2 CA cutoff 5.0 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0 0.2 -1 1E-6 3E-9 1.0 ;84
-terminaltest CA cutoff 5.0 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0 0.2 -1 1E-6 3E-9 1.0 ;85 
+terminaltest CA cutoff 5.0 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0 0.2 -1 1E-6 3E-9 1.0 ;85
+

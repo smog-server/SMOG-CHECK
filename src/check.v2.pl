@@ -33,7 +33,7 @@ our $TEMPLATE_DIR_AA_2CG=$ENV{'BIFSIF_AA_2CG'};
 
 # FAILLIST is a list of all the tests.
 # If you are developing and testing your own forcefield, which may not need to conform to certain checks, then you may want to disable some tests by  removing the test name from this list. However, do so at your own risk.
-our @FAILLIST = ('NAME','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','TOP FIELDS FOUND','TOP FIELDS RECOGNIZED','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'BOND LENGTHS','ANGLE TYPES', 'ANGLE WEIGHTS', 'ANGLE VALUES','DUPLICATE BONDS', 'DUPLICATE ANGLES', 'GENERATED ANGLE COUNT','GENERATED ANGLE IN TOP','ANGLES IN TOP GENERATED', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','MATCH DIH WEIGHTS','DIHEDRAL ANGLES','ALL POSSIBLE MATCHED DIHEDRALS PRESENT','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL IN TOP GENERATED','GENERATED DIHEDRAL IN TOP','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','NON-STACKING 2CG CONTACT WEIGHTS','NON-STACKING CG RATIO','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','GAUSSIAN CONTACT EXCLUDED VOLUME','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY','TYPE6 ATOMS','CLASSIFYING DIHEDRALS','NON-ZERO EXIT','ATOM FIELDS','ATOM CHARGES','FREE PAIRS APPEAR IN CONTACTS','EXTRAS: ATOMTYPES','EXTRAS: BONDTYPES','EXTRAS: ANGLETYPES','EXTRAS: DIHEDRALTYPES','EXTRAS: NB_PARAMS','NONZERO LIGAND DIHEDRAL VALUE','BONDS: EXPECTED FOUND','BONDS: FOUND EXPECTED','GMX COMPATIBLE');
+our @FAILLIST = ('NAME','DEFAULTS, num entries','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','DEFAULTS, fudgeLJ','DEFAULTS, fudgeQQ','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','TOP FIELDS FOUND','TOP FIELDS RECOGNIZED','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'BOND LENGTHS','ANGLE TYPES', 'ANGLE WEIGHTS', 'ANGLE VALUES','DUPLICATE BONDS', 'DUPLICATE ANGLES', 'GENERATED ANGLE COUNT','GENERATED ANGLE IN TOP','ANGLES IN TOP GENERATED', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','MATCH DIH WEIGHTS','DIHEDRAL ANGLES','ALL POSSIBLE MATCHED DIHEDRALS PRESENT','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL IN TOP GENERATED','GENERATED DIHEDRAL IN TOP','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','NON-STACKING 2CG CONTACT WEIGHTS','NON-STACKING CG RATIO','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','GAUSSIAN CONTACT EXCLUDED VOLUME','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY','TYPE6 ATOMS','CLASSIFYING DIHEDRALS','NON-ZERO EXIT','ATOM FIELDS','ATOM CHARGES','FREE PAIRS APPEAR IN CONTACTS','EXTRAS: ATOMTYPES','EXTRAS: BONDTYPES','EXTRAS: ANGLETYPES','EXTRAS: DIHEDRALTYPES','EXTRAS: NB_PARAMS','NONZERO LIGAND DIHEDRAL VALUE','BONDS: EXPECTED FOUND','BONDS: FOUND EXPECTED','GMX COMPATIBLE');
 
 # default location of test PDBs
 our $PDB_DIR="share/PDB.files";
@@ -85,7 +85,7 @@ my %seenresidueAAgauss;
 my %seenresidueCA;
 my %seenresidueCAgauss;
 
-my %numfield = ( 'default' => '2', 'default-2cg' => '2',  'default-userC' => '2', 'default-gaussian' => '2', 'default-gaussian-userC' => '2','cutoff' => '19', 'shadow' => '20',  'shadow-free' => '20', 'shadow-gaussian' => '20', 'cutoff-gaussian' => '19' , 'shadow-match' => '4');
+my %numfield = ( 'default' => '2', 'default-2cg' => '2',  'default-userC' => '2', 'default-gaussian' => '2', 'default-gaussian-userC' => '2','cutoff' => '19', 'shadow' => '20',  'shadow-free' => '20', 'shadow-gaussian' => '20', 'cutoff-gaussian' => '19' , 'shadow-match' => '7');
 %defcharge = ('GLY-N' => "0.3", 'GLY-C' => "0.2", 'GLY-O' => "-0.5");
 
 our $name2="NB_2";
@@ -94,6 +94,9 @@ my $TESTNUM=0;
 my $FAIL_SYSTEM=0;
 my $NUMTESTED=0;
 my $contactmodel;
+my $fudgeLJ;
+my $fudgeQQ;
+my $genpairs;
 #*******************END OF VARIABLE INITIALIZATION*****************
 
 
@@ -538,6 +541,9 @@ sub resetvars
  undef  $epsilonCAC;
  undef  $epsilonCAD;
  undef  $sigmaCA;
+ undef  $fudgeLJ;
+ undef  $fudgeQQ;
+ undef  $genpairs;
  undef  %massNB;
  undef  %atombondedtypes;
  undef  %atombondedtypes2;
@@ -592,10 +598,8 @@ sub runsmog
  }else{
   if($model eq "CA"){
    $ARGS .= " -tCG temp.bifsif/  -t temp.cont.bifsif";
-  }elsif($model eq "AA"){
+  }elsif($model eq "AA" || $model eq "AA-match"){
    $ARGS .= " -t temp.bifsif/ ";
-  }elsif($model eq "AA-match"){
-   $ARGS .= " -t $TEMPLATE_DIR_AA_MATCH ";
   }elsif($model eq "AA-2cg"){
    $ARGS .= " -t $TEMPLATE_DIR_AA_2CG ";
   }else{
@@ -619,6 +623,8 @@ sub setmodelflags{
  $free="no";
  # default is to not read a contact map
  $usermap="no";
+ # default is to not generate pairs
+ $genpairs="no"; 
 
  if($contactmodel =~ m/^default$/){
   $default="yes";
@@ -701,6 +707,10 @@ sub setmodelflags{
   $epsilonCAC=1.0;
   $epsilonCAD=1.0;
   $sigmaCA=4.0;
+  if($model eq "AA" || $model eq "CA"){
+   $fudgeLJ=1.0;
+   $fudgeQQ=1.0;
+  }
  }else{
   print "Checking non-default parameters for SMOG models\n";
   my $ARG=2;
@@ -715,6 +725,14 @@ sub setmodelflags{
    $CONTR=$A[$ARG];
    $ARG++;
    $BBRAD=0.5;
+   if($CONTTYPE =~ m/^shadow-match$/){
+    $genpairs=$A[$ARG];
+    $ARG++;
+    $fudgeLJ=$A[$ARG];
+    $ARG++;
+    $fudgeQQ=$A[$ARG];
+    $ARG++;
+   }
   }elsif($CONTTYPE =~ m/^cutoff$/ || $CONTTYPE =~ m/^cutoff-gaussian$/){
    print "Will generate and use a cutoff map\n";
    $CONTD=$A[$ARG];
@@ -1173,6 +1191,16 @@ EOT
   }
   CheckTemplatesCreated("temp.cont.bifsif","tmp.cont");
  } 
+
+ if($model eq "AA-match"){
+  `cp -r $TEMPLATE_DIR_AA_MATCH temp.bifsif`;
+  `sed "s/GENPAIRS/$genpairs/g;s/FUDGELJ/$fudgeLJ/g;s/FUDGEQQ/$fudgeQQ/g" $TEMPLATE_DIR_AA_MATCH/CB.nb > temp.bifsif/CB.nb`;
+  if($genpairs == 0){
+   $genpairs="no"; 
+  }else{
+   $genpairs="yes"; 
+  }
+ }
 
  if($model eq "AA" && $default ne "yes"){
   `mkdir temp.bifsif`;
@@ -1742,22 +1770,56 @@ sub checkdefaults
  my ($LN,$N1)=@_;
  my @topdata = @{$N1};
  my $LINE=$topdata[$LN];$LN++;
- my @A=split(/ /,$LINE);
+ my @A=split(/\s+/,$LINE);
+ my $numentries;
+ if(defined $fudgeQQ){
+  $numentries=5;
+ }elsif(defined $fudgeLJ){
+  $numentries=4;
+  $FAIL{'DEFAULTS, fudgeQQ'}=-1; 
+ }else{
+  $numentries=3;
+  $FAIL{'DEFAULTS, fudgeLJ'}=-1; 
+  $FAIL{'DEFAULTS, fudgeQQ'}=-1; 
+ }
+
+ if($#A == $numentries-1){
+  $FAIL{'DEFAULTS, num entries'}=0; 
+ }else{
+  my $AA=$#A+1;
+  $fail_log .= failed_message("Wrong number of default values given.  Expected $numentries and found $AA");
+ }
+
  if($A[0] == 1){
   $FAIL{'DEFAULTS, nbfunc'}=0; 
  }else{
-  $fail_log .= failed_message("default nbfunc is not correctly set.");
+  $fail_log .= failed_message("default nbfunc is not correctly set. Only type 1 is supported by smog2");
  }
  if($A[1] == 1){
   $FAIL{'DEFAULTS, comb-rule'}=0; 
  }else{
   $fail_log .= failed_message("default comb-rule is not correctly set.");
  }
- if($A[2] eq "no"){
+ if($A[2] eq "$genpairs"){
   $FAIL{'DEFAULTS, gen-pairs'}=0; 
  }else{
   $fail_log .= failed_message("default gen-pairs is not correctly set.");
  }
+ if(defined $fudgeLJ or defined $fudgeQQ){
+  if($A[3] == $fudgeLJ){
+   $FAIL{'DEFAULTS, fudgeLJ'}=0; 
+  }else{
+   $fail_log .= failed_message("default fudgeLJ not set properly. Found $A[3], expected $fudgeLJ");
+  }
+  if(defined $fudgeQQ){
+   if($A[4] == $fudgeQQ){
+    $FAIL{'DEFAULTS, fudgeQQ'}=0; 
+   }else{
+    $fail_log .= failed_message("default fudgeQQ not set properly. Found $A[4], expected $fudgeQQ");
+   }
+  }
+ }
+
  return ($LN-1);
 }
 
