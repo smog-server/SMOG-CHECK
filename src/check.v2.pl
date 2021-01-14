@@ -49,7 +49,7 @@ our $free;
 our @FILETYPES=("top","gro","ndx","settings","contacts","output","contacts.SCM", "contacts.CG","grompp","editconf","out.mdp","contacts.ShadowOutput","box.gro","gro4SCM.gro","top4SCM.top");
 
 # bunch of global vars.  A bit sloppy.  Many could be local.
-our ($AMINO_PRESENT,$angleEps,@atombondedtype,%atombondedtypes,%atombondedtypes2,@ATOMNAME,@ATOMTYPE,$BBRAD,%BBTYPE,$bondEps,$bondMG,$bondtype6,%C12NB,%C6NB,$chargeAT,%chargeNB,%CHECKED,@CID,$CONTD,$CONTENERGY,$CONTR,$CONTTYPE,$default,%defcharge,$defname,$DENERGY,$dihmatch,$DIH_MAX,$DIH_MIN,$DISP_MAX,@EDrig_T,@ED_T,$epsilon,$epsilonCAC,$epsilonCAD,%FAIL,$FAILED,$fail_log,@FIELDS,$gaussian,@GRODATA,$impEps,$improper_gen_N,$ION_PRESENT,$LIGAND_DIH,$LIGAND_PRESENT,%massNB,%matchangle_val,%matchangle_weight,%matchbond_val,%matchbond_weight,%matchdihedral_val,%matchdihedral_weight,$model,@MOLTYPE,%MOLTYPEBYRES,$NA_DIH,$NCONTACTS,$NUCLEIC_PRESENT,$NUMATOMS,$NUMATOMS_LIGAND,$omegaEps,$PDB,$phi_gen_N,$PRO_DIH,$R_CD,$rep_s12,@RESNUM,%restypecount,$ringEps,$R_N_SC_BB,$R_P_BB_SC,$sigma,$sigmaCA,$theta_gen_N,%TYPE,$type6count,$usermap,@XT,@YT,@ZT);
+our ($AMINO_PRESENT,$angleEps,@atombondedtype,%atombondedtypes,%atombondedtypes2,@ATOMNAME,@ATOMTYPE,$BBRAD,%BBTYPE,$bondEps,$bondMG,$bondtype6,%C12NB,%C6NB,$chargeAT,%chargeNB,%CHECKED,@CID,$CONTD,$STACKSCALE,$CONTENERGY,$CONTR,$CONTTYPE,$default,%defcharge,$defname,$DENERGY,$dihmatch,$DIH_MAX,$DIH_MIN,$DISP_MAX,@EDrig_T,@ED_T,$epsilon,$epsilonCAC,$epsilonCAD,%FAIL,$FAILED,$fail_log,@FIELDS,$gaussian,@GRODATA,$impEps,$improper_gen_N,$ION_PRESENT,$LIGAND_DIH,$LIGAND_PRESENT,%massNB,%matchangle_val,%matchangle_weight,%matchbond_val,%matchbond_weight,%matchdihedral_val,%matchdihedral_weight,$model,@MOLTYPE,%MOLTYPEBYRES,$NA_DIH,$NCONTACTS,$NUCLEIC_PRESENT,$NUMATOMS,$NUMATOMS_LIGAND,$omegaEps,$PDB,$phi_gen_N,$PRO_DIH,$R_CD,$rep_s12,@RESNUM,%restypecount,$ringEps,$R_N_SC_BB,$R_P_BB_SC,$sigma,$sigmaCA,$theta_gen_N,%TYPE,$type6count,$usermap,@XT,@YT,@ZT);
 
 my %supported_directives = ( 'defaults' => '1','atomtypes' => '1','moleculetype' => '1','nonbond_params' => '0','bondtypes' => '0','angletypes' => '0','dihedraltypes' => '0','atoms' => '1','bonds' => '1','angles' => '1','dihedrals' => '1','pairs' => '1','exclusions' => '1','system' => '1','molecules' => '1');
 
@@ -530,6 +530,7 @@ sub resetvars
 {
  undef  $CONTTYPE;
  undef  $CONTD;
+ undef  $STACKSCALE;
  undef  $CONTR;
  undef  $BBRAD;
  undef  $R_CD;
@@ -675,7 +676,7 @@ sub setmodelflags{
   internal_error("model $contactmodel in $SETTINGS_FILE is not recognized");
  }
  if($numfield{$contactmodel} != $NA){
-  internal_error("$SETTINGS_FILE has wrong number of entries for model $contactmodel. Expected $numfield{contactmodel}, found $NA");
+  internal_error("$SETTINGS_FILE has wrong number of entries for model $contactmodel. Expected $numfield{$contactmodel}, found $NA");
  }
  if($usermap eq "yes"){
   unless(-e "$PDB_DIR/$PDB.contacts"){
@@ -746,6 +747,8 @@ sub setmodelflags{
   }elsif($CONTTYPE =~ m/^cutoff$/ || $CONTTYPE =~ m/^cutoff-gaussian$/){
    print "Will generate and use a cutoff map\n";
    $CONTD=$A[$ARG];
+   $ARG++;
+   $STACKSCALE=$A[$ARG];
    $ARG++;
    $CONTR=0.0;
    $BBRAD=0.0;
@@ -1205,7 +1208,7 @@ EOT
   if($CONTTYPE eq "shadow"){
    `sed "s/CUTDIST/$CONTD/g;s/SCM_R/$CONTR/g;s/SCM_BR/$BBRAD/g" $TEMPLATE_DIR_AA_STATIC/$templateAA.shadow.sif > temp.cont.bifsif/tmp.cont.sif`;
   }elsif($CONTTYPE eq "cutoff"){
-   `sed "s/CUTDIST/$CONTD/g" $TEMPLATE_DIR_AA_STATIC/$templateAA.cutoff.sif > temp.cont.bifsif/tmp.cont.sif`;
+   `sed "s/CUTDIST/$CONTD/g;s/RESCALE/$STACKSCALE/g" $TEMPLATE_DIR_AA_STATIC/$templateAA.cutoff.sif > temp.cont.bifsif/tmp.cont.sif`;
   }
   CheckTemplatesCreated("temp.cont.bifsif","tmp.cont");
  } 
@@ -1231,7 +1234,7 @@ EOT
   }elsif($CONTTYPE eq "shadow-free"){
    `sed "s/PARM_C_D/$R_CD/g;s/PARM_P_BB/$PARM_P_BB/g;s/PARM_P_SC/$PARM_P_SC/g;s/PARM_N_BB/$PARM_N_BB/g;s/PARM_N_SC/$PARM_N_SC/g;s/CUTDIST/$CONTD/g;s/SCM_R/$CONTR/g;s/SCM_BR/$BBRAD/g" $TEMPLATE_DIR_AA/$templateAA.shadow.free.sif > temp.bifsif/tmp.sif`;
   }elsif($CONTTYPE eq "cutoff"){
-   `sed "s/PARM_C_D/$R_CD/g;s/PARM_P_BB/$PARM_P_BB/g;s/PARM_P_SC/$PARM_P_SC/g;s/PARM_N_BB/$PARM_N_BB/g;s/PARM_N_SC/$PARM_N_SC/g;s/CUTDIST/$CONTD/g" $TEMPLATE_DIR_AA/$templateAA.cutoff.sif > temp.bifsif/tmp.sif`;
+   `sed "s/PARM_C_D/$R_CD/g;s/PARM_P_BB/$PARM_P_BB/g;s/PARM_P_SC/$PARM_P_SC/g;s/PARM_N_BB/$PARM_N_BB/g;s/PARM_N_SC/$PARM_N_SC/g;s/CUTDIST/$CONTD/g;s/RESCALE/$STACKSCALE/g" $TEMPLATE_DIR_AA/$templateAA.cutoff.sif > temp.bifsif/tmp.sif`;
   }
 
   `sed "s/PARM_MASS/$massNB{$name2}/g;s/PARM_chargeNB/$chargeNB{$name2}/g;s/PARM_C6_2/$C6NB{$name2}/g;s/PARM_C12_2/$C12NB{$name2}/g;s/PARM_C12/$C12NB{$defname}/g" $TEMPLATE_DIR_AA/$templateAA.nb > temp.bifsif/tmp.nb`;
@@ -1631,7 +1634,7 @@ sub checktop
    my $CR=$NonstackingE/$stackingE;
    my $contactratio;
    if($CONTTYPE eq "cutoff"){
-    $contactratio=3.0;
+    $contactratio=1.0/$STACKSCALE;
    }else{
     $contactratio=1.0;
    }
