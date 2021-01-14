@@ -103,3 +103,7 @@ tRNA AA cutoff 5.0 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0 0.2 -1 1E-6 3E-9
 3IZH_v2 CA cutoff 5.0 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0 0.2 -1 1E-6 3E-9 1.0 ;84
 terminaltest CA cutoff 5.0 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0 0.2 -1 1E-6 3E-9 1.0 ;85
 
+; check use of NB type 2 parameters
+protein-RNA AA-nb-cr2 default ;86
+
+
