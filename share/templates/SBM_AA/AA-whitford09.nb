@@ -14,7 +14,7 @@
 	<pairType>*</pairType>
 	<pairType>*</pairType>
 </contact>
-<contact func="bond_type6(?,200)" contactGroup="c">
+<contact func="bond_type6(?*1.0,200)" contactGroup="c">
 	<pairType>BMG_P</pairType>
 	<pairType>*</pairType>
 </contact>
