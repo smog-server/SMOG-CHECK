@@ -1257,14 +1257,18 @@ EOT
 
   if($CONTTYPE eq "shadow-free"){
    `sed "s/PARM_MASS/$massNB{$name2}/g;s/PARM_chargeNB/$chargeNB{$name2}/g;s/PARM_C6_2/$C6NB{$name2}/g;s/PARM_C12_2/$C12NB{$name2}/g;s/PARM_C12/$C12NB{$defname}/g" $TEMPLATE_DIR_AA/$templateAA.free.nb > temp.bifsif/tmp.nb`;
-  }elsif($CONTTYPE eq "cutoff-gaussian"){
-   `sed "s/PARM_MASS/$massNB{$name2}/g;s/PARM_chargeNB/$chargeNB{$name2}/g;s/PARM_C6_2/$C6NB{$name2}/g;s/PARM_C12_2/$C12NB{$name2}/g;s/PARM_C12/$C12NB{$defname}/g" $TEMPLATE_DIR_AA/$templateAA.gaussian.nb > temp.bifsif/tmp.nb`;
+   `cp $TEMPLATE_DIR_AA/$templateAA.free.bif temp.bifsif/tmp.bif`;
+   `cp $TEMPLATE_DIR_AA/$templateAA.free.b temp.bifsif/tmp.b`;
   }else{
+   if($CONTTYPE eq "cutoff-gaussian"){
+    `sed "s/PARM_MASS/$massNB{$name2}/g;s/PARM_chargeNB/$chargeNB{$name2}/g;s/PARM_C6_2/$C6NB{$name2}/g;s/PARM_C12_2/$C12NB{$name2}/g;s/PARM_C12/$C12NB{$defname}/g" $TEMPLATE_DIR_AA/$templateAA.gaussian.nb > temp.bifsif/tmp.nb`;
+   }else{
    `sed "s/PARM_MASS/$massNB{$name2}/g;s/PARM_chargeNB/$chargeNB{$name2}/g;s/PARM_C6_2/$C6NB{$name2}/g;s/PARM_C12_2/$C12NB{$name2}/g;s/PARM_C12/$C12NB{$defname}/g" $TEMPLATE_DIR_AA/$templateAA.nb > temp.bifsif/tmp.nb`;
+   }
+   `cp $TEMPLATE_DIR_AA/$templateAA.bif temp.bifsif/tmp.bif`;
+   `cp $TEMPLATE_DIR_AA/$templateAA.b temp.bifsif/tmp.b`;
   }
 
-  `cp $TEMPLATE_DIR_AA/$templateAA.bif temp.bifsif/tmp.bif`;
-  `cp $TEMPLATE_DIR_AA/$templateAA.b temp.bifsif/tmp.b`;
 
   # if we are testing compatibility with gromacs, then we need to use a different extras file, since the original file contains nonbond_param of type 3, which is only supported in a modified version of gromacs.
   if($CHECKGMX eq "yes" || $CHECKGMXGAUSSIAN eq "yes"){
