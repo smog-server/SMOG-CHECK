@@ -2,7 +2,7 @@
 <b>
 <!-- BONDS -->
 <bonds>
-	<bond func="bond_harmonic(1.0*?,10000)">
+	<bond func="bond_harmonic(2.0*?/2,10000)">
 	<bType>*</bType>
 	<bType>*</bType>
 	</bond>
@@ -14,7 +14,7 @@
 
 <!-- ANGLES -->
 <angles>
-	<angle func="angle_harmonic(?/1.0,80)">
+	<angle func="angle_harmonic(?/1.0*1.0,80)">
 	<bType>*</bType>
 	<bType>*</bType>
 	<bType>*</bType>
@@ -24,7 +24,7 @@
 <!-- DIHEDRALS -->
 <dihedrals>	
 	<!-- NUCLEIC DIHEDRALS -->
-	<dihedral func="dihedral_cosine(?*1.0,1,1)+dihedral_cosine(?/1.0,0.5,3)" energyGroup="bb_n">
+	<dihedral func="dihedral_cosine(?*3.0**0,1,1)+dihedral_cosine(?/1.0,0.5,3)" energyGroup="bb_n">
 	<bType>*</bType>
 	<bType>*</bType>
 	<bType>*</bType>
