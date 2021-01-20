@@ -64,9 +64,8 @@ if [ $problem -gt 0 ]
 then
 echo There were issues!
 else
-echo Simple SCM test passed!
+echo "PASSED ALL"
 rm scm.output
 fi
-echo
 
 
