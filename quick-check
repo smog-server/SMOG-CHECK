@@ -77,5 +77,5 @@ done
 done
 exit
 rm -r testing
-echo "************ No errors found ************"
+echo "PASSED ALL"
 
