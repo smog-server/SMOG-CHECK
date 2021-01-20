@@ -99,7 +99,7 @@ sub check_adjust
  # TEST 3
  print "\tChecking smog_adjustPDB with default exact matching.\n";
  $TESTNUM++;
- my $origpdb="$pdbdir/mangled.names.pdb";
+ my $origpdb="$pdbdir/mangled.resnames.pdb";
  %FAIL=resettests(\%FAIL,\@FAILLIST);
  $FAIL{'LARGE'}=-1;
  removeifexists("$newpdb");

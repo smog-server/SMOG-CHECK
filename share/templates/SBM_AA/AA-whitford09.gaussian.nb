@@ -10,11 +10,11 @@
 
 
 <!-- CONTACTS -->
-<contact func="contact_2(2*?**6,?**12,?,?)" contactGroup="c">
+<contact func="contact_gaussian(?,PARM_C12,sqrt(((?)**2)/(34.66)),?)" contactGroup="c">
 	<pairType>*</pairType>
 	<pairType>*</pairType>
 </contact>
-<contact func="bond_type6(?*1.0,200)" contactGroup="c">
+<contact func="bond_type6(?,200)" contactGroup="c">
 	<pairType>BMG_P</pairType>
 	<pairType>*</pairType>
 </contact>

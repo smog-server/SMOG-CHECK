@@ -92,7 +92,7 @@ sub failsum
   $N++; 
  }
   if($N-1==$#FAILLIST){
-    internal_error("FAILLIST entry $tt not defined");
+    internal_error("FAILLIST entry \"$tt\" not defined");
   }
  }
  if($FAIL{"NON-ZERO EXIT"}==0){
