@@ -9,7 +9,7 @@ $check_top=$ARGV[1];
 @list=("defaults","atomtypes","moleculetype","atoms","bonds","angles","dihedrals","pairs","exclusions","system","molecules");
 @contents=(); #dummy array to contain .top
 $keywordIndex;
-$differenceThreshold=0.02; #how different must two numbers be to trigger an error
+$differenceThreshold=0.002; #fractional difference between two floats in order to trigger an error
 $EXACT_MATCH=0;
 #read in template
 &readtop($template_top);
@@ -50,20 +50,21 @@ if(EXACT_MATCH > 0) {
 		foreach $j (0 .. scalar @{$template_top[$i]}-1) {
 			foreach $k (0 .. scalar @{$template_top[$i][$j]}-1) {
 				if(&whatAmI($template_top[$i][$j][$k]) == 1) { #integer, must be exact
-					# if($check_top[$i][$j][$k]*(1+$differenceThreshold) < $template_top[$i][$j][$k] ||
-# 						 $check_top[$i][$j][$k]*(1-$differenceThreshold) > $template_top[$i][$j][$k]) {
-# 							 &complain($i,$j,$k,$check_top[$i][$j][$k],$template_top[$i][$j][$k]);
-# 						 }
 					if($check_top[$i][$j][$k] ne $template_top[$i][$j][$k]) {
 						&complain($i,$j,$k,$template_top[$i][$j][$k],$check_top[$i][$j][$k]);
 					}
 				} elsif(&whatAmI($template_top[$i][$j][$k]) == 2) { #float, within differenceThreshold
-#!/				print "I am not integer\n",$template_top[$i][$j][$k],$check_top[$i][$j][$k];
-				
-					if($check_top[$i][$j][$k]*(1+$differenceThreshold) < $template_top[$i][$j][$k] ||
-					 	$check_top[$i][$j][$k]*(1-$differenceThreshold) > $template_top[$i][$j][$k]) {
-							 &complain($i,$j,$k,$template_top[$i][$j][$k],$check_top[$i][$j][$k]);
-					 }
+					if($check_top[$i][$j][$k] >= 0) {
+						if($check_top[$i][$j][$k]*(1+$differenceThreshold) < $template_top[$i][$j][$k] ||
+						 	$check_top[$i][$j][$k]*(1-$differenceThreshold) > $template_top[$i][$j][$k]) {
+								 &complain($i,$j,$k,$template_top[$i][$j][$k],$check_top[$i][$j][$k]);
+						}
+					} else {
+						if($check_top[$i][$j][$k]*(1+$differenceThreshold) > $template_top[$i][$j][$k] ||
+						 	$check_top[$i][$j][$k]*(1-$differenceThreshold) < $template_top[$i][$j][$k]) {
+								 &complain($i,$j,$k,$template_top[$i][$j][$k],$check_top[$i][$j][$k]);
+						}
+					}
 				} else { #string, must be exact
 					if($check_top[$i][$j][$k] ne $template_top[$i][$j][$k]) {
 						&complain($i,$j,$k,$template_top[$i][$j][$k],$check_top[$i][$j][$k]);
@@ -76,7 +77,7 @@ if(EXACT_MATCH > 0) {
 sub complain {
 	print "ERROR.\n";
 	print "\nDifference at: Directive [ ",$list[$_[0]]," ]\n";
-	print "Line: ",($_[1]+1)," Token: ",($_[2]+1)," \n";
+	print "Line: ",($_[1]+1)," Token: ",($_[2]+1)," Type: ",&whatAmItext($_[3]),"\n";
 	print "Should be: ",$_[3],"\n";
 	print "But is instead: ",$_[4],"\n";
 }
@@ -85,6 +86,12 @@ sub whatAmI {
 	if($_[0] =~ /^[0-9,eE]+$/) {return 1;} #integer
 	if($_[0] =~ /^[0-9,.Ee+-]+$/) {return 2;} #float
 	return 3; #not integer or float
+}
+
+sub whatAmItext {
+	if($_[0] =~ /^[0-9,eE]+$/) {return "integer";} #integer
+	if($_[0] =~ /^[0-9,.Ee+-]+$/) {return "float";} #float
+	return "string"; #not integer or float
 }
 
 sub readtop {
