@@ -55,11 +55,17 @@ then
 fi
 
 $perl4smog $smog_exec -i $dir/share/benchmarks/$pdb.$graining.pdb -$grainingText -dname testing/$pdb.$graining  &> testing/smog2.output
-$perl4smog bin/quick_check.pl share/benchmarks/$pdb.$graining.top testing/$pdb.$graining.top &> testing/$pdb.$graining.test
+$perl4smog src/quick_check.pl share/benchmarks/$pdb.$graining.top testing/$pdb.$graining.top &> testing/$pdb.$graining.test
 
 a=$(grep ERROR testing/$pdb.$graining.test | wc -l | awk '{print $1}')
 b=$(grep "Your Structure-based Model is ready" testing/smog2.output | wc -l | awk '{print $1}')
+c=$(grep "Can't open perl script" testing/$pdb.$graining.test | wc -l | awk '{print $1}')
 
+if [ $c -gt 0 ]
+then
+echo "necessary file src/quick_check.pl not found. QUITTING."
+exit 
+fi
 if [ $a -gt 0 ]
 then
 echo There are errors. Check testing/$pdb.$graining.test for details.
@@ -75,7 +81,6 @@ fi
 
 done
 done
-exit
 rm -r testing
 echo "PASSED ALL"
 
