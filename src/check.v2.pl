@@ -19,6 +19,8 @@ our $TOLERANCE=$ENV{'TOLERANCE'};
 our $MAXTHR=1.0+$TOLERANCE;
 our $MINTHR=1.0-$TOLERANCE;
 our $PRECISION=$ENV{'PRECISION'};
+print "$SCM\n";
+exit();
 
 #these are variables used for default contact map testing
 our $BIFSIF_AA=$ENV{'BIFSIF_AA_DEFAULT'};
