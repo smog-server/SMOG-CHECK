@@ -19,8 +19,6 @@ our $TOLERANCE=$ENV{'TOLERANCE'};
 our $MAXTHR=1.0+$TOLERANCE;
 our $MINTHR=1.0-$TOLERANCE;
 our $PRECISION=$ENV{'PRECISION'};
-print "$SCM\n";
-exit();
 
 #these are variables used for default contact map testing
 our $BIFSIF_AA=$ENV{'BIFSIF_AA_DEFAULT'};
@@ -187,6 +185,9 @@ sub checkSCMexists
  if($o ne ""){
   #check that Jeff remembered to use -target 1.6 - this is only needed for development.  Since we check smog-check before releasing, we don't need to note this check normally.
   my $javaVersion=`javap -v -classpath $SCM org.smogserver.scm.ShadowMain  | grep major | awk '{print \$3}'`;
+  if($javaVersion eq ""){
+   internal_error("Unable to get version number from SCM.jar")
+  }
   unless($javaVersion==50){
    internal_error("Jeff forgot to use -target 1.6 for SCM.jar, major version=$javaVersion")
   }
