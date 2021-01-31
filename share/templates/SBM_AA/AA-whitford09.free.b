@@ -2,7 +2,7 @@
 <b>
 <!-- BONDS -->
 <bonds>
-	<bond func="bond_harmonic(?,10000)">
+	<bond func="bond_harmonic(?*0.6,10000)">
 	<bType>*</bType>
 	<bType>*</bType>
         </bond>
@@ -10,7 +10,7 @@
 
 <!-- ANGLES -->
 <angles>
-	<angle func="angle_harmonic(?,80)">
+	<angle func="angle_harmonic(1.35*?,80)">
 	<bType>*</bType>
 	<bType>*</bType>
 	<bType>*</bType>

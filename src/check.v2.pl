@@ -99,6 +99,8 @@ my $fudgeLJ;
 my $fudgeQQ;
 my $genpairs;
 my $combrule;
+my $bondrescale;
+my $anglerescale;
 #*******************END OF VARIABLE INITIALIZATION*****************
 
 
@@ -638,6 +640,9 @@ sub setmodelflags{
  # default is to use comb-rule 1
  $combrule=1; 
 
+ # bondrescale and anglerescale are only non-1 value if testing free.  We bundled the eval test in here.
+ $bondrescale=1;
+ $anglerescale=1;
  if($contactmodel =~ m/^default$/){
   $default="yes";
   $gaussian="no";
@@ -669,6 +674,8 @@ sub setmodelflags{
   $default="no";
   $gaussian="no";
   $free="yes";
+  $bondrescale=0.6;
+  $anglerescale=1.35;
  }elsif($contactmodel =~ m/^shadow-gaussian$/ || $contactmodel =~ m/^cutoff-gaussian$/){
   print "Will use gaussian contacts\n";
   $default="no";
@@ -2311,7 +2318,7 @@ sub checkbonds
     # there is a homogeneous value used
     $bweight=$bondEps;
     $maxdiff=5E-3;
-    $bval=getbonddist(\@A);
+    $bval=$bondrescale*getbonddist(\@A);
    }else{
     # heterogeneous bonds need to be checked (obtained from compare file).
     my $bt1=$atombondedtype[$A[0]];
@@ -2552,7 +2559,7 @@ sub checkangles
    $maxdiff=1.0;
    # there is a homogeneous value used
    $aweight=$angleEps;
-   $aval=getbondangle(\@A);
+   $aval=$anglerescale*getbondangle(\@A);
   }else{
    $maxdiff=10E-10;
    # heterogeneous bonds need to be checked (obtained from compare file).
