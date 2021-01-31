@@ -101,6 +101,7 @@ my $genpairs;
 my $combrule;
 my $bondrescale;
 my $anglerescale;
+my $MULTDIHE;
 #*******************END OF VARIABLE INITIALIZATION*****************
 
 
@@ -643,6 +644,9 @@ sub setmodelflags{
  # bondrescale and anglerescale are only non-1 value if testing free.  We bundled the eval test in here.
  $bondrescale=1;
  $anglerescale=1;
+ # default multiplicity of second dihedral is 3.  For the free test, we use 4, just to mix things up.
+ $MULTDIHE=3;
+
  if($contactmodel =~ m/^default$/){
   $default="yes";
   $gaussian="no";
@@ -676,6 +680,7 @@ sub setmodelflags{
   $free="yes";
   $bondrescale=0.6;
   $anglerescale=1.35;
+  $MULTDIHE=4;
  }elsif($contactmodel =~ m/^shadow-gaussian$/ || $contactmodel =~ m/^cutoff-gaussian$/){
   print "Will use gaussian contacts\n";
   $default="no";
@@ -2803,17 +2808,17 @@ sub checkdihedrals
 
   # #check if dihedral has been seen already...
 
-    # check duplicate type 3 
-    if(!exists $dihedral_array3{$string} and exists $A[7] and $A[7] == 3){
+    # check duplicate type 3 (or $MULTDIHE, to allow for other multiplicities to be checked) 
+    if(!exists $dihedral_array3{$string} and exists $A[7] and $A[7] == $MULTDIHE){
      $dihedral_array3{$string}=1;
      $dihedral_array3_W{$string}=$A[6];
      $dihedral_array3_A{$string}=$A[5];
      $accounted++;
      if(!exists $dihedral_array3{$string}){
       $solitary3++;
-      $fail_log .= failed_message("Type 3 dihedral appeared w/o a type 1...\n\t$LINE");
+      $fail_log .= failed_message("Multiplicity-$MULTDIHE dihedral appeared w/o a mult-1...\n\t$LINE");
      }
-    }elsif(exists $dihedral_array3{$string} and exists $A[7] and $A[7] == 3){
+    }elsif(exists $dihedral_array3{$string} and exists $A[7] and $A[7] == $MULTDIHE){
      $doubledih3++; 
      $fail_log .= failed_message("Duplicate dihedral\n\t$LINE");
     }elsif(!exists $dihedral_array1{$string} and exists $A[7] and $A[7] == 1){
@@ -2886,7 +2891,7 @@ sub checkdihedrals
     }	
    }
    $LAST_N=$A[7];
-   if($A[7] == 3 && ($string eq $string_last)){
+   if($A[7] == $MULTDIHE && ($string eq $string_last)){
     $S3_match++; 
     # we don't check anything at this point, so that we can compare n=1 and n=3 relative to each other 
    }
@@ -3049,14 +3054,14 @@ sub checkdihedrals
    if($dihedral_array3_W{$pair}  > $MINTHR*0.5*$dihedral_array1_W{$pair} and $dihedral_array3_W{$pair}  < $MAXTHR*0.5*$dihedral_array1_W{$pair}  ){
     $matchingpairs_W++;
    }else{
-    $fail_log .= failed_message("Relative weight between a N=1 and N=3 dihedral is not consistent: $pair, $dihedral_array1_W{$pair}, $dihedral_array3_W{$pair}");
+    $fail_log .= failed_message("Relative weight between a N=1 and N=$MULTDIHE dihedral is not consistent: $pair, $dihedral_array1_W{$pair}, $dihedral_array3_W{$pair}");
    }
    my $angle1=$dihedral_array1_A{$pair};
-   my $angle3=$dihedral_array3_A{$pair};
-   if((($angle3 % 360.0) > $MINTHR*(3*$angle1 % 360.0) and ($angle3 % 360.0) < $MAXTHR*(3*$angle1 % 360.0)) or (($angle3 % 360.0) < ($MAXTHR-1) and (3*$angle1 % 360.0) < ($MAXTHR-1) )){
+   my $angle3=$dihedral_array3_A{$pair}-180*($MULTDIHE-1);
+   if((($angle3 % 360.0) > $MINTHR*($MULTDIHE*$angle1 % 360.0) and ($angle3 % 360.0) < $MAXTHR*($MULTDIHE*$angle1 % 360.0)) or (($angle3 % 360.0) < ($MAXTHR-1) and ($MULTDIHE*$angle1 % 360.0) < ($MAXTHR-1) )){
     $matchingpairs_A++;
    }else{
-    $fail_log .= failed_message("Relative angles between a N=1 and N=3 dihedral is not consistent: $pair,$angle1,$angle3");
+    $fail_log .= failed_message("Relative angles between a N=1 and N=$MULTDIHE dihedral is not consistent: $pair,$angle1,$angle3");
    }
   }
  }
@@ -3264,7 +3269,7 @@ sub checkpairs
   $NCONTACTS++;
   my $R0=$GRODATA[$A[0]-1][1];
   my $R1=$GRODATA[$A[1]-1][1];
-  if($free eq "yes" && (exists $free_pair_defs{"$R0-$R1"} || exists $free_pair_defs{"$R0-$R1"})){
+  if($free eq "yes" && (exists $free_pair_defs{"$R0-$R1"} || exists $free_pair_defs{"$R1-$R0"})){
    $freepair=1;
    $fail_log .= failed_message("Free contacts defined, but a contact between $R0 and $R1 was found in the contacts. Atoms $A[0] and $A[1]\n");
   }
