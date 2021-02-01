@@ -18,24 +18,16 @@ General Public License. See COPYING.
 
 			USAGE
 
-There are three check scripts provided by this bundle. 
-One script is very fast, while the other is comprehensive and 
-can be used to test new SMOG models that you may 
-design. The third script will check the smog tools.
+There are three check scripts provided by this bundle: 
+smog-check
+scm-check
+smog-tool-check
 
 When everything works well, running the checks is 
 fairly quick and easy.  Just make sure you run 
 configure.smog2 for the version of SMOG 2 that you would
 like to test, before running the tests.  Also, make sure
-to launch smog-check from the smog-check directory.
-
-		    QUICK CHECK
-For the basic functionality check, issue the command:
-
-./quick-check
-
-	       COMPREHENSIVE CHECK
-For the comprehensive check (can require ~30 minutes): 
+to launch smog-check from the smog-check directory:
 
 ./smog-check 
 
@@ -84,10 +76,12 @@ you want to test smog_ions, only, then call
 These scripts have been tested on Linux and OSX 
 platforms. 
 
-
                   SCM CHECK
 
-If you plan to use the Shadow Contact Map software (SCM.jar) as a standalone application, then you can test it is working with scm-check
+If you plan to use the Shadow Contact Map software (SCM.jar) 
+as a standalone application, then you can test it is working 
+with scm-check
+
 
 Direct all questions and suggestions to info@smog-server.org.
 
