@@ -35,7 +35,7 @@ sub check_adjust
  %FAIL=resettests(\%FAIL,\@FAILLIST);
  $FAIL{'LARGE'}=-1;
  removeifexists("adjusted.pdb");
- `$exec -default -legacy -i $origpdb &> output.$tool`;
+ `$exec -legacy -i $origpdb &> output.$tool`;
  $FAIL{"OUTPUT NAME"}=trueifexists("adjusted.pdb");
 
  $FAIL{"NON-ZERO EXIT"}=$?;
@@ -70,7 +70,7 @@ sub check_adjust
  %FAIL=resettests(\%FAIL,\@FAILLIST);
  $FAIL{'LARGE'}=-1;
  removeifexists("$newpdb");
- `$exec -default -legacy -i $origpdb -o $newpdb &> output.$tool`;
+ `$exec -legacy -i $origpdb -o $newpdb &> output.$tool`;
  $FAIL{"OUTPUT NAME"}=trueifexists("$newpdb");
 
  $FAIL{"NON-ZERO EXIT"}=$?;
@@ -103,7 +103,7 @@ sub check_adjust
  %FAIL=resettests(\%FAIL,\@FAILLIST);
  $FAIL{'LARGE'}=-1;
  removeifexists("$newpdb");
- `$exec -default -i $origpdb -o $newpdb &> output.$tool`;
+ `$exec -i $origpdb -o $newpdb &> output.$tool`;
  $FAIL{"OUTPUT NAME"}=trueifexists("$newpdb");
 
  $FAIL{"NON-ZERO EXIT"}=$?;
