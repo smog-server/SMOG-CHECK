@@ -17,7 +17,6 @@ else
 			cp --parent $name distro
 		fi
 	done
-	sed "s/optim//g" configure.smog2 > distro/configure.smog2
 	echo done making distro
 
 	echo DONT FORGET TO UPDATE VERSION NUMBER IN smogv2
@@ -48,6 +47,8 @@ cp MANIFEST MANIFEST.bak
 cat > dontkeep << EOF
 ./FAILED
 ./MANIFEST.bak
+\.git
+distro
 EOF
 
 remove="dummyXYZ"
