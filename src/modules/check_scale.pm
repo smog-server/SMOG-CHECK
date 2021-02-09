@@ -18,6 +18,7 @@ sub check_scale
  my $printbuffer="";
  my @FAILLIST = ('NON-ZERO EXIT','UNCHANGED DIRECTIVES','N DIHEDRALS','N SCALED DIHEDRALS','N CONTACTS','N SCALED CONTACTS','GMX COMPATIBLE');
  %FAIL=resettests(\%FAIL,\@FAILLIST);
+ quit_init();
 
 # generate an AA model RNA 
  `smog2 -i $pdbdir/tRNA.pdb -AA -dname AA.tmp > output.smog`;

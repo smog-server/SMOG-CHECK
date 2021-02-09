@@ -37,7 +37,7 @@ sub check_extract
  my $printbuffer;
  my $tool="extract";
  my @FAILLIST = ('NON-ZERO EXIT','EXTRA MAP FILE GENERATED','GMX COMPATIBLE');
-
+ quit_init();
 
  %FAIL=resettests(\%FAIL,\@FAILLIST);
 
