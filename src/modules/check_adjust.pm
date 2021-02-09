@@ -22,7 +22,6 @@ sub check_adjust
  my $newpdb="testname.pdb";
  my $tool="adjust";
  my $TESTNUM=0;
- quit_init();
 
  open(ORIG,"$origpdb") or internal_error("Unable to open $origpdb");
  while(<ORIG>){

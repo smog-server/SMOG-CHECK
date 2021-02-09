@@ -18,7 +18,6 @@ sub check_table
  my $name;
  my @FAILLIST = ('NON-ZERO EXIT','CORRECT VALUES');
  %FAIL=resettests(\%FAIL,\@FAILLIST);
- quit_init();
 
  print "\tChecking default table\n"; 
  `$exec &> output.$tool`;

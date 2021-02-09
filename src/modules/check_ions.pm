@@ -36,7 +36,6 @@ sub check_ions
  my $printbuffer;
  my $tool="ions";
 # init arrays of things to check
- quit_init();
 
   # major index will be parameter set.  Minor index will list name (0), number (1), charge (2), mass (3), C12 (4), C6 (5)
  my @PARAMS = (
