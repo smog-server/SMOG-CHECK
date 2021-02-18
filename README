@@ -1,6 +1,6 @@
 #############################################################
 
-README for smog-check version 2.3beta. These are very simple 
+README for smog-check version 2.3. These are very simple 
 scripts that will test to see if your installation of SMOG 2 
 is generating CA and AA .top files that are consistent with 
 the default settings. They also check to see if the 

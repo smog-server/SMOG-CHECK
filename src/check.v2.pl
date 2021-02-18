@@ -7,7 +7,7 @@ use check_common;
 # This is intended to be a brute-force evaluation of everything that should appear. Since this is
 # a testing script, it is not designed to be efficient, but to be thorough, and foolproof...
 
-my $VERSION="2.3beta";
+my $VERSION="2.3";
 
 #****************INITIALIZE A BUNCH OF VARIABLES*******************
 
