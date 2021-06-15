@@ -82,7 +82,7 @@ sub check_scale
  ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
  $FAILSUM += $FAILED;
  if($FAILED !=0){
-  savefailed(2,("output.$tool","smog.rescaled.top","smog.rescaled.top","AA.tmp.contacts" , "AA.tmp.gro","AA.tmp.ndx", "AA.tmp.top","topol.tpr","$outfile.box.gro","$outfile.editconf","$outfile.grompp","$outfile.out.mdp"));
+  savefailed(2,("output.$tool","smog.rescaled.top","smog.rescaled.top","AA.tmp.contacts" , "AA.tmp.gro","AA.tmp.ndx", "AA.tmp.top","topol.tpr","$outfile.top","$outfile.box.gro","$outfile.editconf","$outfile.grompp","$outfile.out.mdp"));
   print "$printbuffer\n";
  }else{
   clearfiles(("output.$tool","$outfile.top","AA.tmp.contacts" , "AA.tmp.gro","AA.tmp.ndx", "AA.tmp.top","topol.tpr","$outfile.box.gro","$outfile.editconf","$outfile.grompp","$outfile.out.mdp"));
@@ -161,9 +161,18 @@ sub comparetopsrescale
   }
   $dihnum=$#D1+1;
   # rescaling dihedrals
-  for(my $I=0;$I<=$#D1;$I++){
-   my @A1=split(/\s+/,$D1[$I]); 
-   my @A2=split(/\s+/,$D2[$I]);
+  my $commentshift1=0;
+  my $commentshift2=0;
+  for(my $I=1;$I<=$#D1;$I++){
+   until(! exists $D1[$I+$commentshift1] or  hascontent($D1[$I+$commentshift1])){
+    $commentshift1++;
+    $dihnum--;
+   }
+   until(! exists $D2[$I+$commentshift2] or  hascontent($D2[$I+$commentshift2])){
+    $commentshift2++;
+   }
+   my @A1=split(/\s+/,$D1[$I+$commentshift1]); 
+   my @A2=split(/\s+/,$D2[$I+$commentshift2]);
     if($A1[0]==$A2[0] && $A1[1]==$A2[1] && $A1[2]==$A2[2] && $A1[3]==$A2[3]){
      $sameatoms++;
      my $rescale=0;
@@ -181,10 +190,10 @@ sub comparetopsrescale
      if(abs($A1[6]*$resc-$A2[6])<0.001){
       $dscaled++;
      }else{
-      print "issue: dihedral not scaled properly. Should be scaled by $resc.\nold $D1[$I]\nnew $D2[$I]\n";
+      print "issue: dihedral not scaled properly. Should be scaled by $resc.\nold $D1[$I+$commentshift1]\nnew $D2[$I+$commentshift2]\n";
      } 
     }else{
-     print "issue: atom numbers don\'t match:\nold $D1[$I]\nnew$D2[$I]\n";
+     print "issue: atom numbers don\'t match:\nold $D1[$I+$commentshift1]\nnew $D2[$I+$commentshift2]\n";
     } 
   }
  }else{
@@ -192,10 +201,16 @@ sub comparetopsrescale
   $dihlength=-1;
   $dihnum=$#D1+1;
   # rescaling dihedrals
-  my $I2=0;
-  for(my $I=0;$I<=$#D1;$I++){
-   my @A1=split(/\s+/,$D1[$I]); 
-   my @A2=split(/\s+/,$D2[$I2]);
+  my $I2=1;
+  my $commentshift1=0;
+  my $commentshift2=0;
+  for(my $I=1;$I<=$#D1;$I++){
+   until(! exists $D1[$I+$commentshift1] or  hascontent($D1[$I+$commentshift1])){
+    $commentshift1++;
+    $dihnum--;
+   }
+   my @A1=split(/\s+/,$D1[$I+$commentshift1]);
+
    my $remove=0;
    for(my $J=0;$J<4;$J++){
     if(exists $atomgroup{$DGROUP}{$A1[$J]}){
@@ -207,15 +222,20 @@ sub comparetopsrescale
     $dihnum--;
     next;
    }
+   until(! exists $D2[$I2+$commentshift2] or  hascontent($D2[$I2+$commentshift2])){
+    $commentshift2++;
+   }
+   my @A2=split(/\s+/,$D2[$I2+$commentshift2]);
+
    if($A1[0]==$A2[0] && $A1[1]==$A2[1] && $A1[2]==$A2[2] && $A1[3]==$A2[3]){
     $sameatoms++;
    }else{
-    print "issue: atom numbers don\'t match:\nold $D1[$I]\nnew $D2[$I2]\n";
+    print "issue: atom numbers don\'t match:\nold $D1[$I+$commentshift1]\nnew $D2[$I2+$commentshift2]\n";
    } 
    if(abs($A1[6]-$A2[6])<0.001){
     $dscaled++;
    }else{
-    print "issue: dihedral not set properly.\nold $D1[$I]\nnew $D2[$I2]\n";
+    print "issue: dihedral not set properly.\n$I, $commentshift1, $I2, $commentshift2\nold $D1[$I+$commentshift1]\nnew $D2[$I2+$commentshift2]\n";
    } 
    $I2++;
   }
@@ -230,9 +250,19 @@ sub comparetopsrescale
   }
   $connum=$#C1+1;
   # rescaling contacts
-  for(my $I=0;$I<=$#C1;$I++){
-   my @A1=split(/\s+/,$C1[$I]); 
-   my @A2=split(/\s+/,$C2[$I]);
+  my $commentshift1=0;
+  my $commentshift2=0;
+  for(my $I=1;$I<=$#C1;$I++){
+   until(! exists $C1[$I+$commentshift1] or  hascontent($C1[$I+$commentshift1])){
+    $commentshift1++;
+    $connum--;
+   }
+   until(! exists $C2[$I+$commentshift2] or  hascontent($C2[$I+$commentshift2])){
+    $commentshift2++;
+   }
+   my @A1=split(/\s+/,$C1[$I+$commentshift1]); 
+   my @A2=split(/\s+/,$C2[$I+$commentshift2]);
+
     if($A1[0]==$A2[0] && $A1[1]==$A2[1]){
      $consameatoms++;
      my $rescale=0;
@@ -261,10 +291,20 @@ sub comparetopsrescale
   $conlength=-1;
   $connum=$#C1+1;
   # rescaling contacts
-  my $I2=0;
-  for(my $I=0;$I<=$#C1;$I++){
-   my @A1=split(/\s+/,$C1[$I]); 
-   my @A2=split(/\s+/,$C2[$I2]);
+  my $I2=1;
+#  for(my $I=0;$I<=$#C1;$I++){
+#   my @A1=split(/\s+/,$C1[$I]); 
+#   my @A2=split(/\s+/,$C2[$I2]);
+
+  my $commentshift1=0;
+  my $commentshift2=0;
+  for(my $I=1;$I<=$#C1;$I++){
+   until(! exists $C1[$I+$commentshift1] or  hascontent($C1[$I+$commentshift1])){
+    $commentshift1++;
+    $connum--;
+   }
+   my @A1=split(/\s+/,$C1[$I+$commentshift1]); 
+
    my $remove=0;
    if(exists $atomgroup{$CGROUP1}{$A1[0]} && exists $atomgroup{$CGROUP2}{$A1[1]}){
     $remove=1; 
@@ -275,20 +315,25 @@ sub comparetopsrescale
     $connum--;
     next;
    }
+
+   until(! exists $C2[$I2+$commentshift2] or  hascontent($C2[$I2+$commentshift2])){
+    $commentshift2++;
+   }
+   my @A2=split(/\s+/,$C2[$I2+$commentshift2]);
+
    if($A1[0]==$A2[0] && $A1[1]==$A2[1]){
     $consameatoms++;
     if(abs($A1[3]-$A2[3])<0.001 && abs($A1[4]-$A2[4])<0.001){
      $cscaled++;
     }else{
-     print "issue: contact not set properly.\nold $C1[$I]\nnew $C2[$I2]\n";
+     print "issue: contact not set properly.\nold $C1[$I+$commentshift1]\nnew $C2[$I2+$commentshift2]\n";
     } 
    }else{
-    print "issue: atom numbers don\'t match:\nold $C1[$I]\nnew $C2[$I2]\n";
+    print "issue: atom numbers don\'t match:\nold $C1[$I+$commentshift1]\nnew $C2[$I2+$commentshift2]\n";
    } 
   $I2++;
   }
  }
-
  return ($samedirs,$dihlength,abs($dihnum-$dscaled),$conlength,abs($connum-$cscaled));
 }
 
