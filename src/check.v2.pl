@@ -1,5 +1,7 @@
 use strict;
 use warnings FATAL => 'all';
+&checkForModules;
+use XML::Simple qw(:strict);
 use Math::Trig qw(acos_real rad2deg);
 use smog_common;
 use check_common;
@@ -36,7 +38,7 @@ quit_init();
 
 # FAILLIST is a list of all the tests.
 # If you are developing and testing your own forcefield, which may not need to conform to certain checks, then you may want to disable some tests by  removing the test name from this list. However, do so at your own risk.
-our @FAILLIST = ('NAME','DEFAULTS, num entries','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','DEFAULTS, fudgeLJ','DEFAULTS, fudgeQQ','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','TOP FIELDS FOUND','TOP FIELDS RECOGNIZED','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES','ATOMTYPES, SIGMA','ATOMTYPES, EPSILON', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'BOND LENGTHS','ANGLE TYPES', 'ANGLE WEIGHTS', 'ANGLE VALUES','DUPLICATE BONDS', 'DUPLICATE ANGLES', 'GENERATED ANGLE COUNT','GENERATED ANGLE IN TOP','ANGLES IN TOP GENERATED', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','MATCH DIH WEIGHTS','DIHEDRAL ANGLES','ALL POSSIBLE MATCHED DIHEDRALS PRESENT','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL IN TOP GENERATED','GENERATED DIHEDRAL IN TOP','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','NON-STACKING 2CG CONTACT WEIGHTS','NON-STACKING CG RATIO','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','GAUSSIAN CONTACT EXCLUDED VOLUME','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY','TYPE6 ATOMS','CLASSIFYING DIHEDRALS','NON-ZERO EXIT','ATOM FIELDS','ATOM CHARGES','FREE PAIRS APPEAR IN CONTACTS','EXTRAS: ATOMTYPES','EXTRAS: BONDTYPES','EXTRAS: ANGLETYPES','EXTRAS: DIHEDRALTYPES','EXTRAS: NB_PARAMS','NONZERO LIGAND DIHEDRAL VALUE','BONDS: EXPECTED FOUND','BONDS: FOUND EXPECTED','GMX COMPATIBLE','DIHEDRAL COUNTING: OFF','DIHEDRAL COUNTING: ON','OPENSMOG CONTACTS');
+our @FAILLIST = ('NAME','DEFAULTS, num entries','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','DEFAULTS, fudgeLJ','DEFAULTS, fudgeQQ','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','TOP FIELDS FOUND','TOP FIELDS RECOGNIZED','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES','ATOMTYPES, SIGMA','ATOMTYPES, EPSILON', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'BOND LENGTHS','ANGLE TYPES', 'ANGLE WEIGHTS', 'ANGLE VALUES','DUPLICATE BONDS', 'DUPLICATE ANGLES', 'GENERATED ANGLE COUNT','GENERATED ANGLE IN TOP','ANGLES IN TOP GENERATED', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','MATCH DIH WEIGHTS','DIHEDRAL ANGLES','ALL POSSIBLE MATCHED DIHEDRALS PRESENT','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL IN TOP GENERATED','GENERATED DIHEDRAL IN TOP','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','NON-STACKING 2CG CONTACT WEIGHTS','NON-STACKING CG RATIO','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','GAUSSIAN CONTACT EXCLUDED VOLUME','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY','TYPE6 ATOMS','CLASSIFYING DIHEDRALS','NON-ZERO EXIT','ATOM FIELDS','ATOM CHARGES','FREE PAIRS APPEAR IN CONTACTS','EXTRAS: ATOMTYPES','EXTRAS: BONDTYPES','EXTRAS: ANGLETYPES','EXTRAS: DIHEDRALTYPES','EXTRAS: NB_PARAMS','NONZERO LIGAND DIHEDRAL VALUE','BONDS: EXPECTED FOUND','BONDS: FOUND EXPECTED','GMX COMPATIBLE','DIHEDRAL COUNTING: OFF','DIHEDRAL COUNTING: ON','OPENSMOG CONTACTS','OPENSMOG: XML EXISTS');
 
 # default location of test PDBs
 our $PDB_DIR="share/PDB.files";
@@ -227,6 +229,59 @@ sub readbackbonetypes
   close(FF);
  }
 }
+
+sub readopenSMOG
+{
+ my ($XMLin)=@_;
+ if(-f $XMLin){
+  my $xml = new XML::Simple;
+  my $data = $xml->XMLin($XMLin,KeyAttr=>{contact_potential=>"name"},ForceArray=>1);
+  return $data;
+ }else{
+  return 0;
+ }
+}
+
+sub addopenSMOG
+{
+# things to check
+# make sure only and all expected parameters are present in each interaction
+# make sure the functional form is correct
+ my ($topdata,$openXML)=@_;
+ my $functionform=0;
+ foreach my $key(keys %{$openXML}){
+  foreach my $funcs(keys %{$openXML->{"$key"}->[0]->{'contact_potential'}}){
+   my @addstuff;
+   my $expr=$openXML->{"$key"}->[0]->{'contact_potential'}->{$funcs}->{'expression'}->[0]->{'expr'};
+   if($expr eq "A/r^12-B/r^6"){
+    $functionform=1;
+   }
+    #foreach my $params(@{$openXML->{"$key"}->[0]->{'contact_potential'}->{$funcs}->{'parameter'}}){
+#	print "$params\n";
+ #   }
+    foreach my $interval(@{$openXML->{"$key"}->[0]->{'contact_potential'}->{$funcs}->{'interaction'}}){
+      my $I=$interval->{'i'};
+      my $J=$interval->{'j'};
+      my $C6=$interval->{'B'};
+      my $C12=$interval->{'A'};
+      my $string = "$I $J 1 $C6 $C12";
+      push (@addstuff,$string);
+#     foreach my $intv(keys %{$interval}){
+#      my $J=$interval->{$intv};
+#      print "$intv $J\n";
+#     }
+#	print "$I\n";
+    }
+   if(!defined $topdata->{'pairs'}){
+    ${$topdata->{'pairs'}}[0]=" [ pairs ]";
+   }
+   push(@{$topdata->{'pairs'}},@addstuff);
+  }
+ }
+
+ return ($topdata);
+}
+
 
 sub checkforretest
 {
@@ -898,17 +953,17 @@ sub checkSCM
 
 sub smogchecker
 {
- my ($gaussian,$opensmog)=@_;
+ my ($gaussian,$openSMOG)=@_;
  &cleanoldfiles;
  &preparesettings;
  print "Running SMOG 2\n";
- &runsmog($opensmog); 
+ &runsmog($openSMOG); 
  $FAIL{'NON-ZERO EXIT'}=$?;
 
 
 #######TEST-SPECIFIC DISABLED CHECKS######
 
- if($opensmog ==0){
+ if($openSMOG ==0){
   $FAIL{'OPENSMOG CONTACTS'}=-1;
  }
 
@@ -961,7 +1016,7 @@ sub smogchecker
    &checkgro4SCM; 
   }
   &checkndx;
-  &checktop;
+  &checktop($openSMOG);
   &finalchecks;
   # if GMX tests are turned on, then run them
   $FAIL{'GMX COMPATIBLE'}=runGMX($model,$CHECKGMX,$CHECKGMXGAUSSIAN,$GMXEDITCONF,$GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXMDP,$GMXMDPCA,$gaussian,$PDB);
@@ -1360,6 +1415,7 @@ sub checkndx
 
 sub checktop
 {
+ my ($openSMOG)=@_;
 # this routine will be cleaned up later.  It's functional, but not very organized.
  my (@topdata,%seen,%FOUND,@theta_gen,@PAIRS,$finalres,%revData,@resindex,%theta_gen_as,%phi_gen_as,@phi_gen,%improper_gen_as,@improper_gen,@A);
  undef %MOLTYPEBYRES;
@@ -1400,9 +1456,14 @@ sub checktop
  my $dir=" ";
  my @buffer;
  my %topdata;
+ my $topdata=\%topdata;
  # read and save the top file by directive.
  for(my $N=0;$N<$topNlines;$N++){
   my $LINE=$topdata[$N];
+  my ($A,$B)=checkcomment($LINE);
+  if($A eq ""){
+   next;
+  }
   if(substr($LINE,0,1) eq "["){
    @A=split(/ /,$LINE);
    if(exists $A[0] && $A[0] eq "[" && exists $A[1]){
@@ -1414,6 +1475,17 @@ sub checktop
    }
   }
   push(@buffer,$LINE);
+ }
+ # don't forget to save the last directive
+ my @nbuff=@buffer;
+ $topdata{$dir}=\@nbuff;
+
+ if(defined $openSMOG){
+  my $openXML=readopenSMOG("$PDB.xml");
+  if($openXML !=0){
+   $FAIL{'OPENSMOG: XML EXISTS'}=1;
+   $topdata=addopenSMOG($topdata,$openXML);
+  }
  }
 
  # check contents by directive
