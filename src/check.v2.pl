@@ -258,27 +258,37 @@ sub addopenSMOG
  my @expectedattributes;
  my $interactionpass=1;
  my $addstuff;
- if($model eq "AA" && $gaussian eq "no"){
-  $expectedfunction="A/r^12-B/r^6";
-  @expectedparams=("A","B");
-  # note that B is before A.  this is necessary
-  @expectedattributes=("i","j","B","A");
- }elsif($model eq "CA" && $gaussian eq "no"){
-  $expectedfunction="A/r^12-B/r^10";
-  @expectedparams=("A","B");
-  # note that B is before A.  this is necessary
-  @expectedattributes=("i","j","B","A");
- }elsif($gaussian eq "yes"){
-  $expectedfunction="-A*((1+a/(A*r^12))*(1-exp(-(r-r0)^2/(2*sigmaG^2)))-1)";
-  @expectedparams=("A","r0","sigmaG","a");
-  # note that B is before A.  this is necessary
-  @expectedattributes=("i","j","A","r0","sigmaG","a");
- }else{
-  internal_error("openSMOG checking not implemented for model $model and gaussian=$gaussian");
- } 
+ my $ftype; 
  foreach my $key(keys %{$openXML}){
   my $xmlhandle=$openXML->{"$key"}->[0]->{'contact_potential'};
   foreach my $funcs(keys %{$xmlhandle}){
+
+   # determine what is expected in this contact term
+   if($funcs eq "bond_type6"){
+    $ftype=6;
+     $expectedfunction="eps*(r-r0)^2";
+     @expectedparams=("eps","r0");
+     @expectedattributes=("i","j","r0","eps");
+   }else{
+    $ftype=1;
+    if($model eq "AA" && $gaussian eq "no"){
+     $expectedfunction="A/r^12-B/r^6";
+     @expectedparams=("A","B");
+     # note that B is before A.  this is necessary
+     @expectedattributes=("i","j","B","A");
+    }elsif($model eq "CA" && $gaussian eq "no"){
+     $expectedfunction="A/r^12-B/r^10";
+     @expectedparams=("A","B");
+     # note that B is before A.  this is necessary
+     @expectedattributes=("i","j","B","A");
+    }elsif($gaussian eq "yes"){
+     $expectedfunction="-A*((1+a/(A*r^12))*(1-exp(-(r-r0)^2/(2*sigmaG^2)))-1)";
+     @expectedparams=("A","r0","sigmaG","a");
+     @expectedattributes=("i","j","A","r0","sigmaG","a");
+    }else{
+     internal_error("openSMOG checking not implemented for model $model and gaussian=$gaussian");
+    }
+   }
    my $expr=$xmlhandle->{$funcs}->{'expression'}->[0]->{'expr'};
    if($expr eq $expectedfunction){
     $functionform=0;
@@ -288,12 +298,18 @@ sub addopenSMOG
    my $paramhandle=$xmlhandle->{$funcs}->{'parameter'};
    $parampass=arraycomp(\@expectedparams,$paramhandle);
 
-   ($interactionpass,$addstuff)=collectcontactinteractions(\@expectedattributes,$openXML->{"$key"}->[0]->{'contact_potential'}->{$funcs}->{'interaction'});
-
-   if(!defined $topdata->{'pairs'}){
-    ${$topdata->{'pairs'}}[0]=" [ pairs ]";
+   ($interactionpass,$addstuff)=collectcontactinteractions(\@expectedattributes,$openXML->{"$key"}->[0]->{'contact_potential'}->{$funcs}->{'interaction'},$ftype);
+   if($funcs eq "bond_type6"){
+    if(!defined $topdata->{'bonds'}){
+     ${$topdata->{'bonds'}}[0]=" [ bonds ]";
+    }
+    push(@{$topdata->{'bonds'}},@{$addstuff});
+   }else{
+    if(!defined $topdata->{'pairs'}){
+     ${$topdata->{'pairs'}}[0]=" [ pairs ]";
+    }
+    push(@{$topdata->{'pairs'}},@{$addstuff});
    }
-   push(@{$topdata->{'pairs'}},@{$addstuff});
   }
  }
  return ($topdata,$functionform,$parampass,$interactionpass);
@@ -326,7 +342,7 @@ sub collectcontactinteractions
 {
  # this subroutine takes two handles, one for an array, one for an array of hashes.  It then checks that the array entries are the same as the keys of each hash.  Returns 0 if everything is in order and 1 otherwise.
 
- my ($array,$arrayofhashes)=@_;
+ my ($array,$arrayofhashes,$ftype)=@_;
  my @array=@{$array}; 
  my @arrayofhashes=@{$arrayofhashes}; 
  my $mustmatch=scalar(@arrayofhashes)*scalar(@array); 
@@ -338,7 +354,7 @@ sub collectcontactinteractions
    for(my $I=0;$I<scalar(@array);$I++){
     my $name=$array[$I];
     if ($I==2){
-     $string .="1 ";
+     $string .="$ftype ";
     }
     if(defined ${$entry}{$name}){
      $string .="${$entry}{$name} ";
