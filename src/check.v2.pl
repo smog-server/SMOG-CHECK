@@ -748,6 +748,8 @@ sub runsmog
  my ($openSMOG)=@_;
  if($openSMOG == 1){
   $openSMOG="-openSMOG -openSMOGxml $PDB.xml";
+ }else{
+  $openSMOG="";
  }
  my $ARGS=" -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -SCMorig $openSMOG";
 
@@ -1056,6 +1058,7 @@ sub smogchecker
   $FAIL{'OPENSMOG CONTACTS: EXPRESSION'}=-1;
   $FAIL{'OPENSMOG CONTACTS: PARAMETERS'}=-1;
   $FAIL{'OPENSMOG CONTACTS: INTERACTIONS'}=-1;
+  $FAIL{'OPENSMOG: XML EXISTS'}=-1;
  }
 
  if($PDB =~ m/BOND$/){
