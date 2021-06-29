@@ -263,6 +263,16 @@ sub addopenSMOG
   @expectedparams=("A","B");
   # note that B is before A.  this is necessary
   @expectedattributes=("i","j","B","A");
+ }elsif($model eq "CA" && $gaussian eq "no"){
+  $expectedfunction="A/r^12-B/r^10";
+  @expectedparams=("A","B");
+  # note that B is before A.  this is necessary
+  @expectedattributes=("i","j","B","A");
+ }elsif($gaussian eq "yes"){
+  $expectedfunction="-A*((1+a/(A*r^12))*(1-exp(-(r-r0)^2/(2*sigmaG^2)))-1)";
+  @expectedparams=("A","r0","sigmaG","a");
+  # note that B is before A.  this is necessary
+  @expectedattributes=("i","j","A","r0","sigmaG","a");
  }else{
   internal_error("openSMOG checking not implemented for model $model and gaussian=$gaussian");
  } 

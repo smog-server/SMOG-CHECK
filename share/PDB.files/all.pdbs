@@ -1,5 +1,5 @@
 ; check distributed AA model with various types of molecules and residues
-1A01-AMP openSMOG AA default ; 1
+1A01-AMP AA default ; 1
 1A01-ADP AA default ; 2
 1A01-ATP AA default ; 3
 1A01-ADP+RNA AA default ; 4
@@ -114,3 +114,12 @@ terminaltest AA cutoff-gaussian 5.0 0.8 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4
 
 ; check use of NB type 2 parameters
 protein-RNA AA-nb-cr2 default ;93
+
+; check openSMOG routines
+1AKEapo_v2 openSMOG AA default ;94
+DNA.terminal.BMG openSMOG AA default ; 95
+1A01-AMP openSMOG AA default-gaussian ;96
+2ci2_v2 openSMOG CA default ;97
+2ci2_v2 openSMOG CA default-gaussian ;98
+;ADD CUSTOM FORCE TEST; 99
+;ADD CUSTOM FORCE TEST with 2 types; 100
