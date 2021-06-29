@@ -7,7 +7,7 @@ use smog_common;
 use check_common;
 # This is the main script that runs SMOG 2 and then checks to see if the generated files are correct.
 # This is intended to be a brute-force evaluation of everything that should appear. Since this is
-# a testing script, it is not designed to be efficient, but to be thorough, and foolproof...
+# a testing script, it is not designed to be efficient, but to be thorough, and foolproof...  perhaps over time we will clean this up.  But, it gets the job done.
 
 my $VERSION="2.4beta";
 
@@ -38,7 +38,7 @@ quit_init();
 
 # FAILLIST is a list of all the tests.
 # If you are developing and testing your own forcefield, which may not need to conform to certain checks, then you may want to disable some tests by  removing the test name from this list. However, do so at your own risk.
-our @FAILLIST = ('NAME','DEFAULTS, num entries','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','DEFAULTS, fudgeLJ','DEFAULTS, fudgeQQ','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','TOP FIELDS FOUND','TOP FIELDS RECOGNIZED','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES','ATOMTYPES, SIGMA','ATOMTYPES, EPSILON', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'BOND LENGTHS','ANGLE TYPES', 'ANGLE WEIGHTS', 'ANGLE VALUES','DUPLICATE BONDS', 'DUPLICATE ANGLES', 'GENERATED ANGLE COUNT','GENERATED ANGLE IN TOP','ANGLES IN TOP GENERATED', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','MATCH DIH WEIGHTS','DIHEDRAL ANGLES','ALL POSSIBLE MATCHED DIHEDRALS PRESENT','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL IN TOP GENERATED','GENERATED DIHEDRAL IN TOP','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','NON-STACKING 2CG CONTACT WEIGHTS','NON-STACKING CG RATIO','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','GAUSSIAN CONTACT EXCLUDED VOLUME','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY','TYPE6 ATOMS','CLASSIFYING DIHEDRALS','NON-ZERO EXIT','ATOM FIELDS','ATOM CHARGES','FREE PAIRS APPEAR IN CONTACTS','EXTRAS: ATOMTYPES','EXTRAS: BONDTYPES','EXTRAS: ANGLETYPES','EXTRAS: DIHEDRALTYPES','EXTRAS: NB_PARAMS','NONZERO LIGAND DIHEDRAL VALUE','BONDS: EXPECTED FOUND','BONDS: FOUND EXPECTED','GMX COMPATIBLE','DIHEDRAL COUNTING: OFF','DIHEDRAL COUNTING: ON','OPENSMOG CONTACTS','OPENSMOG: XML EXISTS');
+our @FAILLIST = ('NAME','DEFAULTS, num entries','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','DEFAULTS, fudgeLJ','DEFAULTS, fudgeQQ','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','TOP FIELDS FOUND','TOP FIELDS RECOGNIZED','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES','ATOMTYPES, SIGMA','ATOMTYPES, EPSILON', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'BOND LENGTHS','ANGLE TYPES', 'ANGLE WEIGHTS', 'ANGLE VALUES','DUPLICATE BONDS', 'DUPLICATE ANGLES', 'GENERATED ANGLE COUNT','GENERATED ANGLE IN TOP','ANGLES IN TOP GENERATED', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','MATCH DIH WEIGHTS','DIHEDRAL ANGLES','ALL POSSIBLE MATCHED DIHEDRALS PRESENT','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL IN TOP GENERATED','GENERATED DIHEDRAL IN TOP','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','NON-STACKING 2CG CONTACT WEIGHTS','NON-STACKING CG RATIO','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','GAUSSIAN CONTACT EXCLUDED VOLUME','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY','TYPE6 ATOMS','CLASSIFYING DIHEDRALS','NON-ZERO EXIT','ATOM FIELDS','ATOM CHARGES','FREE PAIRS APPEAR IN CONTACTS','EXTRAS: ATOMTYPES','EXTRAS: BONDTYPES','EXTRAS: ANGLETYPES','EXTRAS: DIHEDRALTYPES','EXTRAS: NB_PARAMS','NONZERO LIGAND DIHEDRAL VALUE','BONDS: EXPECTED FOUND','BONDS: FOUND EXPECTED','GMX COMPATIBLE','DIHEDRAL COUNTING: OFF','DIHEDRAL COUNTING: ON','OPENSMOG CONTACTS: EXPRESSION','OPENSMOG CONTACTS: PARAMETERS','OPENSMOG CONTACTS: INTERACTIONS','OPENSMOG: XML EXISTS');
 
 # default location of test PDBs
 our $PDB_DIR="share/PDB.files";
@@ -238,7 +238,7 @@ sub readopenSMOG
   my $data = $xml->XMLin($XMLin,KeyAttr=>{contact_potential=>"name"},ForceArray=>1);
   return $data;
  }else{
-  return 0;
+  return 1;
  }
 }
 
@@ -247,41 +247,104 @@ sub addopenSMOG
 # things to check
 # make sure only and all expected parameters are present in each interaction
 # make sure the functional form is correct
- my ($topdata,$openXML)=@_;
- my $functionform=0;
+ my ($topdata,$openXML,$model,$gaussian)=@_;
+
+ my $functionform=1;
+ my $parampass=1;
+
+ my $paramlist=1;
+ my $expectedfunction;
+ my @expectedparams;
+ my @expectedattributes;
+ my $interactionpass=1;
+ my $addstuff;
+ if($model eq "AA" && $gaussian eq "no"){
+  $expectedfunction="A/r^12-B/r^6";
+  @expectedparams=("A","B");
+  # note that B is before A.  this is necessary
+  @expectedattributes=("i","j","B","A");
+ }else{
+  internal_error("openSMOG checking not implemented for model $model and gaussian=$gaussian");
+ } 
  foreach my $key(keys %{$openXML}){
-  foreach my $funcs(keys %{$openXML->{"$key"}->[0]->{'contact_potential'}}){
-   my @addstuff;
-   my $expr=$openXML->{"$key"}->[0]->{'contact_potential'}->{$funcs}->{'expression'}->[0]->{'expr'};
-   if($expr eq "A/r^12-B/r^6"){
-    $functionform=1;
+  my $xmlhandle=$openXML->{"$key"}->[0]->{'contact_potential'};
+  foreach my $funcs(keys %{$xmlhandle}){
+   my $expr=$xmlhandle->{$funcs}->{'expression'}->[0]->{'expr'};
+   if($expr eq $expectedfunction){
+    $functionform=0;
    }
-    #foreach my $params(@{$openXML->{"$key"}->[0]->{'contact_potential'}->{$funcs}->{'parameter'}}){
-#	print "$params\n";
- #   }
-    foreach my $interval(@{$openXML->{"$key"}->[0]->{'contact_potential'}->{$funcs}->{'interaction'}}){
-      my $I=$interval->{'i'};
-      my $J=$interval->{'j'};
-      my $C6=$interval->{'B'};
-      my $C12=$interval->{'A'};
-      my $string = "$I $J 1 $C6 $C12";
-      push (@addstuff,$string);
-#     foreach my $intv(keys %{$interval}){
-#      my $J=$interval->{$intv};
-#      print "$intv $J\n";
-#     }
-#	print "$I\n";
-    }
+
+   # If the expected parameters and found parameters are identical, then we will have 1+2N true hits 
+   my $paramhandle=$xmlhandle->{$funcs}->{'parameter'};
+   $parampass=arraycomp(\@expectedparams,$paramhandle);
+
+   ($interactionpass,$addstuff)=collectcontactinteractions(\@expectedattributes,$openXML->{"$key"}->[0]->{'contact_potential'}->{$funcs}->{'interaction'});
+
    if(!defined $topdata->{'pairs'}){
     ${$topdata->{'pairs'}}[0]=" [ pairs ]";
    }
-   push(@{$topdata->{'pairs'}},@addstuff);
+   push(@{$topdata->{'pairs'}},@{$addstuff});
+  }
+ }
+ return ($topdata,$functionform,$parampass,$interactionpass);
+}
+
+sub arraycomp
+{
+ # this takes two array handles and then checks if they are identical.  It first makes sure the arrays are the same
+ # length and then checks the value of each entry.  If they are identical, it returns 0.  Different returns 1.
+ my ($handle1,$handle2)=@_;
+ my @handle1=@{$handle1};
+ my @handle2=@{$handle2};
+ my $pcount=0;
+ my $pass=1;
+ if(scalar(@handle1) == scalar(@handle2)){
+  # if they are the same length, then they may be identical. Otherwise, they are different.
+  for (my $I=0;$I<=$#handle2;$I++){
+   if($handle1[$I] eq $handle2[$I]){
+    $pcount++;
+   }
+  }
+  if(scalar(@handle1)==$pcount && $pcount !=0){
+   $pass=0; 
+  }
+ }
+ return $pass;
+}
+
+sub collectcontactinteractions
+{
+ # this subroutine takes two handles, one for an array, one for an array of hashes.  It then checks that the array entries are the same as the keys of each hash.  Returns 0 if everything is in order and 1 otherwise.
+
+ my ($array,$arrayofhashes)=@_;
+ my @array=@{$array}; 
+ my @arrayofhashes=@{$arrayofhashes}; 
+ my $mustmatch=scalar(@arrayofhashes)*scalar(@array); 
+ my $matched=0;
+ my @addstuff=();
+ foreach my $entry(@arrayofhashes){
+  my $string="";
+  if(keys %{$entry} == scalar(@array)){
+   for(my $I=0;$I<scalar(@array);$I++){
+    my $name=$array[$I];
+    if ($I==2){
+     $string .="1 ";
+    }
+    if(defined ${$entry}{$name}){
+     $string .="${$entry}{$name} ";
+     $matched++;
+    }
+   }
+   push (@addstuff,$string);
   }
  }
 
- return ($topdata);
+ if($matched == $mustmatch && $matched !=0){
+  return (0,\@addstuff);
+ }else{
+  return (1,\@addstuff);
+ }
 }
-
 
 sub checkforretest
 {
@@ -964,7 +1027,9 @@ sub smogchecker
 #######TEST-SPECIFIC DISABLED CHECKS######
 
  if($openSMOG ==0){
-  $FAIL{'OPENSMOG CONTACTS'}=-1;
+  $FAIL{'OPENSMOG CONTACTS: EXPRESSION'}=-1;
+  $FAIL{'OPENSMOG CONTACTS: PARAMETERS'}=-1;
+  $FAIL{'OPENSMOG CONTACTS: INTERACTIONS'}=-1;
  }
 
  if($PDB =~ m/BOND$/){
@@ -1016,7 +1081,7 @@ sub smogchecker
    &checkgro4SCM; 
   }
   &checkndx;
-  &checktop($openSMOG);
+  &checktop($openSMOG,$model,$gaussian);
   &finalchecks;
   # if GMX tests are turned on, then run them
   $FAIL{'GMX COMPATIBLE'}=runGMX($model,$CHECKGMX,$CHECKGMXGAUSSIAN,$GMXEDITCONF,$GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXMDP,$GMXMDPCA,$gaussian,$PDB);
@@ -1134,7 +1199,6 @@ sub checkgro4SCM
   $ZT[$I+1]=$Z;
  }
 }
-
 
 sub preparesettings
 {
@@ -1415,7 +1479,7 @@ sub checkndx
 
 sub checktop
 {
- my ($openSMOG)=@_;
+ my ($openSMOG,$model,$gaussian)=@_;
 # this routine will be cleaned up later.  It's functional, but not very organized.
  my (@topdata,%seen,%FOUND,@theta_gen,@PAIRS,$finalres,%revData,@resindex,%theta_gen_as,%phi_gen_as,@phi_gen,%improper_gen_as,@improper_gen,@A);
  undef %MOLTYPEBYRES;
@@ -1482,9 +1546,16 @@ sub checktop
 
  if(defined $openSMOG){
   my $openXML=readopenSMOG("$PDB.xml");
-  if($openXML !=0){
-   $FAIL{'OPENSMOG: XML EXISTS'}=1;
-   $topdata=addopenSMOG($topdata,$openXML);
+  if($openXML !=1){
+   $FAIL{'OPENSMOG: XML EXISTS'}=0;
+   my $openEXPR=1;
+   my $openPARAMS=1;
+   my $openINTER=1;
+   ($topdata,$openEXPR,$openPARAMS,$openINTER)=addopenSMOG($topdata,$openXML,$model,$gaussian);
+   $FAIL{'OPENSMOG CONTACTS: EXPRESSION'}=$openEXPR;
+   $FAIL{'OPENSMOG CONTACTS: PARAMETERS'}=$openPARAMS;
+   $FAIL{'OPENSMOG CONTACTS: INTERACTIONS'}=$openINTER;
+   $FOUND{'pairs'}=1;
   }
  }
 
@@ -3530,6 +3601,7 @@ sub checkdist
   return 0;
  }
 }
+
 sub checkexclusions
 {
  my ($N1,$N2)=@_;
