@@ -1,5 +1,5 @@
 ; check distributed AA model with various types of molecules and residues
-1A01-AMP AA default ; 1
+1A01-AMP openSMOG AA default ; 1
 1A01-ADP AA default ; 2
 1A01-ATP AA default ; 3
 1A01-ADP+RNA AA default ; 4

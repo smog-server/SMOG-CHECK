@@ -36,7 +36,7 @@ quit_init();
 
 # FAILLIST is a list of all the tests.
 # If you are developing and testing your own forcefield, which may not need to conform to certain checks, then you may want to disable some tests by  removing the test name from this list. However, do so at your own risk.
-our @FAILLIST = ('NAME','DEFAULTS, num entries','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','DEFAULTS, fudgeLJ','DEFAULTS, fudgeQQ','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','TOP FIELDS FOUND','TOP FIELDS RECOGNIZED','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES','ATOMTYPES, SIGMA','ATOMTYPES, EPSILON', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'BOND LENGTHS','ANGLE TYPES', 'ANGLE WEIGHTS', 'ANGLE VALUES','DUPLICATE BONDS', 'DUPLICATE ANGLES', 'GENERATED ANGLE COUNT','GENERATED ANGLE IN TOP','ANGLES IN TOP GENERATED', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','MATCH DIH WEIGHTS','DIHEDRAL ANGLES','ALL POSSIBLE MATCHED DIHEDRALS PRESENT','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL IN TOP GENERATED','GENERATED DIHEDRAL IN TOP','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','NON-STACKING 2CG CONTACT WEIGHTS','NON-STACKING CG RATIO','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','GAUSSIAN CONTACT EXCLUDED VOLUME','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY','TYPE6 ATOMS','CLASSIFYING DIHEDRALS','NON-ZERO EXIT','ATOM FIELDS','ATOM CHARGES','FREE PAIRS APPEAR IN CONTACTS','EXTRAS: ATOMTYPES','EXTRAS: BONDTYPES','EXTRAS: ANGLETYPES','EXTRAS: DIHEDRALTYPES','EXTRAS: NB_PARAMS','NONZERO LIGAND DIHEDRAL VALUE','BONDS: EXPECTED FOUND','BONDS: FOUND EXPECTED','GMX COMPATIBLE','DIHEDRAL COUNTING: OFF','DIHEDRAL COUNTING: ON');
+our @FAILLIST = ('NAME','DEFAULTS, num entries','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','DEFAULTS, fudgeLJ','DEFAULTS, fudgeQQ','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','TOP FIELDS FOUND','TOP FIELDS RECOGNIZED','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES','ATOMTYPES, SIGMA','ATOMTYPES, EPSILON', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'BOND LENGTHS','ANGLE TYPES', 'ANGLE WEIGHTS', 'ANGLE VALUES','DUPLICATE BONDS', 'DUPLICATE ANGLES', 'GENERATED ANGLE COUNT','GENERATED ANGLE IN TOP','ANGLES IN TOP GENERATED', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','MATCH DIH WEIGHTS','DIHEDRAL ANGLES','ALL POSSIBLE MATCHED DIHEDRALS PRESENT','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL IN TOP GENERATED','GENERATED DIHEDRAL IN TOP','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','NON-STACKING 2CG CONTACT WEIGHTS','NON-STACKING CG RATIO','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','GAUSSIAN CONTACT EXCLUDED VOLUME','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY','TYPE6 ATOMS','CLASSIFYING DIHEDRALS','NON-ZERO EXIT','ATOM FIELDS','ATOM CHARGES','FREE PAIRS APPEAR IN CONTACTS','EXTRAS: ATOMTYPES','EXTRAS: BONDTYPES','EXTRAS: ANGLETYPES','EXTRAS: DIHEDRALTYPES','EXTRAS: NB_PARAMS','NONZERO LIGAND DIHEDRAL VALUE','BONDS: EXPECTED FOUND','BONDS: FOUND EXPECTED','GMX COMPATIBLE','DIHEDRAL COUNTING: OFF','DIHEDRAL COUNTING: ON','OPENSMOG CONTACTS');
 
 # default location of test PDBs
 our $PDB_DIR="share/PDB.files";
@@ -48,7 +48,7 @@ our $FAILDIR="FAILED";
 our $free;
 
 # These are the file suffixes that we will save, or remove.
-our @FILETYPES=("top","gro","ndx","settings","contacts","output","contacts.SCM", "contacts.CG","grompp","editconf","out.mdp","contacts.ShadowOutput","box.gro","gro4SCM.gro","top4SCM.top");
+our @FILETYPES=("top","gro","ndx","settings","contacts","output","contacts.SCM", "contacts.CG","grompp","editconf","out.mdp","contacts.ShadowOutput","box.gro","gro4SCM.gro","top4SCM.top","xml");
 
 # bunch of global vars.  A bit sloppy.  Many could be local.
 our ($AMINO_PRESENT,$angleEps,@atombondedtype,%atombondedtypes,%atombondedtypes2,@ATOMNAME,@ATOMTYPE,$BBRAD,%BBTYPE,$bondEps,$bondMG,$bondtype6,%C12NB,%C6NB,$chargeAT,%chargeNB,%CHECKED,@CID,$CONTD,$STACKSCALE,$dihedralcounting,$CONTENERGY,$CONTR,$CONTTYPE,$default,%defcharge,$defname,$DENERGY,$dihmatch,$DIH_MAX,$DIH_MIN,$DISP_MAX,@EDrig_T,@EDrig_Tc,@ED_T,@ED_Tc,$epsilon,$epsilonCAC,$epsilonCAD,%FAIL,$FAILED,$fail_log,@FIELDS,$gaussian,@GRODATA,$impEps,$improper_gen_N,$ION_PRESENT,$LIGAND_DIH,$LIGAND_PRESENT,%massNB,%matchangle_val,%matchangle_weight,%matchbond_val,%matchbond_weight,%matchdihedral_val,%matchdihedral_weight,$model,@MOLTYPE,%MOLTYPEBYRES,$NA_DIH,$NCONTACTS,$NUCLEIC_PRESENT,$NUMATOMS,$NUMATOMS_LIGAND,$omegaEps,$PDB,$phi_gen_N,$PRO_DIH,$R_CD,$rep_s12,@RESNUM,%restypecount,$ringEps,$R_N_SC_BB,$R_P_BB_SC,$sigma,$sigmaCA,$theta_gen_N,%TYPE,$type6count,$usermap,@XT,@YT,@ZT);
@@ -463,16 +463,24 @@ sub runalltests{
   }
 
   &resetvars; 
+  # clean up the tracking for the next test
+  %FAIL=resettests(\%FAIL,\@FAILLIST);
+
+  my $openSMOG=0;
+  if($A[1] =~ m/^[oO][pP][eE][nN][sS][mM][oO][gG]$/){
+   #add flag to smog call
+   $openSMOG=1;
+   my $first=$A[0];
+   shift(@A);
+   $A[0]=$first;
+  }
 
   $model=$A[1];
   $contactmodel=$A[2];
  
   ($default,$gaussian,$usermap,$free)=setmodelflags($model,$contactmodel,\%numfield,\@A);
- 
-  # clean up the tracking for the next test
-  %FAIL=resettests(\%FAIL,\@FAILLIST);
 
-  &smogchecker($gaussian);
+  &smogchecker($gaussian,$openSMOG);
  
  }
 }
@@ -593,7 +601,11 @@ sub alltested
 
 sub runsmog
 {
- my $ARGS=" -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -SCMorig";
+ my ($openSMOG)=@_;
+ if($openSMOG == 1){
+  $openSMOG="-openSMOG -openSMOGxml $PDB.xml";
+ }
+ my $ARGS=" -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -SCMorig $openSMOG";
 
 # prepare the flags
  if($default eq "yes"){
@@ -886,15 +898,19 @@ sub checkSCM
 
 sub smogchecker
 {
- my ($gaussian)=@_;
+ my ($gaussian,$opensmog)=@_;
  &cleanoldfiles;
  &preparesettings;
  print "Running SMOG 2\n";
- &runsmog; 
+ &runsmog($opensmog); 
  $FAIL{'NON-ZERO EXIT'}=$?;
 
 
 #######TEST-SPECIFIC DISABLED CHECKS######
+
+ if($opensmog ==0){
+  $FAIL{'OPENSMOG CONTACTS'}=-1;
+ }
 
  if($PDB =~ m/BOND$/){
   # BOND in name means disable check
@@ -1381,126 +1397,91 @@ sub checktop
  }
 
 #*************** read in and check the top file ********************
+ my $dir=" ";
+ my @buffer;
+ my %topdata;
+ # read and save the top file by directive.
  for(my $N=0;$N<$topNlines;$N++){
   my $LINE=$topdata[$N];
   if(substr($LINE,0,1) eq "["){
    @A=split(/ /,$LINE);
    if(exists $A[0] && $A[0] eq "[" && exists $A[1]){
+    my @nbuff=@buffer;
+    $topdata{$dir}=\@nbuff;
+    @buffer=(); 
+    $dir=$A[1];
     $FOUND{$A[1]}++;
    }
   }
+  push(@buffer,$LINE);
  }
 
- while($LN<$topNlines){
-  my $LINE=$topdata[$LN];$LN++;
-  @A=split(/\s+/,$LINE);
-  if(exists $A[1] && $A[1] eq "defaults"){
-   $LN=checkdefaults($LN,\@topdata);
-   next;
-  }
+ # check contents by directive
+ checkdefaults($topdata{'defaults'});
 
-  if(exists $A[1] && $A[1] eq "atomtypes"){
-   my $seen;
-   ($LN,$seen)=checkatomtypes($LN,\@topdata,\%seen);
-   %seen=%{$seen};
-   next;
-  } 
+ my $seen;
+ $seen=checkatomtypes($topdata{'atomtypes'},\%seen);
+ %seen=%{$seen};
 
-  if(exists $A[1] && $A[1] eq "moleculetype"){
-   $LN=checkmoleculetype($LN,\@topdata,\%seen);
-   next;
-  } 
-
-  if(exists $A[1] && $A[1] eq "atoms"){
-   my ($r1,$r2);
-   ($LN,$finalres,$r1,$r2)=checkatoms($LN,\@topdata,\%seen,\%revData,\@resindex);
-   %revData=%{$r1};
-   @resindex=@{$r2};
-   next;
-  }
-
-  if(exists $A[1] && $A[1] eq "bondtypes"){
-   my $test;
-   ($LN,$test)=checktypes($LN,\@topdata,\%seen,2,"bondtypes");
-   $FAIL{'EXTRAS: BONDTYPES'}=$test;
-   next;
-  }
-
-  if(exists $A[1] && $A[1] eq "angletypes"){
-   my $test;
-   ($LN,$test)=checktypes($LN,\@topdata,\%seen,3,"angletypes");
-   $FAIL{'EXTRAS: ANGLETYPES'}=$test;
-   next;
-  }
-
-  if(exists $A[1] && $A[1] eq "dihedraltypes"){
-   my $test;
-   ($LN,$test)=checktypes($LN,\@topdata,\%seen,4,"dihedraltypes");
-   $FAIL{'EXTRAS: DIHEDRALTYPES'}=$test;
-   next;
-  }
-
-  if(exists $A[1] && $A[1] eq "nonbond_params"){
-   my $test;
-   ($LN,$test)=checktypes($LN,\@topdata,\%seen,2,"nonbond_params");
-   $FAIL{'EXTRAS: NB_PARAMS'}=$test;
-   next;
-  }
-
-
-  if(exists $A[1] && $A[1] eq "bonds"){
-   my ($r1,$r2);
-   ($LN,$r1,$r2)=checkbonds($LN,\@topdata,\@theta_gen,\%theta_gen_as);
-   @theta_gen=@{$r1};
-   %theta_gen_as=%{$r2};
-   next;
-  } 
-
-  if(exists $A[1] && $A[1] eq "angles"){
-   my ($r3,$r4,$r5,$r6);
-   ($LN,$r3,$r4,$r5,$r6)=checkangles($LN,\@topdata,\@theta_gen,\%theta_gen_as,\%phi_gen_as,\@phi_gen,\%improper_gen_as,\@improper_gen);
-   %phi_gen_as=%{$r3};
-   @phi_gen=@{$r4};
-   %improper_gen_as=%{$r5};
-   @improper_gen=@{$r6};
-   next;
-  }
- 
-  if(exists $A[1] && $A[1] eq "dihedrals"){
-   my ($r0,$r1,$r2,$r3,$r4,$r5,$r6);
-   ($LN,$r0,$r3,$r4,$r5,$r6)=checkdihedrals($LN,\@topdata,\%revData,\@theta_gen,\%theta_gen_as,\%phi_gen_as,\@phi_gen,\%improper_gen_as,\@improper_gen,$finalres);
-   %revData=%{$r0};
-   %phi_gen_as=%{$r3};
-   @phi_gen=@{$r4};
-   %improper_gen_as=%{$r5};
-   @improper_gen=@{$r6};
-   next;
-  } 
-  
-  if(exists $A[1] &&$A[1] eq "pairs"){
-    my ($r1,$r2);
-   ($LN,$r1,$stackingE,$NonstackingE,$NonstackingE2)=checkpairs($LN,\@topdata,\@resindex,\@PAIRS,$stackingE,$NonstackingE,$NonstackingE2);
-   @PAIRS=@{$r1};
-   next;
-  }
- 
-  if(exists $A[1] && $A[1] eq "exclusions"){
-   $LN=checkexclusions($LN,\@topdata,\@PAIRS);
-   next;
-  }
-
-  if(exists $A[1] && $A[1] eq "system"){
-   &checksystem($LN,\@topdata);
-   next;
-  }
-
-  if(exists $A[1] && $A[1] eq "molecules"){
-   $LN=checkmolecules($LN,\@topdata);
-   next;
-  }
+ &checkmoleculetype($topdata{'moleculetype'},\%seen);
+ {
+  my ($r1,$r2);
+  ($finalres,$r1,$r2)=checkatoms($topdata{'atoms'},\%seen,\%revData,\@resindex);
+  %revData=%{$r1};
+  @resindex=@{$r2};
  }
- # done reading the top file
 
+ my $test;
+ if(exists $topdata{'bondtypes'}){
+  $FAIL{'EXTRAS: BONDTYPES'}=checktypes($topdata{'bondtypes'},\%seen,2,"bondtypes");
+ }
+ if(exists $topdata{'angletypes'}){
+  $FAIL{'EXTRAS: ANGLETYPES'}=checktypes($topdata{'angletypes'},\%seen,3,"angletypes");
+ }
+ if(exists $topdata{'dihedraltypes'}){
+  $FAIL{'EXTRAS: DIHEDRALTYPES'}=checktypes($topdata{'dihedraltypes'},\%seen,4,"dihedraltypes");
+ }
+ if(exists $topdata{'nonbond_params'}){
+  $FAIL{'EXTRAS: NB_PARAMS'}=checktypes($topdata{'nonbond_params'},\%seen,2,"nonbond_params");
+ }
+
+ {
+  my ($r1,$r2)=checkbonds($topdata{'bonds'},\@theta_gen,\%theta_gen_as);
+  @theta_gen=@{$r1};
+  %theta_gen_as=%{$r2};
+ }
+
+ { 
+  my ($r3,$r4,$r5,$r6)=checkangles($topdata{'angles'},\@theta_gen,\%theta_gen_as,\%phi_gen_as,\@phi_gen,\%improper_gen_as,\@improper_gen);
+  %phi_gen_as=%{$r3};
+  @phi_gen=@{$r4};
+  %improper_gen_as=%{$r5};
+  @improper_gen=@{$r6};
+ }
+ 
+ {
+  my ($r0,$r1,$r2,$r3,$r4,$r5,$r6);
+  ($r0,$r1,$r2,$r3,$r4)=checkdihedrals($topdata{'dihedrals'},\%revData,\@theta_gen,\%theta_gen_as,\%phi_gen_as,\@phi_gen,\%improper_gen_as,\@improper_gen,$finalres);
+  %revData=%{$r0};
+  %phi_gen_as=%{$r1};
+  @phi_gen=@{$r2};
+  %improper_gen_as=%{$r3};
+  @improper_gen=@{$r4};
+ }
+
+ {
+  my $r1;
+  ($r1,$stackingE,$NonstackingE,$NonstackingE2)=checkpairs($topdata{'pairs'},\@resindex,\@PAIRS,$stackingE,$NonstackingE,$NonstackingE2);
+  @PAIRS=@{$r1};
+ }
+ 
+ &checkexclusions($topdata{'exclusions'},\@PAIRS);
+
+ &checksystem($topdata{'system'});
+
+ &checkmolecules($topdata{'molecules'});
+
+# done checking by directive
 
  # make various comparisons
  my $NRIGID=0;
@@ -1840,9 +1821,9 @@ sub checktop
 #******************** core routines that check individual directives*******************
 sub checkdefaults
 {
- my ($LN,$N1)=@_;
+ my ($N1)=@_;
  my @topdata = @{$N1};
- my $LINE=$topdata[$LN];$LN++;
+ my $LINE=$topdata[1];
  my @A=split(/\s+/,$LINE);
  my $numentries;
  if(defined $fudgeQQ){
@@ -1892,18 +1873,15 @@ sub checkdefaults
    }
   }
  }
-
- return ($LN-1);
 }
 
 
 sub checkatomtypes
 {
- my ($LN,$N1,$N2)=@_;
+ my ($N1,$N2)=@_; 
+ my $LN=1;
  my @topdata = @{$N1};
  my %seen=%{$N2};
- my $LINE=$topdata[$LN];$LN++;
- my @A=split(/ /,$LINE);
  my $numtypes=0;
  my $mass1=0;
  my $typesunique=0;
@@ -1914,7 +1892,8 @@ sub checkatomtypes
  my $excl1=0;
  my $at_sigma=0;
  my $at_epsilon=0;
- until($A[0] eq "["){
+ for (my $LN=1;$LN<=$#{$N1}; $LN++){
+  my @A=split(/ /,$topdata[$LN]);
   $numtypes++;
   if(!exists $seen{$A[0]}){
    $seen{$A[0]}=1;
@@ -1968,9 +1947,6 @@ sub checkatomtypes
     $fail_log .= failed_message("$MINTHR $MAXTHR atomtype sigma value is wrong. Expected $sigma and found $sigmaLJ");
    }
   }
-  $#A = -1;
-  $LINE=$topdata[$LN];$LN++;
-  @A=split(/ /,$LINE);
  }
  if($numtypes == $mass1 and $mass1 !=0){
   $FAIL{'MASS'}=0;
@@ -2006,15 +1982,16 @@ sub checkatomtypes
  }else{
   $FAIL{'EXTRAS: ATOMTYPES'}=-1;
  }
- return ($LN-1,\%seen);
+ return (\%seen);
 }
 
 
 sub checkmoleculetype
 {
- my ($LN,$N1,$N2)=@_;
+ my ($N1,$N2)=@_;
  my @topdata=@{$N1};
  my %seen=%{$N2};
+ my $LN=1;
  my $LINE=$topdata[$LN];$LN++;
  my @A=split(/ /,$LINE);
  if($A[0] eq "Macromolecule"){
@@ -2027,12 +2004,11 @@ sub checkmoleculetype
  }else{
   $fail_log .=failed_message("nrexcl is not set to 3.");
  }
- return ($LN-1);
 }
 
 sub checkatoms
 {
- my ($LN,$N1,$N2,$revData,$resindex)=@_;
+ my ($N1,$N2,$revData,$resindex)=@_;
  my @topdata=@{$N1};
  my %seen=%{$N2};
  my %revData=%{$revData};
@@ -2043,41 +2019,42 @@ sub checkatoms
  my $fieldnum=0;
  my $atomcharge=0;
  $NUMATOMS_LIGAND=0;
- my $LINE=$topdata[$LN];$LN++;
- my @A=split(/ /,$LINE);
  my $lastresnum;
  my %indexinres;
  my $curresname;
- until($A[0] eq "["){
- if ($NUMATOMS==0){
-  # first atom, set resnum
-  $lastresnum=$A[2];
-  $curresname=$A[3];
- }
+ for (my $LN=1;$LN<=$#topdata;$LN++){
+  my $LINE=$topdata[$LN];
+  my @A=split(/ /,$LINE);
+ #until($A[0] eq "["){
+  if ($NUMATOMS==0){
+   # first atom, set resnum
+   $lastresnum=$A[2];
+   $curresname=$A[3];
+  }
 
-#### BEGIN BOND GENERATION####
- if($model =~ m/^AA$/ && $default eq "yes"){
-  if ($lastresnum != $A[2]){
-   # end of residue
-   addtoexpected(\%indexinres,$curresname);
-   undef %indexinres;
+# ### BEGIN BOND GENERATION####
+  if($model =~ m/^AA$/ && $default eq "yes"){
+   if ($lastresnum != $A[2]){
+    # end of residue
+    addtoexpected(\%indexinres,$curresname);
+    undef %indexinres;
+   }
+   # add atom to hash
+   $indexinres{$A[4]}=$NUMATOMS;
+   $curresname=$A[3];
+   if ($NUMATOMS+1==$NUMOFATOMS){
+    #end of last residue
+    addtoexpected(\%indexinres,$curresname);
+    undef %indexinres;
+   }
+   $lastresnum=$A[2];
   }
-  # add atom to hash
-  $indexinres{$A[4]}=$NUMATOMS;
-  $curresname=$A[3];
-  if ($NUMATOMS+1==$NUMOFATOMS){
-   #end of last residue
-   addtoexpected(\%indexinres,$curresname);
-   undef %indexinres;
-  }
-  $lastresnum=$A[2];
- }
 
 #### END OF BOND GENERATION####
 
  # atom name
   $ATOMNAME[$A[0]]=$A[4];
-  # if we are matching hetergeneous parameters, we need to store the smog-internal bonded types
+  # if we are matching heterogeneous parameters, we need to store the smog-internal bonded types
   if($model eq "AA-match"){
    if(exists $atombondedtypes{"$A[3]-$A[4]"}){
     $atombondedtype[$A[0]]=$atombondedtypes{"$A[3]-$A[4]"};
@@ -2161,9 +2138,6 @@ sub checkatoms
    $ION_PRESENT=1;
   }
   $NUMATOMS++;
-  $#A = -1;
-  $LINE=$topdata[$LN];$LN++;
-  @A=split(/ /,$LINE);
  }
  if($FAIL_GROTOP ==0){
   $FAIL{'GRO-TOP CONSISTENCY'}=0;
@@ -2181,7 +2155,7 @@ sub checkatoms
  foreach my $rest(keys %MOLTYPEBYRES){
   $restypecount{$MOLTYPEBYRES{$rest}}++;
  }
- return ($LN-1,$finalres,\%revData,\@resindex);
+ return ($finalres,\%revData,\@resindex);
 }
 
 sub addtoexpected
@@ -2203,20 +2177,20 @@ sub addtoexpected
 
 sub checktypes
 {
- my ($LN,$N1,$N2,$Nf,$type)=@_;
+ my ($N1,$N2,$Nf,$type)=@_;
  my @topdata=@{$N1};
  my %seen=%{$N2};
  my $FAIL_GROTOP=0;
  my $fieldnum=0;
- my $LINE=$topdata[$LN];$LN++;
- my @A=split(/\s+/,$LINE);
  my $totallines=0;
  my $correctentries=0;
  my %savedlines;
  my $shouldappear=0;
  my $appeared=0;
  # first check that all added types are only including atom types that are present in atomtypes
- until($A[0] eq "["){
+ for (my $LN=1;$LN<=$#topdata;$LN++){
+  my $LINE=$topdata[$LN];
+  my @A=split(/ /,$LINE);
   $totallines++;
   my $matchedtypes=0;
   for(my $I=0;$I<$Nf;$I++){
@@ -2235,8 +2209,6 @@ sub checktypes
   }else{
    $fail_log .= failed_message("Unrecognized atom types at line: $LINE");
   }
-  $LINE=$topdata[$LN];$LN++;
-  @A=split(/\s+/,$LINE);
  }
 
  # now check that every type that should have been found, was found in the top
@@ -2244,7 +2216,7 @@ sub checktypes
  while(<INFILE>){
   my $LINE=$_;
   chomp($LINE);
-  @A=split(/\s+/,$LINE);
+  my @A=split(/\s+/,$LINE);
   my $matchedtypes=0;
   for(my $I=2;$I<$Nf+2;$I++){
    # the second condition allows for wildcards, only when looking at dihedraltypes
@@ -2273,12 +2245,12 @@ sub checktypes
  unless($correctentries == $totallines && $totallines>0){
   $test++;
  }
- return ($LN-1,$test);
+ return ($test);
 }
 
 sub checkbonds
 {
- my ($LN,$N1,$theta_gen,$theta_gen_as)=@_;
+ my ($N1,$theta_gen,$theta_gen_as)=@_;
  my @theta_gen=@{$theta_gen};
  my %theta_gen_as=%{$theta_gen_as};
  my @topdata=@{$N1};
@@ -2302,9 +2274,9 @@ sub checkbonds
  for (my $I=1;$I<=$NUMATOMS;$I++){
     $NbondWatom[$I]=0;
  }
- my $LINE=$topdata[$LN];$LN++;
- my @A=split(/ /,$LINE);
- until($A[0] eq "["){
+ for (my $LN=1;$LN<=$#topdata;$LN++){
+  my $LINE=$topdata[$LN];
+  my @A=split(/ /,$LINE);
   $NBONDS++;
   my $a1=$A[0]-1;
   my $a2=$A[1]-1;
@@ -2403,8 +2375,6 @@ sub checkbonds
   }else{
    $fail_log .= failed_message("unknown function type for bond\n\t$LINE");
   }
-  $LINE=$topdata[$LN];$LN++;
-  @A=split(/ /,$LINE);
  }
 
  if($doublebond ==0){
@@ -2485,7 +2455,7 @@ sub checkbonds
   &checkbondgen;
  }
 
- return ($LN-1,\@theta_gen,\%theta_gen_as);
+ return (\@theta_gen,\%theta_gen_as);
 }
 
 sub checkbondgen
@@ -2526,9 +2496,10 @@ sub checkbondgen
 
 sub checkangles
 {
- my ($LN,$N1,$theta_gen,$theta_gen_as,$phi_gen_as,$phi_gen,$improper_gen_as,$improper_gen)=@_;
+ my ($N1,$theta_gen,$theta_gen_as,$phi_gen_as,$phi_gen,$improper_gen_as,$improper_gen)=@_;
  my %phi_gen_as=%{$phi_gen_as};
  my @phi_gen=@{$phi_gen};
+ my $LN=1;
  my %improper_gen_as=%{$improper_gen_as};
  my @improper_gen=@{$improper_gen};
  my @theta_gen=@{$theta_gen};
@@ -2552,9 +2523,9 @@ sub checkangles
 
  my %angle_array;
  my $string;
- my $LINE=$topdata[$LN];$LN++;
- my @A=split(/ /,$LINE);
- until($A[0] eq "["){
+ for (my $LN=1;$LN<=$#topdata;$LN++){
+  my $LINE=$topdata[$LN];
+  my @A=split(/ /,$LINE);
   if($A[3] == 1){
    $CORRECTAT++;
   }
@@ -2623,8 +2594,6 @@ sub checkangles
    ## bond has already been assigned.
    $doubleangle++;
   }
-  $LINE=$topdata[$LN];$LN++;
-  @A=split(/ /,$LINE);
  }
  if($doubleangle ==0){
   $FAIL{'DUPLICATE ANGLES'}=0;
@@ -2754,12 +2723,12 @@ sub checkangles
    }
   }
  }
- return ($LN-1,\%phi_gen_as,\@phi_gen,\%improper_gen_as,\@improper_gen);
+ return (\%phi_gen_as,\@phi_gen,\%improper_gen_as,\@improper_gen);
 }
 
 sub checkdihedrals
 {
- my ($LN,$N1,$revData,$theta_gen,$theta_gen_as,$phi_gen_as,$phi_gen,$improper_gen_as,$improper_gen,$finalres)=@_;
+ my ($N1,$revData,$theta_gen,$theta_gen_as,$phi_gen_as,$phi_gen,$improper_gen_as,$improper_gen,$finalres)=@_;
  my %revData=%{$revData};
  my %phi_gen_as=%{$phi_gen_as};
  my @phi_gen=@{$phi_gen};
@@ -2796,9 +2765,9 @@ sub checkdihedrals
  $#ED_Tc = -1;
  $#EDrig_T = -1;
  $#EDrig_Tc = -1;
- my $LINE=$topdata[$LN];$LN++;
- my @A=split(/ /,$LINE);
- until($A[0] eq "["){
+ for (my $LN=1;$LN<=$#topdata;$LN++){
+  my $LINE=$topdata[$LN];
+  my @A=split(/ /,$LINE);
   if($A[0] < $A[3]){
    $string=sprintf("%i-%i-%i-%i", $A[0], $A[1], $A[2],  $A[3]);
   }else{
@@ -2981,12 +2950,7 @@ sub checkdihedrals
     $CORRECTDIHEDRALANGLES++;
    }
   }
-
-  $#A = -1;
-  $LINE=$topdata[$LN];$LN++;
-  @A=split(/ /,$LINE);
  }
-
 
  # All dihedrals read in.  Now do checking
 
@@ -3223,7 +3187,7 @@ sub checkdihedrals
  }else{
    $FAIL{'ALL POSSIBLE MATCHED DIHEDRALS PRESENT'}=-1;
  }
- return ($LN-1,\%revData,\%phi_gen_as,\@phi_gen,\%improper_gen_as,\@improper_gen);
+ return (\%revData,\%phi_gen_as,\@phi_gen,\%improper_gen_as,\@improper_gen);
 }
 
 sub dihdelta
@@ -3241,7 +3205,7 @@ sub dihdelta
 
 sub checkpairs
 {
- my ($LN,$N1,$N2,$N3,$stackingE,$NonstackingE,$NonstackingE2)=@_;
+ my ($N1,$N2,$N3,$stackingE,$NonstackingE,$NonstackingE2)=@_;
  my @topdata=@{$N1};
  my @resindex=@{$N2};
  my @PAIRS=@{$N3};
@@ -3256,8 +3220,6 @@ sub checkpairs
  my $GaussianEXVOL=0;
  my $NOTSHORTSEQ=0;
  my $freepair=0;
- my $LINE=$topdata[$LN];$LN++;
- my @A=split(/ /,$LINE);
  my $W;
  my $Cdist;
  my $CALCD;
@@ -3265,7 +3227,9 @@ sub checkpairs
  if($usermap eq "yes"){
   open(CMAP,"$PDB_DIR/$PDB.contacts") or internal_error("can not open $PDB_DIR/$PDB.contacts");
  }
- until($A[0] eq "["){
+ for (my $LN=1;$LN<=$#topdata;$LN++){
+  my $LINE=$topdata[$LN];
+  my @A=split(/ /,$LINE);
   $PAIRS[$NCONTACTS][0]=$A[0];
   $PAIRS[$NCONTACTS][1]=$A[1];
   $NCONTACTS++;
@@ -3422,9 +3386,6 @@ sub checkpairs
   $W=int(($W * $PRECISION))/($PRECISION*1.0);
   # check to see if the contact is nucleic acids, adjacent residues and not backbone atoms.  These should be rescaled by a factor of 1/3
   # read the next line
-  $#A = -1;
-  $LINE=$topdata[$LN];$LN++;
-  @A=split(/ /,$LINE);
  }
  if($NOTSHORTSEQ == $NCONTACTS){
   $FAIL{'CONTACTS PROTEIN i-j!<4'}=0;
@@ -3483,7 +3444,7 @@ sub checkpairs
  }else{
   $FAIL{'FREE PAIRS APPEAR IN CONTACTS'}=1;	
  }
- return ($LN-1,\@PAIRS,$stackingE,$NonstackingE,$NonstackingE2);
+ return (\@PAIRS,$stackingE,$NonstackingE,$NonstackingE2);
 }
 
 sub checkdist
@@ -3499,35 +3460,30 @@ sub checkdist
 }
 sub checkexclusions
 {
- my ($LN,$N1,$N2)=@_;
+ my ($N1,$N2)=@_;
  my @topdata=@{$N1};
  my @PAIRS=@{$N2};
- my $LINE=$topdata[$LN];$LN++;
- my @A=split(/ /,$LINE);
  my $NEXCL=0;
  my $NEXCLUSIONS=0;
- until($A[0] eq "["){
+ for (my $LN=1;$LN<=$#topdata;$LN++){
+  my $LINE=$topdata[$LN];
+  my @A=split(/ /,$LINE);
   if($PAIRS[$NEXCL][0] != $A[0] || $PAIRS[$NEXCL][1] != $A[1]){
    $NEXCLUSIONS++;
    $fail_log .= failed_message("mis-match between pairs and exclusions (pair $NEXCL)\n\tpair: $PAIRS[$NEXCL][0] $PAIRS[$NEXCL][1]\n\texcl: $A[0] $A[1]");
   }
   $NEXCL++;
-  # read the next line
-  $#A = -1;
-  $LINE=$topdata[$LN];$LN++;
-  @A=split(/ /,$LINE);
  }
  if($NEXCL == $NCONTACTS){
   $FAIL{'NUMBER OF EXCLUSIONS'}=0;
  }
- return ($LN-1);
 }
 
 sub checksystem
 {
- my ($LN,$N1)=@_;
+ my ($N1)=@_;
  my @topdata=@{$N1};
- my $LINE=$topdata[$LN];$LN++;
+ my $LINE=$topdata[1];
  my @A=split(/ /,$LINE);
  if($A[0] eq "Macromolecule"){
   $FAIL{'NAME'}=0;
@@ -3538,9 +3494,9 @@ sub checksystem
 
 sub checkmolecules
 {
- my ($LN,$N1)=@_;
+ my ($N1)=@_;
  my @topdata=@{$N1};
- my $LINE=$topdata[$LN];$LN++;
+ my $LINE=$topdata[1];
  my @A=split(/ /,$LINE);
  if($A[0] eq "Macromolecule"){
   $FAIL{'NAME'}=0;
@@ -3549,7 +3505,6 @@ sub checkmolecules
   }else{
    $fail_log .= failed_message("wrong number of molecules");
   }
- return ($LN-1);
  }
 }
 
@@ -3702,7 +3657,7 @@ sub finalchecks
 
 sub cleanoldfiles
 {
- foreach my $suf(".top",".gro",".ndx"){
+ foreach my $suf(".top",".gro",".ndx",".xml"){
   removeifexists("$PDB.$suf");
  }
 }
