@@ -5,6 +5,8 @@ use XML::Simple qw(:strict);
 use Math::Trig qw(acos_real rad2deg);
 use smog_common;
 use check_common;
+use openSMOG;
+
 # This is the main script that runs SMOG 2 and then checks to see if the generated files are correct.
 # This is intended to be a brute-force evaluation of everything that should appear. Since this is
 # a testing script, it is not designed to be efficient, but to be thorough, and foolproof...  perhaps over time we will clean this up.  But, it gets the job done.
@@ -230,18 +232,6 @@ sub readbackbonetypes
  }
 }
 
-sub readopenSMOG
-{
- my ($XMLin)=@_;
- if(-f $XMLin){
-  my $xml = new XML::Simple;
-  my $data = $xml->XMLin($XMLin,KeyAttr=>{contacts_type=>"name"},ForceArray=>1);
-  return $data;
- }else{
-  return 1;
- }
-}
-
 sub addopenSMOG
 {
 # things to check
@@ -260,7 +250,7 @@ sub addopenSMOG
  my $addstuff;
  my $ftype; 
  foreach my $key(keys %{$openXML}){
-  my $xmlhandle=$openXML->{"$key"}->[0]->{'contacts_type'};
+  my $xmlhandle=$openXML->{"$key"}->[0]->{$key . "_type"};
   foreach my $funcs(keys %{$xmlhandle}){
 
    # determine what is expected in this contact term
@@ -298,7 +288,7 @@ sub addopenSMOG
    my $paramhandle=$xmlhandle->{$funcs}->{'parameter'};
    $parampass=arraycomp(\@expectedparams,$paramhandle);
 
-   ($interactionpass,$addstuff)=collectcontactinteractions(\@expectedattributes,$openXML->{"$key"}->[0]->{'contacts_type'}->{$funcs}->{'interaction'},$ftype);
+   ($interactionpass,$addstuff)=collectcontactinteractions(\@expectedattributes,$openXML->{"$key"}->[0]->{$key . "_type"}->{$funcs}->{'interaction'},$ftype);
    if($funcs eq "bond_type6"){
     if(!defined $topdata->{'bonds'}){
      ${$topdata->{'bonds'}}[0]=" [ bonds ]";
@@ -1572,9 +1562,8 @@ sub checktop
  # don't forget to save the last directive
  my @nbuff=@buffer;
  $topdata{$dir}=\@nbuff;
-
- if(defined $openSMOG){
-  my $openXML=readopenSMOG("$PDB.xml");
+ if($openSMOG == 1){
+  my $openXML=readopenSMOGxml("$PDB.xml");
   if($openXML !=1){
    $FAIL{'OPENSMOG: XML EXISTS'}=0;
    my $openEXPR=1;
