@@ -250,7 +250,7 @@ sub addopenSMOG
  my $addstuff;
  my $ftype; 
  foreach my $key(keys %{$openXML}){
-  my $xmlhandle=$openXML->{"$key"}->[0]->{$key . "_type"};
+  my $xmlhandle=$openXML->{"$key"}->{$key . "_type"};
   foreach my $funcs(keys %{$xmlhandle}){
 
    # determine what is expected in this contact term
@@ -279,7 +279,7 @@ sub addopenSMOG
      internal_error("openSMOG checking not implemented for model $model and gaussian=$gaussian");
     }
    }
-   my $expr=$xmlhandle->{$funcs}->{'expression'}->[0]->{'expr'};
+   my $expr=$xmlhandle->{$funcs}->{'expression'}->{'expr'};
    if($expr eq $expectedfunction){
     $functionform=0;
    }
@@ -288,7 +288,7 @@ sub addopenSMOG
    my $paramhandle=$xmlhandle->{$funcs}->{'parameter'};
    $parampass=arraycomp(\@expectedparams,$paramhandle);
 
-   ($interactionpass,$addstuff)=collectcontactinteractions(\@expectedattributes,$openXML->{"$key"}->[0]->{$key . "_type"}->{$funcs}->{'interaction'},$ftype);
+   ($interactionpass,$addstuff)=collectcontactinteractions(\@expectedattributes,$openXML->{"$key"}->{$key . "_type"}->{$funcs}->{'interaction'},$ftype);
    if($funcs eq "bond_type6"){
     if(!defined $topdata->{'bonds'}){
      ${$topdata->{'bonds'}}[0]=" [ bonds ]";
