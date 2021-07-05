@@ -607,6 +607,7 @@ sub runalltests{
    my $first=$A[0];
    shift(@A);
    $A[0]=$first;
+   print "Checking openSMOG functionality\n";
   }
 
   $model=$A[1];
