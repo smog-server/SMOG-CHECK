@@ -1208,9 +1208,9 @@ sub checkgro4SCM
   $LINE=<GRO>;
   chomp($LINE);
   $LINE =~ s/\s+$//;
-  my $X=substr($LINE,20,9);
-  my $Y=substr($LINE,29,9);
-  my $Z=substr($LINE,38,9);
+  my $X=substr($LINE,21,10);
+  my $Y=substr($LINE,32,10);
+  my $Z=substr($LINE,43,10);
   if(abs($XT[$I+1]-$X) > 0.001){smogcheck_error("gro and gro4SCM inconsistent.  This should not happen.")}
   if(abs($YT[$I+1]-$Y) > 0.001){smogcheck_error("gro and gro4SCM inconsistent.  This should not happen.")}
   if(abs($ZT[$I+1]-$Z) > 0.001){smogcheck_error("gro and gro4SCM inconsistent.  This should not happen.")}
