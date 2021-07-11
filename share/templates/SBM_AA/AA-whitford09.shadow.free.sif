@@ -9,7 +9,7 @@
 	<function name="dihedral_cosine" directive="dihedrals"/>
 	<function name="dihedral_harmonic" directive="dihedrals"/>
 	<function name="dihedral_free" directive="dihedrals"/>
-    	<function name="contact_2" directive="pairs" exclusions="1"/>
+    	<function name="contact_1" directive="pairs" exclusions="1"/>
     	<function name="contact_free" directive="pairs" exclusions="0"/>
 </functions>
 

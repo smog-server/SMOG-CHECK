@@ -121,5 +121,7 @@ DNA.terminal.BMG openSMOG AA default ; 95
 1A01-AMP openSMOG AA default-gaussian ;96
 2ci2_v2 openSMOG CA default ;97
 2ci2_v2 openSMOG CA default-gaussian ;98
+   ; free with openSMOG
+1AKEapo_v2 openSMOG AA shadow-free 5.0 1.4 1.2 1.0 2.0 1.0 1.0 1.0 2.5 0.01 1.0 1.4 5.0 0.2 -1 1E-6 3E-9 1.0 ;99
 ;ADD CUSTOM FORCE TEST; 99
 ;ADD CUSTOM FORCE TEST with 2 types; 100

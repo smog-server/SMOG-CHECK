@@ -13,7 +13,7 @@
 </nonbond>	
 
 <!-- CONTACTS -->
-<contact func="contact_2(2*?**6,?**12,?,?)" contactGroup="c">
+<contact func="contact_1(6,12,?,?)" contactGroup="c">
 	<pairType>*</pairType>
 	<pairType>*</pairType>
 </contact>
