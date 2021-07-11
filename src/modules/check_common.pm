@@ -342,12 +342,13 @@ sub runGMX
 {
  my ($model,$CHECKGMX,$CHECKGMXGAUSSIAN,$GMXEDITCONF,$GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXMDP,$GMXMDPCA,$gaussian,$PDB,$openSMOG,$GRO)=@_;
  # note: $GRO must be last, since it is not always defined.
- if($CHECKGMXGAUSSIAN ne "no" && $CHECKGMX ne "no" && defined $openSMOG){
+ if($CHECKGMXGAUSSIAN ne "no" && $CHECKGMX ne "no" && $openSMOG eq "yes"){
   print "-openSMOG not compatible with GMX checks.\nWill skip GMX compatibility check for $PDB";
   return -1; 
  } 
  if(!defined $GRO){
-  $GRO="$PDB";
+  print "Internal error: insufficient args passed to runGMX\n";
+  exit;
  }
  if($gaussian =~ /^yes$/)
  {
