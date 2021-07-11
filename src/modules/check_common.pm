@@ -340,7 +340,8 @@ sub initgmxparams
 
 sub runGMX
 {
- my ($model,$CHECKGMX,$CHECKGMXGAUSSIAN,$GMXEDITCONF,$GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXMDP,$GMXMDPCA,$gaussian,$PDB,$GRO,$openSMOG)=@_;
+ my ($model,$CHECKGMX,$CHECKGMXGAUSSIAN,$GMXEDITCONF,$GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXMDP,$GMXMDPCA,$gaussian,$PDB,$openSMOG,$GRO)=@_;
+ # note: $GRO must be last, since it is not always defined.
  if($CHECKGMXGAUSSIAN ne "no" && $CHECKGMX ne "no" && defined $openSMOG){
   print "-openSMOG not compatible with GMX checks.\nWill skip GMX compatibility check for $PDB";
   return -1; 
