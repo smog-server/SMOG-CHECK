@@ -600,10 +600,10 @@ sub runalltests{
   # clean up the tracking for the next test
   %FAIL=resettests(\%FAIL,\@FAILLIST);
 
-  my $openSMOG=0;
-  if($A[1] =~ m/^[oO][pP][eE][nN][sS][mM][oO][gG]$/){
+  my $openSMOG="no";
+  if($A[1] =~ m/^opensmog$/i){
    #add flag to smog call
-   $openSMOG=1;
+   $openSMOG="yes";
    my $first=$A[0];
    shift(@A);
    $A[0]=$first;
@@ -737,7 +737,7 @@ sub alltested
 sub runsmog
 {
  my ($openSMOG)=@_;
- if($openSMOG == 1){
+ if($openSMOG eq "yes"){
   $openSMOG="-openSMOG -openSMOGxml $PDB.xml";
  }else{
   $openSMOG="";
@@ -1045,7 +1045,7 @@ sub smogchecker
 
 #######TEST-SPECIFIC DISABLED CHECKS######
 
- if($openSMOG ==0){
+ if($openSMOG eq "no"){
   $FAIL{'OPENSMOG CONTACTS: EXPRESSION'}=-1;
   $FAIL{'OPENSMOG CONTACTS: PARAMETERS'}=-1;
   $FAIL{'OPENSMOG CONTACTS: INTERACTIONS'}=-1;
@@ -1563,7 +1563,7 @@ sub checktop
  # don't forget to save the last directive
  my @nbuff=@buffer;
  $topdata{$dir}=\@nbuff;
- if($openSMOG == 1){
+ if($openSMOG eq "yes"){
   my $openXML=readopenSMOGxml("$PDB.xml");
   if($openXML !=1){
    $FAIL{'OPENSMOG: XML EXISTS'}=0;
