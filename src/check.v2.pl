@@ -610,12 +610,24 @@ sub runalltests{
    print "Checking openSMOG functionality\n";
   }
 
+  my $freecoor="no";
+  if($A[1] =~ m/^freecoor$/i){
+   #add flag to smog call
+   $freecoor="yes";
+   my $first=$A[0];
+   shift(@A);
+   $A[0]=$first;
+   print "Checking use of free-format coordinates\n";
+  }
+
+
+
   $model=$A[1];
   $contactmodel=$A[2];
  
   ($default,$gaussian,$usermap,$free)=setmodelflags($model,$contactmodel,\%numfield,\@A);
 
-  &smogchecker($gaussian,$openSMOG);
+  &smogchecker($gaussian,$openSMOG,$freecoor);
  
  }
 }
@@ -736,13 +748,19 @@ sub alltested
 
 sub runsmog
 {
- my ($openSMOG)=@_;
+ my ($openSMOG,$freecoor)=@_;
  if($openSMOG eq "yes"){
   $openSMOG="-openSMOG -openSMOGxml $PDB.xml";
  }else{
   $openSMOG="";
  }
- my $ARGS=" -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -SCMorig $openSMOG";
+ if($freecoor eq "yes"){
+  $freecoor="-freecoor";
+ }else{
+  $freecoor="";
+ }
+
+ my $ARGS=" -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -SCMorig $openSMOG $freecoor";
 
 # prepare the flags
  if($default eq "yes"){
@@ -987,8 +1005,16 @@ sub setmodelflags{
 
 sub checkSCM
 {
+ my ($freecoor)=@_;
+
+ if($freecoor eq "yes"){
+  $freecoor="-freecoor";
+ }else{
+  $freecoor="";
+ }
+
  if($model eq "AA" || $model eq "AA-2cg" || $model eq "AA-nb-cr2"){
-  my $SHADOWARGS="-g $PDB.gro -t $PDB.top -ch $PDB.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD";
+  my $SHADOWARGS="$freecoor -g $PDB.gro -t $PDB.top -ch $PDB.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD";
   if($default eq "yes"){
    $SHADOWARGS .= " -bif $BIFSIF_AA/AA-whitford09.bif";
   }elsif($default eq "no"){
@@ -1016,7 +1042,7 @@ sub checkSCM
    internal_error('SCM CA DEFAULT TESTING');
   }
   # run SCM to get map
-  `java -jar $SCM $SHADOWARGS &> $PDB.meta3.output`;
+  `java -jar $SCM -freecoor $SHADOWARGS &> $PDB.meta3.output`;
  }
 
  # check that the same contact map is generated
@@ -1035,11 +1061,11 @@ sub checkSCM
 
 sub smogchecker
 {
- my ($gaussian,$openSMOG)=@_;
+ my ($gaussian,$openSMOG,$freecoor)=@_;
  &cleanoldfiles;
  &preparesettings;
  print "Running SMOG 2\n";
- &runsmog($openSMOG); 
+ &runsmog($openSMOG,$freecoor); 
  $FAIL{'NON-ZERO EXIT'}=$?;
 
 
@@ -1095,7 +1121,7 @@ sub smogchecker
  if($FAIL{'NON-ZERO EXIT'} == 0){
   print "SMOG 2 exited without an error.\nAssessing generated files...\n";
    # CHECK THE OUTPUT
-  &checkSCM;
+  &checkSCM($freecoor);
   &checkgro;
   if($contactmodel !~ m/-userC$/){ 
    &checkgro4SCM; 
