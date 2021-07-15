@@ -1014,7 +1014,7 @@ sub checkSCM
  }
 
  if($model eq "AA" || $model eq "AA-2cg" || $model eq "AA-nb-cr2"){
-  my $SHADOWARGS="$freecoor -g $PDB.gro -t $PDB.top -ch $PDB.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD";
+  my $SHADOWARGS="-g $PDB.gro -t $PDB.top -ch $PDB.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD";
   if($default eq "yes"){
    $SHADOWARGS .= " -bif $BIFSIF_AA/AA-whitford09.bif";
   }elsif($default eq "no"){
@@ -1030,7 +1030,7 @@ sub checkSCM
 
  }elsif($model eq "CA"){
   # run AA model to get top
-  `$EXEC_NAME -i $PDB_DIR/$PDB.pdb -g $PDB.meta1.gro -o $PDB.meta1.top -n $PDB.meta1.ndx -s $PDB.meta1.contacts -t $BIFSIF_AA  &> $PDB.meta1.output`;
+  `$EXEC_NAME $freecoor -i $PDB_DIR/$PDB.pdb -g $PDB.meta1.gro -o $PDB.meta1.top -n $PDB.meta1.ndx -s $PDB.meta1.contacts -t $BIFSIF_AA  &> $PDB.meta1.output`;
 
   my $SHADOWARGS="-g $PDB.meta1.gro -t $PDB.meta1.top -ch $PDB.meta1.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD";
 
