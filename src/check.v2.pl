@@ -1138,7 +1138,7 @@ sub smogchecker
   print "SMOG 2 exited without an error.\nAssessing generated files...\n";
    # CHECK THE OUTPUT
   &checkSCM($freecoor);
-  if($openSMOG eq "no"){
+  if($g96 eq "no"){
    &checkgro;
   }else{
    &checkg96;
