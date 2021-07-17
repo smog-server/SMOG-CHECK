@@ -40,7 +40,7 @@ quit_init();
 
 # FAILLIST is a list of all the tests.
 # If you are developing and testing your own forcefield, which may not need to conform to certain checks, then you may want to disable some tests by  removing the test name from this list. However, do so at your own risk.
-our @FAILLIST = ('NAME','DEFAULTS, num entries','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','DEFAULTS, fudgeLJ','DEFAULTS, fudgeQQ','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','TOP FIELDS FOUND','TOP FIELDS RECOGNIZED','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES','ATOMTYPES, SIGMA','ATOMTYPES, EPSILON', 'SUPPORTED BOND TYPES', 'OPEN GRO','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'BOND LENGTHS','ANGLE TYPES', 'ANGLE WEIGHTS', 'ANGLE VALUES','DUPLICATE BONDS', 'DUPLICATE ANGLES', 'GENERATED ANGLE COUNT','GENERATED ANGLE IN TOP','ANGLES IN TOP GENERATED', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','MATCH DIH WEIGHTS','DIHEDRAL ANGLES','ALL POSSIBLE MATCHED DIHEDRALS PRESENT','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL IN TOP GENERATED','GENERATED DIHEDRAL IN TOP','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','NON-STACKING 2CG CONTACT WEIGHTS','NON-STACKING CG RATIO','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','GAUSSIAN CONTACT EXCLUDED VOLUME','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY','TYPE6 ATOMS','CLASSIFYING DIHEDRALS','NON-ZERO EXIT','ATOM FIELDS','ATOM CHARGES','FREE PAIRS APPEAR IN CONTACTS','EXTRAS: ATOMTYPES','EXTRAS: BONDTYPES','EXTRAS: ANGLETYPES','EXTRAS: DIHEDRALTYPES','EXTRAS: NB_PARAMS','NONZERO LIGAND DIHEDRAL VALUE','BONDS: EXPECTED FOUND','BONDS: FOUND EXPECTED','GMX COMPATIBLE','DIHEDRAL COUNTING: OFF','DIHEDRAL COUNTING: ON','OPENSMOG CONTACTS: EXPRESSION','OPENSMOG CONTACTS: PARAMETERS','OPENSMOG CONTACTS: INTERACTIONS','OPENSMOG: XML EXISTS');
+our @FAILLIST = ('NAME','DEFAULTS, num entries','DEFAULTS, nbfunc','DEFAULTS, comb-rule','DEFAULTS, gen-pairs','DEFAULTS, fudgeLJ','DEFAULTS, fudgeQQ','1 MOLECULE','ATOMTYPES UNIQUE','ALPHANUMERIC ATOMTYPES','TOP FIELDS FOUND','TOP FIELDS RECOGNIZED','MASS', 'CHARGE','moleculetype=Macromolecule','nrexcl=3', 'PARTICLE', 'C6 VALUES', 'C12 VALUES','ATOMTYPES, SIGMA','ATOMTYPES, EPSILON', 'SUPPORTED BOND TYPES', 'OPEN GRO','OPEN G96','G96 FIELDS','GRO-TOP CONSISTENCY', 'BOND STRENGTHS', 'BOND LENGTHS','ANGLE TYPES', 'ANGLE WEIGHTS', 'ANGLE VALUES','DUPLICATE BONDS', 'DUPLICATE ANGLES', 'GENERATED ANGLE COUNT','GENERATED ANGLE IN TOP','ANGLES IN TOP GENERATED', 'IMPROPER WEIGHTS', 'CA IMPROPERS EXIST','OMEGA IMPROPERS EXIST','SIDECHAIN IMPROPERS EXIST','MATCH DIH WEIGHTS','DIHEDRAL ANGLES','ALL POSSIBLE MATCHED DIHEDRALS PRESENT','CA DIHEDRAL WEIGHTS', 'DUPLICATE TYPE 1 DIHEDRALS','DUPLICATE TYPE 2 DIHEDRALS','DUPLICATE TYPE 3 DIHEDRALS','1-3 DIHEDRAL PAIRS','3-1 DIHEDRAL PAIRS','1-3 ORDERING OF DIHEDRALS','1-3 DIHEDRAL RELATIVE WEIGHTS','STRENGTHS OF RIGID DIHEDRALS','STRENGTHS OF OMEGA DIHEDRALS','STRENGTHS OF PROTEIN BB DIHEDRALS','STRENGTHS OF PROTEIN SC DIHEDRALS','STRENGTHS OF NUCLEIC BB DIHEDRALS','STRENGTHS OF NUCLEIC SC DIHEDRALS','STRENGTHS OF LIGAND DIHEDRALS','STACK-NONSTACK RATIO','PROTEIN BB/SC RATIO','NUCLEIC SC/BB RATIO','AMINO/NUCLEIC DIHEDRAL RATIO','AMINO/LIGAND DIHEDRAL RATIO','NUCLEIC/LIGAND DIHEDRAL RATIO','NONZERO DIHEDRAL ENERGY','CONTACT/DIHEDRAL RATIO','1-3 DIHEDRAL ANGLE VALUES','DIHEDRAL IN TOP GENERATED','GENERATED DIHEDRAL IN TOP','STACKING CONTACT WEIGHTS','NON-STACKING CONTACT WEIGHTS','NON-STACKING 2CG CONTACT WEIGHTS','NON-STACKING CG RATIO','LONG CONTACTS', 'CA CONTACT WEIGHTS', 'CONTACT DISTANCES','GAUSSIAN CONTACT WIDTHS','GAUSSIAN CONTACT EXCLUDED VOLUME','CONTACTS NUCLEIC i-j=1','CONTACTS PROTEIN i-j=4','CONTACTS PROTEIN i-j!<4','SCM CONTACT COMPARISON','NUMBER OF EXCLUSIONS', 'BOX DIMENSIONS','GENERATION OF ANGLES/DIHEDRALS','OPEN CONTACT FILE','NCONTACTS','TOTAL ENERGY','TYPE6 ATOMS','CLASSIFYING DIHEDRALS','NON-ZERO EXIT','ATOM FIELDS','ATOM CHARGES','FREE PAIRS APPEAR IN CONTACTS','EXTRAS: ATOMTYPES','EXTRAS: BONDTYPES','EXTRAS: ANGLETYPES','EXTRAS: DIHEDRALTYPES','EXTRAS: NB_PARAMS','NONZERO LIGAND DIHEDRAL VALUE','BONDS: EXPECTED FOUND','BONDS: FOUND EXPECTED','GMX COMPATIBLE','DIHEDRAL COUNTING: OFF','DIHEDRAL COUNTING: ON','OPENSMOG CONTACTS: EXPRESSION','OPENSMOG CONTACTS: PARAMETERS','OPENSMOG CONTACTS: INTERACTIONS','OPENSMOG: XML EXISTS');
 
 # default location of test PDBs
 our $PDB_DIR="share/PDB.files";
@@ -599,6 +599,18 @@ sub runalltests{
   &resetvars; 
   # clean up the tracking for the next test
   %FAIL=resettests(\%FAIL,\@FAILLIST);
+##############################################
+# the order of these is important...
+
+  my $g96="no";
+  if($A[1] =~ m/^g96$/i){
+   #add flag to smog call
+   $g96="yes";
+   my $first=$A[0];
+   shift(@A);
+   $A[0]=$first;
+   print "Checking g96 output format\n";
+  }
 
   my $openSMOG="no";
   if($A[1] =~ m/^opensmog$/i){
@@ -619,15 +631,14 @@ sub runalltests{
    $A[0]=$first;
    print "Checking use of free-format coordinates\n";
   }
-
-
+##############################################
 
   $model=$A[1];
   $contactmodel=$A[2];
  
   ($default,$gaussian,$usermap,$free)=setmodelflags($model,$contactmodel,\%numfield,\@A);
 
-  &smogchecker($gaussian,$openSMOG,$freecoor);
+  &smogchecker($gaussian,$g96,$openSMOG,$freecoor);
  
  }
 }
@@ -748,11 +759,16 @@ sub alltested
 
 sub runsmog
 {
- my ($openSMOG,$freecoor)=@_;
+ my ($g96,$openSMOG,$freecoor)=@_;
  if($openSMOG eq "yes"){
   $openSMOG="-openSMOG -openSMOGxml $PDB.xml";
  }else{
   $openSMOG="";
+ }
+ if($g96 eq "yes"){
+  $g96="-g96";
+ }else{
+  $g96="";
  }
  if($freecoor eq "yes"){
   $freecoor="-freecoor";
@@ -760,7 +776,7 @@ sub runsmog
   $freecoor="";
  }
 
- my $ARGS=" -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -SCMorig $openSMOG $freecoor";
+ my $ARGS=" -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -SCMorig $openSMOG $freecoor $g96";
 
 # prepare the flags
  if($default eq "yes"){
@@ -1014,7 +1030,7 @@ sub checkSCM
  }
 
  if($model eq "AA" || $model eq "AA-2cg" || $model eq "AA-nb-cr2"){
-  my $SHADOWARGS="-g $PDB.gro -t $PDB.top -ch $PDB.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD";
+  my $SHADOWARGS="-freecoor -g $PDB.gro4SCM.gro -t $PDB.top -ch $PDB.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD";
   if($default eq "yes"){
    $SHADOWARGS .= " -bif $BIFSIF_AA/AA-whitford09.bif";
   }elsif($default eq "no"){
@@ -1025,7 +1041,7 @@ sub checkSCM
   `java -jar $SCM $SHADOWARGS &> $PDB.meta2.output`;
 
  }elsif($model eq "AA-match"){
-  my $SHADOWARGS="-g $PDB.gro -t $PDB.top -ch $PDB.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD -bif $TEMPLATE_DIR_AA_MATCH/*.bif";
+  my $SHADOWARGS="-freecoor -g $PDB.gro4SCM.gro -t $PDB.top -ch $PDB.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD -bif $TEMPLATE_DIR_AA_MATCH/*.bif";
   `java -jar $SCM $SHADOWARGS &> $PDB.meta2.output`;
 
  }elsif($model eq "CA"){
@@ -1061,11 +1077,11 @@ sub checkSCM
 
 sub smogchecker
 {
- my ($gaussian,$openSMOG,$freecoor)=@_;
+ my ($gaussian,$g96,$openSMOG,$freecoor)=@_;
  &cleanoldfiles;
  &preparesettings;
  print "Running SMOG 2\n";
- &runsmog($openSMOG,$freecoor); 
+ &runsmog($g96,$openSMOG,$freecoor); 
  $FAIL{'NON-ZERO EXIT'}=$?;
 
 
@@ -1122,7 +1138,11 @@ sub smogchecker
   print "SMOG 2 exited without an error.\nAssessing generated files...\n";
    # CHECK THE OUTPUT
   &checkSCM($freecoor);
-  &checkgro;
+  if($openSMOG eq "no"){
+   &checkgro;
+  }else{
+   &checkg96;
+  }
   if($contactmodel !~ m/-userC$/){ 
    &checkgro4SCM; 
   }
@@ -1140,6 +1160,9 @@ sub smogchecker
 
 sub checkgro
 {
+ # since we are generating a gro file, exempt the g96 tests
+ $FAIL{'OPEN G96'}=-1;
+ $FAIL{'G96 FIELDS'}=-1;
  if(open(GRO,"$PDB.gro")){
   $FAIL{'OPEN GRO'}=0;
  }else{
@@ -1197,7 +1220,7 @@ sub checkgro
  }
  $LINE=<GRO>;
  chomp($LINE);
- $LINE =~ /^\s+|\s+$/;
+ $LINE =~ s/^\s+|\s+$//g;
  my @BOUNDS=split(/ /,$LINE);
  $BOUNDS[0]=int(($BOUNDS[0] * $PRECISION))/($PRECISION);
  $BOUNDS[1]=int(($BOUNDS[1] * $PRECISION))/($PRECISION);
@@ -1215,6 +1238,130 @@ sub checkgro
   $fail_log .= failed_message("Gro box size inconsistent\n\t$BOUNDS[0],$XMAX,$XMIN,$BOUNDS[1],$YMAX,$YMIN,$BOUNDS[2],$ZMAX,$ZMIN,$t1,$t2,$t3");
  }else{
   $FAIL{'BOX DIMENSIONS'}=0;
+ }
+}
+
+sub checkg96
+{
+ my $match=0;
+ # since we are generating a gro file, exempt the g96 tests
+ $FAIL{'OPEN GRO'}=-1;
+ if(open(GRO,"$PDB.g96")){
+  $FAIL{'OPEN G96'}=0;
+ }else{
+  smogcheck_error("$PDB.g96 can not be opened. This means SMOG died unexpectedly.");
+  return;
+ }
+ my $LINE=<GRO>; # header comment
+ if($LINE =~ m/^TITLE$/){
+  $match++;
+ }else{
+  $fail_log .= failed_message("First line in g96 file is not \"TITLE\"");
+ }
+ $LINE=<GRO>; # header comment
+ $LINE=<GRO>; # header comment
+ if($LINE =~ m/^END$/){
+  $match++;
+ }else{
+  $fail_log .= failed_message("Third line in g96 file is not \"END\"");
+ }
+ $LINE=<GRO>; # position 
+ if($LINE =~ m/^POSITION$/){
+  $match++;
+ }else{
+  $fail_log .= failed_message("Fourth line in g96 file is not \"POSITION\"");
+ }
+
+# $NUMOFATOMS=<GRO>; # header comment
+# chomp($NUMOFATOMS);
+ # store atom information
+ my $XMIN=10000000;
+ my $XMAX=-10000000;
+ my $YMIN=10000000;
+ my $YMAX=-10000000;
+ my $ZMIN=10000000;
+ my $ZMAX=-10000000;
+ $#GRODATA=-1;
+ $#XT=-1;
+ $#YT=-1;
+ $#ZT=-1;
+ my $I=0;
+ $LINE=<GRO>;
+ until ($LINE =~ m/^END$/){
+  chomp($LINE);
+  $LINE =~ s/\s+$//;
+  $GRODATA[$I][0]=substr($LINE,0,6);
+  $GRODATA[$I][1]=substr($LINE,6,6);
+  $GRODATA[$I][2]=substr($LINE,12,6);
+  $GRODATA[$I][3]=substr($LINE,18,6);
+  $XT[$I+1]=substr($LINE,24,15);
+  $YT[$I+1]=substr($LINE,39,15);
+  $ZT[$I+1]=substr($LINE,54,15);
+  my $X=substr($LINE,24,15);
+  my $Y=substr($LINE,39,15);
+  my $Z=substr($LINE,54,15);
+
+  &seenresidue($GRODATA[$I][1]);
+  if($X > $XMAX){
+   $XMAX=$X;
+  }
+  if($X < $XMIN){
+   $XMIN=$X;
+  }
+  if($Y > $YMAX){
+   $YMAX=$Y;
+  }
+  if($Y < $YMIN){
+   $YMIN=$Y;
+  }
+  if($Z > $ZMAX){
+   $ZMAX=$Z;
+  }
+  if($Z < $ZMIN){
+   $ZMIN=$Z;
+  }
+  $I++;
+  $LINE=<GRO>;
+ }
+ $NUMOFATOMS=$I;
+ $LINE=<GRO>; # BOX 
+ if($LINE =~ m/^BOX$/){
+  $match++;
+ }else{
+  $fail_log .= failed_message("BOX line doesn't appear directly after END of atoms");
+ }
+
+ $LINE=<GRO>;
+ chomp($LINE);
+ $LINE =~ s/^\s+|\s+$//g;
+ my @BOUNDS=split(/\s+/,$LINE);
+ $LINE=<GRO>; # END 
+ chomp($LINE);
+ if($LINE =~ m/^END$/){
+  $match++;
+ }else{
+  $fail_log .= failed_message("END line doesn't appear directly after BOX definition. Instead, found\n$LINE");
+ }
+
+ $BOUNDS[0]=int(($BOUNDS[0] * $PRECISION))/($PRECISION);
+ $BOUNDS[1]=int(($BOUNDS[1] * $PRECISION))/($PRECISION);
+ $BOUNDS[2]=int(($BOUNDS[2] * $PRECISION))/($PRECISION);
+ my $DX=$XMAX-$XMIN+2;
+ my $DY=$YMAX-$YMIN+2;
+ my $DZ=$ZMAX-$ZMIN+2;
+ $DX=int($DX * $PRECISION/10.0)/($PRECISION*0.1);
+ $DY=int($DY * $PRECISION/10.0)/($PRECISION*0.1);
+ $DZ=int($DZ * $PRECISION/10.0)/($PRECISION*0.1);
+ my $t1=int(abs($BOUNDS[0]-$DX)* $PRECISION/10.0)/($PRECISION*0.1);
+ my $t2=int(abs($BOUNDS[1]-$DY)* $PRECISION/10.0)/($PRECISION*0.1);
+ my $t3=int(abs($BOUNDS[2]-$DZ)* $PRECISION/10.0)/($PRECISION*0.1);
+ if($t1 > $TOLERANCE || $t2 > $TOLERANCE || $t3 > $TOLERANCE ){
+  $fail_log .= failed_message("G96 box size inconsistent\n\t$BOUNDS[0],$XMAX,$XMIN,$BOUNDS[1],$YMAX,$YMIN,$BOUNDS[2],$ZMAX,$ZMIN,$t1,$t2,$t3");
+ }else{
+  $FAIL{'BOX DIMENSIONS'}=0;
+ }
+ if($match == 5){
+  $FAIL{'G96 FIELDS'}=0;
  }
 }
 
