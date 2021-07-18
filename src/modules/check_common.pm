@@ -340,15 +340,20 @@ sub initgmxparams
 
 sub runGMX
 {
- my ($model,$CHECKGMX,$CHECKGMXGAUSSIAN,$GMXEDITCONF,$GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXMDP,$GMXMDPCA,$gaussian,$PDB,$openSMOG,$GRO)=@_;
- # note: $GRO must be last, since it is not always defined.
+ my ($model,$CHECKGMX,$CHECKGMXGAUSSIAN,$GMXEDITCONF,$GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXMDP,$GMXMDPCA,$gaussian,$PDB,$openSMOG,$GRO,$G96)=@_;
+ if(!defined $G96){
+  print "Internal error: insufficient args passed to runGMX\n";
+  exit;
+ }
  if($CHECKGMXGAUSSIAN ne "no" && $CHECKGMX ne "no" && $openSMOG eq "yes"){
   print "-openSMOG not compatible with GMX checks.\nWill skip GMX compatibility check for $PDB";
   return -1; 
- } 
- if(!defined $GRO){
-  print "Internal error: insufficient args passed to runGMX\n";
-  exit;
+ }
+ my $suffix;
+ if($G96 eq "yes"){
+  $suffix="g96";
+ }else{
+  $suffix="gro";
  }
  if($gaussian =~ /^yes$/)
  {
@@ -371,11 +376,11 @@ sub runGMX
  print "\tRunning grompp... may take a while\n";
  removeifexists("topol.tpr");
  # check the the gro and top work with grompp
- `$GMXPATH/$GMXEDITCONF -f $GRO.gro -d 10 -o $PDB.box.gro &> $PDB.editconf`;
+ `$GMXPATH/$GMXEDITCONF -f $GRO.$suffix -d 10 -o $PDB.box.$suffix &> $PDB.editconf`;
  if($model eq "CA"){
-  `$GMXPATH/$GMXEXEC -f $GMXMDPCA -c $PDB.box.gro -p $PDB.top -po $PDB.out.mdp -maxwarn 1 &> $PDB.grompp`;
+  `$GMXPATH/$GMXEXEC -f $GMXMDPCA -c $PDB.box.$suffix -p $PDB.top -po $PDB.out.mdp -maxwarn 1 &> $PDB.grompp`;
  }elsif($model =~ /^AA/){
-  `$GMXPATH/$GMXEXEC -f $GMXMDP -c $PDB.box.gro -p $PDB.top -po $PDB.out.mdp -maxwarn 1 &> $PDB.grompp`;
+  `$GMXPATH/$GMXEXEC -f $GMXMDP -c $PDB.box.$suffix -p $PDB.top -po $PDB.out.mdp -maxwarn 1 &> $PDB.grompp`;
  }else{
   internal_error("unable to determine whether this is a CA, or AA model: model defined as $model.");
  }

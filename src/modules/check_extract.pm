@@ -56,7 +56,7 @@ sub check_extract
 
    $FAIL{"NON-ZERO EXIT"}=$?;
    $FAIL{"EXTRA MAP FILE GENERATED"} = checkrestraintfile(1,"restrained.map");
-   $FAIL{"GMX COMPATIBLE"}=runGMX("AA",$CHECKGMX,"no",$GMXEDITCONF,$GMXPATH,"",$GMXEXEC,$GMXMDP,$GMXMDPCA,"no","extracted","no","extracted");
+   $FAIL{"GMX COMPATIBLE"}=runGMX("AA",$CHECKGMX,"no",$GMXEDITCONF,$GMXPATH,"",$GMXEXEC,$GMXMDP,$GMXMDPCA,"no","extracted","no","extracted","noG96");
    my $string=loadfile("extracted.top");
    my ($DATA,$DIRLIST)=checkdirectives($string);
 
@@ -78,7 +78,7 @@ sub check_extract
    print "\tChecking with index group $group\n";
    `echo $group | $exec -f $pdbdir/large.top -g $pdbdir/large.gro -n $pdbdir/large.ndx  &> output.$tool`;
    $FAIL{"NON-ZERO EXIT"}=$?; 
-   $FAIL{"GMX COMPATIBLE"}=runGMX("AA",$CHECKGMX,"no",$GMXEDITCONF,$GMXPATH,"",$GMXEXEC,$GMXMDP,$GMXMDPCA,"no","extracted","no","extracted");
+   $FAIL{"GMX COMPATIBLE"}=runGMX("AA",$CHECKGMX,"no",$GMXEDITCONF,$GMXPATH,"",$GMXEXEC,$GMXMDP,$GMXMDPCA,"no","extracted","no","extracted","noG96");
    $FAIL{"EXTRA MAP FILE GENERATED"} = checkrestraintfile(1,"restrained.map");
    my $string=loadfile("extracted.top");
    my ($DATA,$DIRLIST)=checkdirectives($string);
@@ -101,7 +101,7 @@ sub check_extract
    `echo $group | $exec -f $pdbdir/large.top -g $pdbdir/large.gro -n $pdbdir/large.ndx -ndxorder &> output.$tool`;
 
    $FAIL{"NON-ZERO EXIT"}=$?;
-   $FAIL{"GMX COMPATIBLE"}=runGMX("AA",$CHECKGMX,"no",$GMXEDITCONF,$GMXPATH,"",$GMXEXEC,$GMXMDP,$GMXMDPCA,"no","extracted","no","extracted");
+   $FAIL{"GMX COMPATIBLE"}=runGMX("AA",$CHECKGMX,"no",$GMXEDITCONF,$GMXPATH,"",$GMXEXEC,$GMXMDP,$GMXMDPCA,"no","extracted","no","extracted","noG96");
    $FAIL{"EXTRA MAP FILE GENERATED"} = checkrestraintfile(1,"restrained.map");
    my $string=loadfile("extracted.top");
    my ($DATA,$DIRLIST)=checkdirectives($string);
@@ -123,7 +123,7 @@ sub check_extract
    print "\tChecking with index group $group\n";
    `echo $group | $exec -f $pdbdir/large.top -g $pdbdir/large.gro -n $pdbdir/large.ndx -restraints 100 &> output.$tool`;
    $FAIL{"NON-ZERO EXIT"}=$?;
-   $FAIL{"GMX COMPATIBLE"}=runGMX("AA",$CHECKGMX,"no",$GMXEDITCONF,$GMXPATH,"",$GMXEXEC,$GMXMDP,$GMXMDPCA,"no","extracted","no","extracted");
+   $FAIL{"GMX COMPATIBLE"}=runGMX("AA",$CHECKGMX,"no",$GMXEDITCONF,$GMXPATH,"",$GMXEXEC,$GMXMDP,$GMXMDPCA,"no","extracted","no","extracted","noG96");
    $FAIL{"EXTRA MAP FILE GENERATED"} = checkrestraintfile(0,"restrained.map");
    my $string=loadfile("extracted.top");
    my ($DATA,$DIRLIST)=checkdirectives($string);
