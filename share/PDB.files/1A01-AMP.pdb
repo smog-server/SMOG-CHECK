@@ -1,3 +1,4 @@
+REMARK dummy comment to ensure smog2 is working
 ATOM      1  N   VAL A   2     -10.053  -6.552  67.853  1.00 78.44           N  
 ATOM      2  CA  VAL A   2     -11.496  -6.584  67.619  1.00 79.00           C  
 ATOM      3  C   VAL A   2     -12.002  -7.947  68.142  1.00 79.82           C  
