@@ -133,9 +133,3 @@ DNA.terminal.BMG openSMOG AA default ; 95
 2ci2_v2.freecoor openSMOG freecoor AA default ; 101
 2ci2_v2.freecoor  freecoor CA default ;102
 
-; check that g96 file are correct
-2ci2_v2.freecoor g96 openSMOG freecoor AA default ; 103
-2ci2_v2.freecoor g96 freecoor AA default ; 104
-2ci2_v2 g96 openSMOG AA default ; 105
-2ci2_v2 g96 AA default ; 106
-2ci2_v2 g96 CA default ; 107
