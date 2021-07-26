@@ -164,6 +164,47 @@ sub check_adjust
  }
 
  # TEST 5
+ print "\tChecking smog_adjustPDB with exact matching, alternate names and last tags.\n";
+ $TESTNUM++;
+ my $origpdb="$pdbdir/mangled.atomnames.lf.pdb";
+ my $mapfile="$mapdir/sbmMapExact.lf.alts";
+ %FAIL=resettests(\%FAIL,\@FAILLIST);
+ $FAIL{'LARGE'}=-1;
+ removeifexists("$newpdb");
+ `$exec -map $mapfile -i $origpdb -o $newpdb &> output.$tool`;
+ $FAIL{"OUTPUT NAME"}=trueifexists("$newpdb");
+
+ $FAIL{"NON-ZERO EXIT"}=$?;
+ if($FAIL{"NON-ZERO EXIT"} == 0){
+  my $LINESnew=0;
+  open(NEW,"$newpdb") or internal_error("Unable to open $newpdb");
+  while(<NEW>){
+   $LINESnew++;
+  }
+  my $LINESorig2=2; # the 2 is because we are adding two lines when running adjust
+  open(ORIG2,"$origpdb") or internal_error("Unable to open $origpdb");
+  while(<ORIG2>){
+   $LINESorig2++;
+  }
+  if($LINESnew==$LINESorig2){
+   $FAIL{"FILE LENGTH"}=0;
+  }
+  my $smogout=`$smogexec -AA -i $newpdb -dname adjusted &> smog.output`;
+  $FAIL{'SMOG RUNS'}=$?;
+ }
+ my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
+ $FAILSUM += $FAILED;
+ if($FAILED !=0){
+  savefailed($TESTNUM,("adjusted.pdb","$newpdb","output.$tool","adjusted.gro","adjusted.top","adjusted.ndx","adjusted.contacts" ,"smog.output"));
+  print "$printbuffer\n";
+ }else{
+  print "\n";
+  clearfiles(("adjusted.pdb","$newpdb","output.$tool","adjusted.gro","adjusted.top","adjusted.ndx","adjusted.contacts" ,"smog.output"));
+ }
+
+
+
+ # TEST 6
  print "\tChecking smog_adjustPDB with exact matching, alternate names and -large format.\n";
  $TESTNUM++;
  my $origpdb="$pdbdir/mangled.atomnames.pdb";
