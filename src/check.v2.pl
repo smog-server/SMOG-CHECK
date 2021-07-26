@@ -134,6 +134,8 @@ my ($CHECKGMX,$CHECKGMXGAUSSIAN,$GMXVER,$GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXE
 &readresiduetypes;
 &readbondsbyresidue;
 
+&validatebifmaps($SMOGDIR);
+
 &runalltests;
 &finalreport;
 
@@ -4237,4 +4239,96 @@ EOT
   removedireifexists("temp.bifsif");
   removedireifexists("temp.cont.bifsif");
  }
+}
+
+
+
+sub validatebifmaps
+{
+ my ($SMOGPATH)=@_;
+ my $tempdir="$SMOGPATH/share/templates"; 
+ my $mapdir="$SMOGPATH/share/mapfiles";
+ print "Will check consistency of the default all-atom templates and the corresponding\nmapping files.\n";
+
+ my $xml = new XML::Simple;
+ 
+ # set an array that gives the bif names
+ my @biflist=("SBM_AA+gaussian/AA+gaussian-noel12.bif","SBM_AA/AA-whitford09.bif");
+ # Check both mapping file
+ my @maplist=("sbmMap","sbmMapExact");
+
+ # store hashes of residue names for each mapping file
+ my %maphash;
+ {
+  my $map="sbmMapExact";
+  open(FILE,"$mapdir/$map") or smog_quit("Unable to open $mapdir/$map.  There is something wrong with the smog2 configuration.");
+  my %hashtmp;
+  while(<FILE>){
+   my $LINE=$_;
+   my ($A,$B)=checkcomment($LINE);
+   if($A eq ""){
+    next;
+   }
+   my @entries=split(/\s+/,$LINE);
+   if($entries[0] !~ m/^residue/i){
+    next;
+   }
+   if(exists $hashtmp{"$entries[1]"}){
+    print "FAIL: Issue in map file $mapdir/$map: Residue \"$entries[1]\" appears more than once.\n";
+    $FAIL_SYSTEM++;
+   }
+   $hashtmp{"$entries[1]"}=1;
+  }
+  close(FILE);
+  $maphash{$map}=\%hashtmp;
+ }
+
+ {
+  my $map="sbmMap";
+  open(FILE,"$mapdir/$map") or smog_quit("Unable to open $mapdir/$map.  There is something wrong with the smog2 configuration.");
+  my %hashtmp;
+  while(<FILE>){
+   my $LINE=$_;
+   my ($A,$B)=checkcomment($LINE);
+   if($A eq ""){
+    next;
+   }
+   my @entries=split(/\s+/,$LINE);
+   if(exists $hashtmp{"$entries[0]"}){
+    print "FAIL: Issue in map file $mapdir/$map: Residue \"$entries[0]\" appears more than once.\n";
+    $FAIL_SYSTEM++;
+   }
+   $hashtmp{"$entries[0]"}=1;
+  }
+  close(FILE);
+  $maphash{$map}=\%hashtmp;
+ }
+
+ my %bifhash;
+ foreach my $bif(@biflist){
+  open(FILE,"$tempdir/$bif") or smog_quit("Unable to open $tempdir/$bif.  There is something wrong with the smog2 configuration.");
+  $bifhash{$bif}=$xml->XMLin("$tempdir/$bif",KeyAttr=>{residue=>"name",connection=>"name"},ForceArray=>1);;
+ }
+
+ foreach my $bif(@biflist){
+  # check that all residues listed in template are listed in mapping file.
+  my $residueHandle=$bifhash{"$bif"}->{"residues"}->[0]->{"residue"};
+  my %resh=%{$residueHandle};
+  foreach my $map(@maplist){
+   my %maph=%{$maphash{$map}};
+   foreach my $res ( keys %resh ){
+    if(!exists $maph{$res}){
+     print "FAIL: residue \"$res\" defined in $bif but not in $map\n";
+     $FAIL_SYSTEM++;
+    }
+   }
+   foreach my $res ( keys %maph ){
+    if(!exists $resh{$res}){
+     print "FAIL: residue \"$res\" defined in $map but not in $bif\n";
+     $FAIL_SYSTEM++;
+    }
+   }
+  }
+ }
+ print "Done cross checking template-map file consistency.\n";
 }
