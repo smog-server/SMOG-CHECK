@@ -345,8 +345,8 @@ sub initgmxparams
 
 sub runGMX
 {
- my ($model,$CHECKGMX,$CHECKGMXGAUSSIAN,$GMXEDITCONF,$GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXMDP,$GMXMDPCA,$gaussian,$PDB,$openSMOG,$GRO,$G96)=@_;
- if(!defined $G96){
+ my ($model,$CHECKGMX,$CHECKGMXGAUSSIAN,$GMXEDITCONF,$GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXMDP,$GMXMDPCA,$gaussian,$PDB,$openSMOG,$GRO,$G96,$RESTRAIN)=@_;
+ if(!defined $RESTRAIN){
   print "Internal error: insufficient args passed to runGMX\n";
   exit;
  }
@@ -377,6 +377,11 @@ sub runGMX
   }
  }else{
   internal_error("gaussian variable not properly set: found $gaussian");
+ }
+ if($RESTRAIN eq "yes"){
+  $RESTRAIN="-r $PDB.box.$suffix"; 
+ }else{
+  $RESTRAIN="";
  }
  print "\tRunning grompp... may take a while\n";
  removeifexists("topol.tpr");

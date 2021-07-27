@@ -36,7 +36,7 @@ sub check_scale
  my $RD=1.2;
  `$exec -f AA.tmp.top -n $indexfile -rc $RC -rd $RD < $grpsel &> output.$tool`;
  $FAIL{"NON-ZERO EXIT"}=$?;
- $FAIL{"GMX COMPATIBLE"}=runGMX("AA",$CHECKGMX,"no",$GMXEDITCONF,$GMXPATH,"",$GMXEXEC,$GMXMDP,$GMXMDPCA,"no","smog.rescaled","no","AA.tmp","noG96");
+ $FAIL{"GMX COMPATIBLE"}=runGMX("AA",$CHECKGMX,"no",$GMXEDITCONF,$GMXPATH,"",$GMXEXEC,$GMXMDP,$GMXMDPCA,"no","smog.rescaled","no","AA.tmp","noG96","no");
  my ($samedirs,$dihlength,$dihmatch,$conlength,$conmatch)=comparetopsrescale("AA.tmp.top","smog.rescaled.top",$indexfile,$grpsel,$RC,$RD);
  $FAIL{"UNCHANGED DIRECTIVES"}=$samedirs;
  $FAIL{"N DIHEDRALS"}=$dihlength;
@@ -71,7 +71,7 @@ sub check_scale
  my $RD=0;
  `$exec -f AA.tmp.top -of "$outfile.top" -n $indexfile -rc $RC -rd $RD < $grpsel &> output.$tool`;
  $FAIL{"NON-ZERO EXIT"}=$?;
- $FAIL{"GMX COMPATIBLE"}=runGMX("AA",$CHECKGMX,"no",$GMXEDITCONF,$GMXPATH,"",$GMXEXEC,$GMXMDP,$GMXMDPCA,"no","$outfile","no","AA.tmp","noG96");
+ $FAIL{"GMX COMPATIBLE"}=runGMX("AA",$CHECKGMX,"no",$GMXEDITCONF,$GMXPATH,"",$GMXEXEC,$GMXMDP,$GMXMDPCA,"no","$outfile","no","AA.tmp","noG96","no");
  my ($samedirs,$dihlength,$dihmatch,$conlength,$conmatch)=comparetopsrescale("AA.tmp.top","$outfile.top",$indexfile,$grpsel,$RC,$RD);
  $FAIL{"UNCHANGED DIRECTIVES"}=$samedirs;
  $FAIL{"N DIHEDRALS"}=$dihlength;
