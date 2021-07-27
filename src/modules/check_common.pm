@@ -308,7 +308,7 @@ sub initgmxparams
   $GMXEXEC="gmx grompp";
   $GMXEDITCONF="gmx editconf";
   $GMXMDP="$SMOGBIN/examples/gromacs2020/all-atom/allatom.smog.gromacs2020.mdp";
-  $GMXMDPCA="$SMOGBIN/examples/gromacs5/calpha/calphaForGromacs5.mdp";
+  $GMXMDPCA="$SMOGBIN/examples/gromacs2020/all-atom/allatom.smog.gromacs2020.mdp";
  }else{
   smog_quit("Only gromacs versions 4, 5 and 2020 can be tested with this script.");
  }
