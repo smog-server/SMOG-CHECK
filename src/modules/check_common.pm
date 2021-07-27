@@ -318,7 +318,7 @@ sub initgmxparams
  }elsif($CHECKGMX eq "no"){
  }elsif($CHECKGMX eq "yes"){
   print "Will test gmx for compatibility of output files\n";
-  print "Will use the following command to launch grompp for non-gaussian potentials:\n\t$GMXPATH$GMXEXEC\n";
+  print "Will use the following command to launch grompp for non-gaussian potentials:\n\t$GMXPATH\/$GMXEXEC\n";
   if(! -e $GMXMDP){
    smog_quit("can not find mdp file $GMXMDP");
   }
@@ -332,7 +332,7 @@ sub initgmxparams
  }elsif($CHECKGMXGAUSSIAN eq "no"){
  }elsif($CHECKGMXGAUSSIAN eq "yes"){
   print "Will test gmx for compatibility of output files for gaussian potentials\n";
-  print "Will try to use the following command to launch grompp for gaussian potentials:\n\t$GMXPATHGAUSSIAN$GMXEXEC\n";
+  print "Will try to use the following command to launch grompp for gaussian potentials:\n\t$GMXPATHGAUSSIAN\/$GMXEXEC\n";
   if(! -e $GMXMDP){
    smog_quit("can not find mdp file $GMXMDP");
   }
