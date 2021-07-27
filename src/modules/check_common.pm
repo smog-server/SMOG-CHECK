@@ -388,9 +388,9 @@ sub runGMX
  # check the the gro and top work with grompp
  `$GMXPATH/$GMXEDITCONF -f $GRO.$suffix -d 10 -o $PDB.box.$suffix &> $PDB.editconf`;
  if($model eq "CA"){
-  `$GMXPATH/$GMXEXEC -f $GMXMDPCA -c $PDB.box.$suffix -p $PDB.top -po $PDB.out.mdp -maxwarn 1 &> $PDB.grompp`;
+  `$GMXPATH/$GMXEXEC -f $GMXMDPCA -c $PDB.box.$suffix $RESTRAIN -p $PDB.top -po $PDB.out.mdp -maxwarn 1 &> $PDB.grompp`;
  }elsif($model =~ /^AA/){
-  `$GMXPATH/$GMXEXEC -f $GMXMDP -c $PDB.box.$suffix -p $PDB.top -po $PDB.out.mdp -maxwarn 1 &> $PDB.grompp`;
+  `$GMXPATH/$GMXEXEC -f $GMXMDP -c $PDB.box.$suffix $RESTRAIN -p $PDB.top -po $PDB.out.mdp -maxwarn 1 &> $PDB.grompp`;
  }else{
   internal_error("unable to determine whether this is a CA, or AA model: model defined as $model.");
  }
