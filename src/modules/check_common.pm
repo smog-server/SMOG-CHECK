@@ -207,41 +207,75 @@ sub compare_table
  my @info2;
  my ($I1,$data)=load_file($file1);
  if($I1==-1){
+  print "Issue: compare_table could not open $file1\n";
   # could not open file
   return 1;
  }else{
-  @info1=@{$data};
+  foreach my $LINE(@{$data}){
+   if($LINE !~ m/^#/){
+    push(@info1,$LINE);
+   }
+  }
+  $I1=$#info1+1;
  }
  my ($I2,$data)=load_file($file2);
  if($I2==-1){
+  print "Issue: compare_table could not open $file2\n";
   # could not open file
   return 1;
  }else{
-  @info2=@{$data};
+  foreach my $LINE(@{$data}){
+   if($LINE !~ m/^#/){
+    push(@info2,$LINE);
+   }
+  }
+  $I2=$#info2+1;
  }
 
+ if($I1<10){
+  smogcheck_error("Only found $I1 non-comment lines in file $file1");
+ }
+ if($I2<10){
+  smogcheck_error("Only found $I2 non-comment lines in file $file2");
+ }
  if($I1 != $I2){
+  print "Issue: compare_table found different lengths for $file1 ($I1) and $file2 ($I2)\n";
   # files are different
   return 1;
  }
 
- my $ndiff=0;
+ my $match=0;
+ my $foundnonzero=0;
+ my $nentries=0;
  for(my $I=0;$I<=$I1;$I++){
-  if($info1[$I] =~ m/^#/ && $info2[$I] =~ m/^#/){
-   next;
-  }
   my @A=split(/\s+/,$info1[$I]);
   my @B=split(/\s+/,$info2[$I]);
   if ($#A != $#B){
+   print "Issue: Different number of entries found on line $I. Found:\n$info1[$I]\n$info2[$I]\n";
    return 1;
   }
   for(my $J=0;$J<=$#A;$J++){
-   if($info1[$J] != 0 && $info2[$J] != 0 && abs($info1[$J]-$info2[$J])/abs($info1[$J]) > 0.00001){
-    $ndiff++;
+   if($info1[$J] != 0 && $info2[$J] != 0){
+    if($J>0){
+     $foundnonzero++;
+    }
+    $nentries++;
+    if (abs($info1[$J]-$info2[$J])/abs($info1[$J]) < 0.00001){
+     $match++;
+    }else{
+     print "Failed value comp:\n$info1[$J]\n$info2[$J]\n";
+    }
    }
   } 
  }
- return $ndiff;
+ if($foundnonzero ==0){
+  print "Issue: No non-zero values found in the table...";
+  return 1;
+ }
+ if($match == $nentries && $match >0){
+  return 0
+ }
+ return 1;
 }
 
 sub timediff
