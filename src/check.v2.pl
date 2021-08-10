@@ -1067,25 +1067,25 @@ sub checkSCM
   # run SCM to get map
   `java -jar $SCM -freecoor $SHADOWARGS &> $PDB.meta3.output`;
  }
-
- # check that the same contact map is generated
- my $CONTDIFF=filediff("$PDB.contacts.ShadowOutput","$PDB.contacts.SCM");
- if($CHECKMAP==1){
-  my $diff=filediff("$PDB.contacts.ShadowOutput","share/maprefs/$TESTNUM.mapref");
-  if($diff==0){
-   $FAIL{'STATIC CONTACT COMPARISON'}=0;
-  }
- }else{
-  if(-e "share/maprefs/$TESTNUM.mapref"){
-   # check if our new map is different from the previous.  If so, we don't necessarily want to save it.
+ if($usermap eq "no"){
+  # check that the same contact map is generated
+  if($CHECKMAP==1){
    my $diff=filediff("$PDB.contacts.ShadowOutput","share/maprefs/$TESTNUM.mapref");
-   if($diff !=0){
-    smog_quit("When regenerating reference contact maps, a difference was found.  This is typically not a good sign...\ncheck files:\n\t$PDB.contacts.ShadowOutput\n\tshare/maprefs/$TESTNUM.mapref");
+   if($diff==0){
+    $FAIL{'STATIC CONTACT COMPARISON'}=0;
    }
+  }else{
+   if(-e "share/maprefs/$TESTNUM.mapref"){
+    # check if our new map is different from the previous.  If so, we don't necessarily want to save it.
+    my $diff=filediff("$PDB.contacts.ShadowOutput","share/maprefs/$TESTNUM.mapref");
+    if($diff !=0){
+     smog_quit("When regenerating reference contact maps, a difference was found.  This is typically not a good sign...\ncheck files:\n\t$PDB.contacts.ShadowOutput\n\tshare/maprefs/$TESTNUM.mapref");
+    }
+   }
+   `cp $PDB.contacts.ShadowOutput share/maprefs/$TESTNUM.mapref`;
   }
-  `cp $PDB.contacts.ShadowOutput share/maprefs/$TESTNUM.mapref`;
-  $FAIL{'STATIC CONTACT COMPARISON'}=-1;
  }
+ my $CONTDIFF=filediff("$PDB.contacts.ShadowOutput","$PDB.contacts.SCM");
  if($CONTDIFF == 0){
   $FAIL{'SCM CONTACT COMPARISON'}=0;
  }elsif($usermap eq "yes"){
@@ -1110,6 +1110,9 @@ sub smogchecker
 
 #######TEST-SPECIFIC DISABLED CHECKS######
 
+ if($usermap eq "yes" || $CHECKMAP==0){
+  $FAIL{'STATIC CONTACT COMPARISON'}=-1;
+ }
  if($openSMOG eq "no"){
   $FAIL{'OPENSMOG CONTACTS: EXPRESSION'}=-1;
   $FAIL{'OPENSMOG CONTACTS: PARAMETERS'}=-1;
