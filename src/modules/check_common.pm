@@ -140,10 +140,11 @@ sub load_file
  local($\) = undef;
 
  if(open(FILE1,"$file1")){
-  my $content=<FILE1>;
-  @info=split(/\n/,$content);
+  while(<FILE1>){
+   push(@info,$_);
+  }
   close(FILE1);
-  return (length(@info),\@info);
+  return ($#info,\@info);
  }else{
   return (-1,1);
  }
@@ -179,10 +180,9 @@ sub filediff
   # files are different
   return 1;
  }
-
  my $ndiff=0;
- for(my $I=0;$I<$I1;$I++){
-  if($info1[$I] ne $info2[$I]){
+ for(my $I=0;$I<=$I1;$I++){
+  if("$info1[$I]" ne "$info2[$I]"){
    $ndiff++;
   }
  }
@@ -226,7 +226,7 @@ sub compare_table
  }
 
  my $ndiff=0;
- for(my $I=0;$I<$I1;$I++){
+ for(my $I=0;$I<=$I1;$I++){
   if($info1[$I] =~ m/^#/ && $info2[$I] =~ m/^#/){
    next;
   }

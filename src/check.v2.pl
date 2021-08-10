@@ -1037,6 +1037,7 @@ sub checkSCM
 
  if($model eq "AA" || $model eq "AA-2cg" || $model eq "AA-nb-cr2"){
   my $SHADOWARGS="-freecoor -g $PDB.gro4SCM.gro -t $PDB.top -ch $PDB.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD";
+
   if($default eq "yes"){
    $SHADOWARGS .= " -bif $BIFSIF_AA/AA-whitford09.bif";
   }elsif($default eq "no"){
@@ -1052,9 +1053,9 @@ sub checkSCM
 
  }elsif($model eq "CA"){
   # run AA model to get top
-  `$EXEC_NAME $freecoor -i $PDB_DIR/$PDB.pdb -g $PDB.meta1.gro -o $PDB.meta1.top -n $PDB.meta1.ndx -s $PDB.meta1.contacts -t $BIFSIF_AA  &> $PDB.meta1.output`;
+  `$EXEC_NAME $freecoor -keep4SCM -i $PDB_DIR/$PDB.pdb -g $PDB.meta1.gro -o $PDB.meta1.top -n $PDB.meta1.ndx -s $PDB.meta1.contacts -t $BIFSIF_AA  &> $PDB.meta1.output`;
 
-  my $SHADOWARGS="-g $PDB.meta1.gro -t $PDB.meta1.top -ch $PDB.meta1.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD";
+  my $SHADOWARGS="-g $PDB.meta1.gro4SCM.gro -t $PDB.meta1.top -ch $PDB.meta1.ndx -o $PDB.contacts.SCM -m shadow -c $CONTD -s $CONTR -br $BBRAD";
 
   if($default eq "yes"){
    $SHADOWARGS .= " -bif $BIFSIF_AA/AA-whitford09.bif";
@@ -1075,6 +1076,13 @@ sub checkSCM
    $FAIL{'STATIC CONTACT COMPARISON'}=0;
   }
  }else{
+  if(-e "share/maprefs/$TESTNUM.mapref"){
+   # check if our new map is different from the previous.  If so, we don't necessarily want to save it.
+   my $diff=filediff("$PDB.contacts.ShadowOutput","share/maprefs/$TESTNUM.mapref");
+   if($diff !=0){
+    smog_quit("When regenerating reference contact maps, a difference was found.  This is typically not a good sign...\ncheck files:\n\t$PDB.contacts.ShadowOutput\n\tshare/maprefs/$TESTNUM.mapref");
+   }
+  }
   `cp $PDB.contacts.ShadowOutput share/maprefs/$TESTNUM.mapref`;
   $FAIL{'STATIC CONTACT COMPARISON'}=-1;
  }
