@@ -115,7 +115,8 @@ sub readtop {
 			chomp($LINE);
 			@tokens=split(' ',$LINE);
 			until($tokens[0] eq "[") {
-				if($LINE !~ /^;/ && @tokens != 0) { #ignore comments and blank lines
+				#if($LINE !~ /^;/ && @tokens != 0) { #ignore comments and blank lines
+				if($LINE !~ /^;/ ) { #ignore comments 
 					push @{$contents[$keywordIndex][$lineNum]}, @tokens;
 					$lineNum++;
 				}
