@@ -5,7 +5,7 @@ use XML::Simple qw(:strict);
 use Math::Trig qw(acos_real rad2deg);
 use smog_common;
 use check_common;
-use openSMOG;
+use OpenSMOG;
 
 # This is the main script that runs SMOG 2 and then checks to see if the generated files are correct.
 # This is intended to be a brute-force evaluation of everything that should appear. Since this is
@@ -160,7 +160,7 @@ my $tmpstring = <<"EOS";
        This tool will check your installation of SMOG 2, to ensure 
 		that a number of models are being constructed properly.
 
-                       See the SMOG manual for usage guidelines.
+                       See the SMOG 2 manual for usage guidelines.
 
             For questions regarding this script, contact info\@smog-server.org              
 
@@ -238,7 +238,7 @@ sub readbackbonetypes
  }
 }
 
-sub addopenSMOG
+sub addOpenSMOG
 {
 # things to check
 # make sure only and all expected parameters are present in each interaction
@@ -282,7 +282,7 @@ sub addopenSMOG
      @expectedparams=("A","r0","sigmaG","a");
      @expectedattributes=("i","j","A","r0","sigmaG","a");
     }else{
-     internal_error("openSMOG checking not implemented for model $model and gaussian=$gaussian");
+     internal_error("OpenSMOG checking not implemented for model $model and gaussian=$gaussian");
     }
    }
    my $expr=$xmlhandle->{$funcs}->{'expression'}->{'expr'};
@@ -618,14 +618,14 @@ sub runalltests{
    print "Checking g96 output format\n";
   }
 
-  my $openSMOG="no";
+  my $OpenSMOG="no";
   if($A[1] =~ m/^opensmog$/i){
    #add flag to smog call
-   $openSMOG="yes";
+   $OpenSMOG="yes";
    my $first=$A[0];
    shift(@A);
    $A[0]=$first;
-   print "Checking openSMOG functionality\n";
+   print "Checking OpenSMOG functionality\n";
   }
 
   my $freecoor="no";
@@ -644,7 +644,7 @@ sub runalltests{
  
   ($default,$gaussian,$usermap,$free)=setmodelflags($model,$contactmodel,\%numfield,\@A);
 
-  &smogchecker($gaussian,$g96,$openSMOG,$freecoor);
+  &smogchecker($gaussian,$g96,$OpenSMOG,$freecoor);
  
  }
 }
@@ -765,11 +765,11 @@ sub alltested
 
 sub runsmog
 {
- my ($g96,$openSMOG,$freecoor)=@_;
- if($openSMOG eq "yes"){
-  $openSMOG="-openSMOG -openSMOGxml $PDB.xml";
+ my ($g96,$OpenSMOG,$freecoor)=@_;
+ if($OpenSMOG eq "yes"){
+  $OpenSMOG="-OpenSMOG -OpenSMOGxml $PDB.xml";
  }else{
-  $openSMOG="";
+  $OpenSMOG="";
  }
  if($g96 eq "yes"){
   $g96="-g96";
@@ -782,7 +782,7 @@ sub runsmog
   $freecoor="";
  }
 
- my $ARGS=" -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -SCMorig $openSMOG $freecoor $g96";
+ my $ARGS=" -i $PDB_DIR/$PDB.pdb -g $PDB.gro -o $PDB.top -n $PDB.ndx -s $PDB.contacts -SCMorig $OpenSMOG $freecoor $g96";
 
 # prepare the flags
  if($default eq "yes"){
@@ -1100,11 +1100,11 @@ sub checkSCM
 
 sub smogchecker
 {
- my ($gaussian,$g96,$openSMOG,$freecoor)=@_;
+ my ($gaussian,$g96,$OpenSMOG,$freecoor)=@_;
  &cleanoldfiles;
  &preparesettings;
  print "Running SMOG 2\n";
- &runsmog($g96,$openSMOG,$freecoor); 
+ &runsmog($g96,$OpenSMOG,$freecoor); 
  $FAIL{'NON-ZERO EXIT'}=$?;
 
 
@@ -1113,7 +1113,7 @@ sub smogchecker
  if($usermap eq "yes" || $CHECKMAP==0){
   $FAIL{'STATIC CONTACT COMPARISON'}=-1;
  }
- if($openSMOG eq "no"){
+ if($OpenSMOG eq "no"){
   $FAIL{'OPENSMOG CONTACTS: EXPRESSION'}=-1;
   $FAIL{'OPENSMOG CONTACTS: PARAMETERS'}=-1;
   $FAIL{'OPENSMOG CONTACTS: INTERACTIONS'}=-1;
@@ -1173,10 +1173,10 @@ sub smogchecker
    &checkgro4SCM; 
   }
   &checkndx;
-  &checktop($openSMOG,$model,$gaussian);
+  &checktop($OpenSMOG,$model,$gaussian);
   &finalchecks;
   # if GMX tests are turned on, then run them
-  $FAIL{'GMX COMPATIBLE'}=runGMX($model,$CHECKGMX,$CHECKGMXGAUSSIAN,$GMXEDITCONF,$GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXMDP,$GMXMDPCA,$gaussian,$PDB,$openSMOG,$PDB,$g96,"no");
+  $FAIL{'GMX COMPATIBLE'}=runGMX($model,$CHECKGMX,$CHECKGMXGAUSSIAN,$GMXEDITCONF,$GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXMDP,$GMXMDPCA,$gaussian,$PDB,$OpenSMOG,$PDB,$g96,"no");
  }else{
   $fail_log .= failed_message("SMOG 2 exited with non-zero exit code when trying to process this PDB file.");
   $FAIL_SYSTEM++;
@@ -1698,7 +1698,7 @@ sub checkndx
 
 sub checktop
 {
- my ($openSMOG,$model,$gaussian)=@_;
+ my ($OpenSMOG,$model,$gaussian)=@_;
 # this routine will be cleaned up later.  It's functional, but not very organized.
  my (@topdata,%seen,%FOUND,@theta_gen,@PAIRS,$finalres,%revData,@resindex,%theta_gen_as,%phi_gen_as,@phi_gen,%improper_gen_as,@improper_gen,@A);
  undef %MOLTYPEBYRES;
@@ -1762,14 +1762,14 @@ sub checktop
  # don't forget to save the last directive
  my @nbuff=@buffer;
  $topdata{$dir}=\@nbuff;
- if($openSMOG eq "yes"){
-  my $openXML=readopenSMOGxml("$PDB.xml");
+ if($OpenSMOG eq "yes"){
+  my $openXML=readOpenSMOGxml("$PDB.xml");
   if($openXML !=1){
    $FAIL{'OPENSMOG: XML EXISTS'}=0;
    my $openEXPR=1;
    my $openPARAMS=1;
    my $openINTER=1;
-   ($topdata,$openEXPR,$openPARAMS,$openINTER)=addopenSMOG($topdata,$openXML,$model,$gaussian);
+   ($topdata,$openEXPR,$openPARAMS,$openINTER)=addOpenSMOG($topdata,$openXML,$model,$gaussian);
    $FAIL{'OPENSMOG CONTACTS: EXPRESSION'}=$openEXPR;
    $FAIL{'OPENSMOG CONTACTS: PARAMETERS'}=$openPARAMS;
    $FAIL{'OPENSMOG CONTACTS: INTERACTIONS'}=$openINTER;

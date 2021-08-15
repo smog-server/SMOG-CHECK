@@ -379,13 +379,13 @@ sub initgmxparams
 
 sub runGMX
 {
- my ($model,$CHECKGMX,$CHECKGMXGAUSSIAN,$GMXEDITCONF,$GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXMDP,$GMXMDPCA,$gaussian,$PDB,$openSMOG,$GRO,$G96,$RESTRAIN)=@_;
+ my ($model,$CHECKGMX,$CHECKGMXGAUSSIAN,$GMXEDITCONF,$GMXPATH,$GMXPATHGAUSSIAN,$GMXEXEC,$GMXMDP,$GMXMDPCA,$gaussian,$PDB,$OpenSMOG,$GRO,$G96,$RESTRAIN)=@_;
  if(!defined $RESTRAIN){
   print "Internal error: insufficient args passed to runGMX\n";
   exit;
  }
- if($CHECKGMXGAUSSIAN ne "no" && $CHECKGMX ne "no" && $openSMOG eq "yes"){
-  print "-openSMOG not compatible with GMX checks.\nWill skip GMX compatibility check for $PDB";
+ if($CHECKGMXGAUSSIAN ne "no" && $CHECKGMX ne "no" && $OpenSMOG eq "yes"){
+  print "-OpenSMOG not compatible with GMX checks.\nWill skip GMX compatibility check for $PDB";
   return -1; 
  }
  my $suffix;
