@@ -1,9 +1,9 @@
 #############################################################
 
-README for smog-check version 2.4beta. These are very simple 
+README for smog-check version 2.4. These are very simple 
 scripts that will test to see if your installation of SMOG 2 
-is generating CA and AA .top files that are consistent with 
-the default settings. They also check to see if the 
+is generating CA, CA-CB and AA .top files that are consistent 
+with the default settings. They also check to see if the 
 model parameters can be adjusted properly.
 
 smog-check is free software, distributed under the GNU
