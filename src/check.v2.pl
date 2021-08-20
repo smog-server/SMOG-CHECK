@@ -278,7 +278,7 @@ sub addOpenSMOG
      # note that B is before A.  this is necessary
      @expectedattributes=("i","j","B","A");
     }elsif($gaussian eq "yes"){
-     $expectedfunction="-A*((1+a/(A*r^12))*(1-exp(-(r-r0)^2/(2*sigmaG^2)))-1)";
+     $expectedfunction="A*((1+a/(A*r^12))*(1-exp(-(r-r0)^2/(2*sigmaG^2)))-1)";
      @expectedparams=("A","r0","sigmaG","a");
      @expectedattributes=("i","j","A","r0","sigmaG","a");
     }else{
