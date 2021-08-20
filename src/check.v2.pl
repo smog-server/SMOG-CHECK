@@ -11,7 +11,7 @@ use OpenSMOG;
 # This is intended to be a brute-force evaluation of everything that should appear. Since this is
 # a testing script, it is not designed to be efficient, but to be thorough, and foolproof...  perhaps over time we will clean this up.  But, it gets the job done.
 
-my $VERSION="2.5beta";
+my $VERSION="2.4.1";
 
 #****************INITIALIZE A BUNCH OF VARIABLES*******************
 
@@ -262,7 +262,7 @@ sub addOpenSMOG
    # determine what is expected in this contact term
    if($funcs eq "bond_type6"){
     $ftype=6;
-     $expectedfunction="eps*(r-r0)^2";
+     $expectedfunction="eps*0.5*(r-r0)^2";
      @expectedparams=("eps","r0");
      @expectedattributes=("i","j","r0","eps");
    }else{
