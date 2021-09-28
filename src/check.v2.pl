@@ -255,7 +255,9 @@ sub addOpenSMOG
  my $interactionpass=1;
  my $addstuff;
  my $ftype; 
- foreach my $key(keys %{$openXML}){
+ foreach my $key("contacts"){
+ # for now, only checking contacts. will need to add constants and nb params
+ #keys %{$openXML}){
   my $xmlhandle=$openXML->{"$key"}->{$key . "_type"};
   foreach my $funcs(keys %{$xmlhandle}){
 
