@@ -438,24 +438,24 @@ sub seenresidue
  {
   if($contactmodel =~ m/^default$/){
    if(!exists $seenresidueAA{$resname}){
-    internal_error("Resname $resname found on PDB file, but wasn't found in the AA .bif file.");
+    internal_error("Resname $resname found in PDB file, but wasn't found in the AA .bif file.");
    }
    $seenresidueAA{$resname}=0; 
   }elsif ($contactmodel =~ m/^default-gaussian$/){
    if(!exists $seenresidueAAgauss{$resname}){
-    internal_error("Resname $resname found on PDB file, but wasn't found in the AA-gauss .bif file.");
+    internal_error("Resname $resname found in PDB file, but wasn't found in the AA-gauss .bif file.");
    }
    $seenresidueAAgauss{$resname}=0; 
   }
  } elsif ($model =~ m/^CA$/) {
   if($contactmodel =~ m/^default$/){
    if(!exists $seenresidueCA{$resname}){
-    internal_error("Resname $resname found on PDB file, but wasn't found in the CA .bif file.");
+    internal_error("Resname $resname found in PDB file, but wasn't found in the CA .bif file.");
    }
    $seenresidueCA{$resname}=0; 
   }elsif ($contactmodel =~ m/^default-gaussian$/){
    if(!exists $seenresidueCAgauss{$resname}){
-    internal_error("Resname $resname found on PDB file, but wasn't found in the CA-gauss .bif file.");
+    internal_error("Resname $resname found in PDB file, but wasn't found in the CA-gauss .bif file.");
    }
    $seenresidueCAgauss{$resname}=0; 
   }
