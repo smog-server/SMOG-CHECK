@@ -1501,7 +1501,7 @@
 
 
 <!--LEUCINE-->
-		<residue name="LEU" residueType="amino">
+		<residue residueType="amino" name="LEU" >
 			<atoms>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">N</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">CA</atom>
@@ -1867,7 +1867,7 @@
 		</residue>
 
 <!--SERINE-->
-		<residue name="SER" residueType="amino">
+		<residue meta="last" name="SER" residueType="amino">
 			<atoms>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">N</atom>
 				<atom bType="B_1" nbType="NB_1" pairType="P_1">CA</atom>
