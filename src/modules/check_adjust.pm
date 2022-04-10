@@ -332,6 +332,69 @@ sub check_adjust
   clearfiles(("adjusted.pdb","$newpdb","output.$tool","adjusted.gro","adjusted.top","adjusted.ndx","adjusted.contacts" ,"smog.output"));
  }
 
+ # TEST 9
+ print "\tChecking smog_adjustPDB with default exact matching, near-official/dirty PDB with insertions.\n";
+ $TESTNUM++;
+ my $origpdb="$pdbdir/6qnr-partIns.pdb";
+ %FAIL=resettests(\%FAIL,\@FAILLIST);
+ $FAIL{'LARGE'}=-1;
+ $FAIL{"FILE LENGTH"}=-1;
+ removeifexists("$newpdb");
+ `$exec -i $origpdb -o $newpdb  &> output.$tool`;
+ $FAIL{"OUTPUT NAME"}=trueifexists("$newpdb");
+
+ $FAIL{"NON-ZERO EXIT"}=$?;
+ if($FAIL{"NON-ZERO EXIT"} == 0){
+  my $LINESnew=0;
+  open(NEW,"$newpdb") or internal_error("Unable to open $newpdb");
+  while(<NEW>){
+   $LINESnew++;
+  }
+  my $smogout=`$smogexec -AA -i $newpdb -dname adjusted &> smog.output`;
+  $FAIL{'SMOG RUNS'}=$?;
+ }
+ my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
+ $FAILSUM += $FAILED;
+ if($FAILED !=0){
+  savefailed($TESTNUM,("adjusted.pdb","$newpdb","output.$tool","adjusted.gro","adjusted.top","adjusted.ndx","adjusted.contacts" ,"smog.output"));
+  print "$printbuffer\n";
+ }else{
+  print "\n";
+  clearfiles(("adjusted.pdb","$newpdb","output.$tool","adjusted.gro","adjusted.top","adjusted.ndx","adjusted.contacts" ,"smog.output"));
+ }
+
+ # TEST 10
+ print "\tChecking smog_adjustPDB with default exact matching, near-official/dirty PDB, insertions and sorting.\n";
+ $TESTNUM++;
+ my $origpdb="$pdbdir/6qnr-partIns.pdb";
+ %FAIL=resettests(\%FAIL,\@FAILLIST);
+ $FAIL{'LARGE'}=-1;
+ $FAIL{"FILE LENGTH"}=-1;
+ removeifexists("$newpdb");
+ `$exec -i $origpdb -o $newpdb -sort &> output.$tool`;
+ $FAIL{"OUTPUT NAME"}=trueifexists("$newpdb");
+
+ $FAIL{"NON-ZERO EXIT"}=$?;
+ if($FAIL{"NON-ZERO EXIT"} == 0){
+  my $LINESnew=0;
+  open(NEW,"$newpdb") or internal_error("Unable to open $newpdb");
+  while(<NEW>){
+   $LINESnew++;
+  }
+  my $smogout=`$smogexec -AA -i $newpdb -dname adjusted &> smog.output`;
+  $FAIL{'SMOG RUNS'}=$?;
+ }
+ my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
+ $FAILSUM += $FAILED;
+ if($FAILED !=0){
+  savefailed($TESTNUM,("adjusted.pdb","$newpdb","output.$tool","adjusted.gro","adjusted.top","adjusted.ndx","adjusted.contacts" ,"smog.output"));
+  print "$printbuffer\n";
+ }else{
+  print "\n";
+  clearfiles(("adjusted.pdb","$newpdb","output.$tool","adjusted.gro","adjusted.top","adjusted.ndx","adjusted.contacts" ,"smog.output"));
+ }
+
+
 
  return ($FAILSUM, $printbuffer);
 
