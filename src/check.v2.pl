@@ -543,9 +543,9 @@ sub readnamesingletemplate
  while(<BIFFILE>){
   my $LINE=$_;
   chomp($LINE);
-  if($LINE =~ m/^(\s*)?<(.*)?residue(.*)?name(\s*)?=\"(\w+)(\")/){
+  if($LINE =~ m/^(\s*)?<residue(.*)?name(\s*)?=\"(\w+)(\")/){
    my @entries=split(/\s+/,$LINE);
-   $residues{$5}=1; 
+   $residues{$4}=1; 
   }
  }
  close(BIFFILE);

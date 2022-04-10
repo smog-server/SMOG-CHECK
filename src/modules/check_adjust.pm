@@ -202,8 +202,6 @@ sub check_adjust
   clearfiles(("adjusted.pdb","$newpdb","output.$tool","adjusted.gro","adjusted.top","adjusted.ndx","adjusted.contacts" ,"smog.output"));
  }
 
-
-
  # TEST 6
  print "\tChecking smog_adjustPDB with exact matching, alternate names and -large format.\n";
  $TESTNUM++;
@@ -227,6 +225,37 @@ sub check_adjust
   }
   if($LINESnew==$LINESorig+1){
    $FAIL{"FILE LENGTH"}=0;
+  }
+  my $smogout=`$smogexec -AA -i $newpdb -dname adjusted &> smog.output`;
+  $FAIL{'SMOG RUNS'}=$?;
+ }
+ my ($FAILED,$printbuffer)=failsum(\%FAIL,\@FAILLIST);
+ $FAILSUM += $FAILED;
+ if($FAILED !=0){
+  savefailed($TESTNUM,("adjusted.pdb","$newpdb","output.$tool","adjusted.gro","adjusted.top","adjusted.ndx","adjusted.contacts" ,"smog.output"));
+  print "$printbuffer\n";
+ }else{
+  print "\n";
+  clearfiles(("adjusted.pdb","$newpdb","output.$tool","adjusted.gro","adjusted.top","adjusted.ndx","adjusted.contacts" ,"smog.output"));
+ }
+
+ # TEST 7
+ print "\tChecking smog_adjustPDB with default exact matching, removewater and official/dirty PDB.\n";
+ $TESTNUM++;
+ my $origpdb="$pdbdir/2ci2.official.pdb";
+ %FAIL=resettests(\%FAIL,\@FAILLIST);
+ $FAIL{'LARGE'}=-1;
+ $FAIL{"FILE LENGTH"}=-1;
+ removeifexists("$newpdb");
+ `$exec -i $origpdb -o $newpdb -removewater &> output.$tool`;
+ $FAIL{"OUTPUT NAME"}=trueifexists("$newpdb");
+
+ $FAIL{"NON-ZERO EXIT"}=$?;
+ if($FAIL{"NON-ZERO EXIT"} == 0){
+  my $LINESnew=0;
+  open(NEW,"$newpdb") or internal_error("Unable to open $newpdb");
+  while(<NEW>){
+   $LINESnew++;
   }
   my $smogout=`$smogexec -AA -i $newpdb -dname adjusted &> smog.output`;
   $FAIL{'SMOG RUNS'}=$?;
