@@ -1,5 +1,7 @@
 <?xml version='1.0'?>
 <sif>
+<!-- templates compatible with SMOG version: -->
+<version min="MINVERSION"/>
 <!-- FUNCTION DEFINITIONS -->
 <!-- NOTE: Function definitions should only be changed if you modify the source code.-->
 <functions>

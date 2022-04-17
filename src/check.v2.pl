@@ -1585,7 +1585,7 @@ EOT
   my $PARM_N_BB=$NA_DIH;
   my $PARM_N_SC=$NA_DIH*$R_N_SC_BB;
   my $epsilonCAD3=$epsilonCAD/2.0;
-  `sed "s/EPS_CONT/$epsilonCAC/g;s/EPS_DIH/$epsilonCAD/g;s/EPS_dih3/$epsilonCAD3/g" $TEMPLATE_DIR_CA/$templateCA.sif > temp.bifsif/tmp.sif`;
+  `sed "s/EPS_CONT/$epsilonCAC/g;s/EPS_DIH/$epsilonCAD/g;s/EPS_dih3/$epsilonCAD3/g;s/MINVERSION/$VERSION/g" $TEMPLATE_DIR_CA/$templateCA.sif > temp.bifsif/tmp.sif`;
   `sed "s/PARM_C12/$rep_s12/g;s/EPS_CONT/$epsilonCAC/g" $TEMPLATE_DIR_CA/*.nb > temp.bifsif/tmp.nb`;
   `sed "s/EPS_CONT/$epsilonCAC/g;s/EPS_DIH/$epsilonCAD/g;s/EPS_dih3/$epsilonCAD3/g" $TEMPLATE_DIR_CA/$templateCA.b > temp.bifsif/tmp.b`;
   `cp $TEMPLATE_DIR_CA/$templateCA.bif temp.bifsif/tmp.bif`;
@@ -1594,9 +1594,9 @@ EOT
   `cp $TEMPLATE_DIR_AA_STATIC/$templateAA.nb temp.cont.bifsif/tmp.cont.nb`;
   `cp $TEMPLATE_DIR_AA_STATIC/$templateAA.b temp.cont.bifsif/tmp.cont.b`;
   if($CONTTYPE eq "shadow"){
-   `sed "s/CUTDIST/$CONTD/g;s/SCM_R/$CONTR/g;s/SCM_BR/$BBRAD/g" $TEMPLATE_DIR_AA_STATIC/$templateAA.shadow.sif > temp.cont.bifsif/tmp.cont.sif`;
+   `sed "s/CUTDIST/$CONTD/g;s/SCM_R/$CONTR/g;s/SCM_BR/$BBRAD/g;s/MINVERSION/$VERSION/g" $TEMPLATE_DIR_AA_STATIC/$templateAA.shadow.sif > temp.cont.bifsif/tmp.cont.sif`;
   }elsif($CONTTYPE eq "cutoff" || $CONTTYPE eq "cutoff-gaussian"){
-   `sed "s/CUTDIST/$CONTD/g;s/RESCALE/$STACKSCALE/g;s/DIHEDCOUNT/$dihedralcounting/g" $TEMPLATE_DIR_AA_STATIC/$templateAA.cutoff.sif > temp.cont.bifsif/tmp.cont.sif`;
+   `sed "s/CUTDIST/$CONTD/g;s/RESCALE/$STACKSCALE/g;s/DIHEDCOUNT/$dihedralcounting/g;s/MINVERSION/$VERSION/g" $TEMPLATE_DIR_AA_STATIC/$templateAA.cutoff.sif > temp.cont.bifsif/tmp.cont.sif`;
   }
   CheckTemplatesCreated("temp.cont.bifsif","tmp.cont");
  } 
@@ -1620,13 +1620,13 @@ EOT
 
 # make the appropriate .sif files
   if($CONTTYPE eq "shadow"){
-   `sed "s/PARM_C_D/$R_CD/g;s/PARM_P_BB/$PARM_P_BB/g;s/PARM_P_SC/$PARM_P_SC/g;s/PARM_N_BB/$PARM_N_BB/g;s/PARM_N_SC/$PARM_N_SC/g;s/CUTDIST/$CONTD/g;s/SCM_R/$CONTR/g;s/SCM_BR/$BBRAD/g" $TEMPLATE_DIR_AA/$templateAA.shadow.sif > temp.bifsif/tmp.sif`;
+   `sed "s/PARM_C_D/$R_CD/g;s/PARM_P_BB/$PARM_P_BB/g;s/PARM_P_SC/$PARM_P_SC/g;s/PARM_N_BB/$PARM_N_BB/g;s/PARM_N_SC/$PARM_N_SC/g;s/CUTDIST/$CONTD/g;s/SCM_R/$CONTR/g;s/SCM_BR/$BBRAD/g;s/MINVERSION/$VERSION/g" $TEMPLATE_DIR_AA/$templateAA.shadow.sif > temp.bifsif/tmp.sif`;
   }elsif($CONTTYPE eq "shadow-free"){
-   `sed "s/PARM_C_D/$R_CD/g;s/PARM_P_BB/$PARM_P_BB/g;s/PARM_P_SC/$PARM_P_SC/g;s/PARM_N_BB/$PARM_N_BB/g;s/PARM_N_SC/$PARM_N_SC/g;s/CUTDIST/$CONTD/g;s/SCM_R/$CONTR/g;s/SCM_BR/$BBRAD/g" $TEMPLATE_DIR_AA/$templateAA.shadow.free.sif > temp.bifsif/tmp.sif`;
+   `sed "s/PARM_C_D/$R_CD/g;s/PARM_P_BB/$PARM_P_BB/g;s/PARM_P_SC/$PARM_P_SC/g;s/PARM_N_BB/$PARM_N_BB/g;s/PARM_N_SC/$PARM_N_SC/g;s/CUTDIST/$CONTD/g;s/SCM_R/$CONTR/g;s/SCM_BR/$BBRAD/g;s/MINVERSION/$VERSION/g" $TEMPLATE_DIR_AA/$templateAA.shadow.free.sif > temp.bifsif/tmp.sif`;
   }elsif($CONTTYPE eq "cutoff"){
-   `sed "s/PARM_C_D/$R_CD/g;s/PARM_P_BB/$PARM_P_BB/g;s/PARM_P_SC/$PARM_P_SC/g;s/PARM_N_BB/$PARM_N_BB/g;s/PARM_N_SC/$PARM_N_SC/g;s/CUTDIST/$CONTD/g;s/RESCALE/$STACKSCALE/g;s/DIHEDCOUNT/$dihedralcounting/g" $TEMPLATE_DIR_AA/$templateAA.cutoff.sif > temp.bifsif/tmp.sif`;
+   `sed "s/PARM_C_D/$R_CD/g;s/PARM_P_BB/$PARM_P_BB/g;s/PARM_P_SC/$PARM_P_SC/g;s/PARM_N_BB/$PARM_N_BB/g;s/PARM_N_SC/$PARM_N_SC/g;s/CUTDIST/$CONTD/g;s/RESCALE/$STACKSCALE/g;s/DIHEDCOUNT/$dihedralcounting/g;s/MINVERSION/$VERSION/g" $TEMPLATE_DIR_AA/$templateAA.cutoff.sif > temp.bifsif/tmp.sif`;
   }elsif($CONTTYPE eq "cutoff-gaussian" ){
-   `sed "s/PARM_C_D/$R_CD/g;s/PARM_P_BB/$PARM_P_BB/g;s/PARM_P_SC/$PARM_P_SC/g;s/PARM_N_BB/$PARM_N_BB/g;s/PARM_N_SC/$PARM_N_SC/g;s/CUTDIST/$CONTD/g;s/RESCALE/$STACKSCALE/g;s/DIHEDCOUNT/$dihedralcounting/g" $TEMPLATE_DIR_AA/$templateAA.cutoff.gaussian.sif > temp.bifsif/tmp.sif`;
+   `sed "s/PARM_C_D/$R_CD/g;s/PARM_P_BB/$PARM_P_BB/g;s/PARM_P_SC/$PARM_P_SC/g;s/PARM_N_BB/$PARM_N_BB/g;s/PARM_N_SC/$PARM_N_SC/g;s/CUTDIST/$CONTD/g;s/RESCALE/$STACKSCALE/g;s/DIHEDCOUNT/$dihedralcounting/g;s/MINVERSION/$VERSION/g" $TEMPLATE_DIR_AA/$templateAA.cutoff.gaussian.sif > temp.bifsif/tmp.sif`;
   }
 
 # make the appropriate .bif, .nb and .b files
