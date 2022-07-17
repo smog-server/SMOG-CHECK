@@ -19,6 +19,7 @@ General Public License. See COPYING.
 			USAGE
 
 There are three check scripts provided by this bundle: 
+checkall
 smog-check
 scm-check
 smog-tool-check
@@ -26,8 +27,21 @@ smog-tool-check
 When everything works well, running the checks is 
 fairly quick and easy.  Just make sure you run 
 configure.smog2 for the version of SMOG 2 that you would
-like to test, before running the tests.  Also, make sure
-to launch smog-check from the smog-check directory:
+like to test, and make sure SMOG 2 is in your path.
+If all is well, then you can run all tests with the single
+command:
+
+>./checkall
+
+If everything passes, you are done.  No need to read further.
+
+If you prefer, you can run the tests individually, as described
+below.
+
+
+                  SMOG CHECK
+
+From the smog-check directory, issue the command:
 
 ./smog-check 
 
