@@ -35,7 +35,10 @@ our $TEMPLATE_DIR_CA=$ENV{'BIFSIF_CA_TESTING'};
 our $TEMPLATE_DIR_AA_MATCH=$ENV{'BIFSIF_AA_MATCH'};
 our $TEMPLATE_DIR_AA_2CG=$ENV{'BIFSIF_AA_2CG'};
 our $TEMPLATE_DIR_AA_CR2=$ENV{'BIFSIF_AA_CR2'};
-
+our $keepfiles=1;
+if (exists $ENV{'smog_keepfiles'}){
+	$keepfiles=0;
+}
 quit_init();
 
 # FAILLIST is a list of all the tests.
@@ -4254,14 +4257,16 @@ EOT
   print "\n*************************************************************\n";
   print "                  TEST $TESTNUM PASSED ($PDB)\n";
   print  "*************************************************************\n";
-  foreach(@FILETYPES){
-   removeifexists("$PDB.$_");
-   for (my $m=1;$m<=4;$m++){
-    removeifexists("$PDB.meta$m.$_");
+  if($keepfiles==1){
+   foreach(@FILETYPES){
+    removeifexists("$PDB.$_");
+    for (my $m=1;$m<=4;$m++){
+     removeifexists("$PDB.meta$m.$_");
+    }
    }
+   removedireifexists("temp.bifsif");
+   removedireifexists("temp.cont.bifsif");
   }
-  removedireifexists("temp.bifsif");
-  removedireifexists("temp.cont.bifsif");
  }
 }
 
