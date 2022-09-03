@@ -22,6 +22,13 @@ sub check_adjust
  my $newpdb="testname.pdb";
  my $tool="adjust";
  my $TESTNUM=0;
+ my $gitshift=getgitver;
+ if($gitshift ne ""){
+  # we are using a git version, so files will be 2-lines longer
+  $gitshift=2;
+ }else{
+  $gitshift=0;
+ }
 
  open(ORIG,"$origpdb") or internal_error("Unable to open $origpdb");
  while(<ORIG>){
@@ -45,7 +52,7 @@ sub check_adjust
   while(<NEW>){
    $LINESnew++;
   }
-  if($LINESnew==$LINESorig){
+  if($LINESnew==$LINESorig+$gitshift){
    # +2 because a comment is added at the top
    # but, we are also removing 2 lines, since they are consecutive TER lines
    $FAIL{"FILE LENGTH"}=0;
@@ -80,7 +87,7 @@ sub check_adjust
   while(<NEW>){
    $LINESnew++;
   }
-  if($LINESnew==$LINESorig){
+  if($LINESnew==$LINESorig+$gitshift){
    $FAIL{"FILE LENGTH"}=0;
   }
   my $smogout=`$smogexec -AA -i $newpdb -dname adjusted &> smog.output`;
@@ -113,7 +120,7 @@ sub check_adjust
   while(<NEW>){
    $LINESnew++;
   }
-  if($LINESnew==$LINESorig){
+  if($LINESnew==$LINESorig+$gitshift){
    $FAIL{"FILE LENGTH"}=0;
   }
   my $smogout=`$smogexec -AA -i $newpdb -dname adjusted &> smog.output`;
@@ -147,7 +154,7 @@ sub check_adjust
   while(<NEW>){
    $LINESnew++;
   }
-  if($LINESnew==$LINESorig){
+  if($LINESnew==$LINESorig+$gitshift){
    $FAIL{"FILE LENGTH"}=0;
   }
   my $smogout=`$smogexec -AA -i $newpdb -dname adjusted &> smog.output`;
@@ -186,7 +193,7 @@ sub check_adjust
   while(<ORIG2>){
    $LINESorig2++;
   }
-  if($LINESnew==$LINESorig2){
+  if($LINESnew==$LINESorig2+$gitshift){
    $FAIL{"FILE LENGTH"}=0;
   }
   my $smogout=`$smogexec -AA -i $newpdb -dname adjusted &> smog.output`;
@@ -223,7 +230,7 @@ sub check_adjust
    }
    $LINESnew++;
   }
-  if($LINESnew==$LINESorig+1){
+  if($LINESnew==$LINESorig+1+$gitshift){
    $FAIL{"FILE LENGTH"}=0;
   }
   my $smogout=`$smogexec -AA -i $newpdb -dname adjusted &> smog.output`;
